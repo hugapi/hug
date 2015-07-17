@@ -1,4 +1,4 @@
-"""jiphy/__init__.py.
+"""hug/__init__.py.
 
 Everyone needs a hug every once in a while. Even API developers. Hug aims to make developing Python driven APIs as simple as possible, but no simpler.
 
