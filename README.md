@@ -1,4 +1,4 @@
-# HUG
+HUG
 ===================
 
 Everyone needs a hug. Even API developers. Hug aims to make developing Python driven APIs as simple as possible, but no simpler. This one is for you :).
