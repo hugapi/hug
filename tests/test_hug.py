@@ -21,3 +21,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import hug
 
+
+def test_basic_hug_api():
+    @hug.call('/basic_call/')
+    def basic_call(name, **kwargs):
+        return "{0} is the basic call".format(name)
+
+    assert basic_call('hi') == "hi is the basic call"
+    assert basic_call.interface
