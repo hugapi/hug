@@ -42,7 +42,7 @@ Or access the documentation for your API from localhost:8080/documentation
 Why Hug?
 ===================
 HUG simply stands for Hopefully Useful Guide. This represents the projects goal to help guide developers into creating
-well written and intuitive APIs.
+well written and intuitive APIs. Also, it's cheerful :)
 
 --------------------------------------------
 
