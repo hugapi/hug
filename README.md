@@ -39,6 +39,30 @@ To run the example:
 Then you can access the example from localhost:8080/happy_birthday?name=Hug&age=1
 Or access the documentation for your API from localhost:8080/documentation
 
+Versioning with Hug
+===================
+
+versioning_example.py
+
+    """A simple example of a hug API call with versioning"""
+
+    @hug.version[1].get('/echo')
+    def echo(text, **kwargs):
+        return text
+
+    @hug.version[2:].get('/echo')
+    def echo(text, **kwargs):
+        return "Echo: {text}".format(**locals())
+
+To run the example:
+
+    hug versioning_example.py
+
+Then you can access the example from localhost:8080/v1/echo?text=Hi / localhost:8080/v2/echo?text=Hi
+Or access the documentation for your API from localhost:8080/documentation
+
+Note: versioning in hug automatically supports both the version header as well as direct URL based specification.
+
 Why Hug?
 ===================
 HUG simply stands for Hopefully Useful Guide. This represents the projects goal to help guide developers into creating
