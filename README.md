@@ -56,7 +56,7 @@ versioning_example.py
 
 To run the example:
 
-    hug versioning_example.py
+    hug versioning_example.py 8080
 
 Then you can access the example from localhost:8080/v1/echo?text=Hi / localhost:8080/v2/echo?text=Hi
 Or access the documentation for your API from localhost:8080/documentation
