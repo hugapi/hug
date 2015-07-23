@@ -51,7 +51,7 @@ setup(name='hug',
       license="MIT",
       entry_points={
         'console_scripts': [
-            'hug = hug:runner.terminal',
+            'hug = hug:run.terminal',
         ]
       },
       packages=['hug'],
