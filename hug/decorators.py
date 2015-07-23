@@ -24,7 +24,8 @@ def call(url, accept=HTTP_METHODS, output=hug.output_format.json):
                 response.status = HTTP_BAD_REQUEST
                 return
 
-            response.data = output(api_function(**request.params))
+            input_parameters['request'], input_parameters['response'] = (request, response)
+            response.data = output(api_function(**input_parameters))
 
         if not 'HUG' in module.__dict__:
             def api_auto_instantiate(*kargs, **kwargs):
