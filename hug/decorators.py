@@ -2,16 +2,29 @@ from functools import wraps
 from collections import OrderedDict
 import sys
 from hug.run import server
+import hug.output_format
 
-from falcon import HTTP_METHODS
+from falcon import HTTP_METHODS, HTTP_BAD_REQUEST
 
 
-def call(url, accept=HTTP_METHODS):
+def call(url, accept=HTTP_METHODS, output=hug.output_format.json):
     def decorator(api_function):
         module = sys.modules[api_function.__name__]
 
         def interface(request, response):
-            response.data = api_function(**request.params).encode('utf8')
+            input_parameters = request.params
+            errors = {}
+            for key, type_handler in api_function.__annotations__.items():
+                try:
+                    input_parameters[key] = type_handler(input_parameters[key])
+                except Exception as error:
+                    errors[key] = str(error)
+            if errors:
+                response.data = output({"errors": errors})
+                response.status = HTTP_BAD_REQUEST
+                return
+
+            response.data = output(api_function(**request.params))
 
         if not 'HUG' in module.__dict__:
             def api_auto_instantiate(*kargs, **kwargs):
