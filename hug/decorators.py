@@ -18,6 +18,7 @@ def call(url, accept=HTTP_METHODS):
         api_function.interface = interface
 
         return api_function
+    return decorator
 
 
 def get(url):
