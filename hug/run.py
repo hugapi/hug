@@ -18,9 +18,14 @@ def server(module):
 
 def terminal():
     if len(sys.argv) < 2:
-        print("Please specify a hug API file to start the server with", file=sys.stderr)
+        print("Please specify a hug API file to start the server with")
+        sys.exit(1)
 
-    api =  server(importlib.machinery.SourceFileLoader(sys.argv[1].split(".")[0], sys.argv[1]).load_module())
+    api =  server(importlib.machinery.SourceFileLoader(sys.argv[1].split(".")[0], sys.argv[0]).load_module())
     httpd = make_server('', 8000, api)
     print("Serving on port 8000...")
     httpd.serve_forever()
+
+
+if __name__ == '__main__':
+    terminal()

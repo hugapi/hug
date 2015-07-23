@@ -5,15 +5,15 @@ import sys
 from falcon import HTTP_METHODS
 
 
-def call(url, methods=HTTP_METHODS):
+def call(url, accept=HTTP_METHODS):
     def decorator(api_function):
         module = sys.modules[api_function.__name__]
         api_definition = sys.modules['hug.hug'].__dict__.setdefault('HUG_API_CALLS', OrderedDict())
-        for method in methods:
+        for method in accept:
             api_definition.setdefault(url, {})["on_{0}".format(method.lower())] = api_function
 
         def interface(request, reponse):
-            return api_function(**request.attributes)
+            return api_function(**request.params)
 
         api_function.interface = interface
 
@@ -29,7 +29,7 @@ def post(url):
 
 
 def put(url):
-    return call(url=url, acccept('PUT', ))
+    return call(url=url, acccept=('PUT', ))
 
 
 def delete(url):
