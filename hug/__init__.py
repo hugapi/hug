@@ -30,5 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 from hug.decorators import call, get, post, put, delete
 from hug import run
 from hug.run import terminal
+from hug import types
 
 __version__ = "0.0.1"
