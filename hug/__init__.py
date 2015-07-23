@@ -27,4 +27,8 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from hug.decorators import call, get, post, put, delete
+from hug import run
+from hug.run import terminal
+
 __version__ = "0.0.1"
