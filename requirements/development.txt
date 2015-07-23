@@ -1,0 +1,5 @@
+-r common.txt
+pytest==2.6.1
+pytest-cov==1.8.1
+tox==1.7.2
+isort==4.0.0
