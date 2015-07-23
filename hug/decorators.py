@@ -9,7 +9,7 @@ from falcon import HTTP_METHODS, HTTP_BAD_REQUEST
 
 def call(url, accept=HTTP_METHODS, output=hug.output_format.json):
     def decorator(api_function):
-        module = sys.modules[api_function.__name__]
+        module = sys.modules[api_function.__module__]
 
         def interface(request, response):
             input_parameters = request.params
