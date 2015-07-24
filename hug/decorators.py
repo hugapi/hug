@@ -1,4 +1,4 @@
-from functools import wraps
+from functools import wraps, partial
 from collections import OrderedDict
 import sys
 from hug.run import server
@@ -7,7 +7,10 @@ import hug.output_format
 from falcon import HTTP_METHODS, HTTP_BAD_REQUEST
 
 
-def call(url, accept=HTTP_METHODS, output=hug.output_format.json):
+def call(urls, accept=HTTP_METHODS, output=hug.output_format.json, example=None):
+    if isinstance(urls, str):
+        urls = (urls, )
+
     def decorator(api_function):
         module = sys.modules[api_function.__module__]
 
@@ -34,27 +37,19 @@ def call(url, accept=HTTP_METHODS, output=hug.output_format.json):
             module.HUG = api_auto_instantiate
             module.HUG_API_CALLS = OrderedDict()
 
-        for method in accept:
-            module.HUG_API_CALLS.setdefault(url, {})["on_{0}".format(method.lower())] = interface
+        for url in urls:
+            handlers = module.HUG_API_CALLS.setdefault(url, {})
+            for method in accept:
+                handlers["on_{0}".format(method.lower())] = interface
 
         api_function.interface = interface
         interface.api_function = api_function
+        interface.output_format = output
+        interface.example = example
 
         return api_function
     return decorator
 
 
-def get(url):
-    return call(url=url, accept=('GET', ))
-
-
-def post(url):
-    return call(url=url, accept=('POST', ))
-
-
-def put(url):
-    return call(url=url, acccept=('PUT', ))
-
-
-def delete(url):
-    return call(url=url, accept=('DELETE', ))
+for method in HTTP_METHODS:
+    globals()[method.lower()] = partial(call, accept=(method, ))
