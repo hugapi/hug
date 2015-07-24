@@ -4,16 +4,31 @@ Contains logic to enable execution of hug APIS from the command line
 """
 from wsgiref.simple_server import make_server
 
+import json
 import falcon
 import sys
 import importlib
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
+from hug import documentation
+
+def documentation_404(module):
+    def handle_404(request, response, *kargs, **kwargs):
+        base_url = request.path and request.url.split(request.path)[0] or request.url[:-1]
+        to_return = OrderedDict()
+        to_return['404'] = ("The API call you tried to make was not defined. "
+                            "Here's a definition of the API to help you get going :)")
+        to_return['documentation'] = documentation.generate(module, base_url)
+        response.data = json.dumps(to_return).encode('utf8')
+        response.status = falcon.HTTP_NOT_FOUND
+    return handle_404
 
 
-def server(module):
+def server(module, sink=documentation_404):
     api = falcon.API()
     for url, method_handlers in module.HUG_API_CALLS.items():
         api.add_route(url, namedtuple('Router', method_handlers.keys())(**method_handlers))
+    if sink:
+        api.add_sink(sink(module))
     return api
 
 
