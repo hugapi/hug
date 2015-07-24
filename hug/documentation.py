@@ -4,9 +4,9 @@ import hug.types
 
 def generate(module, base_url=""):
     documentation = OrderedDict()
-    documenation['overview'] = module.__doc__
+    documentation['overview'] = module.__doc__
     for url, method_handler in module.HUG_API_CALLS.items():
-        url_doc = documenation.setdefault(url, {})
+        url_doc = documentation.setdefault(url, {})
 
         mapping = OrderedDict()
         for method, handler in method_handler.items():
@@ -28,7 +28,7 @@ def generate(module, base_url=""):
 
             defaults = {}
             for index, default in enumerate(api.__defaults__ or ()):
-                defaults[arguments[-(index + 1))]] = default
+                defaults[arguments[-(index + 1)]] = default
 
             for argument in arguments:
                 if argument in ('request', 'response'):
@@ -39,3 +39,6 @@ def generate(module, base_url=""):
                 default = defaults.get(argument, None)
                 if default is not None:
                     input_definition['default'] = default
+
+    return documentation
+

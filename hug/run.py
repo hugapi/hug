@@ -13,7 +13,7 @@ from hug import documentation
 
 def documentation_404(module):
     def handle_404(request, response, *kargs, **kwargs):
-        base_url = request.path and request.url.split(request.path)[0] or request.url[:-1]
+        base_url = not request.path and request.url[:-1] or request.url.split(request.path)[0]
         to_return = OrderedDict()
         to_return['404'] = ("The API call you tried to make was not defined. "
                             "Here's a definition of the API to help you get going :)")
