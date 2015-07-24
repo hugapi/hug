@@ -32,4 +32,4 @@ from hug import run
 from hug.run import terminal
 from hug import types
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
