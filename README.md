@@ -28,7 +28,7 @@ happy_birthday.py
 
 
     @hug.get('/happy_birthday')
-    def happy_birthday(name, age:hug.types.int, **kwargs):
+    def happy_birthday(name, age:hug.types.int=1, **kwargs):
         """Says happy birthday to a user"""
         return "Happy {age} Birthday {name}!".format(**locals())
 
