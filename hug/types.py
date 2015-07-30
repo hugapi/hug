@@ -25,3 +25,8 @@ def decimal(value):
 def text(value):
     """Basic text / string value"""
     return str(value)
+
+
+def inline_dictionary(value):
+    """A single line dictionary, where items are separted by commas and key:value are separated by a pipe"""
+    return {key.strip(): value.strip() for key, value in (item.split(":") for item in value.split("|"))}
