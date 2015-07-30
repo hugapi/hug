@@ -13,8 +13,8 @@ def call(urls, accept=HTTP_METHODS, output=hug.output_format.json, example=None)
 
     def decorator(api_function):
         module = sys.modules[api_function.__module__]
-        arguments = api_function.__code__.co_varnames
-        accepts_kwargs = len(arguments) > api_function.__code__.co_argcount
+        accepted_parameters = api_function.__code__.co_varnames
+        takes_kwargs = len(accepted_parameters) > api_function.__code__.co_argcount
         def interface(request, response):
             input_parameters = request.params
             errors = {}
@@ -28,7 +28,11 @@ def call(urls, accept=HTTP_METHODS, output=hug.output_format.json, example=None)
                 response.status = HTTP_BAD_REQUEST
                 return
 
-            input_parameters['request'], input_parameters['response'] = (request, response)
+            if takes_kwargs:
+                input_parameters['request'], input_parameters['response'] = (request, response)
+            else:
+                input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
+
             response.data = output(api_function(**input_parameters))
 
         if not 'HUG' in module.__dict__:
