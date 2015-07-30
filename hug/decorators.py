@@ -15,22 +15,34 @@ def call(urls, accept=HTTP_METHODS, output=hug.output_format.json, example=None)
         module = sys.modules[api_function.__module__]
         accepted_parameters = api_function.__code__.co_varnames
         takes_kwargs = len(accepted_parameters) > api_function.__code__.co_argcount
+        if takes_kwargs:
+            accepted_parameters = accepted_parameters[:api_function.__code__.co_argcount]
+
+        defaults = {}
+        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+            defaults[accepted_parameters[-(index + 1)]] = default
+        required = accepted_parameters[:-(len(api_function.__defaults__))]
+
         def interface(request, response):
             input_parameters = request.params
             errors = {}
             for key, type_handler in api_function.__annotations__.items():
                 try:
-                    input_parameters[key] = type_handler(input_parameters[key])
+                    if key in input_parameters:
+                        input_parameters[key] = type_handler(input_parameters[key])
                 except Exception as error:
                     errors[key] = str(error)
+
+            input_parameters['request'], input_parameters['response'] = (request, response)
+            for require in required:
+                if not require in input_parameters:
+                    errors[require] = "Required parameter not supplied"
             if errors:
                 response.data = output({"errors": errors})
                 response.status = HTTP_BAD_REQUEST
                 return
 
-            if takes_kwargs:
-                input_parameters['request'], input_parameters['response'] = (request, response)
-            else:
+            if not takes_kwargs:
                 input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
 
             response.data = output(api_function(**input_parameters))
@@ -51,6 +63,8 @@ def call(urls, accept=HTTP_METHODS, output=hug.output_format.json, example=None)
         interface.api_function = api_function
         interface.output_format = output
         interface.example = example
+        interface.defaults = defaults
+        interface.accepted_parameters = accepted_parameters
 
         return api_function
     return decorator
