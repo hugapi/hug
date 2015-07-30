@@ -4,7 +4,9 @@ import hug.types
 
 def generate(module, base_url=""):
     documentation = OrderedDict()
-    documentation['overview'] = module.__doc__
+    overview = module.__doc__
+    if overview:
+        documentation['overview'] = overview
     for url, method_handler in module.HUG_API_CALLS.items():
         url_doc = documentation.setdefault(url, {})
 

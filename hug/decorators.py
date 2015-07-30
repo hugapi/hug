@@ -7,7 +7,7 @@ import hug.output_format
 from falcon import HTTP_METHODS, HTTP_BAD_REQUEST
 
 
-def call(urls, accept=HTTP_METHODS, output=hug.output_format.json, example=None):
+def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=None):
     if isinstance(urls, str):
         urls = (urls, )
 
@@ -21,7 +21,7 @@ def call(urls, accept=HTTP_METHODS, output=hug.output_format.json, example=None)
         defaults = {}
         for index, default in enumerate(reversed(api_function.__defaults__ or ())):
             defaults[accepted_parameters[-(index + 1)]] = default
-        required = accepted_parameters[:-(len(api_function.__defaults__ or ()))]
+        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
 
         def interface(request, response):
             input_parameters = request.params
@@ -54,7 +54,7 @@ def call(urls, accept=HTTP_METHODS, output=hug.output_format.json, example=None)
             module.HUG = api_auto_instantiate
             module.HUG_API_CALLS = OrderedDict()
 
-        for url in urls:
+        for url in urls or ("/{0}".format(api_function.__name__), ):
             handlers = module.HUG_API_CALLS.setdefault(url, {})
             for method in accept:
                 handlers["on_{0}".format(method.lower())] = interface
