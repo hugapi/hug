@@ -21,7 +21,7 @@ def call(urls, accept=HTTP_METHODS, output=hug.output_format.json, example=None)
         defaults = {}
         for index, default in enumerate(reversed(api_function.__defaults__ or ())):
             defaults[accepted_parameters[-(index + 1)]] = default
-        required = accepted_parameters[:-(len(api_function.__defaults__))]
+        required = accepted_parameters[:-(len(api_function.__defaults__ or ()))]
 
         def interface(request, response):
             input_parameters = request.params

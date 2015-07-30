@@ -1,4 +1,5 @@
 """A simple example of a hug API call with versioning"""
+import hug
 
 
 @hug.version[1].get('/echo')
