@@ -5,6 +5,8 @@ from datetime import datetime
 def _json_converter(item):
     if isinstance(item, datetime):
         return item.isoformat()
+    elif isinstance(item, bytes):
+        return item.decode('utf8')
     raise TypeError("Type not serializable")
 
 
