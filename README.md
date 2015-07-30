@@ -18,6 +18,7 @@ Hug's Design Objectives:
 - Writing tests for APIs written on-top of Hug should be easy and intuitive.
 - Magic done once, in an API, is better then pushing the problem set to the user of the API.
 
+
 Basic Example API
 ===================
 
@@ -28,7 +29,7 @@ happy_birthday.py
 
 
     @hug.get('/happy_birthday')
-    def happy_birthday(name, age:hug.types.int, **kwargs):
+    def happy_birthday(name, age:hug.types.number=1):
         """Says happy birthday to a user"""
         return "Happy {age} Birthday {name}!".format(**locals())
 
@@ -39,6 +40,7 @@ To run the example:
 Then you can access the example from localhost:8080/happy_birthday?name=Hug&age=1
 Or access the documentation for your API from localhost:8080/documentation
 
+
 Versioning with Hug
 ===================
 
@@ -48,12 +50,12 @@ versioning_example.py
 
 
     @hug.version[1].get('/echo')
-    def echo(text, **kwargs):
+    def echo(text):
         return text
 
 
     @hug.version[2:].get('/echo')
-    def echo(text, **kwargs):
+    def echo(text):
         return "Echo: {text}".format(**locals())
 
 To run the example:
@@ -64,6 +66,15 @@ Then you can access the example from localhost:8080/v1/echo?text=Hi / localhost:
 Or access the documentation for your API from localhost:8080/documentation
 
 Note: versioning in hug automatically supports both the version header as well as direct URL based specification.
+
+
+Testing Hug APIs
+===================
+
+Hugs http method decorators don't modify your original functions. This makes testing Hug APIs as simple as testing
+any other Python functions. Additionally, this means interacting with your API functions in other Python code is as
+straight forward as calling Python only API functions.
+
 
 Why Hug?
 ===================

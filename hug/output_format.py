@@ -1,9 +1,18 @@
 import json as json_converter
+from datetime import datetime
+
+
+def _json_converter(item):
+    if isinstance(item, datetime):
+        return item.isoformat()
+    elif isinstance(item, bytes):
+        return item.decode('utf8')
+    raise TypeError("Type not serializable")
 
 
 def json(content):
     """JSON (Javascript Serialized Object Notation)"""
-    return json_converter.dumps(content).encode('utf8')
+    return json_converter.dumps(content, default=_json_converter).encode('utf8')
 
 
 def text(content):

@@ -4,7 +4,9 @@ import hug.types
 
 def generate(module, base_url=""):
     documentation = OrderedDict()
-    documentation['overview'] = module.__doc__
+    overview = module.__doc__
+    if overview:
+        documentation['overview'] = overview
     for url, method_handler in module.HUG_API_CALLS.items():
         url_doc = documentation.setdefault(url, {})
 
@@ -14,31 +16,27 @@ def generate(module, base_url=""):
 
         for handler, methods in mapping.items():
             doc = url_doc.setdefault(",".join(methods), OrderedDict())
-            doc['usage'] = handler.api_function.__doc__
+            usage = handler.api_function.__doc__
+            if usage:
+                doc['usage'] = usage
             if handler.example:
                 doc['example'] = "{0}{1}".format(base_url, url)
                 if isinstance(handler.example, str):
                     doc['example'] += "?{0}".format(handler.example)
-            inputs = doc.setdefault('inputs', OrderedDict())
             doc['outputs'] = OrderedDict(format=handler.output_format.__doc__)
 
-            api = handler.api_function
-            types = api.__annotations__
-            arguments = api.__code__.co_varnames[:api.__code__.co_argcount]
+            if handler.accepted_parameters:
+                inputs = doc.setdefault('inputs', OrderedDict())
+                types = handler.api_function.__annotations__
+                for argument in handler.accepted_parameters:
+                    if argument in ('request', 'response'):
+                        continue
 
-            defaults = {}
-            for index, default in enumerate(api.__defaults__ or ()):
-                defaults[arguments[-(index + 1)]] = default
-
-            for argument in arguments:
-                if argument in ('request', 'response'):
-                    continue
-
-                input_definition = inputs.setdefault(argument, OrderedDict())
-                input_definition['type'] = types.get(argument, hug.types.text).__doc__
-                default = defaults.get(argument, None)
-                if default is not None:
-                    input_definition['default'] = default
+                    input_definition = inputs.setdefault(argument, OrderedDict())
+                    input_definition['type'] = types.get(argument, hug.types.text).__doc__
+                    default = handler.defaults.get(argument, None)
+                    if default is not None:
+                        input_definition['default'] = default
 
     return documentation
 
