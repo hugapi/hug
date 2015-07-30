@@ -24,19 +24,14 @@ def generate(module, base_url=""):
 
             api = handler.api_function
             types = api.__annotations__
-            arguments = api.__code__.co_varnames[:api.__code__.co_argcount]
 
-            defaults = {}
-            for index, default in enumerate(api.__defaults__ or ()):
-                defaults[arguments[-(index + 1)]] = default
-
-            for argument in arguments:
+            for argument in handler.accepted_parameters:
                 if argument in ('request', 'response'):
                     continue
 
                 input_definition = inputs.setdefault(argument, OrderedDict())
                 input_definition['type'] = types.get(argument, hug.types.text).__doc__
-                default = defaults.get(argument, None)
+                default = handler.defaults.get(argument, None)
                 if default is not None:
                     input_definition['default'] = default
 
