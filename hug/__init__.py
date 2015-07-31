@@ -31,4 +31,4 @@ from hug import run, types
 from hug.decorators import call, delete, get, post, put
 from hug.run import terminal
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
