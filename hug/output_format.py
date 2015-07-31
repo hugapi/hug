@@ -3,7 +3,7 @@ from datetime import date, datetime
 
 
 def _json_converter(item):
-    if isinstance(item, datetime):
+    if isinstance(item, (date, datetime)):
         return item.isoformat()
     elif isinstance(item, bytes):
         return item.decode('utf8')
