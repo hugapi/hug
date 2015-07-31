@@ -10,9 +10,9 @@ def _json_converter(item):
     raise TypeError("Type not serializable")
 
 
-def json(content):
+def json(content, **kwargs):
     """JSON (Javascript Serialized Object Notation)"""
-    return json_converter.dumps(content, default=_json_converter).encode('utf8')
+    return json_converter.dumps(content, default=_json_converter, **kwargs).encode('utf8')
 
 
 def text(content):
@@ -34,3 +34,8 @@ def _camelcase(dictionary):
 def json_camelcase(content):
     """JSON (Javascript Serialized Object Notation) with all keys camelCased"""
     return _camelcase(json(body))
+
+
+def pretty_json(content):
+    """JSON (Javascript Serialized Object Notion) pretty printed and indented"""
+    return json(content, indent=4, separators=(',', ': '))

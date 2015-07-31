@@ -13,15 +13,16 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
 
     def decorator(api_function):
         module = sys.modules[api_function.__module__]
-        accepted_parameters = api_function.__code__.co_varnames
-        takes_kwargs = len(accepted_parameters) > api_function.__code__.co_argcount
-        if takes_kwargs:
-            accepted_parameters = accepted_parameters[:api_function.__code__.co_argcount]
+        accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+        takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
 
         defaults = {}
         for index, default in enumerate(reversed(api_function.__defaults__ or ())):
             defaults[accepted_parameters[-(index + 1)]] = default
         required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+        use_example = example
+        if not required and example is None:
+            use_example = True
 
         def interface(request, response):
             input_parameters = request.params
@@ -62,7 +63,7 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
         api_function.interface = interface
         interface.api_function = api_function
         interface.output_format = output
-        interface.example = example
+        interface.example = use_example
         interface.defaults = defaults
         interface.accepted_parameters = accepted_parameters
 
