@@ -1,4 +1,5 @@
 from collections import OrderedDict
+
 import hug.types
 
 
@@ -39,4 +40,3 @@ def generate(module, base_url=""):
                         input_definition['default'] = default
 
     return documentation
-
