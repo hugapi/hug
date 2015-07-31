@@ -21,7 +21,7 @@ def documentation_404(module):
         to_return['404'] = ("The API call you tried to make was not defined. "
                             "Here's a definition of the API to help you get going :)")
         to_return['documentation'] = documentation.generate(module, base_url)
-        response.data = json.dumps(to_return).encode('utf8')
+        response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
         response.status = falcon.HTTP_NOT_FOUND
     return handle_404
 
