@@ -1,5 +1,5 @@
 import json as json_converter
-from datetime import datetime
+from datetime import date, datetime
 
 
 def _json_converter(item):
