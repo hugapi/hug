@@ -1,8 +1,8 @@
-"""test_hug.py.
+"""tests/test_decorators.py.
 
-Tests all major functionality of the Hug framework
+Tests the decorators that power hugs core functionality
 
-Copyright (C) 2013  Timothy Edmund Crosley
+Copyright (C) 2015 Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -19,7 +19,11 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import sys
 import hug
+import pytest
+
+api = sys.modules[__name__]
 
 
 def test_basic_api():
@@ -29,3 +33,8 @@ def test_basic_api():
 
     assert echo('Embrace') == 'Embrace'
     assert echo.interface
+    with pytest.raises(TypeError):
+        echo()
+
+    assert hug.test.get(api, 'echo', text="Hello") == "Hello"
+    assert 'required' in hug.test.get(api, 'echo')['errors']['text'].lower()
