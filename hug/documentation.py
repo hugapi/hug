@@ -26,13 +26,11 @@ def generate(module, base_url=""):
                     doc['example'] += "?{0}".format(handler.example)
             doc['outputs'] = OrderedDict(format=handler.output_format.__doc__, content_type=handler.content_type)
 
-            if handler.accepted_parameters:
+            parameters = [param for param in handler.accepted_parameters if not param in ('request', 'response')]
+            if parameters:
                 inputs = doc.setdefault('inputs', OrderedDict())
                 types = handler.api_function.__annotations__
-                for argument in handler.accepted_parameters:
-                    if argument in ('request', 'response'):
-                        continue
-
+                for argument in parameters:
                     input_definition = inputs.setdefault(argument, OrderedDict())
                     input_definition['type'] = types.get(argument, hug.types.text).__doc__
                     default = handler.defaults.get(argument, None)

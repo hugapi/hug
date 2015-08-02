@@ -69,7 +69,6 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
         interface.defaults = defaults
         interface.accepted_parameters = accepted_parameters
         interface.content_type = output.content_type
-
         return api_function
     return decorator
 
