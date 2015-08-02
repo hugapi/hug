@@ -21,7 +21,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import sys
 import hug
-import pytest
 
 api = sys.modules[__name__]
 
