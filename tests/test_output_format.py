@@ -1,6 +1,6 @@
-"""tests/test_input_format.py.
+"""tests/test_output_format.py.
 
-Tests the input format handlers included with hug
+Tests the output format handlers included with hug
 
 Copyright (C) 2015 Timothy Edmund Crosley
 
