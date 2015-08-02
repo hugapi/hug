@@ -1,8 +1,8 @@
-"""test_hug.py.
+"""tests/test_input_format.py.
 
-Tests all major functionality of the Hug framework
+Tests the input format handlers included with hug
 
-Copyright (C) 2013  Timothy Edmund Crosley
+Copyright (C) 2015 Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -22,10 +22,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 import hug
 
 
-def test_basic_hug_api():
-    @hug.call('/basic_call/')
-    def basic_call(name, **kwargs):
-        return "{0} is the basic call".format(name)
+def test_json():
+    test_data = '{"a": "b"}'
+    assert hug.input_format.json(test_data) == {'a': 'b'}
 
-    assert basic_call('hi') == "hi is the basic call"
-    assert basic_call.interface
+
+def test_json_underscore():
+    test_data = '{"CamelCase": {"becauseWeCan": "ValueExempt"}}'
+    assert hug.input_format.json_underscore(test_data) == {'camel_case': {'because_we_can': 'ValueExempt'}}

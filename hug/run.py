@@ -45,7 +45,3 @@ def terminal():
     httpd = make_server('', 8000, api)
     print("Serving on port 8000...")
     httpd.serve_forever()
-
-
-if __name__ == '__main__':
-    terminal()
