@@ -1,2 +1,3 @@
 [report]
 include = hug/*.py
+exclude_lines = def terminal
