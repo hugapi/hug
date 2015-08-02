@@ -1,8 +1,5 @@
 language: python
-python:
-  - "3.3"
-  - "3.4"
-  - "3.5"
+python: 3.4
 install:
   - pip install tox
 script: tox
