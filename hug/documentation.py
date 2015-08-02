@@ -24,7 +24,7 @@ def generate(module, base_url=""):
                 doc['example'] = "{0}{1}".format(base_url, url)
                 if isinstance(handler.example, str):
                     doc['example'] += "?{0}".format(handler.example)
-            doc['outputs'] = OrderedDict(format=handler.output_format.__doc__)
+            doc['outputs'] = OrderedDict(format=handler.output_format.__doc__, content_type=handler.content_type)
 
             if handler.accepted_parameters:
                 inputs = doc.setdefault('inputs', OrderedDict())

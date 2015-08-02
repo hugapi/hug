@@ -26,6 +26,7 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
             use_example = True
 
         def interface(request, response):
+            response.content_type = output.content_type
             input_parameters = request.params
             errors = {}
             for key, type_handler in api_function.__annotations__.items():
@@ -67,6 +68,7 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
         interface.example = use_example
         interface.defaults = defaults
         interface.accepted_parameters = accepted_parameters
+        interface.content_type = output.content_type
 
         return api_function
     return decorator

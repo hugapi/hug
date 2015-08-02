@@ -10,7 +10,10 @@ def call(method, api_module, url, body='', headers=None, **params):
     api = server(api_module)
     response = StartResponseMock()
     result = api(create_environ(path=url, method=method, headers=headers, query_string=urlencode(params)), response)
-    return json.loads(result[0].decode('utf8'))
+    if result:
+        return json.loads(result[0].decode('utf8'))
+    else:
+        return response.status
 
 
 for method in HTTP_METHODS:
