@@ -1,10 +1,11 @@
-from functools import wraps, partial
-from collections import OrderedDict
 import sys
-from hug.run import server
-import hug.output_format
+from collections import OrderedDict
+from functools import partial, wraps
 
-from falcon import HTTP_METHODS, HTTP_BAD_REQUEST
+from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
+
+import hug.output_format
+from hug.run import server
 
 
 def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=None):
