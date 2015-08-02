@@ -1,6 +1,6 @@
 import sys
 from collections import OrderedDict
-from functools import partial, wraps
+from functools import partial
 
 from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 
