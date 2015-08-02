@@ -37,13 +37,14 @@ def _camelcase(dictionary):
     for key, value in dictionary.items():
         if isinstance(key, str):
             key = key[0] + "".join(key.title().split('_'))[1:]
-        new_dictionary[key] = _camelcase(dictionary)
+        new_dictionary[key] = _camelcase(value)
+    return new_dictionary
 
 
 @content_type('application/json')
 def json_camelcase(content):
     """JSON (Javascript Serialized Object Notation) with all keys camelCased"""
-    return _camelcase(json(body))
+    return json(_camelcase(content))
 
 
 @content_type('application/json')

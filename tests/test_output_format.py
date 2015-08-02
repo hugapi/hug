@@ -19,14 +19,42 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import pytest
 import hug
+from datetime import datetime
+
+
+def test_text():
+    hug.output_format.text("Hello World!") == "Hello World!"
+    hug.output_format.text(str(1)) == "1"
 
 
 def test_json():
-    test_data = '{"a": "b"}'
-    assert hug.input_format.json(test_data) == {'a': 'b'}
+    now = datetime.now()
+    test_data = {'text': 'text', 'datetime': now, 'bytes': b'bytes'}
+    output = hug.output_format.json(test_data).decode('utf8')
+    assert 'text' in output
+    assert 'bytes' in output
+    assert now.isoformat() in output
+
+    class NewObject(object):
+        pass
+    test_data['non_serializable'] = NewObject()
+    with pytest.raises(TypeError):
+        hug.output_format.json(test_data).decode('utf8')
 
 
-def test_json_underscore():
-    test_data = '{"CamelCase": {"becauseWeCan": "ValueExempt"}}'
-    assert hug.input_format.json_underscore(test_data) == {'camel_case': {'because_we_can': 'ValueExempt'}}
+def test_pretty_json():
+    test_data = {'text': 'text'}
+    assert hug.output_format.pretty_json(test_data).decode('utf8') == ('{\n'
+                                                                       '    "text": "text"\n'
+                                                                       '}')
+
+
+def test_json_camelcase():
+    test_data = {'under_score': {'values_can': 'Be Converted'}}
+    output = hug.output_format.json_camelcase(test_data).decode('utf8')
+    assert 'underScore' in output
+    assert 'valuesCan' in output
+    assert 'Be Converted' in output
+
