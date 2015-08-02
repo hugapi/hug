@@ -61,7 +61,7 @@ def test_custom_url():
 
 
 def test_api_auto_initiate():
-    assert isinstance(HUG(create_environ('/'), StartResponseMock()), (list, tuple))
+    assert isinstance(HUG(create_environ('/non_existant'), StartResponseMock()), (list, tuple))
 
 
 def test_parameters():
