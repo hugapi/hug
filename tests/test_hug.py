@@ -22,10 +22,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 import hug
 
 
-def test_basic_hug_api():
-    @hug.call('/basic_call/')
-    def basic_call(name, **kwargs):
-        return "{0} is the basic call".format(name)
+def test_basic_api():
+    @hug.call()
+    def echo(text):
+        return text
 
-    assert basic_call('hi') == "hi is the basic call"
-    assert basic_call.interface
+    assert echo('Embrace') == 'Embrace'
+    assert echo.interface
