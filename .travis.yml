@@ -3,3 +3,5 @@ python: 3.4
 install:
   - pip install tox
 script: tox
+after_success:
+  - coveralls
