@@ -6,6 +6,7 @@ Everyone needs a hug every once in a while. Even API developers. Hug aims to mak
 [![PyPI version](https://badge.fury.io/py/hug.png)](http://badge.fury.io/py/hug)
 [![PyPi downloads](https://pypip.in/d/hug/badge.png)](https://crate.io/packages/hug/)
 [![Build Status](https://travis-ci.org/timothycrosley/hug.png?branch=master)](https://travis-ci.org/timothycrosley/hug)
+[![Coverage Status](https://coveralls.io/repos/timothycrosley/hug/badge.svg?branch=master&service=github)](https://coveralls.io/github/timothycrosley/hug?branch=master)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/hug/)
 
 Hug drastically simplifies Python API development.
