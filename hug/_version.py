@@ -1,7 +1,6 @@
-"""hug/__init__.py.
+"""hug/_version.py.
 
-Everyone needs a hug every once in a while. Even API developers. Hug aims to make developing Python driven APIs as
-simple as possible, but no simpler.
+Defines hug version information
 
 Hug's Design Objectives:
 
@@ -28,10 +27,4 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from hug import documentation, input_format, output_format, run, test, types
-from hug._version import current
-from hug.decorators import call, connect, delete, get, head, options, patch, post, put, trace
-
-__version__ = current
-__all__ = ['run', 'types', 'test', 'input_format', 'output_format', 'documentation', 'call', 'delete', 'get', 'post',
-           'put', 'options', 'connect', 'head', 'patch', 'trace', 'terminal', '__version__']
+current = "0.0.8"
