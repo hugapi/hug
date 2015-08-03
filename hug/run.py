@@ -2,6 +2,7 @@
 
 Contains logic to enable execution of hug APIS from the command line
 """
+import argparse
 import importlib
 import json
 import sys
@@ -11,6 +12,7 @@ from wsgiref.simple_server import make_server
 import falcon
 
 from hug import documentation
+from hug._version import current
 
 
 def documentation_404(module):
@@ -37,11 +39,26 @@ def server(module, sink=documentation_404):
 
 
 def terminal():
-    if len(sys.argv) < 2:
-        print("Please specify a hug API file to start the server with")
+    parser = argparse.ArgumentParser(description='Hug API Development Server')
+    parser.add_argument('-f', '--file', dest='file_name', help="A Python file that contains a Hug API")
+    parser.add_argument('-m', '--module', dest='module', help="A Python module that contains a Hug API")
+    parser.add_argument('-p', '--port', dest='port', help="Port on which to run the Hug server", default=8000, type=int)
+    parser.add_argument('-v', '--version', action='version', version='hug {0}'.format(current))
+
+    parsed = parser.parse_args()
+    file_name, module = parsed.file_name, parsed.module
+    api = None
+    if file_name and module:
+        print("Error: can not define both a file and module source for Hug API.")
+    if file_name:
+        api = server(importlib.machinery.SourceFileLoader(file_name.split(".")[0], file_name).load_module())
+    elif module:
+        api = server(importlib.import_module(module))
+    else:
+        print("Error: must define a file name or module that contains a Hug API.")
+    if not api:
         sys.exit(1)
 
-    api = server(importlib.machinery.SourceFileLoader(sys.argv[1].split(".")[0], sys.argv[1]).load_module())
-    httpd = make_server('', 8000, api)
-    print("Serving on port 8000...")
+    httpd = make_server('', parsed.port, api)
+    print("Serving on port {0}...".format(parsed.port))
     httpd.serve_forever()
