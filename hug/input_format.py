@@ -12,10 +12,11 @@ def _under_score_dict(dictionary):
     new_dictionary = {}
     for key, value in dictionary.items():
         if isinstance(value, dict):
-            value = _under_score_dict(dictionary)
+            value = _under_score_dict(value)
         if isinstance(key, str):
-            key = UNDERSCORE[1].sub(r'\1_\2', UNDERSCORE[0].sub(r'\1_\2', name)).lower()
+            key = UNDERSCORE[1].sub(r'\1_\2', UNDERSCORE[0].sub(r'\1_\2', key)).lower()
         new_dictionary[key] = value
+    return new_dictionary
 
 
 def json_underscore(body):
