@@ -145,9 +145,16 @@ def test_method_routing():
     assert 'method not allowed' in hug.test.trace(api, 'accepts_get_and_post').lower()
 
 
+def test_versioning():
+    @hug.version[1].get('/echo')
+    def echo(text):
+        return text
 
+    @hug.version[2:].get('/echo')
+    def echo(text):
+        return "Echo: {text}".format(**locals())
 
-
-
-
-
+    assert hug.test.get(api, 'v1/echo', text="hi") == 'hi'
+    assert hug.test.get(api, 'v2/echo', text="hi") == "Echo: hi"
+    assert hug.test.get(api, 'v3/echo', text="hi") == "Echo: hi"
+    assert hug.test.get(api, 'echo', text="hi") == "Echo: hi"
