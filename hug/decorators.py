@@ -9,7 +9,9 @@ from hug.run import server
 
 
 class Versioning(object):
-     def __getitem__(self, value):
+    METHODS  = tuple(method.lower() for method in HTTP_METHODS + ('call', ))
+
+    def __getitem__(self, value):
         if isinstance(value, int):
             versionss = (int)
         elif isinstance(value, slice):
@@ -20,12 +22,14 @@ class Versioning(object):
                 raise ValueError('Reverse indexes are not supported for defining versionss')
 
             versions.append(value.start if value.start else -float('inf'))
-            versions.append(value.end if value.end else -float('inf'))
-            if value.start and value.end:
-                versions.extend(range(value.start, value.end))
+            versions.append(value.stop if value.stop else -float('inf'))
+            if value.start and value.stop:
+                versions.extend(range(value.start, value.stop))
+            elif value.stop and value.start is None:
+                versions.extend(range(1, value.stop))
 
-        return namedtuple('Router', HTTP_METHODS)(**{name: partial(globals()[name], versionss=versionss) for name
-                                                     in HTTP_METHODS})
+        return namedtuple('Router', self.METHODS)(**{name: partial(globals()[name.lower()], versions=versions)
+                                                  for name in self.METHODS})
 
 version = Versioning()
 
