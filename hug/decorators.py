@@ -22,12 +22,15 @@ class Versioning(object):
             if value.start and value.stop and value.start > value.stop:
                 raise ValueError('Reverse indexes are not supported for defining versionss')
 
-            versions.append(value.start if value.start else -float('inf'))
-            versions.append(value.stop if value.stop else -float('inf'))
+            if value.start:
+                versions.append(value.start)
+
             if value.start and value.stop:
                 versions.extend(range(value.start, value.stop))
             elif value.stop and value.start is None:
                 versions.extend(range(1, value.stop))
+            elif value.start and value.stop is None:
+                versions.extend((value.start, float('inf')))
 
         return namedtuple('Router', self.METHODS)(**{name: partial(globals()[name.lower()], versions=versions)
                                                   for name in self.METHODS})
@@ -89,13 +92,15 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
             module.HUG_VERSIONS.extend(versions)
 
         for url in urls or ("/{0}".format(api_function.__name__), ):
-            handlers = module.HUG_API_CALLS.setdefault(url, {})
-            for method in accept:
-                versions = sorted(handlers.setdefault("on_{0}".format(method.lower()), {}))
-                for version in versions:
-                    versions[version] = handlers
-                if float("inf") in versions:
-                    for version_number
+            version_routes = module.HUG_API_CALLS.setdefault(url, {})
+            method_routes = {"on_{0}".format(method.lower()): interface for method in accept}
+            for version in versions:
+                version_routes.setdefault(version, {}).update(method_routes)
+            if float("inf") in versions:
+                start = versions[0]
+                for version_number in version_routes.keys():
+                    if isinstance(version_number, (float, int)) and version_number > start:
+                        version_routes.setdefault(version_number, {}).update(method_routes)
 
         api_function.interface = interface
         interface.api_function = api_function
