@@ -32,7 +32,10 @@ def documentation_404(module):
 def server(module, sink=documentation_404):
     api = falcon.API()
     for url, method_handlers in module.HUG_API_CALLS.items():
-        api.add_route(url, namedtuple('Router', method_handlers.keys())(**method_handlers))
+        handler = namedtuple('Router', method_handlers.keys())(**method_handlers)
+        api.add_route(url, handler)
+        if module.HUG_VERSIONS:
+            api.add_route('/v{_version}/' + handler)
     if sink:
         api.add_sink(sink(module))
     return api

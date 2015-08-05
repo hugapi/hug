@@ -12,9 +12,10 @@ class Versioning(object):
     METHODS  = tuple(method.lower() for method in HTTP_METHODS + ('call', ))
 
     def __getitem__(self, value):
+        versions = None
         if isinstance(value, int):
             versionss = (int)
-        elif isinstance(value, slice):
+        elif isinstance(value, slice) and not (value.start is None and value.stop is None and value.step is None):
             versions = []
             if value.step:
                 raise ValueError('Step values are not supported for defining versionss')
@@ -30,12 +31,14 @@ class Versioning(object):
 
         return namedtuple('Router', self.METHODS)(**{name: partial(globals()[name.lower()], versions=versions)
                                                   for name in self.METHODS})
-
 version = Versioning()
 
-def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=None):
+
+def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=None, versions=None):
     if isinstance(urls, str):
         urls = (urls, )
+    if not isinstance(version, (list, tuple)):
+        versions = (versions, )
 
     def decorator(api_function):
         module = sys.modules[api_function.__module__]
@@ -81,11 +84,18 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
                 return module.HUG(*kargs, **kwargs)
             module.HUG = api_auto_instantiate
             module.HUG_API_CALLS = OrderedDict()
+            module.HUG_VERSIONS = []
+        if versions:
+            module.HUG_VERSIONS.extend(versions)
 
         for url in urls or ("/{0}".format(api_function.__name__), ):
             handlers = module.HUG_API_CALLS.setdefault(url, {})
             for method in accept:
-                handlers["on_{0}".format(method.lower())] = interface
+                versions = sorted(handlers.setdefault("on_{0}".format(method.lower()), {}))
+                for version in versions:
+                    versions[version] = handlers
+                if float("inf") in versions:
+                    for version_number
 
         api_function.interface = interface
         interface.api_function = api_function
