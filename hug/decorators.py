@@ -1,5 +1,5 @@
 import sys
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from functools import partial
 
 from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
@@ -7,6 +7,27 @@ from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 import hug.output_format
 from hug.run import server
 
+
+class Versioning(object):
+     def __getitem__(self, value):
+        if isinstance(value, int):
+            versionss = (int)
+        elif isinstance(value, slice):
+            versions = []
+            if value.step:
+                raise ValueError('Step values are not supported for defining versionss')
+            if value.start and value.stop and value.start > value.stop:
+                raise ValueError('Reverse indexes are not supported for defining versionss')
+
+            versions.append(value.start if value.start else -float('inf'))
+            versions.append(value.end if value.end else -float('inf'))
+            if value.start and value.end:
+                versions.extend(range(value.start, value.end))
+
+        return namedtuple('Router', HTTP_METHODS)(**{name: partial(globals()[name], versionss=versionss) for name
+                                                     in HTTP_METHODS})
+
+version = Versioning()
 
 def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=None):
     if isinstance(urls, str):
