@@ -91,16 +91,20 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
         if versions:
             module.HUG_VERSIONS.extend(versions)
 
-        for url in urls or ("/{0}".format(api_function.__name__), ):
-            version_routes = module.HUG_API_CALLS.setdefault(url, {})
-            method_routes = {"on_{0}".format(method.lower()): interface for method in accept}
-            for version in versions:
-                version_routes.setdefault(version, {}).update(method_routes)
-            if float("inf") in versions:
-                start = versions[0]
-                for version_number in version_routes.keys():
-                    if isinstance(version_number, (float, int)) and version_number > start:
-                        version_routes.setdefault(version_number, {}).update(method_routes)
+        urls = urls or ("/{0}".format(api_function.__name__), )
+        version_routes = module.HUG_API_CALLS
+        method_routes = {"on_{0}".format(method.lower()): interface for method in accept}
+        for version in versions:
+            version_mapping = version_routes.setdefault(version, {})
+            for url in urls:
+                version_mapping.setdefault(url, {}).update(method_routes)
+
+        if float("inf") in versions:
+            start = versions[0]
+            for version_number in version_routes.keys():
+                if isinstance(version_number, (float, int)) and version_number > start:
+                    for url in urls:
+                        version_mapping.setdefault(url, {}).update(method_routes)
 
         api_function.interface = interface
         interface.api_function = api_function
