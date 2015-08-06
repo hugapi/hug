@@ -58,14 +58,17 @@ def server(module, sink=documentation_404):
                     if len(request_version) > 1:
                         raise ValueError('You are requesting conflicting versions')
 
-                    request_version = (request_version or (None, ))[0]
+                    request_version = next(iter(request_version or (None, )))
                     if request_version:
                         request_version = int(request_version)
-                    versions.get(request_version, handlers.get(None, api.add_sink()))(request, reponse,
-                                                                                      api_version=api_version, **kwargs)
+                    versions.get(request_version, versions.get(None, sink))(request, response, api_version=api_version,
+                                                                            **kwargs)
                 router[method] = version_router
 
-        api.add_route(url, namedtuple('Router', router.keys())(**router))
+        router = namedtuple('Router', router.keys())(**router)
+        api.add_route(url, router)
+        if module.HUG_VERSIONS and module.HUG_VERSIONS != (None, ):
+            api.add_route('/v{api_version}' + url, router)
     return api
 
 
