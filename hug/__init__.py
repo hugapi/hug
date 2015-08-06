@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from hug import documentation, input_format, output_format, run, test, types
 from hug._version import current
-from hug.decorators import call, connect, delete, get, head, options, patch, post, put, trace, version
+from hug.decorators import call, connect, delete, get, head, options, patch, post, put, trace
 
 __version__ = current
 __all__ = ['run', 'types', 'test', 'input_format', 'output_format', 'documentation', 'call', 'delete', 'get', 'post',

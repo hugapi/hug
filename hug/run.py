@@ -29,17 +29,43 @@ def documentation_404(module):
     return handle_404
 
 
+def _router(dictionary):
+    return namedtuple('Router', dictionary.keys())(**dictionary)
+
 def server(module, sink=documentation_404):
     api = falcon.API()
-    for url, versions in module.HUG_API_CALLS.items():
-        for version, method_handlers in versions.items():
-            handler = namedtuple('Router', method_handlers.keys())(**method_handlers)
-            if version is None:
-                api.add_route(url, handler)
+    sink = sink(module)
+    api.add_sink(sink)
+    for url, methods in module.HUG_API_CALLS.items():
+        router = {}
+        for method, versions in methods.items():
+            if len(versions) == 1 and None in versions.keys():
+                router[method] = versions[None]
             else:
-                api.add_route('/v{0}'.format(version) + url, handler)
-    if sink:
-        api.add_sink(sink(module))
+                def version_router(request, response, api_version=None, **kwargs):
+                    request_version = set()
+                    if api_version is not None:
+                        request_version.add(api_version)
+
+                    version_header = request.get_header("X-API-VERSION")
+                    if version_header:
+                        request_version.add(version_header)
+
+                    version_param = request.get_param('api_version')
+                    if version_param is not None:
+                        requested_version.add(version_param)
+
+                    if len(request_version) > 1:
+                        raise ValueError('You are requesting conflicting versions')
+
+                    request_version = (request_version or (None, ))[0]
+                    if request_version:
+                        request_version = int(request_version)
+                    versions.get(request_version, handlers.get(None, api.add_sink()))(request, reponse,
+                                                                                      api_version=api_version, **kwargs)
+                router[method] = version_router
+
+        api.add_route(url, namedtuple('Router', router.keys())(**router))
     return api
 
 

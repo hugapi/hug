@@ -8,39 +8,10 @@ import hug.output_format
 from hug.run import server
 
 
-class Versioning(object):
-    METHODS  = tuple(method.lower() for method in HTTP_METHODS + ('call', ))
-
-    def __getitem__(self, value):
-        versions = None
-        if isinstance(value, int):
-            versionss = (int)
-        elif isinstance(value, slice) and not (value.start is None and value.stop is None and value.step is None):
-            versions = []
-            if value.step:
-                raise ValueError('Step values are not supported for defining versionss')
-            if value.start and value.stop and value.start > value.stop:
-                raise ValueError('Reverse indexes are not supported for defining versionss')
-
-            if value.start:
-                versions.append(value.start)
-
-            if value.start and value.stop:
-                versions.extend(range(value.start, value.stop))
-            elif value.stop and value.start is None:
-                versions.extend(range(1, value.stop))
-            elif value.start and value.stop is None:
-                versions.extend((value.start, float('inf')))
-
-        return namedtuple('Router', self.METHODS)(**{name: partial(globals()[name.lower()], versions=versions)
-                                                  for name in self.METHODS})
-version = Versioning()
-
-
 def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=None, versions=None):
     if isinstance(urls, str):
         urls = (urls, )
-    if not isinstance(version, (list, tuple)):
+    if not isinstance(versions, (list, tuple)):
         versions = (versions, )
 
     def decorator(api_function):
@@ -56,9 +27,10 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
         if not required and example is None:
             use_example = True
 
-        def interface(request, response):
+        def interface(request, response, **kwargs):
             response.content_type = output.content_type
-            input_parameters = request.params
+            input_parameters = kwargs
+            input_parameters.update(request.params)
             errors = {}
             for key, type_handler in api_function.__annotations__.items():
                 try:
@@ -91,20 +63,12 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
         if versions:
             module.HUG_VERSIONS.extend(versions)
 
-        urls = urls or ("/{0}".format(api_function.__name__), )
-        version_routes = module.HUG_API_CALLS
-        method_routes = {"on_{0}".format(method.lower()): interface for method in accept}
-        for version in versions:
-            version_mapping = version_routes.setdefault(version, {})
-            for url in urls:
-                version_mapping.setdefault(url, {}).update(method_routes)
-
-        if float("inf") in versions:
-            start = versions[0]
-            for version_number in version_routes.keys():
-                if isinstance(version_number, (float, int)) and version_number > start:
-                    for url in urls:
-                        version_mapping.setdefault(url, {}).update(method_routes)
+        for url in urls or ("/{0}".format(api_function.__name__), ):
+            handlers = module.HUG_API_CALLS.setdefault(url, {})
+            for method in accept:
+                version_mapping = handlers.setdefault("on_{0}".format(method.lower()), {})
+                for version in versions:
+                    version_mapping[version] = interface
 
         api_function.interface = interface
         interface.api_function = api_function

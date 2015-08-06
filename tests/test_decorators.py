@@ -146,15 +146,20 @@ def test_method_routing():
 
 
 def test_versioning():
-    @hug.version[1].get('/echo')
+    @hug.get('/echo')
+    def echo(text):
+        return "Not Implemented"
+
+    @hug.get('/echo', versions=1)
     def echo(text):
         return text
 
-    @hug.version[2:].get('/echo')
+    @hug.get('/echo', versions=range(2, 4))
     def echo(text):
         return "Echo: {text}".format(**locals())
 
     assert hug.test.get(api, 'v1/echo', text="hi") == 'hi'
     assert hug.test.get(api, 'v2/echo', text="hi") == "Echo: hi"
     assert hug.test.get(api, 'v3/echo', text="hi") == "Echo: hi"
-    assert hug.test.get(api, 'echo', text="hi") == "Echo: hi"
+    assert hug.test.get(api, 'v4/echo', text="hi") == "Echo: hi"
+    assert hug.test.get(api, 'echo', text="hi") == "Not Implemented"
