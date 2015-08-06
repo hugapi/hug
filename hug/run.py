@@ -8,6 +8,7 @@ import json
 import sys
 from collections import OrderedDict, namedtuple
 from wsgiref.simple_server import make_server
+from functools import partial
 
 import falcon
 
@@ -32,6 +33,28 @@ def documentation_404(module):
 def _router(dictionary):
     return namedtuple('Router', dictionary.keys())(**dictionary)
 
+def version_router(request, response, api_version=None, __versions__={}, __sink__=None, **kwargs):
+    request_version = set()
+    if api_version is not None:
+        request_version.add(api_version)
+
+    version_header = request.get_header("X-API-VERSION")
+    if version_header:
+        request_version.add(version_header)
+
+    version_param = request.get_param('api_version')
+    if version_param is not None:
+        requested_version.add(version_param)
+
+    if len(request_version) > 1:
+        raise ValueError('You are requesting conflicting versions')
+
+    request_version = next(iter(request_version or (None, )))
+    if request_version:
+        request_version = int(request_version)
+    __versions__.get(request_version, __versions__.get(None, __sink__))(request, response, api_version=api_version,
+                                                                    **kwargs)
+
 def server(module, sink=documentation_404):
     api = falcon.API()
     sink = sink(module)
@@ -42,28 +65,8 @@ def server(module, sink=documentation_404):
             if len(versions) == 1 and None in versions.keys():
                 router[method] = versions[None]
             else:
-                def version_router(request, response, api_version=None, **kwargs):
-                    request_version = set()
-                    if api_version is not None:
-                        request_version.add(api_version)
 
-                    version_header = request.get_header("X-API-VERSION")
-                    if version_header:
-                        request_version.add(version_header)
-
-                    version_param = request.get_param('api_version')
-                    if version_param is not None:
-                        requested_version.add(version_param)
-
-                    if len(request_version) > 1:
-                        raise ValueError('You are requesting conflicting versions')
-
-                    request_version = next(iter(request_version or (None, )))
-                    if request_version:
-                        request_version = int(request_version)
-                    versions.get(request_version, versions.get(None, sink))(request, response, api_version=api_version,
-                                                                            **kwargs)
-                router[method] = version_router
+                router[method] = partial(version_router, __versions__=versions, __sink__=sink)
 
         router = namedtuple('Router', router.keys())(**router)
         api.add_route(url, router)
