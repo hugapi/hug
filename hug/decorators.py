@@ -11,7 +11,7 @@ from hug.run import server
 def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=None, versions=None):
     if isinstance(urls, str):
         urls = (urls, )
-    if not isinstance(versions, (list, tuple)):
+    if versions is None or isinstance(versions, (int, float)):
         versions = (versions, )
 
     def decorator(api_function):
