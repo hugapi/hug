@@ -25,38 +25,47 @@ from datetime import datetime
 
 
 def test_number():
-    hug.types.number('1') == 1
-    hug.types.number(1) == 1
+    assert hug.types.number('1') == 1
+    assert hug.types.number(1) == 1
     with pytest.raises(ValueError):
         hug.types.number('bacon')
 
 
-def test_list():
-    hug.types.list('value') == ['value']
-    hug.types.list(['value1', 'value2']) == ['value1', 'value2']
+def test_multiple():
+    assert hug.types.multiple('value') == ['value']
+    assert hug.types.multiple(['value1', 'value2']) == ['value1', 'value2']
 
 
 def test_comma_separated_list():
-    hug.types.comma_separated_list('value') == ['value']
-    hug.types.comma_separated_list('value1,value2') == ['value1', 'value2']
+    assert hug.types.comma_separated_list('value') == ['value']
+    assert hug.types.comma_separated_list('value1,value2') == ['value1', 'value2']
 
 
 def test_decimal():
-    hug.types.decimal('1.1') == 1.1
-    hug.types.decimal('1') == float(1)
-    hug.types.decimal(1.1) == 1.1
+    assert hug.types.decimal('1.1') == 1.1
+    assert hug.types.decimal('1') == float(1)
+    assert hug.types.decimal(1.1) == 1.1
     with pytest.raises(ValueError):
         hug.types.decimal('bacon')
 
 
 def test_text():
-    hug.types.text('1') == '1'
-    hug.types.text(1) == '1'
-    hug.types.text('text') == 'text'
+    assert hug.types.text('1') == '1'
+    assert hug.types.text(1) == '1'
+    assert hug.types.text('text') == 'text'
 
 
 def test_inline_dictionary():
-    hug.types.inline_dictionary('1:2') == {'1': '2'}
-    hug.types.inline_dictionary('1:2|3:4') == {'1': '2', '3': '4'}
+    assert hug.types.inline_dictionary('1:2') == {'1': '2'}
+    assert hug.types.inline_dictionary('1:2|3:4') == {'1': '2', '3': '4'}
     with pytest.raises(ValueError):
         hug.types.inline_dictionary('1')
+
+
+def test_one_of():
+    assert hug.types.one_of(('bacon', 'sausage', 'pancakes'))('bacon') == 'bacon'
+    assert hug.types.one_of(['bacon', 'sausage', 'pancakes'])('sausage') == 'sausage'
+    assert hug.types.one_of({'bacon', 'sausage', 'pancakes'})('pancakes') == 'pancakes'
+    with pytest.raises(KeyError):
+        hug.types.one_of({'bacon', 'sausage', 'pancakes'})('syrup')
+
