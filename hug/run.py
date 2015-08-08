@@ -7,8 +7,8 @@ import importlib
 import json
 import sys
 from collections import OrderedDict, namedtuple
-from wsgiref.simple_server import make_server
 from functools import partial
+from wsgiref.simple_server import make_server
 
 import falcon
 
