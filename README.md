@@ -77,6 +77,19 @@ any other Python functions. Additionally, this means interacting with your API f
 straight forward as calling Python only API functions.
 
 
+Running hug with other WSGI based servers
+===================
+
+Hug exposes a __hug_wsgi__ magic method on every API module automatically. Running your hug based API on any
+standard wsgi server should be as simple as pointing it to module_name:__hug_wsgi__.
+
+For Example:
+
+    uwsgi --http 0.0.0.0:8080 --wsgi-file examples/hello_world.py --callable __hug_wsgi__
+
+To run the hello world hug example API.
+
+
 Why Hug?
 ===================
 HUG simply stands for Hopefully Useful Guide. This represents the projects goal to help guide developers into creating
