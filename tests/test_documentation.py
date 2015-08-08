@@ -36,7 +36,7 @@ def test_basic_documentation():
         """Returns back whatever data it is given in the text parameter"""
         return text
 
-    @hug.post('/happy_birthday', example="name=HUG&age=1")
+    @hug.post('/happy_birthday', examples="name=HUG&age=1")
     def birthday(name, age:hug.types.number=1):
         """Says happy birthday to a user"""
         return "Happy {age} Birthday {name}!".format(**locals())
@@ -56,7 +56,7 @@ def test_basic_documentation():
     assert '/noop' in documentation
 
     assert documentation['/hello_world']['GET']['usage']  == "Returns hello world"
-    assert documentation['/hello_world']['GET']['example']  == "/hello_world"
+    assert documentation['/hello_world']['GET']['examples']  == ["/hello_world"]
     assert documentation['/hello_world']['GET']['outputs']['content_type']  == "application/json"
     assert not 'inputs' in documentation['/hello_world']['GET']
 
