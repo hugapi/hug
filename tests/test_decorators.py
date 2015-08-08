@@ -35,7 +35,7 @@ def test_basic_call():
     assert hello_world() == "Hello World!"
     assert hello_world.interface
 
-    assert hug.test.get(api, '/hello_world') == "Hello World!"
+    assert hug.test.get(api, '/hello_world').data == "Hello World!"
 
 
 def test_single_parameter():
@@ -48,8 +48,8 @@ def test_single_parameter():
     with pytest.raises(TypeError):
         echo()
 
-    assert hug.test.get(api, 'echo', text="Hello") == "Hello"
-    assert 'required' in hug.test.get(api, '/echo')['errors']['text'].lower()
+    assert hug.test.get(api, 'echo', text="Hello").data == "Hello"
+    assert 'required' in hug.test.get(api, '/echo').data['errors']['text'].lower()
 
 
 def test_custom_url():
@@ -57,7 +57,7 @@ def test_custom_url():
     def method_name():
         return 'works'
 
-    assert hug.test.get(api, 'custom_route') == 'works'
+    assert hug.test.get(api, 'custom_route').data == 'works'
 
 
 def test_api_auto_initiate():
@@ -69,11 +69,11 @@ def test_parameters():
     def multiple_parameter_types(start, middle:hug.types.text, end:hug.types.number=5, **kwargs):
         return 'success'
 
-    assert hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle', end=7) == 'success'
-    assert hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle') == 'success'
-    assert hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle', other="yo") == 'success'
+    assert hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle', end=7).data == 'success'
+    assert hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle').data == 'success'
+    assert hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle', other="yo").data == 'success'
 
-    nan_test = hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle', end='NAN')
+    nan_test = hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle', end='NAN').data
     assert 'invalid' in nan_test['errors']['end']
 
 
@@ -81,22 +81,22 @@ def test_parameter_injection():
     @hug.call()
     def inject_request(request):
         return request and 'success'
-    assert hug.test.get(api, 'inject_request') == 'success'
+    assert hug.test.get(api, 'inject_request').data == 'success'
 
     @hug.call()
     def inject_response(response):
         return response and 'success'
-    assert hug.test.get(api, 'inject_response') == 'success'
+    assert hug.test.get(api, 'inject_response').data == 'success'
 
     @hug.call()
     def inject_both(request, response):
         return request and response and 'success'
-    assert hug.test.get(api, 'inject_both') == 'success'
+    assert hug.test.get(api, 'inject_both').data == 'success'
 
     @hug.call()
     def inject_in_kwargs(**kwargs):
         return 'request' in kwargs and 'response' in kwargs and 'success'
-    assert hug.test.get(api, 'inject_in_kwargs') == 'success'
+    assert hug.test.get(api, 'inject_in_kwargs').data == 'success'
 
 
 def test_method_routing():
@@ -128,21 +128,21 @@ def test_method_routing():
     def method():
         return 'TRACE'
 
-    assert hug.test.get(api, 'method') == 'GET'
-    assert hug.test.post(api, 'method') == 'POST'
-    assert hug.test.connect(api, 'method') == 'CONNECT'
-    assert hug.test.delete(api, 'method') == 'DELETE'
-    assert hug.test.options(api, 'method') == 'OPTIONS'
-    assert hug.test.put(api, 'method') == 'PUT'
-    assert hug.test.trace(api, 'method') == 'TRACE'
+    assert hug.test.get(api, 'method').data == 'GET'
+    assert hug.test.post(api, 'method').data == 'POST'
+    assert hug.test.connect(api, 'method').data == 'CONNECT'
+    assert hug.test.delete(api, 'method').data == 'DELETE'
+    assert hug.test.options(api, 'method').data == 'OPTIONS'
+    assert hug.test.put(api, 'method').data == 'PUT'
+    assert hug.test.trace(api, 'method').data == 'TRACE'
 
     @hug.call(accept=('GET', 'POST'))
     def accepts_get_and_post():
         return 'success'
 
-    assert hug.test.get(api, 'accepts_get_and_post') == 'success'
-    assert hug.test.post(api, 'accepts_get_and_post') == 'success'
-    assert 'method not allowed' in hug.test.trace(api, 'accepts_get_and_post').lower()
+    assert hug.test.get(api, 'accepts_get_and_post').data == 'success'
+    assert hug.test.post(api, 'accepts_get_and_post').data == 'success'
+    assert 'method not allowed' in hug.test.trace(api, 'accepts_get_and_post').status.lower()
 
 
 def test_versioning():
@@ -158,13 +158,14 @@ def test_versioning():
     def echo(text):
         return "Echo: {text}".format(**locals())
 
-    assert hug.test.get(api, 'v1/echo', text="hi") == 'hi'
-    assert hug.test.get(api, 'v2/echo', text="hi") == "Echo: hi"
-    assert hug.test.get(api, 'v3/echo', text="hi") == "Echo: hi"
-    assert hug.test.get(api, 'echo', text="hi", api_version=3) == "Echo: hi"
-    assert hug.test.get(api, 'echo', text="hi", headers={'X-API-VERSION': '3'}) == "Echo: hi"
-    assert hug.test.get(api, 'v4/echo', text="hi") == "Not Implemented"
-    assert hug.test.get(api, 'echo', text="hi") == "Not Implemented"
+    assert hug.test.get(api, 'v1/echo', text="hi").data == 'hi'
+    assert hug.test.get(api, 'v2/echo', text="hi").data == "Echo: hi"
+    assert hug.test.get(api, 'v3/echo', text="hi").data == "Echo: hi"
+    assert hug.test.get(api, 'echo', text="hi", api_version=3).data == "Echo: hi"
+    assert hug.test.get(api, 'echo', text="hi", headers={'X-API-VERSION': '3'}).data == "Echo: hi"
+    assert hug.test.get(api, 'v4/echo', text="hi").data == "Not Implemented"
+    assert hug.test.get(api, 'echo', text="hi").data == "Not Implemented"
+    assert hug.test.get(api, 'echo', text="hi", api_version=3, body={'api_vertion': 4}).data == "Echo: hi"
 
     with pytest.raises(ValueError):
         hug.test.get(api, 'v4/echo', text="hi", api_version=3)
