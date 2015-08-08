@@ -9,11 +9,14 @@ from functools import partial
 def call(method, api_module, url, body='', headers=None, **params):
     api = server(api_module)
     response = StartResponseMock()
-    result = api(create_environ(path=url, method=method, headers=headers, query_string=urlencode(params)), response)
+    result = api(create_environ(path=url, method=method, headers=headers, query_string=urlencode(params), body=body),
+                 response)
     if result:
-        return json.loads(result[0].decode('utf8'))
-    else:
-        return response.status
+        response.data = result[0].decode('utf8')
+        response.content_type = response.headers_dict['content-type']
+        if response.content_type == 'application/json':
+            response.data = json.loads(response.data)
+    return response
 
 
 for method in HTTP_METHODS:
