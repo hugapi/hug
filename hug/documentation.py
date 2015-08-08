@@ -28,10 +28,11 @@ def generate(module, base_url=""):
                     usage = handler.api_function.__doc__
                     if usage:
                         doc['usage'] = usage
-                    if handler.example:
-                        doc['example'] = "{0}{1}{2}".format(base_url, '/v{0}'.format(version) if version else '', url)
-                        if isinstance(handler.example, str):
-                            doc['example'] += "?{0}".format(handler.example)
+                    for example in handler.examples:
+                        example_text =  "{0}{1}{2}".format(base_url, '/v{0}'.format(version) if version else '', url)
+                        if isinstance(example, str):
+                            example_text += "?{0}".format(example)
+                        doc.setdefault('examples', []).append(example_text)
                     doc['outputs'] = OrderedDict(format=handler.output_format.__doc__,
                                                  content_type=handler.content_type)
 

@@ -8,11 +8,10 @@ import hug.output_format
 from hug.run import server
 
 
-def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=None, versions=None):
-    if isinstance(urls, str):
-        urls = (urls, )
-    if versions is None or isinstance(versions, (int, float)):
-        versions = (versions, )
+def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, examples=(), versions=None):
+    urls = (urls, ) if isinstance(urls, str) else urls
+    examples = (examples, ) if isinstance(examples, str) else examples
+    versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
 
     def decorator(api_function):
         module = sys.modules[api_function.__module__]
@@ -23,9 +22,9 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
         for index, default in enumerate(reversed(api_function.__defaults__ or ())):
             defaults[accepted_parameters[-(index + 1)]] = default
         required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
-        use_example = example
-        if not required and example is None:
-            use_example = True
+        use_examples = examples
+        if not required and not use_examples:
+            use_examples = (True, )
 
         def interface(request, response, **kwargs):
             response.content_type = output.content_type
@@ -73,7 +72,7 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
         api_function.interface = interface
         interface.api_function = api_function
         interface.output_format = output
-        interface.example = use_example
+        interface.examples = use_examples
         interface.defaults = defaults
         interface.accepted_parameters = accepted_parameters
         interface.content_type = output.content_type
