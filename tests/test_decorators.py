@@ -171,3 +171,19 @@ def test_versioning():
         hug.test.get(api, 'v4/echo', text="hi", api_version=3)
 
 
+def test_json_auto_convert():
+    @hug.get('/test_json')
+    def test_json(text):
+        return text
+    assert hug.test.get(api, 'test_json', body={'text': 'value'}).data == "value"
+
+    @hug.get('/test_json_body')
+    def test_json_body(body):
+        return body
+    assert hug.test.get(api, 'test_json_body', body=['value1', 'value2']).data == ['value1', 'value2']
+
+    @hug.get(stream_body=True)
+    def test_json_body_stream_only(body=None):
+        return body
+    assert hug.test.get(api, 'test_json_body_stream_only', body=['value1', 'value2']).data == None
+
