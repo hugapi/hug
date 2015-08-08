@@ -22,8 +22,9 @@ def generate(module, base_url=""):
                 else:
                     applies_to = (version, )
                 for version in applies_to:
-                    doc = documentation['versions'][version].setdefault(url, OrderedDict()).setdefault(method,
-                                                                                                       OrderedDict())
+                    doc = documentation['versions'][version].setdefault(url, OrderedDict())
+                    doc = doc.setdefault(method, OrderedDict())
+
                     usage = handler.api_function.__doc__
                     if usage:
                         doc['usage'] = usage

@@ -30,9 +30,6 @@ def documentation_404(module):
     return handle_404
 
 
-def _router(dictionary):
-    return namedtuple('Router', dictionary.keys())(**dictionary)
-
 def version_router(request, response, api_version=None, __versions__={}, __sink__=None, **kwargs):
     request_version = set()
     if api_version is not None:
@@ -44,7 +41,7 @@ def version_router(request, response, api_version=None, __versions__={}, __sink_
 
     version_param = request.get_param('api_version')
     if version_param is not None:
-        requested_version.add(version_param)
+        request_version.add(version_param)
 
     if len(request_version) > 1:
         raise ValueError('You are requesting conflicting versions')

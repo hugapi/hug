@@ -68,4 +68,18 @@ def test_basic_documentation():
 
     assert not 'inputs' in documentation['/noop']['POST']
 
+    @hug.post(versions=1)
+    def echo(text):
+        """V1 Docs"""
+        return 'V1'
+
+    versioned_doc = documentation = hug.documentation.generate(api)
+    assert 'versions' in versioned_doc
+    assert 1 in versioned_doc['versions']
+
+
+
+
+
+
 

@@ -161,5 +161,12 @@ def test_versioning():
     assert hug.test.get(api, 'v1/echo', text="hi") == 'hi'
     assert hug.test.get(api, 'v2/echo', text="hi") == "Echo: hi"
     assert hug.test.get(api, 'v3/echo', text="hi") == "Echo: hi"
+    assert hug.test.get(api, 'echo', text="hi", api_version=3) == "Echo: hi"
+    assert hug.test.get(api, 'echo', text="hi", headers={'X-API-VERSION': '3'}) == "Echo: hi"
     assert hug.test.get(api, 'v4/echo', text="hi") == "Not Implemented"
     assert hug.test.get(api, 'echo', text="hi") == "Not Implemented"
+
+    with pytest.raises(ValueError):
+        hug.test.get(api, 'v4/echo', text="hi", api_version=3)
+
+

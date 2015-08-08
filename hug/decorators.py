@@ -59,9 +59,9 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
                 return module.HUG(*kargs, **kwargs)
             module.HUG = api_auto_instantiate
             module.HUG_API_CALLS = OrderedDict()
-            module.HUG_VERSIONS = []
+            module.HUG_VERSIONS = set()
         if versions:
-            module.HUG_VERSIONS.extend(versions)
+            module.HUG_VERSIONS = module.HUG_VERSIONS.union(versions)
 
         for url in urls or ("/{0}".format(api_function.__name__), ):
             handlers = module.HUG_API_CALLS.setdefault(url, {})
