@@ -56,7 +56,7 @@ def server(module, sink=documentation_404):
     api = falcon.API()
     sink = sink(module)
     api.add_sink(sink)
-    for url, methods in module.HUG_API_CALLS.items():
+    for url, methods in module.__hug__.routes.items():
         router = {}
         for method, versions in methods.items():
             method_function = "on_{0}".format(method.lower())
@@ -67,7 +67,7 @@ def server(module, sink=documentation_404):
 
         router = namedtuple('Router', router.keys())(**router)
         api.add_route(url, router)
-        if module.HUG_VERSIONS and module.HUG_VERSIONS != (None, ):
+        if module.__hug__.versions and module.__hug__.versions != (None, ):
             api.add_route('/v{api_version}' + url, router)
     return api
 

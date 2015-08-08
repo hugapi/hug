@@ -10,11 +10,11 @@ def generate(module, base_url=""):
         documentation['overview'] = overview
 
     documentation['versions'] = OrderedDict()
-    versions = module.HUG_VERSIONS
+    versions = module.__hug__.versions
     for version in versions:
         documentation['versions'][version] = OrderedDict()
 
-    for url, methods in module.HUG_API_CALLS.items():
+    for url, methods in module.__hug__.routes.items():
         for method, versions in methods.items():
             for version, handler in versions.items():
                 if version == None:
