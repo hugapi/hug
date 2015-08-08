@@ -187,3 +187,16 @@ def test_json_auto_convert():
         return body
     assert hug.test.get(api, 'test_json_body_stream_only', body=['value1', 'value2']).data == None
 
+
+def test_output_format():
+    @hug.default_output_format()
+    def augmented(data):
+        return hug.output_format.json(['Augmented', data])
+
+    @hug.get()
+    def hello():
+        return "world"
+
+    assert hug.test.get(api, 'hello').data == ['Augmented', 'world']
+
+
