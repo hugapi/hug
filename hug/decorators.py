@@ -1,4 +1,5 @@
 import sys
+import json
 from collections import OrderedDict, namedtuple
 from functools import partial
 
@@ -17,7 +18,7 @@ class HugAPI(object):
         self.routes = OrderedDict()
 
 
-def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, examples=(), versions=None):
+def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, examples=(), versions=None, stream_body=False):
     urls = (urls, ) if isinstance(urls, str) else urls
     examples = (examples, ) if isinstance(examples, str) else examples
     versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
@@ -39,6 +40,12 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, examples
             response.content_type = output.content_type
             input_parameters = kwargs
             input_parameters.update(request.params)
+            if request.content_type == "application/json" and not stream_body:
+                body = json.loads(request.stream.read().decode('utf8'))
+                input_parameters.setdefault('body', body)
+                if isinstance(body, dict):
+                    input_parameters.update(body)
+
             errors = {}
             for key, type_handler in api_function.__annotations__.items():
                 try:
