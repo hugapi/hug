@@ -36,7 +36,7 @@ happy_birthday.py
 
 To run the example:
 
-    hug happy_birthday.py
+    hug -f happy_birthday.py
 
 Then you can access the example from localhost:8080/happy_birthday?name=Hug&age=1
 Or access the documentation for your API from localhost:8080/documentation
@@ -50,18 +50,18 @@ versioning_example.py
     """A simple example of a hug API call with versioning"""
 
 
-    @hug.version[1].get('/echo')
+    @hug.get('/echo', versions=1)
     def echo(text):
         return text
 
 
-    @hug.version[2:].get('/echo')
+    @hug.get('/echo', versions=range(2, 5))
     def echo(text):
         return "Echo: {text}".format(**locals())
 
 To run the example:
 
-    hug versioning_example.py
+    hug -f versioning_example.py
 
 Then you can access the example from localhost:8080/v1/echo?text=Hi / localhost:8080/v2/echo?text=Hi
 Or access the documentation for your API from localhost:8080/documentation

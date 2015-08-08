@@ -2,11 +2,11 @@
 import hug
 
 
-@hug.version[1].get('/echo')
+@hug.get('/echo', versions=1)
 def echo(text):
     return text
 
 
-@hug.version[2:].get('/echo')
+@hug.get('/echo', versions=range(2, 5))
 def echo(text):
     return "Echo: {text}".format(**locals())

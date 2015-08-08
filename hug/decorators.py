@@ -1,5 +1,5 @@
 import sys
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from functools import partial
 
 from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
@@ -8,9 +8,11 @@ import hug.output_format
 from hug.run import server
 
 
-def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=None):
+def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=None, versions=None):
     if isinstance(urls, str):
         urls = (urls, )
+    if versions is None or isinstance(versions, (int, float)):
+        versions = (versions, )
 
     def decorator(api_function):
         module = sys.modules[api_function.__module__]
@@ -25,9 +27,10 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
         if not required and example is None:
             use_example = True
 
-        def interface(request, response):
+        def interface(request, response, **kwargs):
             response.content_type = output.content_type
-            input_parameters = request.params
+            input_parameters = kwargs
+            input_parameters.update(request.params)
             errors = {}
             for key, type_handler in api_function.__annotations__.items():
                 try:
@@ -56,11 +59,16 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
                 return module.HUG(*kargs, **kwargs)
             module.HUG = api_auto_instantiate
             module.HUG_API_CALLS = OrderedDict()
+            module.HUG_VERSIONS = set()
+        if versions:
+            module.HUG_VERSIONS = module.HUG_VERSIONS.union(versions)
 
         for url in urls or ("/{0}".format(api_function.__name__), ):
             handlers = module.HUG_API_CALLS.setdefault(url, {})
             for method in accept:
-                handlers["on_{0}".format(method.lower())] = interface
+                version_mapping = handlers.setdefault(method.upper(), {})
+                for version in versions:
+                    version_mapping[version] = interface
 
         api_function.interface = interface
         interface.api_function = api_function

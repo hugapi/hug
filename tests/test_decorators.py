@@ -145,9 +145,28 @@ def test_method_routing():
     assert 'method not allowed' in hug.test.trace(api, 'accepts_get_and_post').lower()
 
 
+def test_versioning():
+    @hug.get('/echo')
+    def echo(text):
+        return "Not Implemented"
 
+    @hug.get('/echo', versions=1)
+    def echo(text):
+        return text
 
+    @hug.get('/echo', versions=range(2, 4))
+    def echo(text):
+        return "Echo: {text}".format(**locals())
 
+    assert hug.test.get(api, 'v1/echo', text="hi") == 'hi'
+    assert hug.test.get(api, 'v2/echo', text="hi") == "Echo: hi"
+    assert hug.test.get(api, 'v3/echo', text="hi") == "Echo: hi"
+    assert hug.test.get(api, 'echo', text="hi", api_version=3) == "Echo: hi"
+    assert hug.test.get(api, 'echo', text="hi", headers={'X-API-VERSION': '3'}) == "Echo: hi"
+    assert hug.test.get(api, 'v4/echo', text="hi") == "Not Implemented"
+    assert hug.test.get(api, 'echo', text="hi") == "Not Implemented"
 
+    with pytest.raises(ValueError):
+        hug.test.get(api, 'v4/echo', text="hi", api_version=3)
 
 
