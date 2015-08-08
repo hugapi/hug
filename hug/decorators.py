@@ -8,6 +8,15 @@ import hug.output_format
 from hug.run import server
 
 
+class HugAPI(object):
+    '''Stores the information necessary to expose API calls within this module externally'''
+    __slots__ = ('versions', 'routes')
+
+    def __init__(self, versions=()):
+        self.versions = set(versions)
+        self.routes = OrderedDict()
+
+
 def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, examples=(), versions=None):
     urls = (urls, ) if isinstance(urls, str) else urls
     examples = (examples, ) if isinstance(examples, str) else examples
@@ -52,18 +61,17 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, examples
 
             response.data = output(api_function(**input_parameters))
 
-        if not 'HUG' in module.__dict__:
+        if not '__hug__' in module.__dict__:
             def api_auto_instantiate(*kargs, **kwargs):
-                module.HUG = server(module)
-                return module.HUG(*kargs, **kwargs)
-            module.HUG = api_auto_instantiate
-            module.HUG_API_CALLS = OrderedDict()
-            module.HUG_VERSIONS = set()
-        if versions:
-            module.HUG_VERSIONS = module.HUG_VERSIONS.union(versions)
+                module.__hug_wsgi__ = server(module)
+                return module.__hug_wsgi__(*kargs, **kwargs)
+            module.__hug__ = HugAPI(versions)
+            module.__hug_wsgi__ = api_auto_instantiate
+        elif versions:
+            module.__hug__.versions.update(versions)
 
         for url in urls or ("/{0}".format(api_function.__name__), ):
-            handlers = module.HUG_API_CALLS.setdefault(url, {})
+            handlers = module.__hug__.routes.setdefault(url, {})
             for method in accept:
                 version_mapping = handlers.setdefault(method.upper(), {})
                 for version in versions:
