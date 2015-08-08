@@ -9,6 +9,7 @@ from hug.run import server
 
 
 class HugAPI(object):
+    '''Stores the information necessary to expose API calls within this module externally'''
     __slots__ = ('versions', 'routes')
 
     def __init__(self, versions=()):
