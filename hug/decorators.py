@@ -66,7 +66,7 @@ def call(urls=None, accept=HTTP_METHODS, output=hug.output_format.json, example=
         for url in urls or ("/{0}".format(api_function.__name__), ):
             handlers = module.HUG_API_CALLS.setdefault(url, {})
             for method in accept:
-                version_mapping = handlers.setdefault("on_{0}".format(method.lower()), {})
+                version_mapping = handlers.setdefault(method.upper(), {})
                 for version in versions:
                     version_mapping[version] = interface
 

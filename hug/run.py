@@ -62,11 +62,11 @@ def server(module, sink=documentation_404):
     for url, methods in module.HUG_API_CALLS.items():
         router = {}
         for method, versions in methods.items():
+            method_function = "on_{0}".format(method.lower())
             if len(versions) == 1 and None in versions.keys():
-                router[method] = versions[None]
+                router[method_function] = versions[None]
             else:
-
-                router[method] = partial(version_router, __versions__=versions, __sink__=sink)
+                router[method_function] = partial(version_router, __versions__=versions, __sink__=sink)
 
         router = namedtuple('Router', router.keys())(**router)
         api.add_route(url, router)
