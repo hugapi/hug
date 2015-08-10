@@ -2,6 +2,7 @@ import json
 import sys
 from collections import OrderedDict, namedtuple
 from functools import partial
+from itertools import chain
 
 from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 
@@ -35,12 +36,8 @@ class HugAPI(object):
         self.output_format['content_type'] = handler
 
     def directives(self):
-        directives =  getattr(self, '_directives', None)
-        if directives:
-            combined = hug.defaults.directives.copy()
-            combined.update(directives)
-            return combined
-        return hug.defaults.directives
+        directive_sources = chain(hug.defaults.directives.items(), getattr(self, '_directives', {}).items())
+        return {'hug_' + directive_name: directive for directive_name, directive in directive_sources}
 
     def add_directive(self, directive):
         self._directives = getattr(self, '_directives', {})[directive.__name__] = directive
@@ -145,9 +142,8 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
             if 'response' in accepted_parameters:
                 input_parameters['response'] = response
             for parameter in use_directives:
-                if not parameter in input_parameters:
-                    arguments = (defaults[parameter], ) if parameter in defaults else ()
-                    input_parameters[parameter] = directives[parameter](*arguments, response=response, request=request)
+                arguments = (defaults[parameter], ) if parameter in defaults else ()
+                input_parameters[parameter] = directives[parameter](*arguments, response=response, request=request)
             for require in required:
                 if not require in input_parameters:
                     errors[require] = "Required parameter not supplied"

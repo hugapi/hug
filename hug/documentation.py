@@ -37,7 +37,8 @@ def generate(module, base_url=""):
                                                  content_type=handler.content_type)
 
                     parameters = [param for param in handler.accepted_parameters if not param in ('request',
-                                                                                                  'response')]
+                                                                                                  'response')
+                                                                                    and not param.startswith('hug_')]
                     if parameters:
                         inputs = doc.setdefault('inputs', OrderedDict())
                         types = handler.api_function.__annotations__

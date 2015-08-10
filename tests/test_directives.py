@@ -35,7 +35,7 @@ def test_timer():
     assert isinstance(timer.start, float)
 
     @hug.get()
-    def timer_tester(timer):
-        return timer.taken()
+    def timer_tester(hug_timer):
+        return hug_timer.taken()
 
     assert isinstance(hug.test.get(api, 'timer_tester').data, float)
