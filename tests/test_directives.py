@@ -1,16 +1,8 @@
-"""hug/_version.py.
+"""tests/test_directives.py.
 
-Defines hug version information
+Tests to ensure that directives interact in the etimerpected mannor
 
-Hug's Design Objectives:
-
-- Make developing a Python driven API as succint as a written definition.
-- The framework should encourage code that self-documents.
-- It should be fast. Never should a developer feel the need to look somewhere else for performance reasons.
-- Writing tests for APIs written on-top of Hug should be easy and intuitive.
-- Magic done once, in an API, is better then pushing the problem set to the user of the API.
-
-Copyright (C) 2015  Timothy Edmund Crosley
+Copyright (C) 2015 Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -27,4 +19,25 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-current = "0.1.0"
+import sys
+import hug
+
+api = sys.modules[__name__]
+
+
+def test_timer():
+    timer = hug.directives.timer()
+    assert isinstance(timer.taken(), float)
+    assert isinstance(timer.start, float)
+
+    timer = hug.directives.timer('Time: {0}')
+    assert isinstance(timer.taken(), str)
+    assert isinstance(timer.start, float)
+
+    @hug.get()
+    def timer_tester(hug_timer):
+        return hug_timer.taken()
+
+    assert isinstance(hug.test.get(api, 'timer_tester').data, float)
+    assert isinstance(timer_tester(), float)
+
