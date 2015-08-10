@@ -12,7 +12,7 @@ from hug.run import server
 
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
-    __slots__ = ('versions', 'routes', '_output_format', '_input_format')
+    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives')
 
     def __init__(self):
         self.versions = set()
@@ -34,25 +34,69 @@ class HugAPI(object):
             self._output_format = {}
         self.output_format['content_type'] = handler
 
+    def directives(self):
+        directives =  getattr(self, '_directives', None)
+        if directives:
+            combined = hug.defaults.directives.copy()
+            combined.update(directives)
+            return combined
+        return hug.defaults.directives
 
-def default_output_format(content_type='application/json'):
-    """A decorator that allows you to override the default output format for an API"""
+    def add_directive(self, directive):
+        self._directives = getattr(self, '_directives', {})[directive.__name__] = directive
+
+    @output_format.setter
+    def output_format(self, formatter):
+        self._output_format = formatter
+
+
+def default_output_format(content_type='application/json', applies_globally=False):
+    '''A decorator that allows you to override the default output format for an API'''
     def decorator(formatter):
-        module = sys.modules[formatter.__module__]
+        module = _api_module(formatter.__module__)
         formatter = hug.output_format.content_type(content_type)(formatter)
-        module.__hug__.output_format = formatter
+        if applies_globally:
+            hug.defaults.output_format = formatter
+        else:
+            module.__hug__.output_format = formatter
         return formatter
     return decorator
 
 
-def default_input_format(content_type='application/json'):
-    """A decorator that allows you to override the default output format for an API"""
+def default_input_format(content_type='application/json', applies_globally=False):
+    '''A decorator that allows you to override the default output format for an API'''
     def decorator(formatter):
-        module = sys.modules[formatter.__module__]
+        module = _api_module(formatter.__module__)
         formatter = hug.output_format.content_type(content_type)(formatter)
-        module.__hug__.set_input_format(content_type, formatter)
+        if applies_globally:
+            hug.defaults.input_formats[content_type] = formatter
+        else:
+            module.__hug__.set_input_format(content_type, formatter)
         return formatter
     return decorator
+
+
+def directive(applies_globally=True):
+    '''A decorator that registers a single hug directive'''
+    def decorator(directive_method):
+        module = _api_module(formatter.__module__)
+        if applies_globally:
+            hug.defaults.directives[directive_method.__name__] = directive_method
+        else:
+            module.__hug__.add_directive(directive_method)
+        return directive_method
+    return decorator
+
+
+def _api_module(module_name):
+    module = sys.modules[module_name]
+    if not '__hug__' in module.__dict__:
+        def api_auto_instantiate(*kargs, **kwargs):
+            module.__hug_wsgi__ = server(module)
+            return module.__hug_wsgi__(*kargs, **kwargs)
+        module.__hug__ = HugAPI()
+        module.__hug_wsgi__ = api_auto_instantiate
+    return module
 
 
 def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True):
@@ -61,16 +105,12 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
     versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
 
     def decorator(api_function):
-        module = sys.modules[api_function.__module__]
-        if not '__hug__' in module.__dict__:
-            def api_auto_instantiate(*kargs, **kwargs):
-                module.__hug_wsgi__ = server(module)
-                return module.__hug_wsgi__(*kargs, **kwargs)
-            module.__hug__ = HugAPI()
-            module.__hug_wsgi__ = api_auto_instantiate
+        module = _api_module(api_function.__module__)
         accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
         takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
         function_output = output or module.__hug__.output_format
+        directives = module.__hug__.directives()
+        use_directives = set(accepted_parameters).intersection(directives.keys())
 
         defaults = {}
         for index, default in enumerate(reversed(api_function.__defaults__ or ())):
@@ -104,6 +144,10 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
                 input_parameters['request'] = request
             if 'response' in accepted_parameters:
                 input_parameters['response'] = response
+            for parameter in use_directives:
+                if not parameter in input_parameters:
+                    arguments = (defaults[parameter], ) if parameter in defaults else ()
+                    input_parameters[parameter] = directives[parameter](*arguments, response=response, request=request)
             for require in required:
                 if not require in input_parameters:
                     errors[require] = "Required parameter not supplied"
