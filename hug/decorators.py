@@ -1,7 +1,7 @@
 import json
 import sys
 from collections import OrderedDict, namedtuple
-from functools import partial
+from functools import partial, wraps
 from itertools import chain
 
 from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
@@ -46,6 +46,17 @@ class HugAPI(object):
     def output_format(self, formatter):
         self._output_format = formatter
 
+    def extend(self, module, route=""):
+        for item_route, handler in module.__api__.routes.items():
+            self.routes[route + item_route] = handler
+
+        for directive in getattr(module.__api__, '_directives', ()):
+            self.add_directive(directive)
+
+        for input_format, input_format_handler in getattr(module.__api__, '_input_format', {}):
+            if not input_format in getattr(self, '_input_format', {}):
+                self.set_input_format(input_format, input_format_handler)
+
 
 def default_output_format(content_type='application/json', applies_globally=False):
     '''A decorator that allows you to override the default output format for an API'''
@@ -82,6 +93,16 @@ def directive(applies_globally=True):
         else:
             module.__hug__.add_directive(directive_method)
         return directive_method
+    return decorator
+
+
+def extend_api(route=""):
+    '''Extends the current api, with handlers from an imported api. Optionally provide a route that prefixes access'''
+    def decorator(extend_with):
+        module = _api_module(extend_with.__module__)
+        for api in extend_with():
+            module.__hug__.extend(api, route)
+        return extend_with
     return decorator
 
 
@@ -174,7 +195,17 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
         interface.defaults = defaults
         interface.accepted_parameters = accepted_parameters
         interface.content_type = function_output.content_type
-        return api_function
+
+        if use_directives:
+            @wraps(api_function)
+            def directive_injected_method(*args, **kwargs):
+                for parameter in use_directives:
+                    arguments = (defaults[parameter], ) if parameter in defaults else ()
+                    kwargs[parameter] = directives[parameter](*arguments)
+                return api_function(*args, **kwargs)
+            return directive_injected_method
+        else:
+            return api_function
     return decorator
 
 
