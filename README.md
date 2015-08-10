@@ -76,6 +76,13 @@ any other Python functions. Additionally, this means interacting with your API f
 straight forward as calling Python only API functions.
 
 
+Hug Directives
+===================
+
+Hug supports argument directives, which means you can defind behavior to automatically be executed by the existince
+of an argument in the API definition.
+
+
 Running hug with other WSGI based servers
 ===================
 
