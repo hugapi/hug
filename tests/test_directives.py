@@ -19,7 +19,10 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import sys
 import hug
+
+api = sys.modules[__name__]
 
 
 def test_timer():
@@ -30,3 +33,9 @@ def test_timer():
     timer = hug.directives.timer('Time: {0}')
     assert isinstance(timer.taken(), str)
     assert isinstance(timer.start, float)
+
+    @hug.get()
+    def timer_tester(timer):
+        return timer.taken()
+
+    assert isinstance(hug.test.get(api, 'timer_tester').data, float)
