@@ -5,9 +5,9 @@ from functools import partial
 
 from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 
-from hug.run import server
 import hug.defaults
 import hug.output_format
+from hug.run import server
 
 
 class HugAPI(object):
@@ -140,4 +140,3 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
 
 for method in HTTP_METHODS:
     globals()[method.lower()] = partial(call, accept=(method, ))
-
