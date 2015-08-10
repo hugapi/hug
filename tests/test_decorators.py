@@ -94,9 +94,9 @@ def test_parameter_injection():
     assert hug.test.get(api, 'inject_both').data == 'success'
 
     @hug.call()
-    def inject_in_kwargs(**kwargs):
-        return 'request' in kwargs and 'response' in kwargs and 'success'
-    assert hug.test.get(api, 'inject_in_kwargs').data == 'success'
+    def wont_appear_in_kwargs(**kwargs):
+        return 'request' not in kwargs and 'response' not in kwargs and 'success'
+    assert hug.test.get(api, 'wont_appear_in_kwargs').data == 'success'
 
 
 def test_method_routing():
@@ -182,7 +182,7 @@ def test_json_auto_convert():
         return body
     assert hug.test.get(api, 'test_json_body', body=['value1', 'value2']).data == ['value1', 'value2']
 
-    @hug.get(stream_body=True)
+    @hug.get(parse_body=False)
     def test_json_body_stream_only(body=None):
         return body
     assert hug.test.get(api, 'test_json_body_stream_only', body=['value1', 'value2']).data == None

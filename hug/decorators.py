@@ -1,18 +1,19 @@
 import json
 import sys
 from collections import OrderedDict, namedtuple
-from functools import partial
+from functools import partial, wraps
+from itertools import chain
 
 from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 
-from hug.run import server
 import hug.defaults
 import hug.output_format
+from hug.run import server
 
 
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
-    __slots__ = ('versions', 'routes', '_output_format')
+    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives')
 
     def __init__(self):
         self.versions = set()
@@ -26,33 +27,108 @@ class HugAPI(object):
     def output_format(self, formatter):
         self._output_format = formatter
 
+    def input_format(self, content_type):
+        return getattr(self, '_input_format', {}).get(content_type, hug.defaults.input_format.get(content_type, None))
 
-def default_output_format(content_type='application/json'):
-    """A decorator that allows you to override the default output format for an API"""
+    def set_input_format(self, conent_type, handler):
+        if not getattr(self, '_output_format'):
+            self._output_format = {}
+        self.output_format['content_type'] = handler
+
+    def directives(self):
+        directive_sources = chain(hug.defaults.directives.items(), getattr(self, '_directives', {}).items())
+        return {'hug_' + directive_name: directive for directive_name, directive in directive_sources}
+
+    def add_directive(self, directive):
+        self._directives = getattr(self, '_directives', {})[directive.__name__] = directive
+
+    @output_format.setter
+    def output_format(self, formatter):
+        self._output_format = formatter
+
+    def extend(self, module, route=""):
+        for item_route, handler in module.__api__.routes.items():
+            self.routes[route + item_route] = handler
+
+        for directive in getattr(module.__api__, '_directives', ()):
+            self.add_directive(directive)
+
+        for input_format, input_format_handler in getattr(module.__api__, '_input_format', {}):
+            if not input_format in getattr(self, '_input_format', {}):
+                self.set_input_format(input_format, input_format_handler)
+
+
+def default_output_format(content_type='application/json', applies_globally=False):
+    '''A decorator that allows you to override the default output format for an API'''
     def decorator(formatter):
-        module = sys.modules[formatter.__module__]
+        module = _api_module(formatter.__module__)
         formatter = hug.output_format.content_type(content_type)(formatter)
-        module.__hug__.output_format = formatter
+        if applies_globally:
+            hug.defaults.output_format = formatter
+        else:
+            module.__hug__.output_format = formatter
         return formatter
     return decorator
 
 
-def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, stream_body=False):
+def default_input_format(content_type='application/json', applies_globally=False):
+    '''A decorator that allows you to override the default output format for an API'''
+    def decorator(formatter):
+        module = _api_module(formatter.__module__)
+        formatter = hug.output_format.content_type(content_type)(formatter)
+        if applies_globally:
+            hug.defaults.input_formats[content_type] = formatter
+        else:
+            module.__hug__.set_input_format(content_type, formatter)
+        return formatter
+    return decorator
+
+
+def directive(applies_globally=True):
+    '''A decorator that registers a single hug directive'''
+    def decorator(directive_method):
+        module = _api_module(formatter.__module__)
+        if applies_globally:
+            hug.defaults.directives[directive_method.__name__] = directive_method
+        else:
+            module.__hug__.add_directive(directive_method)
+        return directive_method
+    return decorator
+
+
+def extend_api(route=""):
+    '''Extends the current api, with handlers from an imported api. Optionally provide a route that prefixes access'''
+    def decorator(extend_with):
+        module = _api_module(extend_with.__module__)
+        for api in extend_with():
+            module.__hug__.extend(api, route)
+        return extend_with
+    return decorator
+
+
+def _api_module(module_name):
+    module = sys.modules[module_name]
+    if not '__hug__' in module.__dict__:
+        def api_auto_instantiate(*kargs, **kwargs):
+            module.__hug_wsgi__ = server(module)
+            return module.__hug_wsgi__(*kargs, **kwargs)
+        module.__hug__ = HugAPI()
+        module.__hug_wsgi__ = api_auto_instantiate
+    return module
+
+
+def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True):
     urls = (urls, ) if isinstance(urls, str) else urls
     examples = (examples, ) if isinstance(examples, str) else examples
     versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
 
     def decorator(api_function):
-        module = sys.modules[api_function.__module__]
-        if not '__hug__' in module.__dict__:
-            def api_auto_instantiate(*kargs, **kwargs):
-                module.__hug_wsgi__ = server(module)
-                return module.__hug_wsgi__(*kargs, **kwargs)
-            module.__hug__ = HugAPI()
-            module.__hug_wsgi__ = api_auto_instantiate
+        module = _api_module(api_function.__module__)
         accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
         takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
         function_output = output or module.__hug__.output_format
+        directives = module.__hug__.directives()
+        use_directives = set(accepted_parameters).intersection(directives.keys())
 
         defaults = {}
         for index, default in enumerate(reversed(api_function.__defaults__ or ())):
@@ -66,9 +142,11 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
             response.content_type = function_output.content_type
             input_parameters = kwargs
             input_parameters.update(request.params)
-            if request.content_type == "application/json" and not stream_body:
-                body = json.loads(request.stream.read().decode('utf8'))
-                input_parameters.setdefault('body', body)
+            body_formatting_handler = parse_body and module.__hug__.input_format(request.content_type)
+            if body_formatting_handler:
+                body = body_formatting_handler(request.stream.read().decode('utf8'))
+                if 'body' in accepted_parameters:
+                    input_parameters['body'] = body
                 if isinstance(body, dict):
                     input_parameters.update(body)
 
@@ -80,7 +158,13 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
                 except Exception as error:
                     errors[key] = str(error)
 
-            input_parameters['request'], input_parameters['response'] = (request, response)
+            if 'request' in accepted_parameters:
+                input_parameters['request'] = request
+            if 'response' in accepted_parameters:
+                input_parameters['response'] = response
+            for parameter in use_directives:
+                arguments = (defaults[parameter], ) if parameter in defaults else ()
+                input_parameters[parameter] = directives[parameter](*arguments, response=response, request=request)
             for require in required:
                 if not require in input_parameters:
                     errors[require] = "Required parameter not supplied"
@@ -111,10 +195,19 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
         interface.defaults = defaults
         interface.accepted_parameters = accepted_parameters
         interface.content_type = function_output.content_type
-        return api_function
+
+        if use_directives:
+            @wraps(api_function)
+            def directive_injected_method(*args, **kwargs):
+                for parameter in use_directives:
+                    arguments = (defaults[parameter], ) if parameter in defaults else ()
+                    kwargs[parameter] = directives[parameter](*arguments)
+                return api_function(*args, **kwargs)
+            return directive_injected_method
+        else:
+            return api_function
     return decorator
 
 
 for method in HTTP_METHODS:
     globals()[method.lower()] = partial(call, accept=(method, ))
-

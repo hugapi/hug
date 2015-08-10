@@ -1,12 +1,7 @@
 import json as json_converter
 from datetime import date, datetime
 
-
-def content_type(content_type):
-    def decorator(method):
-        method.content_type = content_type
-        return method
-    return decorator
+from hug.format import content_type
 
 
 def _json_converter(item):

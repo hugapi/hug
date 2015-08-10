@@ -1,9 +1,12 @@
 import json as json_converter
 import re
 
+from hug.format import content_type
+
 UNDERSCORE = (re.compile('(.)([A-Z][a-z]+)'), re.compile('([a-z0-9])([A-Z])'))
 
 
+@content_type('application/json')
 def json(body):
     return json_converter.loads(body)
 
