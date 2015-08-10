@@ -12,7 +12,7 @@ import hug.output_format
 
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
-    __slots__ = ('versions', 'routes', '_output_format')
+    __slots__ = ('versions', 'routes', '_output_format', '_input_format')
 
     def __init__(self):
         self.versions = set()
@@ -26,6 +26,14 @@ class HugAPI(object):
     def output_format(self, formatter):
         self._output_format = formatter
 
+    def input_format(self, content_type):
+        return getattr(self, '_input_format', {}).get(content_type, hug.defaults.input_format.get(content_type, None))
+
+    def set_input_format(self, conent_type, handler):
+        if not getattr(self, '_output_format'):
+            self._output_format = {}
+        self.output_format['content_type'] = handler
+
 
 def default_output_format(content_type='application/json'):
     """A decorator that allows you to override the default output format for an API"""
@@ -37,7 +45,17 @@ def default_output_format(content_type='application/json'):
     return decorator
 
 
-def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, stream_body=False):
+def default_input_format(content_type='application/json'):
+    """A decorator that allows you to override the default output format for an API"""
+    def decorator(formatter):
+        module = sys.modules[formatter.__module__]
+        formatter = hug.output_format.content_type(content_type)(formatter)
+        module.__hug__.set_input_format(content_type, formatter)
+        return formatter
+    return decorator
+
+
+def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True):
     urls = (urls, ) if isinstance(urls, str) else urls
     examples = (examples, ) if isinstance(examples, str) else examples
     versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
@@ -66,9 +84,11 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
             response.content_type = function_output.content_type
             input_parameters = kwargs
             input_parameters.update(request.params)
-            if request.content_type == "application/json" and not stream_body:
-                body = json.loads(request.stream.read().decode('utf8'))
-                input_parameters.setdefault('body', body)
+            body_formatting_handler = parse_body and module.__hug__.input_format(request.content_type)
+            if body_formatting_handler:
+                body = body_formatting_handler(request.stream.read().decode('utf8'))
+                if 'body' in accepted_parameters:
+                    input_parameters['body'] = body
                 if isinstance(body, dict):
                     input_parameters.update(body)
 
@@ -80,7 +100,10 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
                 except Exception as error:
                     errors[key] = str(error)
 
-            input_parameters['request'], input_parameters['response'] = (request, response)
+            if 'request' in accepted_parameters:
+                input_parameters['request'] = request
+            if 'response' in accepted_parameters:
+                input_parameters['response'] = response
             for require in required:
                 if not require in input_parameters:
                     errors[require] = "Required parameter not supplied"

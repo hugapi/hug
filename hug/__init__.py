@@ -28,11 +28,10 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from hug import documentation, input_format, output_format, run, test, types, defaults
+from hug import documentation, input_format, output_format, run, test, types, defaults, format
 from hug._version import current
 from hug.decorators import call, connect, delete, get, head, options, patch, post, put, trace, default_output_format
 
 __version__ = current
 __all__ = ['run', 'types', 'test', 'input_format', 'output_format', 'documentation', 'call', 'delete', 'get', 'post',
-           'put', 'options', 'connect', 'head', 'patch', 'trace', 'terminal', 'output_format', '__version__',
-           'defaults']
+           'put', 'options', 'connect', 'head', 'patch', 'trace', 'terminal', 'format', '__version__', 'defaults']
