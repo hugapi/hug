@@ -19,6 +19,15 @@ Hug's Design Objectives:
 
 As a result of these goals Hug is Python3+ only and uses Falcon under the cover to quickly handle requests.
 
+Installing Hug
+===================
+
+Installing hug is as simple as:
+
+    pip install hug
+
+Ideally, within a virtual environment.
+
 
 Basic Example API
 ===================
