@@ -15,6 +15,9 @@ Hug's Design Objectives:
 - It should be fast. Never should a developer feel the need to look somewhere else for performance reasons.
 - Writing tests for APIs written on-top of Hug should be easy and intuitive.
 - Magic done once, in an API, is better then pushing the problem set to the user of the API.
+- Be the basis for next generation Python APIs, embracing the latest technology.
+
+As a result of these goals Hug is Python3+ only and uses Falcon under the cover to quickly handler requests.
 
 
 Basic Example API
@@ -97,7 +100,7 @@ To run the hello world hug example API.
 Why Hug?
 ===================
 HUG simply stands for Hopefully Useful Guide. This represents the projects goal to help guide developers into creating
-well written and intuitive APIs. Also, it's cheerful :)
+well written and intuitive APIs.
 
 --------------------------------------------
 
