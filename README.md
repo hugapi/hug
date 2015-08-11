@@ -1,14 +1,12 @@
 ![HUG](https://raw.github.com/timothycrosley/hug/develop/logo.png)
 ===================
 
-Everyone needs a hug every once in a while. Even API developers. Hug aims to make developing Python driven APIs as simple as possible, but no simpler.
-
 [![PyPI version](https://badge.fury.io/py/hug.png)](http://badge.fury.io/py/hug)
 [![Build Status](https://travis-ci.org/timothycrosley/hug.png?branch=master)](https://travis-ci.org/timothycrosley/hug)
 [![Coverage Status](https://coveralls.io/repos/timothycrosley/hug/badge.svg?branch=master&service=github)](https://coveralls.io/github/timothycrosley/hug?branch=master)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/hug/)
 
-Hug drastically simplifies Python API development.
+Hug aims to make developing Python driven APIs as simple as possible, but no simpler. As a result, it drastically simplifies Python API development.
 
 Hug's Design Objectives:
 
