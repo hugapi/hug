@@ -1,4 +1,4 @@
-HUG
+![HUG](https://raw.github.com/timothycrosley/hug/develop/logo.png)
 ===================
 
 Everyone needs a hug every once in a while. Even API developers. Hug aims to make developing Python driven APIs as simple as possible, but no simpler.
