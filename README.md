@@ -17,7 +17,7 @@ Hug's Design Objectives:
 - Magic done once, in an API, is better then pushing the problem set to the user of the API.
 - Be the basis for next generation Python APIs, embracing the latest technology.
 
-As a result of these goals Hug is Python3+ only and uses Falcon under the cover to quickly handler requests.
+As a result of these goals Hug is Python3+ only and uses Falcon under the cover to quickly handle requests.
 
 
 Basic Example API
