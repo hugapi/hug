@@ -32,7 +32,9 @@ def generate(module, base_url=""):
                         example_text =  "{0}{1}{2}".format(base_url, '/v{0}'.format(version) if version else '', url)
                         if isinstance(example, str):
                             example_text += "?{0}".format(example)
-                        doc.setdefault('examples', []).append(example_text)
+                        doc_examples = doc.setdefault('examples', [])
+                        if not example_text in doc_examples:
+                            doc_examples.append(example_text)
                     doc['outputs'] = OrderedDict(format=handler.output_format.__doc__,
                                                  content_type=handler.content_type)
 
