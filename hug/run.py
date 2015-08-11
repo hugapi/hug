@@ -73,7 +73,7 @@ def version_router(request, response, api_version=None, __versions__={}, __sink_
     if request_version:
         request_version = int(request_version)
     __versions__.get(request_version, __versions__.get(None, __sink__))(request, response, api_version=api_version,
-                                                                    **kwargs)
+                                                                        **kwargs)
 
 def server(module, sink=documentation_404):
     api = falcon.API()
