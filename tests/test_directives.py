@@ -26,13 +26,13 @@ api = sys.modules[__name__]
 
 
 def test_timer():
-    timer = hug.directives.timer()
+    timer = hug.directives.Timer()
     assert isinstance(timer.start, float)
     assert isinstance(timer.elapsed, float)
     assert isinstance(float(timer), float)
     assert isinstance(int(timer), int)
 
-    timer = hug.directives.timer(3)
+    timer = hug.directives.Timer(3)
     assert isinstance(timer.start, float)
     assert isinstance(timer.elapsed, float)
     assert isinstance(float(timer), float)
