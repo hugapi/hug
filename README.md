@@ -1,14 +1,12 @@
-HUG
+![HUG](https://raw.github.com/timothycrosley/hug/develop/logo.png)
 ===================
-
-Everyone needs a hug every once in a while. Even API developers. Hug aims to make developing Python driven APIs as simple as possible, but no simpler.
 
 [![PyPI version](https://badge.fury.io/py/hug.png)](http://badge.fury.io/py/hug)
 [![Build Status](https://travis-ci.org/timothycrosley/hug.png?branch=master)](https://travis-ci.org/timothycrosley/hug)
 [![Coverage Status](https://coveralls.io/repos/timothycrosley/hug/badge.svg?branch=master&service=github)](https://coveralls.io/github/timothycrosley/hug?branch=master)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/hug/)
 
-Hug drastically simplifies Python API development.
+Hug aims to make developing Python driven APIs as simple as possible, but no simpler. As a result, it drastically simplifies Python API development.
 
 Hug's Design Objectives:
 
@@ -17,6 +15,18 @@ Hug's Design Objectives:
 - It should be fast. Never should a developer feel the need to look somewhere else for performance reasons.
 - Writing tests for APIs written on-top of Hug should be easy and intuitive.
 - Magic done once, in an API, is better then pushing the problem set to the user of the API.
+- Be the basis for next generation Python APIs, embracing the latest technology.
+
+As a result of these goals Hug is Python3+ only and uses Falcon under the cover to quickly handle requests.
+
+Installing Hug
+===================
+
+Installing hug is as simple as:
+
+    pip install hug
+
+Ideally, within a virtual environment.
 
 
 Basic Example API
@@ -99,7 +109,7 @@ To run the hello world hug example API.
 Why Hug?
 ===================
 HUG simply stands for Hopefully Useful Guide. This represents the projects goal to help guide developers into creating
-well written and intuitive APIs. Also, it's cheerful :)
+well written and intuitive APIs.
 
 --------------------------------------------
 

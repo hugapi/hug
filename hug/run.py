@@ -15,6 +15,29 @@ import falcon
 from hug import documentation
 from hug._version import current
 
+INTRO = """
+/#######################################################################\\
+          `.----``..-------..``.----.
+         :/:::::--:---------:--::::://.
+        .+::::----##/-/oo+:-##----:::://
+        `//::-------/oosoo-------::://.       ##    ##  ##    ##    #####
+          .-:------./++o/o-.------::-`   ```  ##    ##  ##    ##  ##
+             `----.-./+o+:..----.     `.:///. ########  ##    ## ##
+   ```        `----.-::::::------  `.-:::://. ##    ##  ##    ## ##   ####
+  ://::--.``` -:``...-----...` `:--::::::-.`  ##    ##  ##   ##   ##    ##
+  :/:::::::::-:-     `````      .:::::-.`     ##    ##    ####     ######
+   ``.--:::::::.                .:::.`
+         ``..::.                .::         EMBRACE THE APIs OF THE FUTURE
+             ::-                .:-
+             -::`               ::-                   VERSION {0}
+             `::-              -::`
+              -::-`           -::-
+\########################################################################/
+
+ Copyright (C) 2015 Timothy Edmund Crosley
+ Under the MIT License
+
+""".format(current)
 
 def documentation_404(module):
     def handle_404(request, response, *kargs, **kwargs):
@@ -50,7 +73,7 @@ def version_router(request, response, api_version=None, __versions__={}, __sink_
     if request_version:
         request_version = int(request_version)
     __versions__.get(request_version, __versions__.get(None, __sink__))(request, response, api_version=api_version,
-                                                                    **kwargs)
+                                                                        **kwargs)
 
 def server(module, sink=documentation_404):
     api = falcon.API()
@@ -93,6 +116,7 @@ def terminal():
     if not api:
         sys.exit(1)
 
+    print(INTRO)
     httpd = make_server('', parsed.port, api)
     print("Serving on port {0}...".format(parsed.port))
     httpd.serve_forever()

@@ -13,11 +13,12 @@ from hug.run import server
 
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
-    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives')
+    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned')
 
     def __init__(self):
         self.versions = set()
         self.routes = OrderedDict()
+        self.versioned = OrderedDict()
 
     @property
     def output_format(self):
@@ -138,7 +139,7 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
         if not required and not use_examples:
             use_examples = (True, )
 
-        def interface(request, response, **kwargs):
+        def interface(request, response, api_version=None, **kwargs):
             response.content_type = function_output.content_type
             input_parameters = kwargs
             input_parameters.update(request.params)
@@ -162,9 +163,12 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
                 input_parameters['request'] = request
             if 'response' in accepted_parameters:
                 input_parameters['response'] = response
+            if 'api_version' in accepted_parameters:
+                input_parameters['api_version'] = api_version
             for parameter in use_directives:
                 arguments = (defaults[parameter], ) if parameter in defaults else ()
-                input_parameters[parameter] = directives[parameter](*arguments, response=response, request=request)
+                input_parameters[parameter] = directives[parameter](*arguments, response=response, request=request,
+                                                                    module=module, api_version=api_version)
             for require in required:
                 if not require in input_parameters:
                     errors[require] = "Required parameter not supplied"
@@ -181,12 +185,24 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
         if versions:
             module.__hug__.versions.update(versions)
 
+        callable_method = api_function
+        if use_directives:
+            @wraps(api_function)
+            def callable_method(*args, **kwargs):
+                for parameter in use_directives:
+                    arguments = (defaults[parameter], ) if parameter in defaults else ()
+                    kwargs[parameter] = directives[parameter](*arguments, module=module,
+                                                              api_version=max(versions) if versions else None)
+                return api_function(*args, **kwargs)
+            callable_method.interface = interface
+
         for url in urls or ("/{0}".format(api_function.__name__), ):
             handlers = module.__hug__.routes.setdefault(url, {})
             for method in accept:
                 version_mapping = handlers.setdefault(method.upper(), {})
                 for version in versions:
                     version_mapping[version] = interface
+                    module.__hug__.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
 
         api_function.interface = interface
         interface.api_function = api_function
@@ -196,16 +212,7 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
         interface.accepted_parameters = accepted_parameters
         interface.content_type = function_output.content_type
 
-        if use_directives:
-            @wraps(api_function)
-            def directive_injected_method(*args, **kwargs):
-                for parameter in use_directives:
-                    arguments = (defaults[parameter], ) if parameter in defaults else ()
-                    kwargs[parameter] = directives[parameter](*arguments)
-                return api_function(*args, **kwargs)
-            return directive_injected_method
-        else:
-            return api_function
+        return callable_method
     return decorator
 
 
