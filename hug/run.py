@@ -97,6 +97,7 @@ def documentation_404(module):
         to_return['documentation'] = documentation.generate(module, base_url, determine_version(request, api_version))
         response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
         response.status = falcon.HTTP_NOT_FOUND
+        response.content_type = 'application/json'
     return handle_404
 
 

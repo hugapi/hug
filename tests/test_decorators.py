@@ -166,12 +166,17 @@ def test_versioning():
     def echo(text):
         return "Echo: {text}".format(**locals())
 
+    @hug.get('/echo', versions=7)
+    def echo(text, api_version):
+        return api_version
+
     assert hug.test.get(api, 'v1/echo', text="hi").data == 'hi'
     assert hug.test.get(api, 'v2/echo', text="hi").data == "Echo: hi"
     assert hug.test.get(api, 'v3/echo', text="hi").data == "Echo: hi"
     assert hug.test.get(api, 'echo', text="hi", api_version=3).data == "Echo: hi"
     assert hug.test.get(api, 'echo', text="hi", headers={'X-API-VERSION': '3'}).data == "Echo: hi"
     assert hug.test.get(api, 'v4/echo', text="hi").data == "Not Implemented"
+    assert hug.test.get(api, 'v7/echo', text="hi").data == 7
     assert hug.test.get(api, 'echo', text="hi").data == "Not Implemented"
     assert hug.test.get(api, 'echo', text="hi", api_version=3, body={'api_vertion': 4}).data == "Echo: hi"
 
@@ -224,6 +229,8 @@ def test_json_auto_convert():
 
 def test_output_format():
     '''Test to ensure it's possible to quickly change the default hug output format'''
+    old_formatter = api.__hug__.output_format
+
     @hug.default_output_format()
     def augmented(data):
         return hug.output_format.json(['Augmented', data])
@@ -237,4 +244,37 @@ def test_output_format():
     @hug.default_output_format()
     def jsonify(data):
         return hug.output_format.json(data)
+
+
+    api.__hug__.output_format = hug.output_format.text
+
+    @hug.get()
+    def my_method():
+        return {'Should': 'work'}
+
+    assert hug.test.get(api, 'my_method').data == "{'Should': 'work'}"
+    api.__hug__.output_format = old_formatter
+
+
+def test_input_format():
+    '''Test to ensure it's possible to quickly change the default hug output format'''
+    old_format = api.__hug__.input_format('application/json')
+    api.__hug__.set_input_format('application/json', lambda a: {'no': 'relation'})
+
+    @hug.get()
+    def hello(body):
+        return body
+
+    assert hug.test.get(api, 'hello', body={'should': 'work'}).data == {'no': 'relation'}
+    api.__hug__.set_input_format('application/json', old_format)
+
+
+def test_extending_api():
+    '''Test to ensure it's possible to extend the current API from an external file'''
+    @hug.extend_api('/fake')
+    def extend_with():
+        import tests.module_fake
+        return (tests.module_fake, )
+
+    assert hug.test.get(api, 'fake/made_up_api').data == True
 

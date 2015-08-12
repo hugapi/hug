@@ -31,12 +31,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from hug import directives, documentation, format, input_format, output_format, run, test, types
 from hug._version import current
-from hug.decorators import (call, connect, default_input_format, default_output_format,
-                            delete, extend_api, get, head, options, patch, post, put, trace)
+from hug.decorators import (call, connect, default_input_format, default_output_format, delete,
+                            directive, extend_api, get, head, options, patch, post, put, trace)
 
 from hug import defaults  # isort:skip - must be imported last for defaults to have access to all modules
 
 __version__ = current
 __all__ = ['run', 'types', 'test', 'input_format', 'output_format', 'documentation', 'call', 'delete', 'get', 'post',
            'put', 'options', 'connect', 'head', 'patch', 'trace', 'terminal', 'format', '__version__', 'defaults',
-           'directives', 'default_output_format', 'default_input_format', 'extend_api']
+           'directives', 'default_output_format', 'default_input_format', 'extend_api', 'directive']

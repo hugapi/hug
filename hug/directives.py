@@ -46,10 +46,7 @@ class Timer(object):
 
 def module(default=None, module=None, **kwargs):
     '''Returns the module that is running this hug API function'''
-    if not module:
-        return default
-
-    return module
+    return module if module else default
 
 
 def api(default=None, module=None, **kwargs):

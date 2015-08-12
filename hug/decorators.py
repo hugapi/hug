@@ -58,11 +58,11 @@ class HugAPI(object):
         '''Returns the set input_format handler for the given content_type'''
         return getattr(self, '_input_format', {}).get(content_type, hug.defaults.input_format.get(content_type, None))
 
-    def set_input_format(self, conent_type, handler):
+    def set_input_format(self, content_type, handler):
         '''Sets an input format handler for this Hug API, given the specified content_type'''
-        if not getattr(self, '_output_format'):
-            self._output_format = {}
-        self.output_format['content_type'] = handler
+        if getattr(self, '_input_format', None) is None:
+            self._input_format = {}
+        self._input_format[content_type] = handler
 
     def directives(self):
         '''Returns all directives applicable to this Hug API'''
@@ -70,31 +70,28 @@ class HugAPI(object):
         return {'hug_' + directive_name: directive for directive_name, directive in directive_sources}
 
     def add_directive(self, directive):
-        self._directives = getattr(self, '_directives', {})[directive.__name__] = directive
-
-    @output_format.setter
-    def output_format(self, formatter):
-        self._output_format = formatter
+        self._directives = getattr(self, '_directives', {})
+        self._directives[directive.__name__] = directive
 
     def extend(self, module, route=""):
         '''Adds handlers from a different Hug API module to this one - to create a single API'''
-        for item_route, handler in module.__api__.routes.items():
+        for item_route, handler in module.__hug__.routes.items():
             self.routes[route + item_route] = handler
 
-        for directive in getattr(module.__api__, '_directives', ()):
+        for directive in getattr(module.__hug__, '_directives', ()).values():
             self.add_directive(directive)
 
-        for input_format, input_format_handler in getattr(module.__api__, '_input_format', {}):
+        for input_format, input_format_handler in getattr(module.__hug__, '_input_format', {}).items():
             if not input_format in getattr(self, '_input_format', {}):
                 self.set_input_format(input_format, input_format_handler)
 
 
-def default_output_format(content_type='application/json', applies_globally=False):
+def default_output_format(content_type='application/json', apply_globally=False):
     '''A decorator that allows you to override the default output format for an API'''
     def decorator(formatter):
         module = _api_module(formatter.__module__)
         formatter = hug.output_format.content_type(content_type)(formatter)
-        if applies_globally:
+        if apply_globally:
             hug.defaults.output_format = formatter
         else:
             module.__hug__.output_format = formatter
@@ -102,24 +99,24 @@ def default_output_format(content_type='application/json', applies_globally=Fals
     return decorator
 
 
-def default_input_format(content_type='application/json', applies_globally=False):
+def default_input_format(content_type='application/json', apply_globally=False):
     '''A decorator that allows you to override the default output format for an API'''
     def decorator(formatter):
         module = _api_module(formatter.__module__)
         formatter = hug.output_format.content_type(content_type)(formatter)
-        if applies_globally:
-            hug.defaults.input_formats[content_type] = formatter
+        if apply_globally:
+            hug.defaults.input_format[content_type] = formatter
         else:
             module.__hug__.set_input_format(content_type, formatter)
         return formatter
     return decorator
 
 
-def directive(applies_globally=True):
+def directive(apply_globally=True):
     '''A decorator that registers a single hug directive'''
     def decorator(directive_method):
-        module = _api_module(formatter.__module__)
-        if applies_globally:
+        module = _api_module(directive_method.__module__)
+        if apply_globally:
             hug.defaults.directives[directive_method.__name__] = directive_method
         else:
             module.__hug__.add_directive(directive_method)
