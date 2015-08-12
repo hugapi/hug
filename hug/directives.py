@@ -32,6 +32,11 @@ def api(default=None, module=None, **kwargs):
     return getattr(module, '__hug__', default)
 
 
+def api_version(default=None, api_version=None, **kwargs):
+    '''Returns the current api_version as a directive for use in both request and not request handling code'''
+    return api_version
+
+
 class CurrentAPI(object):
     '''Returns quick access to all api functions on the current version of the api'''
     __slots__ = ('api_version', 'api')
