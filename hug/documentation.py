@@ -3,7 +3,7 @@ from collections import OrderedDict
 import hug.types
 
 
-def generate(module, base_url=""):
+def generate(module, base_url="", api_version=None):
     documentation = OrderedDict()
     overview = module.__doc__
     if overview:
@@ -11,7 +11,7 @@ def generate(module, base_url=""):
 
     documentation['versions'] = OrderedDict()
     versions = module.__hug__.versions
-    for version in versions:
+    for version in (api_version, ) if api_version else versions:
         documentation['versions'][version] = OrderedDict()
 
     for url, methods in module.__hug__.routes.items():
@@ -22,6 +22,9 @@ def generate(module, base_url=""):
                 else:
                     applies_to = (version, )
                 for version in applies_to:
+                    if api_version and version != api_version:
+                        continue
+
                     doc = documentation['versions'][version].setdefault(url, OrderedDict())
                     doc = doc.setdefault(method, OrderedDict())
 
