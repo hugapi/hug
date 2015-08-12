@@ -41,5 +41,5 @@ def test_timer():
         return hug_timer
 
     assert isinstance(hug.test.get(api, 'timer_tester').data, float)
-    assert isinstance(timer_tester(), float)
+    assert isinstance(timer_tester(), hug.directives.Timer)
 
