@@ -44,7 +44,7 @@ def json(content, **kwargs):
 @content_type('text/plain')
 def text(content):
     '''Free form UTF8 text'''
-    return content.encode('utf8')
+    return str(content).encode('utf8')
 
 
 def _camelcase(dictionary):

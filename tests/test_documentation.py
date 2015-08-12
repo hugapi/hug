@@ -20,7 +20,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import sys
+import json
 import hug
+from falcon import Request
+from falcon.testing import StartResponseMock, create_environ
 
 api = sys.modules[__name__]
 
@@ -82,9 +85,12 @@ def test_basic_documentation():
     assert not 'versions' in specific_version_doc
     assert '/echo' in specific_version_doc
 
-
-
-
+    handler = hug.run.documentation_404(api)
+    response = StartResponseMock()
+    handler(Request(create_environ(path='v1/doc')), response)
+    documentation = json.loads(response.data.decode('utf8'))['documentation']
+    assert not 'versions' in documentation
+    assert '/echo' in documentation
 
 
 
