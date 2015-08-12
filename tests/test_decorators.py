@@ -173,16 +173,16 @@ def test_versioning():
 
 def test_multiple_version_injection():
     @hug.get(versions=(1, 2, None))
-    def my_api_function(api_version):
-        return api_version
+    def my_api_function(hug_api_version):
+        return hug_api_version
 
     assert hug.test.get(api, 'v1/my_api_function').data == 1
     assert hug.test.get(api, 'v2/my_api_function').data == 2
     assert hug.test.get(api, 'v3/my_api_function').data == 3
 
     @hug.get(versions=(None, 1))
-    def call_other_function(hug_current_api, hug_api_version):
-        return hug_current_api.my_api_function(hug_api_version)
+    def call_other_function(hug_current_api):
+        return hug_current_api.my_api_function()
 
     assert hug.test.get(api, 'v1/call_other_function').data == 1
     assert call_other_function() == 1
