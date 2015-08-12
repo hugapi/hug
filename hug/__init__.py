@@ -1,4 +1,4 @@
-"""hug/__init__.py.
+"""hug/__init__.py
 
 Everyone needs a hug every once in a while. Even API developers. Hug aims to make developing Python driven APIs as
 simple as possible, but no simpler.
@@ -10,6 +10,7 @@ Hug's Design Objectives:
 - It should be fast. Never should a developer feel the need to look somewhere else for performance reasons.
 - Writing tests for APIs written on-top of Hug should be easy and intuitive.
 - Magic done once, in an API, is better then pushing the problem set to the user of the API.
+- Be the basis for next generation Python APIs, embracing the latest technology.
 
 Copyright (C) 2015  Timothy Edmund Crosley
 
@@ -30,12 +31,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from hug import directives, documentation, format, input_format, output_format, run, test, types
 from hug._version import current
-from hug.decorators import (call, connect, default_input_format, default_output_format,
-                            delete, extend_api, get, head, options, patch, post, put, trace)
+from hug.decorators import (call, connect, default_input_format, default_output_format, delete, directive, extend_api,
+                            get, head, options, patch, post, put, request_middleware, response_middleware, trace)
 
 from hug import defaults  # isort:skip - must be imported last for defaults to have access to all modules
 
 __version__ = current
 __all__ = ['run', 'types', 'test', 'input_format', 'output_format', 'documentation', 'call', 'delete', 'get', 'post',
            'put', 'options', 'connect', 'head', 'patch', 'trace', 'terminal', 'format', '__version__', 'defaults',
-           'directives', 'default_output_format', 'default_input_format', 'extend_api']
+           'directives', 'default_output_format', 'default_input_format', 'extend_api', 'directive',
+           'request_middleware', 'response_middleware']

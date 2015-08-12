@@ -1,6 +1,6 @@
 """tests/test_directives.py.
 
-Tests to ensure that directives interact in the etimerpected mannor
+Tests to ensure that directives interact in the anticipated manner
 
 Copyright (C) 2015 Timothy Edmund Crosley
 
@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import pytest
 import sys
 import hug
 
@@ -26,22 +27,91 @@ api = sys.modules[__name__]
 
 
 def test_timer():
+    '''Tests that the timer directive outputs the correct format, and automatically attaches itself to an API'''
     timer = hug.directives.Timer()
     assert isinstance(timer.start, float)
-    assert isinstance(timer.elapsed, float)
     assert isinstance(float(timer), float)
     assert isinstance(int(timer), int)
 
     timer = hug.directives.Timer(3)
     assert isinstance(timer.start, float)
-    assert isinstance(timer.elapsed, float)
     assert isinstance(float(timer), float)
     assert isinstance(int(timer), int)
 
     @hug.get()
     def timer_tester(hug_timer):
-        return float(hug_timer)
+        return hug_timer
 
     assert isinstance(hug.test.get(api, 'timer_tester').data, float)
-    assert isinstance(timer_tester(), float)
+    assert isinstance(timer_tester(), hug.directives.Timer)
+
+
+def test_module():
+    '''Test to ensure the module directive automatically includes the current API's module'''
+    @hug.get()
+    def module_tester(hug_module):
+        return hug_module.__name__
+
+    assert hug.test.get(api, 'module_tester').data == api.__name__
+
+
+def test_api():
+    '''Ensure the api correctly gets passed onto a hug API function based on a directive'''
+    @hug.get()
+    def api_tester(hug_api):
+        return hug_api == api.__hug__
+
+    assert hug.test.get(api, 'api_tester').data is True
+
+
+def test_api_version():
+    '''Ensure that it's possible to get the current version of an API based on a directive'''
+    @hug.get(versions=1)
+    def version_tester(hug_api_version):
+        return hug_api_version
+
+    assert hug.test.get(api, 'v1/version_tester').data == 1
+
+
+def test_current_api():
+    '''Ensure that it's possible to retrieve methods from the same version of the API'''
+    @hug.get(versions=1)
+    def first_method():
+        return "Success"
+
+    @hug.get(versions=1)
+    def version_call_tester(hug_current_api):
+        return hug_current_api.first_method()
+
+    assert hug.test.get(api, 'v1/version_call_tester').data == 'Success'
+
+    @hug.get()
+    def second_method():
+        return "Unversioned"
+
+    @hug.get(versions=2)
+    def version_call_tester(hug_current_api):
+        return hug_current_api.second_method()
+
+    assert hug.test.get(api, 'v2/version_call_tester').data == 'Unversioned'
+
+    @hug.get(versions=3)
+    def version_call_tester(hug_current_api):
+        return hug_current_api.first_method()
+
+    with pytest.raises(AttributeError):
+        hug.test.get(api, 'v3/version_call_tester').data
+
+
+def test_per_api_directives():
+    '''Test to ensure it's easy to define a directive within an API'''
+    @hug.directive(apply_globally=False)
+    def test(default=None, **kwargs):
+        return default
+
+    @hug.get()
+    def my_api_method(hug_test='heyyy'):
+        return hug_test
+
+    assert hug.test.get(api, 'my_api_method').data == 'heyyy'
 

@@ -1,14 +1,6 @@
-"""hug/_version.py.
+"""hug/_version.py
 
 Defines hug version information
-
-Hug's Design Objectives:
-
-- Make developing a Python driven API as succint as a written definition.
-- The framework should encourage code that self-documents.
-- It should be fast. Never should a developer feel the need to look somewhere else for performance reasons.
-- Writing tests for APIs written on-top of Hug should be easy and intuitive.
-- Magic done once, in an API, is better then pushing the problem set to the user of the API.
 
 Copyright (C) 2015  Timothy Edmund Crosley
 
@@ -27,4 +19,4 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-current = "0.2.0"
+current = "1.0.0"

@@ -1,6 +1,6 @@
 """tests/test_output_format.py.
 
-Tests the output format handlers included with hug
+Tests the output format handlers included with Hug
 
 Copyright (C) 2015 Timothy Edmund Crosley
 
@@ -25,11 +25,13 @@ from datetime import datetime
 
 
 def test_text():
+    '''Ensure that it's possible to output a Hug API method as text'''
     hug.output_format.text("Hello World!") == "Hello World!"
     hug.output_format.text(str(1)) == "1"
 
 
 def test_json():
+    '''Ensure that it's possible to output a Hug API method as JSON'''
     now = datetime.now()
     test_data = {'text': 'text', 'datetime': now, 'bytes': b'bytes'}
     output = hug.output_format.json(test_data).decode('utf8')
@@ -45,6 +47,7 @@ def test_json():
 
 
 def test_pretty_json():
+    '''Ensure that it's possible to output a Hug API method as prettified and indented JSON'''
     test_data = {'text': 'text'}
     assert hug.output_format.pretty_json(test_data).decode('utf8') == ('{\n'
                                                                        '    "text": "text"\n'
@@ -52,6 +55,7 @@ def test_pretty_json():
 
 
 def test_json_camelcase():
+    '''Ensure that it's possible to output a Hug API method as camelCased JSON'''
     test_data = {'under_score': {'values_can': 'Be Converted'}}
     output = hug.output_format.json_camelcase(test_data).decode('utf8')
     assert 'underScore' in output

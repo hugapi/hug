@@ -1,6 +1,6 @@
 """tests/test_documentation.py.
 
-Tests the documentation generation capibilities integrated into hug
+Tests the documentation generation capibilities integrated into Hug
 
 Copyright (C) 2015 Timothy Edmund Crosley
 
@@ -20,12 +20,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import sys
+import json
 import hug
+from falcon import Request
+from falcon.testing import StartResponseMock, create_environ
 
 api = sys.modules[__name__]
 
 
 def test_basic_documentation():
+    '''Ensure creating and then documenting APIs with Hug works as intuitively as expected'''
     @hug.get()
     def hello_world():
         """Returns hello world"""
@@ -73,13 +77,20 @@ def test_basic_documentation():
         """V1 Docs"""
         return 'V1'
 
-    versioned_doc = documentation = hug.documentation.generate(api)
+    versioned_doc = hug.documentation.generate(api)
     assert 'versions' in versioned_doc
     assert 1 in versioned_doc['versions']
 
+    specific_version_doc  = hug.documentation.generate(api, api_version=1)
+    assert not 'versions' in specific_version_doc
+    assert '/echo' in specific_version_doc
 
-
-
+    handler = hug.run.documentation_404(api)
+    response = StartResponseMock()
+    handler(Request(create_environ(path='v1/doc')), response)
+    documentation = json.loads(response.data.decode('utf8'))['documentation']
+    assert not 'versions' in documentation
+    assert '/echo' in documentation
 
 
 
