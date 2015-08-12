@@ -39,21 +39,8 @@ INTRO = """
 
 """.format(current)
 
-def documentation_404(module):
-    def handle_404(request, response, *kargs, **kwargs):
-        base_url = request.url[:-1]
-        if request.path and request.path != "/":
-            base_url = request.url.split(request.path)[0]
-        to_return = OrderedDict()
-        to_return['404'] = ("The API call you tried to make was not defined. "
-                            "Here's a definition of the API to help you get going :)")
-        to_return['documentation'] = documentation.generate(module, base_url)
-        response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
-        response.status = falcon.HTTP_NOT_FOUND
-    return handle_404
 
-
-def version_router(request, response, api_version=None, __versions__={}, __sink__=None, **kwargs):
+def determine_version(request, api_version=None):
     request_version = set()
     if api_version is not None:
         request_version.add(api_version)
@@ -69,7 +56,32 @@ def version_router(request, response, api_version=None, __versions__={}, __sink_
     if len(request_version) > 1:
         raise ValueError('You are requesting conflicting versions')
 
-    request_version = next(iter(request_version or (None, )))
+    return next(iter(request_version or (None, )))
+
+
+def documentation_404(module):
+    def handle_404(request, response, *kargs, **kwargs):
+        base_url = request.url[:-1]
+        if request.path and request.path != "/":
+            base_url = request.url.split(request.path)[0]
+
+        api_version = None
+        for version in module.__hug__.versions:
+            if version and "v{0}".format(version) in request.path:
+                api_version = version
+                break
+
+        to_return = OrderedDict()
+        to_return['404'] = ("The API call you tried to make was not defined. "
+                            "Here's a definition of the API to help you get going :)")
+        to_return['documentation'] = documentation.generate(module, base_url, determine_version(request, api_version))
+        response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
+        response.status = falcon.HTTP_NOT_FOUND
+    return handle_404
+
+
+def version_router(request, response, api_version=None, __versions__={}, __sink__=None, **kwargs):
+    request_version = determine_version(request, api_version)
     if request_version:
         request_version = int(request_version)
     __versions__.get(request_version, __versions__.get(None, __sink__))(request, response, api_version=api_version,
