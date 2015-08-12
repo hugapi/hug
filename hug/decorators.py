@@ -140,6 +140,7 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
             use_examples = (True, )
 
         def interface(request, response, api_version=None, **kwargs):
+            api_version = int(api_version) if api_version is not None else api_version
             response.content_type = function_output.content_type
             input_parameters = kwargs
             input_parameters.update(request.params)
@@ -190,9 +191,11 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
             @wraps(api_function)
             def callable_method(*args, **kwargs):
                 for parameter in use_directives:
+                    if parameter in kwargs:
+                        continue
                     arguments = (defaults[parameter], ) if parameter in defaults else ()
                     kwargs[parameter] = directives[parameter](*arguments, module=module,
-                                                              api_version=max(versions) if versions else None)
+                                     api_version=max(versions, key=lambda version: version or -1) if versions else None)
                 return api_function(*args, **kwargs)
             callable_method.interface = interface
 

@@ -1,4 +1,5 @@
 from timeit import default_timer as python_timer
+from functools import partial
 
 
 class Timer(object):
@@ -32,6 +33,11 @@ def api(default=None, module=None, **kwargs):
     return getattr(module, '__hug__', default)
 
 
+def api_version(default=None, api_version=None, **kwargs):
+    '''Returns the current api_version as a directive for use in both request and not request handling code'''
+    return api_version
+
+
 class CurrentAPI(object):
     '''Returns quick access to all api functions on the current version of the api'''
     __slots__ = ('api_version', 'api')
@@ -42,12 +48,15 @@ class CurrentAPI(object):
 
     def __getattr__(self, name):
         function = self.api.versioned.get(self.api_version, {}).get(name, None)
-        if function:
-            return function
+        if not function:
+            function = self.api.versioned.get(None, {}).get(name, None)
+        if not function:
+            raise AttributeError('API Function {0} not found'.format(name))
 
-        function = self.api.versioned.get(None, {}).get(name, None)
-        if function:
-            return function
+        accepts = function.interface.api_function.__code__.co_varnames
+        if 'hug_api_version' in accepts:
+            function = partial(function, hug_api_version=self.api_version)
+        if 'hug_current_api' in accepts:
+            function = partial(function, hug_current_api=self)
 
-        raise AttributeError('API Function {0} not found'.format(name))
-
+        return function

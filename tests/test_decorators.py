@@ -171,6 +171,30 @@ def test_versioning():
         hug.test.get(api, 'v4/echo', text="hi", api_version=3)
 
 
+def test_multiple_version_injection():
+    @hug.get(versions=(1, 2, None))
+    def my_api_function(hug_api_version):
+        return hug_api_version
+
+    assert hug.test.get(api, 'v1/my_api_function').data == 1
+    assert hug.test.get(api, 'v2/my_api_function').data == 2
+    assert hug.test.get(api, 'v3/my_api_function').data == 3
+
+    @hug.get(versions=(None, 1))
+    def call_other_function(hug_current_api):
+        return hug_current_api.my_api_function()
+
+    assert hug.test.get(api, 'v1/call_other_function').data == 1
+    assert call_other_function() == 1
+
+    @hug.get(versions=1)
+    def one_more_level_of_indirection(hug_current_api):
+        return hug_current_api.call_other_function()
+
+    assert hug.test.get(api, 'v1/one_more_level_of_indirection').data == 1
+    assert one_more_level_of_indirection() == 1
+
+
 def test_json_auto_convert():
     @hug.get('/test_json')
     def test_json(text):
@@ -198,5 +222,4 @@ def test_output_format():
         return "world"
 
     assert hug.test.get(api, 'hello').data == ['Augmented', 'world']
-
 
