@@ -9,15 +9,14 @@ class Timer(object):
         self.start = python_timer()
         self.round_to = round_to
 
-    @property
-    def elapsed(self):
+    def __float__(self):
         return round(self.start, self.round_to) if self.round_to else self.start
 
-    def __float__(self):
-        return self.elapsed
-
     def __int__(self):
-        return int(round(self.elapsed))
+        return int(round(float(self)))
+
+    def __json__(self):
+        return self.__float__()
 
 
 def module(default=None, module=None, **kwargs):
