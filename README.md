@@ -111,7 +111,7 @@ Building Blocks of a Hug API
 ===================
 When Building an API using the hug framework you'll use the following concepts:
 
-*METHOD Decorators* get, post, update, etc HTTP method decorators that expose your Python function as an API while keeping your Python method unchanged
+**METHOD Decorators** get, post, update, etc HTTP method decorators that expose your Python function as an API while keeping your Python method unchanged
 
     @hug.get() # <- Is the Hug METHOD decorator
     def hello_world():
@@ -120,7 +120,7 @@ When Building an API using the hug framework you'll use the following concepts:
 Hug uses the structure of the function you decorate to automatically generate documentation for users of your API. Hug always passes a request, response, and api_version
 variable to your function if they are defined params in your function definition.
 
-*Type Annotations* functions that optionally are attached to your methods arguments to specify how the argument is validated and converted into a Python type
+**Type Annotations** functions that optionally are attached to your methods arguments to specify how the argument is validated and converted into a Python type
 
     @hug.get()
     def math(number_1:int, number_2:int): #The :int after both arguments is the Type Annotation
@@ -129,7 +129,7 @@ variable to your function if they are defined params in your function definition
 Type annotations also feed into Hug's automatic documentation generation to let users of your API know what data to supply.
 
 
-*Directives* functions that get executed with the request / response data based on being requested as an argument in your api_function
+**Directives** functions that get executed with the request / response data based on being requested as an argument in your api_function
 
     @hug.get()
     def test_time(hug_timer):
@@ -149,7 +149,7 @@ Directives are always prefixed with 'hug_'. Adding your own directives is straig
     tester() == 100
 
 
-*Output Formatters* a function that takes the output of your API function and formats it for transport to the user of the API.
+**Output Formatters** a function that takes the output of your API function and formats it for transport to the user of the API.
 
     @hug.default_output_formatter()
     def my_output_formatter(data):
@@ -162,7 +162,7 @@ Directives are always prefixed with 'hug_'. Adding your own directives is straig
 as shown, you can easily change the output format for both an entire API as well as an individual API call
 
 
-*Input Formatters* a function that takes the body of data given from a user of your API and formats it for handling.
+**Input Formatters** a function that takes the body of data given from a user of your API and formats it for handling.
 
     @hug.default_input_formatter("application/json")
     def my_output_formatter(data):
@@ -172,7 +172,7 @@ Input formatters are mapped based on the content_type of the request data, and o
 parsing should be done by the Type Annotations present on your api_function
 
 
-*Middleware* functions that get called for every request a Hug API processes
+**Middleware** functions that get called for every request a Hug API processes
 
     @hug.request_middleware()
     def proccess_data(request, response):
