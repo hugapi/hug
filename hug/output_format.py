@@ -9,6 +9,8 @@ def _json_converter(item):
         return item.isoformat()
     elif isinstance(item, bytes):
         return item.decode('utf8')
+    elif getattr(item, '__json__', None):
+        return item.__json__()
     raise TypeError("Type not serializable")
 
 
