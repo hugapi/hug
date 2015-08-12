@@ -187,6 +187,13 @@ def test_multiple_version_injection():
     assert hug.test.get(api, 'v1/call_other_function').data == 1
     assert call_other_function() == 1
 
+    @hug.get(versions=1)
+    def one_more_level_of_indirection(hug_current_api):
+        return hug_current_api.call_other_function()
+
+    assert hug.test.get(api, 'v1/one_more_level_of_indirection').data == 1
+    assert one_more_level_of_indirection() == 1
+
 
 def test_json_auto_convert():
     @hug.get('/test_json')
