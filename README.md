@@ -14,7 +14,7 @@ Hug's Design Objectives:
 - The framework should encourage code that self-documents.
 - It should be fast. Never should a developer feel the need to look somewhere else for performance reasons.
 - Writing tests for APIs written on-top of Hug should be easy and intuitive.
-- Magic done once, in an API, is better then pushing the problem set to the user of the API.
+- Magic done once, in an API framework, is better then pushing the problem set to the user of the API framework.
 - Be the basis for next generation Python APIs, embracing the latest technology.
 
 As a result of these goals Hug is Python3+ only and uses Falcon under the cover to quickly handle requests.
