@@ -191,6 +191,8 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
             @wraps(api_function)
             def callable_method(*args, **kwargs):
                 for parameter in use_directives:
+                    if parameter in kwargs:
+                        continue
                     arguments = (defaults[parameter], ) if parameter in defaults else ()
                     kwargs[parameter] = directives[parameter](*arguments, module=module,
                                      api_version=max(versions, key=lambda version: version or -1) if versions else None)
