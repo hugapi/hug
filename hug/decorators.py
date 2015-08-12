@@ -1,3 +1,29 @@
+"""hug/decorators.py
+
+Defines the method decorators at the core of Hug's approach to creating HTTP APIs
+
+- Decorators for exposing python method as HTTP methods (get, post, etc)
+- Decorators for setting the default output and input formats used throughout an API using the framework
+- Decorator for registering a new directive method
+- Decorator for including another API modules handlers into the current one, with opitonal prefix route
+
+Copyright (C) 2015  Timothy Edmund Crosley
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+"""
 import json
 import sys
 from collections import OrderedDict, namedtuple
@@ -29,14 +55,17 @@ class HugAPI(object):
         self._output_format = formatter
 
     def input_format(self, content_type):
+        '''Returns the set input_format handler for the given content_type'''
         return getattr(self, '_input_format', {}).get(content_type, hug.defaults.input_format.get(content_type, None))
 
     def set_input_format(self, conent_type, handler):
+        '''Sets an input format handler for this Hug API, given the specified content_type'''
         if not getattr(self, '_output_format'):
             self._output_format = {}
         self.output_format['content_type'] = handler
 
     def directives(self):
+        '''Returns all directives applicable to this Hug API'''
         directive_sources = chain(hug.defaults.directives.items(), getattr(self, '_directives', {}).items())
         return {'hug_' + directive_name: directive for directive_name, directive in directive_sources}
 
@@ -48,6 +77,7 @@ class HugAPI(object):
         self._output_format = formatter
 
     def extend(self, module, route=""):
+        '''Adds handlers from a different Hug API module to this one - to create a single API'''
         for item_route, handler in module.__api__.routes.items():
             self.routes[route + item_route] = handler
 
@@ -119,6 +149,7 @@ def _api_module(module_name):
 
 
 def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True):
+    '''Defines the base Hug API creating decorator, which exposes normal python methdos as HTTP APIs'''
     urls = (urls, ) if isinstance(urls, str) else urls
     examples = (examples, ) if isinstance(examples, str) else examples
     versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
@@ -220,4 +251,6 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
 
 
 for method in HTTP_METHODS:
-    globals()[method.lower()] = partial(call, accept=(method, ))
+    method_handler = partial(call, accept=(method, ))
+    method_handler.__doc__ = "Exposes a Python method externally as an HTTP {0} method".format(method.upper())
+    globals()[method.lower()] = method_handler

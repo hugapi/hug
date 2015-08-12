@@ -1,6 +1,6 @@
 """tests/test_directives.py.
 
-Tests to ensure that directives interact in the etimerpected mannor
+Tests to ensure that directives interact in the anticipated manner
 
 Copyright (C) 2015 Timothy Edmund Crosley
 
@@ -26,6 +26,7 @@ api = sys.modules[__name__]
 
 
 def test_timer():
+    '''Tests that the timer directive outputs the correct format, and automatically attaches itself to an API'''
     timer = hug.directives.Timer()
     assert isinstance(timer.start, float)
     assert isinstance(float(timer), float)

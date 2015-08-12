@@ -28,6 +28,7 @@ api = sys.modules[__name__]
 
 
 def test_basic_call():
+    '''The most basic Happy-Path test for Hug APIs'''
     @hug.call()
     def hello_world():
         return "Hello World!"
@@ -39,6 +40,7 @@ def test_basic_call():
 
 
 def test_single_parameter():
+    '''Test that an api with a single parameter interacts as desired'''
     @hug.call()
     def echo(text):
         return text
@@ -53,6 +55,7 @@ def test_single_parameter():
 
 
 def test_custom_url():
+    '''Test to ensure that it's possible to have a route that differs from the function name'''
     @hug.call('/custom_route')
     def method_name():
         return 'works'
@@ -61,10 +64,12 @@ def test_custom_url():
 
 
 def test_api_auto_initiate():
+    '''Test to ensure that Hug automatically exposes a wsgi server method'''
     assert isinstance(__hug_wsgi__(create_environ('/non_existant'), StartResponseMock()), (list, tuple))
 
 
 def test_parameters():
+    '''Tests to ensure that Hug can easily handle multiple parameters with multiple types'''
     @hug.call()
     def multiple_parameter_types(start, middle:hug.types.text, end:hug.types.number=5, **kwargs):
         return 'success'
@@ -78,6 +83,7 @@ def test_parameters():
 
 
 def test_parameter_injection():
+    '''Tests that hug correctly auto injects variables such as request and response'''
     @hug.call()
     def inject_request(request):
         return request and 'success'
@@ -100,6 +106,7 @@ def test_parameter_injection():
 
 
 def test_method_routing():
+    '''Test that all hugs HTTP routers correctly route methods to the correct handler'''
     @hug.get()
     def method():
         return 'GET'
@@ -146,6 +153,7 @@ def test_method_routing():
 
 
 def test_versioning():
+    '''Ensure that Hug correctly routes API functions based on version'''
     @hug.get('/echo')
     def echo(text):
         return "Not Implemented"
@@ -172,6 +180,7 @@ def test_versioning():
 
 
 def test_multiple_version_injection():
+    '''Test to ensure that the version injected sticks when calling other functions within an API'''
     @hug.get(versions=(1, 2, None))
     def my_api_function(hug_api_version):
         return hug_api_version
@@ -196,6 +205,7 @@ def test_multiple_version_injection():
 
 
 def test_json_auto_convert():
+    '''Test to ensure all types of data correctly auto convert into json'''
     @hug.get('/test_json')
     def test_json(text):
         return text
@@ -213,6 +223,7 @@ def test_json_auto_convert():
 
 
 def test_output_format():
+    '''Test to ensure it's possible to quickly change the default hug output format'''
     @hug.default_output_format()
     def augmented(data):
         return hug.output_format.json(['Augmented', data])
@@ -222,4 +233,8 @@ def test_output_format():
         return "world"
 
     assert hug.test.get(api, 'hello').data == ['Augmented', 'world']
+
+    @hug.default_output_format()
+    def jsonify(data):
+        return hug.output_format.json(data)
 

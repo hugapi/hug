@@ -1,6 +1,23 @@
 """hug/run.py
 
-Contains logic to enable execution of hug APIS from the command line
+Contains logic to enable execution of hug APIS from the command line or to expose a wsgi API from within Python
+
+Copyright (C) 2015  Timothy Edmund Crosley
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
 """
 import argparse
 import importlib
@@ -14,6 +31,7 @@ import falcon
 
 from hug import documentation
 from hug._version import current
+
 
 INTRO = """
 /#######################################################################\\
@@ -41,6 +59,7 @@ INTRO = """
 
 
 def determine_version(request, api_version=None):
+    '''Determines the appropriate version given the set api_version, the request header, and URL query params'''
     request_version = set()
     if api_version is not None:
         request_version.add(api_version)
@@ -60,6 +79,7 @@ def determine_version(request, api_version=None):
 
 
 def documentation_404(module):
+    '''Returns a smart 404 page that contains documentation for the written API'''
     def handle_404(request, response, *kargs, **kwargs):
         base_url = request.url[:-1]
         if request.path and request.path != "/":
@@ -81,6 +101,7 @@ def documentation_404(module):
 
 
 def version_router(request, response, api_version=None, __versions__={}, __sink__=None, **kwargs):
+    '''Inteligently routes a request to the correct handler based on the version being requested'''
     request_version = determine_version(request, api_version)
     if request_version:
         request_version = int(request_version)
@@ -88,6 +109,7 @@ def version_router(request, response, api_version=None, __versions__={}, __sink_
                                                                         **kwargs)
 
 def server(module, sink=documentation_404):
+    '''Returns a wsgi compatible API server for the given Hug API module'''
     api = falcon.API()
     sink = sink(module)
     api.add_sink(sink)
@@ -108,6 +130,7 @@ def server(module, sink=documentation_404):
 
 
 def terminal():
+    '''Starts the terminal application'''
     parser = argparse.ArgumentParser(description='Hug API Development Server')
     parser.add_argument('-f', '--file', dest='file_name', help="A Python file that contains a Hug API")
     parser.add_argument('-m', '--module', dest='module', help="A Python module that contains a Hug API")

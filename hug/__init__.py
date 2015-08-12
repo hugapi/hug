@@ -1,4 +1,4 @@
-"""hug/__init__.py.
+"""hug/__init__.py
 
 Everyone needs a hug every once in a while. Even API developers. Hug aims to make developing Python driven APIs as
 simple as possible, but no simpler.
@@ -10,6 +10,7 @@ Hug's Design Objectives:
 - It should be fast. Never should a developer feel the need to look somewhere else for performance reasons.
 - Writing tests for APIs written on-top of Hug should be easy and intuitive.
 - Magic done once, in an API, is better then pushing the problem set to the user of the API.
+- Be the basis for next generation Python APIs, embracing the latest technology.
 
 Copyright (C) 2015  Timothy Edmund Crosley
 
