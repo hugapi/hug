@@ -39,7 +39,7 @@ from hug.run import server
 
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
-    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned')
+    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned', '_middleware')
 
     def __init__(self):
         self.versions = set()
@@ -73,6 +73,16 @@ class HugAPI(object):
         self._directives = getattr(self, '_directives', {})
         self._directives[directive.__name__] = directive
 
+    @property
+    def middleware(self):
+        return getattr(self, '_middleware', None)
+
+    def add_middleware(self, middleware):
+        '''Adds a middleware object used to process all incoming requests against the API'''
+        if self.middleware is None:
+            self._middleware = []
+        self.middleware.append(middleware)
+
     def extend(self, module, route=""):
         '''Adds handlers from a different Hug API module to this one - to create a single API'''
         for item_route, handler in module.__hug__.routes.items():
@@ -80,6 +90,9 @@ class HugAPI(object):
 
         for directive in getattr(module.__hug__, '_directives', ()).values():
             self.add_directive(directive)
+
+        for middleware in (module.__hug__.middleware or ()):
+            self.add_middleware(middleware)
 
         for input_format, input_format_handler in getattr(module.__hug__, '_input_format', {}).items():
             if not input_format in getattr(self, '_input_format', {}):
@@ -121,6 +134,26 @@ def directive(apply_globally=True):
         else:
             module.__hug__.add_directive(directive_method)
         return directive_method
+    return decorator
+
+
+def request_middleware():
+    '''Registers a middleware function that will be called on every request'''
+    def decorator(middleware_method):
+        module = _api_module(middleware_method.__module__)
+        middleware_method.__self__ = middleware_method
+        module.__hug__.add_middleware(namedtuple('MiddlewareRouter', ('process_request', ))(middleware_method))
+        return middleware_method
+    return decorator
+
+
+def response_middleware():
+    '''Registers a middleware function that will be called on every response'''
+    def decorator(middleware_method):
+        module = _api_module(middleware_method.__module__)
+        middleware_method.__self__ = middleware_method
+        module.__hug__.add_middleware(namedtuple('MiddlewareRouter', ('process_response', ))(middleware_method))
+        return middleware_method
     return decorator
 
 
