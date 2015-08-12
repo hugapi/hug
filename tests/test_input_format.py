@@ -1,6 +1,6 @@
 """tests/test_input_format.py.
 
-Tests the input format handlers included with hug
+Tests the input format handlers included with Hug
 
 Copyright (C) 2015 Timothy Edmund Crosley
 
@@ -23,10 +23,12 @@ import hug
 
 
 def test_json():
+    '''Ensure that the json import format works as intended'''
     test_data = '{"a": "b"}'
     assert hug.input_format.json(test_data) == {'a': 'b'}
 
 
 def test_json_underscore():
+    '''Ensure that camelCase keys can be converted into under_score for easier use within Python'''
     test_data = '{"CamelCase": {"becauseWeCan": "ValueExempt"}}'
     assert hug.input_format.json_underscore(test_data) == {'camel_case': {'because_we_can': 'ValueExempt'}}

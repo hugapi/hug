@@ -1,5 +1,29 @@
-from timeit import default_timer as python_timer
+"""hug/directives.py
+
+Defines the directives built into hug. Directives allow attaching behaviour to an API handler based simply
+on an argument it takes and that arguments default value. The directive gets called with the default supplied,
+ther request data, and api_version. The result of running the directive method is then set as the argument value.
+Directive attributes are always prefixed with 'hug_'
+
+Copyright (C) 2015  Timothy Edmund Crosley
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+"""
 from functools import partial
+from timeit import default_timer as python_timer
 
 
 class Timer(object):

@@ -1,6 +1,6 @@
 """tests/test_documentation.py.
 
-Tests the documentation generation capibilities integrated into hug
+Tests the documentation generation capibilities integrated into Hug
 
 Copyright (C) 2015 Timothy Edmund Crosley
 
@@ -26,6 +26,7 @@ api = sys.modules[__name__]
 
 
 def test_basic_documentation():
+    '''Ensure creating and then documenting APIs with Hug works as intuitively as expected'''
     @hug.get()
     def hello_world():
         """Returns hello world"""
