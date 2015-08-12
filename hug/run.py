@@ -111,7 +111,7 @@ def version_router(request, response, api_version=None, __versions__={}, __sink_
 
 def server(module, sink=documentation_404):
     '''Returns a wsgi compatible API server for the given Hug API module'''
-    api = falcon.API()
+    api = falcon.API(middleware=module.__hug__.middleware)
     sink = sink(module)
     api.add_sink(sink)
     for url, methods in module.__hug__.routes.items():

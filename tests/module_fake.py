@@ -42,3 +42,8 @@ def made_up_formatter_global(data):
 def output_formatter_global(data):
     '''for testing'''
     return hug.output_format.json(data)
+
+
+@hug.request_middleware()
+def handle_request(request, response):
+    return

@@ -269,6 +269,25 @@ def test_input_format():
     api.__hug__.set_input_format('application/json', old_format)
 
 
+def test_middleware():
+    '''Test to ensure the basic concept of a middleware works as expected'''
+    @hug.request_middleware()
+    def proccess_data(request, response):
+        request.env['SERVER_NAME'] = 'Bacon'
+
+    @hug.response_middleware()
+    def proccess_data(request, response, resource):
+        response.set_header('Bacon', 'Yumm')
+
+    @hug.get()
+    def hello(request):
+        return request.env['SERVER_NAME']
+
+    result = hug.test.get(api, 'hello')
+    assert result.data == 'Bacon'
+    assert result.headers_dict['Bacon'] == 'Yumm'
+
+
 def test_extending_api():
     '''Test to ensure it's possible to extend the current API from an external file'''
     @hug.extend_api('/fake')
