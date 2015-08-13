@@ -187,6 +187,44 @@ You can also easily add any Falcon style middleware using:
     __hug__.add_middleware(MiddlewareObject())
 
 
+
+Splitting APIs over multiple files
+===================
+
+Hug enables you to organize large projects in any manner you see fit. You can import any module that contains Hug
+decorated functions (request handling, directives, type handlers, etc) and extend your base API with that project.
+
+For example:
+
+`something.py`
+
+    import hug
+
+    @hug.get('/')
+    def say_hi():
+        return 'hello from something'
+
+Can be imported into the main API file:
+
+`__init__.py`
+
+    import hug
+    from . import something
+
+    @hug.get('/')
+    def say_hi():
+        return "Hi from root"
+
+    @hug.extend_api('/something')
+    def something_api():
+        return [something]
+
+Or alternatively - for cases like this - where only one module is being included per a URL route:
+
+    #alternatively
+    __hug__.extend(something, '/something')
+
+
 Why Hug?
 ===================
 HUG simply stands for Hopefully Useful Guide. This represents the projects goal to help guide developers into creating
