@@ -139,7 +139,7 @@ Directives are always prefixed with 'hug_'. Adding your own directives is straig
 
     @hug.directive()
     def multiply(default=1, **all_info):
-        '''Returns the module that is running this hug API function'''
+        '''Returns passed in parameter multiplied by itself'''
         return default * default
 
     @hug.get()
