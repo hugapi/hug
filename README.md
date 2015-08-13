@@ -192,7 +192,7 @@ Splitting APIs over multiple files
 ===================
 
 Hug enables you to organize large projects in any manner you see fit. You can import any module that contains Hug
-decorated functions (request handling, directives, type handlers, etc) and extend your base API with that project.
+decorated functions (request handling, directives, type handlers, etc) and extend your base API with that module.
 
 For example:
 
