@@ -151,7 +151,7 @@ Directives are always prefixed with 'hug_'. Adding your own directives is straig
 
 **Output Formatters** a function that takes the output of your API function and formats it for transport to the user of the API.
 
-    @hug.default_output_formatter()
+    @hug.default_output_format()
     def my_output_formatter(data):
         return "STRING:{0}".format(data)
 
