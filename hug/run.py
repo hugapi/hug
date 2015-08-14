@@ -127,6 +127,14 @@ def server(module, sink=documentation_404):
         api.add_route(url, router)
         if module.__hug__.versions and module.__hug__.versions != (None, ):
             api.add_route('/v{api_version}' + url, router)
+
+    def error_serializer(_, error):
+        return (
+            module.__hug__.output_format.content_type,
+            module.__hug__.output_format({"error": error.to_dict()})
+        )
+
+    api.set_error_serializer(error_serializer)
     return api
 
 
