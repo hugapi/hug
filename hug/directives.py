@@ -27,7 +27,7 @@ from timeit import default_timer as python_timer
 
 
 class Timer(object):
-    '''Keeps track of time surpased since instanciation, outputed by doing float(instance)'''
+    '''Keeps track of time surpased since instantiation, outputed by doing float(instance)'''
     __slots__ = ('start', 'round_to')
 
     def __init__(self, round_to=None, **kwargs):
