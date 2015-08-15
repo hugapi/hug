@@ -112,8 +112,9 @@ def version_router(request, response, api_version=None, __versions__={}, __sink_
 def server(module, sink=documentation_404):
     '''Returns a wsgi compatible API server for the given Hug API module'''
     api = falcon.API(middleware=module.__hug__.middleware)
-    sink = sink(module)
-    api.add_sink(sink)
+    if sink:
+        sink = sink(module)
+        api.add_sink(sink)
     for url, methods in module.__hug__.routes.items():
         router = {}
         for method, versions in methods.items():
@@ -136,17 +137,21 @@ def terminal():
     parser.add_argument('-f', '--file', dest='file_name', help="A Python file that contains a Hug API")
     parser.add_argument('-m', '--module', dest='module', help="A Python module that contains a Hug API")
     parser.add_argument('-p', '--port', dest='port', help="Port on which to run the Hug server", default=8000, type=int)
+    parser.add_argument('-nd', '--no-404-documentation', dest='no_documentation', action='store_true')
     parser.add_argument('-v', '--version', action='version', version='hug {0}'.format(current))
 
     parsed = parser.parse_args()
     file_name, module = parsed.file_name, parsed.module
     api = None
+    server_arguments = {}
+    if parsed.no_documentation:
+        server_arguments['sink'] = None
     if file_name and module:
         print("Error: can not define both a file and module source for Hug API.")
     if file_name:
-        api = server(importlib.machinery.SourceFileLoader(file_name.split(".")[0], file_name).load_module())
+        api = server(importlib.machinery.SourceFileLoader(file_name.split(".")[0], file_name).load_module(), **server_arguments)
     elif module:
-        api = server(importlib.import_module(module))
+        api = server(importlib.import_module(module), **server_arguments)
     else:
         print("Error: must define a file name or module that contains a Hug API.")
     if not api:
