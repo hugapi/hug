@@ -225,6 +225,17 @@ Or alternatively - for cases like this - where only one module is being included
     __hug__.extend(something, '/something')
 
 
+Configuring Hug 404
+===================
+
+By default, Hug returns a spec when a user tries to access an API endpoint that isn't defined, with a 404 HTTP status type.
+If you would not like to return this spec you can turn off 404 documentation:
+
+From the command line application:
+
+   hug -nd -f {file} #nd flag tells hug not to generate documentation on 404
+   
+
 Why Hug?
 ===================
 HUG simply stands for Hopefully Useful Guide. This represents the projects goal to help guide developers into creating
