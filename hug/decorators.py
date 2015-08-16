@@ -157,6 +157,11 @@ def response_middleware():
     return decorator
 
 
+def not_found()
+    '''A decorator to register a 404 handler'''
+    pass
+
+
 def extend_api(route=""):
     '''Extends the current api, with handlers from an imported api. Optionally provide a route that prefixes access'''
     def decorator(extend_with):
