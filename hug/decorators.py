@@ -30,6 +30,7 @@ from collections import OrderedDict, namedtuple
 from functools import partial, wraps
 from itertools import chain
 
+import falcon
 from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 
 import hug.defaults
@@ -106,7 +107,7 @@ class HugAPI(object):
     def set_not_found_handler(self, handler, version=None):
         '''Sets the not_found handler for the specified version of the api'''
         if not self.not_found_handlers:
-            self.not_found_handlers = {}
+            self._not_found_handlers = {}
 
         self.not_found_handlers[version] = handler
 
@@ -190,7 +191,7 @@ def _api_module(module_name):
     return module
 
 
-def _create_interface(module, api_function, output=None, versions=None, parse_body=True):
+def _create_interface(module, api_function, output=None, versions=None, parse_body=True, set_status=False):
     '''Creates the request handling interface method for the given API function'''
     accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
     takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
@@ -204,6 +205,8 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
 
     def interface(request, response, api_version=None, **kwargs):
+        if set_status:
+            response.status = set_status
         api_version = int(api_version) if api_version is not None else api_version
         response.content_type = function_output.content_type
         input_parameters = kwargs
@@ -280,10 +283,11 @@ def not_found(output=None, versions=None, parse_body=False):
     def decorator(api_function):
         module = _api_module(api_function.__module__)
         (interface, callable_method) = _create_interface(module, api_function, output=output,
-                                                         versions=versions, parse_body=parse_body)
+                                                         versions=versions, parse_body=parse_body,
+                                                         set_status=falcon.HTTP_NOT_FOUND)
 
         for version in versions:
-            module.__hug__.set_not_found_handler(callable_method, version)
+            module.__hug__.set_not_found_handler(interface, version)
 
         return callable_method
     return decorator

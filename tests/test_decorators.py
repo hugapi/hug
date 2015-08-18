@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import falcon
 from falcon.testing import StartResponseMock, create_environ
 import sys
 import hug
@@ -150,6 +151,30 @@ def test_method_routing():
     assert hug.test.get(api, 'accepts_get_and_post').data == 'success'
     assert hug.test.post(api, 'accepts_get_and_post').data == 'success'
     assert 'method not allowed' in hug.test.trace(api, 'accepts_get_and_post').status.lower()
+
+
+def test_not_found():
+    '''Test to ensure the not_found decorator correctly routes 404s to the correct handler'''
+    @hug.not_found()
+    def not_found_handler():
+        return "Not Found"
+
+    result = hug.test.get(api, '/does_not_exist/yet')
+    assert result.data == "Not Found"
+    assert result.status == falcon.HTTP_NOT_FOUND
+
+    @hug.not_found(versions=10)
+    def not_found_handler(response):
+        response.status = falcon.HTTP_OK
+        return {'look': 'elsewhere'}
+
+    result = hug.test.get(api, '/v10/does_not_exist/yet')
+    assert result.data == {'look': 'elsewhere'}
+    assert result.status == falcon.HTTP_OK
+
+    result = hug.test.get(api, '/does_not_exist/yet')
+    assert result.data == "Not Found"
+    assert result.status == falcon.HTTP_NOT_FOUND
 
 
 def test_versioning():
