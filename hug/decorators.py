@@ -39,7 +39,8 @@ from hug.run import server
 
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
-    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned', '_middleware')
+    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned', '_middleware',
+                 '_not_found_handlers')
 
     def __init__(self):
         self.versions = set()
@@ -97,6 +98,17 @@ class HugAPI(object):
         for input_format, input_format_handler in getattr(module.__hug__, '_input_format', {}).items():
             if not input_format in getattr(self, '_input_format', {}):
                 self.set_input_format(input_format, input_format_handler)
+
+    @property
+    def not_found_handlers(self):
+        return getattr(self, '_not_found_handlers', {})
+
+    def set_not_found_handler(self, handler, version=None):
+        '''Sets the not_found handler for the specified version of the api'''
+        if not self.not_found_handlers:
+            self.not_found_handlers = {}
+
+        self.not_found_handlers[version] = handler
 
 
 def default_output_format(content_type='application/json', apply_globally=False):
@@ -156,12 +168,6 @@ def response_middleware():
         return middleware_method
     return decorator
 
-
-def not_found(output=None, versions=None, parse_body=False):
-    '''A decorator to register a 404 handler'''
-
-    def decorator(api_function):
-        pass
 
 def extend_api(route=""):
     '''Extends the current api, with handlers from an imported api. Optionally provide a route that prefixes access'''
@@ -265,6 +271,22 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     interface.content_type = function_output.content_type
     interface.required = required
     return (interface, callable_method)
+
+
+def not_found(output=None, versions=None, parse_body=False):
+    '''A decorator to register a 404 handler'''
+    versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
+
+    def decorator(api_function):
+        module = _api_module(api_function.__module__)
+        (interface, callable_method) = _create_interface(module, api_function, output=output,
+                                                         versions=versions, parse_body=parse_body)
+
+        for version in versions:
+            module.__hug__.set_not_found_handler(callable_method, version)
+
+        return callable_method
+    return decorator
 
 
 def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True):
