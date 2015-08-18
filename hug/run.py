@@ -58,8 +58,15 @@ INTRO = """
 """.format(current)
 
 
-def determine_version(request, api_version=None):
+def determine_version(request, api_version=None, module=None):
     '''Determines the appropriate version given the set api_version, the request header, and URL query params'''
+    if api_version is False and module:
+        api_version = None
+        for version in module.__hug__.versions:
+            if version and "v{0}".format(version) in request.path:
+                api_version = version
+                break
+
     request_version = set()
     if api_version is not None:
         request_version.add(api_version)
@@ -85,35 +92,39 @@ def documentation_404(module):
         if request.path and request.path != "/":
             base_url = request.url.split(request.path)[0]
 
-        api_version = None
-        for version in module.__hug__.versions:
-            if version and "v{0}".format(version) in request.path:
-                api_version = version
-                break
+
 
         to_return = OrderedDict()
         to_return['404'] = ("The API call you tried to make was not defined. "
                             "Here's a definition of the API to help you get going :)")
-        to_return['documentation'] = documentation.generate(module, base_url, determine_version(request, api_version))
+        to_return['documentation'] = documentation.generate(module, base_url, determine_version(request, False, module))
         response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
         response.status = falcon.HTTP_NOT_FOUND
         response.content_type = 'application/json'
     return handle_404
 
 
-def version_router(request, response, api_version=None, __versions__={}, __sink__=None, **kwargs):
-    '''Inteligently routes a request to the correct handler based on the version being requested'''
-    request_version = determine_version(request, api_version)
+def version_router(request, response, api_version=None, versions={}, sink=None, module=None, **kwargs):
+    '''Intelligently routes a request to the correct handler based on the version being requested'''
+    request_version = determine_version(request, api_version, module)
     if request_version:
         request_version = int(request_version)
-    __versions__.get(request_version, __versions__.get(None, __sink__))(request, response, api_version=api_version,
+    versions.get(request_version, versions.get(None, sink))(request, response, api_version=api_version,
                                                                         **kwargs)
 
-def server(module, sink=documentation_404):
-    '''Returns a wsgi compatible API server for the given Hug API module'''
+
+def server(module, default_sink=documentation_404):
+    '''Returns a WSGI compatible API server for the given Hug API module'''
     api = falcon.API(middleware=module.__hug__.middleware)
+    if module.__hug__.not_found_handlers:
+        if len(api.not_found_handlers) == 1 and None in module.__hug__.not_found_handlers:
+            sink = api.not_found_handlers[None]
+        else:
+            sink = partial(version_router, module=module, api_version=False,
+                           versions=module.__hug__.not_found_handlers, sink=default_sink)
+    elif default_sink:
+        sink = default_sink(module)
     if sink:
-        sink = sink(module)
         api.add_sink(sink)
     for url, methods in module.__hug__.routes.items():
         router = {}
@@ -122,7 +133,7 @@ def server(module, sink=documentation_404):
             if len(versions) == 1 and None in versions.keys():
                 router[method_function] = versions[None]
             else:
-                router[method_function] = partial(version_router, __versions__=versions, __sink__=sink)
+                router[method_function] = partial(version_router, versions=versions, sink=sink, module=module)
 
         router = namedtuple('Router', router.keys())(**router)
         api.add_route(url, router)
