@@ -41,7 +41,7 @@ class Timer(object):
     def __int__(self):
         return int(round(float(self)))
 
-    def __json__(self):
+    def __native_types__(self):
         return self.__float__()
 
 
