@@ -141,10 +141,8 @@ def server(module, default_sink=documentation_404):
             api.add_route('/v{api_version}' + url, router)
 
     def error_serializer(_, error):
-        return (
-            module.__hug__.output_format.content_type,
-            module.__hug__.output_format({"error": error.to_dict()})
-        )
+        return (module.__hug__.output_format.content_type,
+                module.__hug__.output_format({"errors": {error.title: error.description}}))
 
     api.set_error_serializer(error_serializer)
     return api

@@ -252,6 +252,16 @@ def test_json_auto_convert():
     assert hug.test.get(api, 'test_json_body_stream_only', body=['value1', 'value2']).data == None
 
 
+def test_error_handling():
+    '''Test to ensure Hug correctly handles Falcon errors that are thrown during processing'''
+    @hug.get()
+    def test_error():
+        raise falcon.HTTPInternalServerError('Failed', 'For Science!')
+
+    response = hug.test.get(api, 'test_error')
+    assert 'errors' in response.data
+    assert response.data['errors']['Failed'] == 'For Science!'
+
 def test_output_format():
     '''Test to ensure it's possible to quickly change the default hug output format'''
     old_formatter = api.__hug__.output_format
