@@ -55,8 +55,8 @@ def one_of(values):
     '''Ensures the value is within a set of acceptable values'''
     def matches(value):
         if not value in values:
-            raise KeyError('Value one of acceptable values: ({0})'.format("|".join(values)))
+            raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(values)))
         return value
 
-    matches.__doc__ = 'One of the following values: ({0})'.format("|".join(values))
+    matches.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
     return matches
