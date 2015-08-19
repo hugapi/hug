@@ -30,6 +30,7 @@ from collections import OrderedDict, namedtuple
 from functools import partial, wraps
 from itertools import chain
 
+import falcon
 from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 
 import hug.defaults
@@ -39,7 +40,8 @@ from hug.run import server
 
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
-    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned', '_middleware')
+    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned', '_middleware',
+                 '_not_found_handlers')
 
     def __init__(self):
         self.versions = set()
@@ -97,6 +99,17 @@ class HugAPI(object):
         for input_format, input_format_handler in getattr(module.__hug__, '_input_format', {}).items():
             if not input_format in getattr(self, '_input_format', {}):
                 self.set_input_format(input_format, input_format_handler)
+
+    @property
+    def not_found_handlers(self):
+        return getattr(self, '_not_found_handlers', {})
+
+    def set_not_found_handler(self, handler, version=None):
+        '''Sets the not_found handler for the specified version of the api'''
+        if not self.not_found_handlers:
+            self._not_found_handlers = {}
+
+        self.not_found_handlers[version] = handler
 
 
 def default_output_format(content_type='application/json', apply_globally=False):
@@ -178,6 +191,108 @@ def _api_module(module_name):
     return module
 
 
+def _create_interface(module, api_function, output=None, versions=None, parse_body=True, set_status=False):
+    '''Creates the request handling interface method for the given API function'''
+    accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+    takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
+    function_output = output or module.__hug__.output_format
+    directives = module.__hug__.directives()
+    use_directives = set(accepted_parameters).intersection(directives.keys())
+
+    defaults = {}
+    for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+        defaults[accepted_parameters[-(index + 1)]] = default
+    required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+
+    def interface(request, response, api_version=None, **kwargs):
+        if set_status:
+            response.status = set_status
+        api_version = int(api_version) if api_version is not None else api_version
+        response.content_type = function_output.content_type
+        input_parameters = kwargs
+        input_parameters.update(request.params)
+        body_formatting_handler = parse_body and module.__hug__.input_format(request.content_type)
+        if body_formatting_handler:
+            body = body_formatting_handler(request.stream.read().decode('utf8'))
+            if 'body' in accepted_parameters:
+                input_parameters['body'] = body
+            if isinstance(body, dict):
+                input_parameters.update(body)
+
+        errors = {}
+        for key, type_handler in api_function.__annotations__.items():
+            try:
+                if key in input_parameters:
+                    input_parameters[key] = type_handler(input_parameters[key])
+            except Exception as error:
+                errors[key] = str(error)
+
+        if 'request' in accepted_parameters:
+            input_parameters['request'] = request
+        if 'response' in accepted_parameters:
+            input_parameters['response'] = response
+        if 'api_version' in accepted_parameters:
+            input_parameters['api_version'] = api_version
+        for parameter in use_directives:
+            arguments = (defaults[parameter], ) if parameter in defaults else ()
+            input_parameters[parameter] = directives[parameter](*arguments, response=response, request=request,
+                                                                module=module, api_version=api_version)
+        for require in required:
+            if not require in input_parameters:
+                errors[require] = "Required parameter not supplied"
+        if errors:
+            response.data = function_output({"errors": errors})
+            response.status = HTTP_BAD_REQUEST
+            return
+
+        if not takes_kwargs:
+            input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
+
+        response.data = function_output(api_function(**input_parameters))
+
+    if versions:
+        module.__hug__.versions.update(versions)
+
+    callable_method = api_function
+    if use_directives:
+        @wraps(api_function)
+        def callable_method(*args, **kwargs):
+            for parameter in use_directives:
+                if parameter in kwargs:
+                    continue
+                arguments = (defaults[parameter], ) if parameter in defaults else ()
+                kwargs[parameter] = directives[parameter](*arguments, module=module,
+                                    api_version=max(versions, key=lambda version: version or -1) if versions else None)
+            return api_function(*args, **kwargs)
+        callable_method.interface = interface
+
+    api_function.interface = interface
+    interface.api_function = api_function
+    interface.output_format = function_output
+    interface.defaults = defaults
+    interface.accepted_parameters = accepted_parameters
+    interface.content_type = function_output.content_type
+    interface.required = required
+    return (interface, callable_method)
+
+
+def not_found(output=None, versions=None, parse_body=False):
+    '''A decorator to register a 404 handler'''
+    versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
+
+    def decorator(api_function):
+        module = _api_module(api_function.__module__)
+        (interface, callable_method) = _create_interface(module, api_function, output=output,
+                                                         versions=versions, parse_body=parse_body,
+                                                         set_status=falcon.HTTP_NOT_FOUND)
+
+        for version in versions:
+            module.__hug__.set_not_found_handler(interface, version)
+
+        return callable_method
+    return decorator
+
+
 def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True):
     '''Defines the base Hug API creating decorator, which exposes normal python methdos as HTTP APIs'''
     urls = (urls, ) if isinstance(urls, str) else urls
@@ -186,80 +301,12 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
 
     def decorator(api_function):
         module = _api_module(api_function.__module__)
-        accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
-        takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
-        function_output = output or module.__hug__.output_format
-        directives = module.__hug__.directives()
-        use_directives = set(accepted_parameters).intersection(directives.keys())
+        (interface, callable_method) = _create_interface(module, api_function, output=output,
+                                                         versions=versions, parse_body=parse_body)
 
-        defaults = {}
-        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
-            defaults[accepted_parameters[-(index + 1)]] = default
-        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
         use_examples = examples
-        if not required and not use_examples:
+        if not interface.required and not use_examples:
             use_examples = (True, )
-
-        def interface(request, response, api_version=None, **kwargs):
-            api_version = int(api_version) if api_version is not None else api_version
-            response.content_type = function_output.content_type
-            input_parameters = kwargs
-            input_parameters.update(request.params)
-            body_formatting_handler = parse_body and module.__hug__.input_format(request.content_type)
-            if body_formatting_handler:
-                body = body_formatting_handler(request.stream.read().decode('utf8'))
-                if 'body' in accepted_parameters:
-                    input_parameters['body'] = body
-                if isinstance(body, dict):
-                    input_parameters.update(body)
-
-            errors = {}
-            for key, type_handler in api_function.__annotations__.items():
-                try:
-                    if key in input_parameters:
-                        input_parameters[key] = type_handler(input_parameters[key])
-                except Exception as error:
-                    errors[key] = str(error)
-
-            if 'request' in accepted_parameters:
-                input_parameters['request'] = request
-            if 'response' in accepted_parameters:
-                input_parameters['response'] = response
-            if 'api_version' in accepted_parameters:
-                input_parameters['api_version'] = api_version
-            for parameter in use_directives:
-                arguments = (defaults[parameter], ) if parameter in defaults else ()
-                input_parameters[parameter] = directives[parameter](*arguments, response=response, request=request,
-                                                                    module=module, api_version=api_version)
-            for require in required:
-                if not require in input_parameters:
-                    errors[require] = "Required parameter not supplied"
-            if errors:
-                response.data = function_output({"errors": errors})
-                response.status = HTTP_BAD_REQUEST
-                return
-
-            if not takes_kwargs:
-                input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
-
-            response.data = function_output(api_function(**input_parameters))
-
-        if versions:
-            module.__hug__.versions.update(versions)
-
-        callable_method = api_function
-        if use_directives:
-            @wraps(api_function)
-            def callable_method(*args, **kwargs):
-                for parameter in use_directives:
-                    if parameter in kwargs:
-                        continue
-                    arguments = (defaults[parameter], ) if parameter in defaults else ()
-                    kwargs[parameter] = directives[parameter](*arguments, module=module,
-                                     api_version=max(versions, key=lambda version: version or -1) if versions else None)
-                return api_function(*args, **kwargs)
-            callable_method.interface = interface
-
         for url in urls or ("/{0}".format(api_function.__name__), ):
             handlers = module.__hug__.routes.setdefault(url, {})
             for method in accept:
@@ -268,14 +315,7 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
                     version_mapping[version] = interface
                     module.__hug__.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
 
-        api_function.interface = interface
-        interface.api_function = api_function
-        interface.output_format = function_output
         interface.examples = use_examples
-        interface.defaults = defaults
-        interface.accepted_parameters = accepted_parameters
-        interface.content_type = function_output.content_type
-
         return callable_method
     return decorator
 

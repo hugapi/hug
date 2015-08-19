@@ -24,7 +24,7 @@ As a result of these goals Hug is Python3+ only and uses Falcon under the cover 
 Installing Hug
 ===================
 
-Installing hug is as simple as:
+Installing Hug is as simple as:
 
     pip3 install hug --upgrade
 
@@ -77,7 +77,7 @@ To run the example:
 Then you can access the example from localhost:8080/v1/echo?text=Hi / localhost:8080/v2/echo?text=Hi
 Or access the documentation for your API from localhost:8080
 
-Note: versioning in hug automatically supports both the version header as well as direct URL based specification.
+Note: versioning in Hug automatically supports both the version header as well as direct URL based specification.
 
 
 Testing Hug APIs
@@ -85,7 +85,7 @@ Testing Hug APIs
 
 Hugs http method decorators don't modify your original functions. This makes testing Hug APIs as simple as testing
 any other Python functions. Additionally, this means interacting with your API functions in other Python code is as
-straight forward as calling Python only API functions. Additionally, hug makes it easy to test the full Python
+straight forward as calling Python only API functions. Additionally, Hug makes it easy to test the full Python
 stack of your API by using the hug.test module:
 
     import hug
@@ -94,22 +94,22 @@ stack of your API by using the hug.test module:
     hug.test.get(happy_birthday, 'happy_birthday', {'name': 'Timothy', 'age': 25}) # Returns a Response object
 
 
-Running hug with other WSGI based servers
+Running Hug with other WSGI based servers
 ===================
 
-Hug exposes a `__hug_wsgi__` magic method on every API module automatically. Running your hug based API on any
+Hug exposes a `__hug_wsgi__` magic method on every API module automatically. Running your Hug based API on any
 standard wsgi server should be as simple as pointing it to module_name:`__hug_wsgi__`.
 
 For Example:
 
     uwsgi --http 0.0.0.0:8080 --wsgi-file examples/hello_world.py --callable __hug_wsgi__
 
-To run the hello world hug example API.
+To run the hello world Hug example API.
 
 
 Building Blocks of a Hug API
 ===================
-When Building an API using the hug framework you'll use the following concepts:
+When Building an API using the Hug framework you'll use the following concepts:
 
 **METHOD Decorators** get, post, update, etc HTTP method decorators that expose your Python function as an API while keeping your Python method unchanged
 
@@ -223,6 +223,33 @@ Or alternatively - for cases like this - where only one module is being included
 
     #alternatively
     __hug__.extend(something, '/something')
+
+
+Configuring Hug 404
+===================
+
+By default, Hug returns an auto generated API spec when a user tries to access an endpoint that isn't defined.
+If you would not like to return this spec you can turn off 404 documentation:
+
+From the command line application:
+
+   hug -nd -f {file} #nd flag tells Hug not to generate documentation on 404
+
+Additionally, you can easily create a custom 404 handler using the `hug.not_found` decorator:
+
+    @hug.not_found()
+    def not_found_handler():
+        return "Not Found"
+
+This decorator works in the same manner as the Hug HTTP method decorators, and is even version aware:
+
+    @hug.not_found(versions=1)
+    def not_found_handler():
+        return ""
+
+    @hug.not_found(versions=2)
+    def not_found_handler():
+        return "Not Found"
 
 
 Why Hug?
