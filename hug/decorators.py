@@ -198,6 +198,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     function_output = output or module.__hug__.output_format
     directives = module.__hug__.directives()
     use_directives = set(accepted_parameters).intersection(directives.keys())
+    return_directive = api_function.__annotations__.get('return', None)
 
     defaults = {}
     for index, default in enumerate(reversed(api_function.__defaults__ or ())):
@@ -248,7 +249,10 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         if not takes_kwargs:
             input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
 
-        response.data = function_output(api_function(**input_parameters))
+        to_return = api_function(**input_parameters)
+        if return_directive:
+            to_return = return_directive(to_return)
+        response.data = function_output(to_return)
 
     if versions:
         module.__hug__.versions.update(versions)

@@ -262,6 +262,17 @@ def test_error_handling():
     assert 'errors' in response.data
     assert response.data['errors']['Failed'] == 'For Science!'
 
+
+def test_return_modifer():
+    '''Ensures you can modify the output of a HUG API using -> annotation'''
+    @hug.get()
+    def hello() -> lambda data: "Hello {0}!".format(data):
+        return "world"
+
+    assert hug.test.get(api, 'hello').data == "Hello world!"
+    assert hello() == 'world'
+
+
 def test_output_format():
     '''Test to ensure it's possible to quickly change the default hug output format'''
     old_formatter = api.__hug__.output_format
