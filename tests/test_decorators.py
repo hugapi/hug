@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import falcon
 from falcon.testing import StartResponseMock, create_environ
 import sys
 import hug
@@ -152,6 +153,30 @@ def test_method_routing():
     assert 'method not allowed' in hug.test.trace(api, 'accepts_get_and_post').status.lower()
 
 
+def test_not_found():
+    '''Test to ensure the not_found decorator correctly routes 404s to the correct handler'''
+    @hug.not_found()
+    def not_found_handler():
+        return "Not Found"
+
+    result = hug.test.get(api, '/does_not_exist/yet')
+    assert result.data == "Not Found"
+    assert result.status == falcon.HTTP_NOT_FOUND
+
+    @hug.not_found(versions=10)
+    def not_found_handler(response):
+        response.status = falcon.HTTP_OK
+        return {'look': 'elsewhere'}
+
+    result = hug.test.get(api, '/v10/does_not_exist/yet')
+    assert result.data == {'look': 'elsewhere'}
+    assert result.status == falcon.HTTP_OK
+
+    result = hug.test.get(api, '/does_not_exist/yet')
+    assert result.data == "Not Found"
+    assert result.status == falcon.HTTP_NOT_FOUND
+
+
 def test_versioning():
     '''Ensure that Hug correctly routes API functions based on version'''
     @hug.get('/echo')
@@ -225,6 +250,27 @@ def test_json_auto_convert():
     def test_json_body_stream_only(body=None):
         return body
     assert hug.test.get(api, 'test_json_body_stream_only', body=['value1', 'value2']).data == None
+
+
+def test_error_handling():
+    '''Test to ensure Hug correctly handles Falcon errors that are thrown during processing'''
+    @hug.get()
+    def test_error():
+        raise falcon.HTTPInternalServerError('Failed', 'For Science!')
+
+    response = hug.test.get(api, 'test_error')
+    assert 'errors' in response.data
+    assert response.data['errors']['Failed'] == 'For Science!'
+
+
+def test_return_modifer():
+    '''Ensures you can modify the output of a HUG API using -> annotation'''
+    @hug.get()
+    def hello() -> lambda data: "Hello {0}!".format(data):
+        return "world"
+
+    assert hug.test.get(api, 'hello').data == "Hello world!"
+    assert hello() == 'world'
 
 
 def test_output_format():

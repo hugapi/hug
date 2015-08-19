@@ -37,6 +37,7 @@ def test_timer():
     assert isinstance(timer.start, float)
     assert isinstance(float(timer), float)
     assert isinstance(int(timer), int)
+    assert float(timer) < timer.start
 
     @hug.get()
     def timer_tester(hug_timer):
