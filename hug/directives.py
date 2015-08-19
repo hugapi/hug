@@ -35,7 +35,8 @@ class Timer(object):
         self.round_to = round_to
 
     def __float__(self):
-        return round(self.start, self.round_to) if self.round_to else self.start
+        time_taken = python_timer() - self.start
+        return round(time_taken, self.round_to) if self.round_to else time_taken
 
     def __int__(self):
         return int(round(float(self)))
