@@ -191,14 +191,16 @@ def _api_module(module_name):
     return module
 
 
-def _create_interface(module, api_function, output=None, versions=None, parse_body=True, set_status=False):
+def _create_interface(module, api_function, output=None, versions=None, parse_body=True, set_status=False,
+                      transform=None):
     '''Creates the request handling interface method for the given API function'''
     accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
     takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
     function_output = output or module.__hug__.output_format
     directives = module.__hug__.directives()
     use_directives = set(accepted_parameters).intersection(directives.keys())
-    return_directive = api_function.__annotations__.get('return', None)
+    if transform is None:
+        transform = api_function.__annotations__.get('return', None)
 
     defaults = {}
     for index, default in enumerate(reversed(api_function.__defaults__ or ())):
@@ -250,8 +252,8 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
             input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
 
         to_return = api_function(**input_parameters)
-        if return_directive:
-            to_return = return_directive(to_return)
+        if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
+            to_return = transform(to_return)
         response.data = function_output(to_return)
 
     if versions:
@@ -280,7 +282,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     return (interface, callable_method)
 
 
-def not_found(output=None, versions=None, parse_body=False):
+def not_found(output=None, versions=None, parse_body=False, transform=None):
     '''A decorator to register a 404 handler'''
     versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
 
@@ -288,7 +290,7 @@ def not_found(output=None, versions=None, parse_body=False):
         module = _api_module(api_function.__module__)
         (interface, callable_method) = _create_interface(module, api_function, output=output,
                                                          versions=versions, parse_body=parse_body,
-                                                         set_status=falcon.HTTP_NOT_FOUND)
+                                                         set_status=falcon.HTTP_NOT_FOUND, transform=transform)
 
         for version in versions:
             module.__hug__.set_not_found_handler(interface, version)
@@ -297,7 +299,7 @@ def not_found(output=None, versions=None, parse_body=False):
     return decorator
 
 
-def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True):
+def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True, transform=None):
     '''Defines the base Hug API creating decorator, which exposes normal python methdos as HTTP APIs'''
     urls = (urls, ) if isinstance(urls, str) else urls
     examples = (examples, ) if isinstance(examples, str) else examples
@@ -306,7 +308,7 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
     def decorator(api_function):
         module = _api_module(api_function.__module__)
         (interface, callable_method) = _create_interface(module, api_function, output=output,
-                                                         versions=versions, parse_body=parse_body)
+                                                         versions=versions, parse_body=parse_body, transform=transform)
 
         use_examples = examples
         if not interface.required and not use_examples:
