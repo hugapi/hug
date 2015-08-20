@@ -23,6 +23,7 @@ import argparse
 import importlib
 import json
 import sys
+import os
 from collections import OrderedDict, namedtuple
 from functools import partial
 from wsgiref.simple_server import make_server
@@ -166,7 +167,9 @@ def terminal():
     if file_name and module:
         print("Error: can not define both a file and module source for Hug API.")
     if file_name:
-        api = server(importlib.machinery.SourceFileLoader(file_name.split(".")[0], file_name).load_module(), **server_arguments)
+        sys.path.append(os.path.dirname(os.path.abspath(file_name)))
+        api = server(importlib.machinery.SourceFileLoader(file_name.split(".")[0], file_name).load_module(),
+                     **server_arguments)
     elif module:
         api = server(importlib.import_module(module), **server_arguments)
     else:
