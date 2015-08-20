@@ -21,6 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import pytest
 import hug
+from collections import namedtuple
 from datetime import datetime
 
 
@@ -44,6 +45,12 @@ def test_json():
     test_data['non_serializable'] = NewObject()
     with pytest.raises(TypeError):
         hug.output_format.json(test_data).decode('utf8')
+
+    class NamedTupleObject(namedtuple('BaseTuple', ('name', 'value'))):
+        pass
+    data = NamedTupleObject('name', 'value')
+    converted = hug.input_format.json(hug.output_format.json(data).decode('utf8'))
+    assert converted == {'name': 'value'}
 
 
 def test_pretty_json():
