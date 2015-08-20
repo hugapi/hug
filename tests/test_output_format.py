@@ -50,7 +50,7 @@ def test_json():
         pass
     data = NamedTupleObject('name', 'value')
     converted = hug.input_format.json(hug.output_format.json(data).decode('utf8'))
-    assert converted == {'name': 'value'}
+    assert converted == {'name': 'name', 'value': 'value'}
 
 
 def test_pretty_json():
