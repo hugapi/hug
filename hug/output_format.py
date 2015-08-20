@@ -38,6 +38,8 @@ def _json_converter(item):
 @content_type('application/json')
 def json(content, **kwargs):
     '''JSON (Javascript Serialized Object Notation)'''
+    if isinstance(content, tuple) and getattr(content, '_fields', None):
+        content = {field: getattr(content, field) for field in content._fields}
     return json_converter.dumps(content, default=_json_converter, **kwargs).encode('utf8')
 
 
