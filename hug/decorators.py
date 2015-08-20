@@ -252,7 +252,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
             input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
 
         to_return = api_function(**input_parameters)
-        if transform:
+        if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
             to_return = transform(to_return)
         response.data = function_output(to_return)
 
