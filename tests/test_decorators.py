@@ -272,7 +272,7 @@ def test_return_modifer():
     assert hug.test.get(api, 'hello').data == "Hello world!"
     assert hello() == 'world'
 
-    @hug.get(transform_output=lambda data: "Goodbye {0}!".format(data))
+    @hug.get(transform=lambda data: "Goodbye {0}!".format(data))
     def hello() -> lambda data: "Hello {0}!".format(data):
         return "world"
     assert hug.test.get(api, 'hello').data == "Goodbye world!"
@@ -281,6 +281,13 @@ def test_return_modifer():
     @hug.get()
     def hello() -> str:
         return "world"
+    assert hug.test.get(api, 'hello').data == "world"
+    assert hello() == 'world'
+
+    @hug.get(transform=False)
+    def hello() -> lambda data: "Hello {0}!".format(data):
+        return "world"
+
     assert hug.test.get(api, 'hello').data == "world"
     assert hello() == 'world'
 
