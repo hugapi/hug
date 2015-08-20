@@ -49,8 +49,8 @@ To run the example:
 
     hug -f happy_birthday.py
 
-Then you can access the example from localhost:8080/happy_birthday?name=Hug&age=1
-Or access the documentation for your API from localhost:8080/documentation
+Then you can access the example from localhost:8000/happy_birthday?name=Hug&age=1
+Or access the documentation for your API from localhost:8000/documentation
 
 
 Versioning with Hug
@@ -74,8 +74,8 @@ To run the example:
 
     hug -f versioning_example.py
 
-Then you can access the example from localhost:8080/v1/echo?text=Hi / localhost:8080/v2/echo?text=Hi
-Or access the documentation for your API from localhost:8080
+Then you can access the example from localhost:8000/v1/echo?text=Hi / localhost:8000/v2/echo?text=Hi
+Or access the documentation for your API from localhost:8000
 
 Note: versioning in Hug automatically supports both the version header as well as direct URL based specification.
 
@@ -102,7 +102,7 @@ standard wsgi server should be as simple as pointing it to module_name:`__hug_ws
 
 For Example:
 
-    uwsgi --http 0.0.0.0:8080 --wsgi-file examples/hello_world.py --callable __hug_wsgi__
+    uwsgi --http 0.0.0.0:8000 --wsgi-file examples/hello_world.py --callable __hug_wsgi__
 
 To run the hello world Hug example API.
 
