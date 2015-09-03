@@ -19,11 +19,13 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import falcon
-from falcon.testing import StartResponseMock, create_environ
 import sys
-import hug
+
+import falcon
 import pytest
+from falcon.testing import StartResponseMock, create_environ
+
+import hug
 
 api = sys.modules[__name__]
 
@@ -361,4 +363,3 @@ def test_extending_api():
         return (tests.module_fake, )
 
     assert hug.test.get(api, 'fake/made_up_api').data == True
-

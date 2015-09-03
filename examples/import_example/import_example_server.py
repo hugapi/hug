@@ -1,6 +1,5 @@
-import hug
-
 import example_resource
+import hug
 
 
 @hug.get()
