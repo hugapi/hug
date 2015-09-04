@@ -329,6 +329,7 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
 
 def cli():
     '''Enables exposing a Hug compatible function as a Command Line Interface'''
+    module = module = _api_module(api_function.__module__)
     accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
     takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
     function_output = output or module.__hug__.output_format
@@ -342,104 +343,45 @@ def cli():
         defaults[accepted_parameters[-(index + 1)]] = default
     required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
 
-    used_short_options = set()
-    parser = argparse.ArgumentParser()
+    used_options = set()
+    parser = argparse.ArgumentParser(description=api_function.__doc__)
 
     pass_to_function = {}
-    for option in accepted_parameters:
+
+   in accepted_parameters:
         if option in use_directives:
-            arguments = (defaults[option], ) if option in defaults else ()
-            pass_to_function[option] = directives[option](*arguments, module=module)
             continue
         elif option in required:
-            parser.add_argument(option)
-            args = 
+            args = (option, )
         else:
             index = 1
-            while short_option in used_short_options and len(short_option) < :
+            while short_option in used_options and len(short_option) < len(option):
                 short_option = option[:index]
 
-            used_short_options.add(short_option)
+            used_options.add(short_option)
+            used_options.add(option)
+            if short_option != option:
+                args = ('-{0}'.format(short_option), '--{0}'.format(long_option))
+
+        kwargs = {}
+        if option in defaults:
+            kwargs['default'] = defaults['option']
+        if option in api_function.__annotations__:
+            kwargs['type'] = api_function.__annotations__[option]
+        if kwargs.get('type', None) == bool and kwargs['default'] == False:
+            kwargs['action'] = 'store_true'
+        parser.add_argument
 
 
 
     def interface():
-        pass
+        parser.
+        arguments = (defaults[option], ) if option in defaults else ()
+        pass_to_function[option] = directives[option](*arguments, module=module)
+        continue
+    for option
 
-
-    def interface(request, response, api_version=None, **kwargs):
-        if set_status:
-            response.status = set_status
-        api_version = int(api_version) if api_version is not None else api_version
-        response.content_type = function_output.content_type
-        input_parameters = kwargs
-        input_parameters.update(request.params)
-        body_formatting_handler = parse_body and module.__hug__.input_format(request.content_type)
-        if body_formatting_handler:
-            body = body_formatting_handler(request.stream.read().decode('utf8'))
-            if 'body' in accepted_parameters:
-                input_parameters['body'] = body
-            if isinstance(body, dict):
-                input_parameters.update(body)
-
-        errors = {}
-        for key, type_handler in api_function.__annotations__.items():
-            try:
-                if key in input_parameters:
-                    input_parameters[key] = type_handler(input_parameters[key])
-            except Exception as error:
-                errors[key] = str(error)
-
-        if 'request' in accepted_parameters:
-            input_parameters['request'] = request
-        if 'response' in accepted_parameters:
-            input_parameters['response'] = response
-        if 'api_version' in accepted_parameters:
-            input_parameters['api_version'] = api_version
-        for parameter in use_directives:
-            arguments = (defaults[parameter], ) if parameter in defaults else ()
-            input_parameters[parameter] = directives[parameter](*arguments, response=response, request=request,
-                                                                module=module, api_version=api_version)
-        for require in required:
-            if not require in input_parameters:
-                errors[require] = "Required parameter not supplied"
-        if errors:
-            response.data = function_output({"errors": errors})
-            response.status = HTTP_BAD_REQUEST
-            return
-
-        if not takes_kwargs:
-            input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
-
-        to_return = api_function(**input_parameters)
-        if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
-            to_return = transform(to_return)
-        response.data = function_output(to_return)
-
-    if versions:
-        module.__hug__.versions.update(versions)
-
-    callable_method = api_function
-    if use_directives:
-        @wraps(api_function)
-        def callable_method(*args, **kwargs):
-            for parameter in use_directives:
-                if parameter in kwargs:
-                    continue
-                arguments = (defaults[parameter], ) if parameter in defaults else ()
-                kwargs[parameter] = directives[parameter](*arguments, module=module,
-                                    api_version=max(versions, key=lambda version: version or -1) if versions else None)
-            return api_function(*args, **kwargs)
-        callable_method.interface = interface
-
-    api_function.interface = interface
-    interface.api_function = api_function
-    interface.output_format = function_output
-    interface.defaults = defaults
-    interface.accepted_parameters = accepted_parameters
-    interface.content_type = function_output.content_type
-    interface.required = required
-    return (interface, callable_method)
+    return interface
 
 
 for method in HTTP_METHODS:
