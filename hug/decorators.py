@@ -327,61 +327,61 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
     return decorator
 
 
-def cli():
+def cli(doc=None, version=None):
     '''Enables exposing a Hug compatible function as a Command Line Interface'''
-    module = module = _api_module(api_function.__module__)
-    accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
-    takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
-    function_output = output or module.__hug__.output_format
-    directives = module.__hug__.directives()
-    use_directives = set(accepted_parameters).intersection(directives.keys())
-    if transform is None:
-        transform = api_function.__annotations__.get('return', None)
+    def decorator(api_function):
+        module = module = _api_module(api_function.__module__)
+        accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+        takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
+        directives = module.__hug__.directives()
+        use_directives = set(accepted_parameters).intersection(directives.keys())
+        if transform is None:
+            transform = api_function.__annotations__.get('return', None)
 
-    defaults = {}
-    for index, default in enumerate(reversed(api_function.__defaults__ or ())):
-        defaults[accepted_parameters[-(index + 1)]] = default
-    required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+        defaults = {}
+        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+            defaults[accepted_parameters[-(index + 1)]] = default
+        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
 
-    used_options = set()
-    parser = argparse.ArgumentParser(description=api_function.__doc__)
+        used_options = set()
+        parser = argparse.ArgumentParser(description=api_function.__doc__)
 
-    pass_to_function = {}
+        pass_to_function = {}
 
-   in accepted_parameters:
-        if option in use_directives:
-            continue
-        elif option in required:
-            args = (option, )
-        else:
-            index = 1
-            while short_option in used_options and len(short_option) < len(option):
-                short_option = option[:index]
+        for option in accepted_parameters:
+            if option in use_directives:
+                continue
+            elif option in required:
+                args = (option, )
+            else:
+                index = 1
+                while short_option in used_options and len(short_option) < len(option):
+                    short_option = option[:index]
 
-            used_options.add(short_option)
-            used_options.add(option)
-            if short_option != option:
-                args = ('-{0}'.format(short_option), '--{0}'.format(long_option))
+                used_options.add(short_option)
+                used_options.add(option)
+                if short_option != option:
+                    args = ('-{0}'.format(short_option), '--{0}'.format(long_option))
 
-        kwargs = {}
-        if option in defaults:
-            kwargs['default'] = defaults['option']
-        if option in api_function.__annotations__:
-            kwargs['type'] = api_function.__annotations__[option]
-        if kwargs.get('type', None) == bool and kwargs['default'] == False:
-            kwargs['action'] = 'store_true'
-        parser.add_argument
+            kwargs = {}
+            if option in defaults:
+                kwargs['default'] = defaults['option']
+            if option in api_function.__annotations__:
+                kwargs['type'] = api_function.__annotations__[option]
+            if kwargs.get('type', None) == bool and kwargs['default'] == False:
+                kwargs['action'] = 'store_true'
+            parser.add_argument
 
+        def cli_interface():
+            pass_to_function = vars(parser.parse_args())
+            for directive in use_directives:
+                arguments = (defaults[option], ) if option in defaults else ()
+                pass_to_function[option] = directives[option](*arguments, module=module)
+            return api_function(**pass_to_function)
 
-
-    def interface():
-        parser.
-        arguments = (defaults[option], ) if option in defaults else ()
-        pass_to_function[option] = directives[option](*arguments, module=module)
-        continue
-    for option
-
-    return interface
+        api_function.cli = cli_interface
+        return api_function
+    return decorator
 
 
 for method in HTTP_METHODS:
