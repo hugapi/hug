@@ -363,3 +363,12 @@ def test_extending_api():
         return (tests.module_fake, )
 
     assert hug.test.get(api, 'fake/made_up_api').data == True
+
+
+def test_cli():
+    '''Test to ensure the CLI wrapper works as intended'''
+    @hug.cli('command', '1.0.0')
+    def cli_command(name:str, value:int):
+        return(name, value)
+
+    assert cli_command('Testing', 1) == ('Testing', 1)

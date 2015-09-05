@@ -327,7 +327,7 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
     return decorator
 
 
-def cli(doc=None, version=None):
+def cli(name=None, version=None, doc=None, transform=None, output=hug.output_format.text):
     '''Enables exposing a Hug compatible function as a Command Line Interface'''
     def decorator(api_function):
         module = module = _api_module(api_function.__module__)
@@ -335,8 +335,7 @@ def cli(doc=None, version=None):
         takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
         directives = module.__hug__.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
-        if transform is None:
-            transform = api_function.__annotations__.get('return', None)
+        output_transform = transform or api_function.__annotations__.get('return', None)
 
         defaults = {}
         for index, default in enumerate(reversed(api_function.__defaults__ or ())):
@@ -344,10 +343,11 @@ def cli(doc=None, version=None):
         required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
 
         used_options = set()
-        parser = argparse.ArgumentParser(description=api_function.__doc__)
-
-        pass_to_function = {}
-
+        parser = argparse.ArgumentParser(description=doc or api_function.__doc__)
+        if version:
+            parser.add_argument('-v', '--version', action='version',
+                                version="{0} {1}".format(name or api_function.__name__, version))
+            used_options.update(('v', 'version'))
         for option in accepted_parameters:
             if option in use_directives:
                 continue
@@ -367,17 +367,24 @@ def cli(doc=None, version=None):
             if option in defaults:
                 kwargs['default'] = defaults['option']
             if option in api_function.__annotations__:
-                kwargs['type'] = api_function.__annotations__[option]
+                annotation = api_function.__annotations__[option]
+                kwargs['type'] = annotation
+                kwargs['help'] = annotation.__doc__
+                kwargs.update(getattr(annotation, 'cli_behaviour', {}))
             if kwargs.get('type', None) == bool and kwargs['default'] == False:
                 kwargs['action'] = 'store_true'
-            parser.add_argument
+            parser.add_argument(*args, **kwargs)
 
         def cli_interface():
             pass_to_function = vars(parser.parse_args())
             for directive in use_directives:
                 arguments = (defaults[option], ) if option in defaults else ()
                 pass_to_function[option] = directives[option](*arguments, module=module)
-            return api_function(**pass_to_function)
+
+            result = api_function(**pass_to_function)
+            if output_transform:
+                result = output_transform(result)
+            print(output(result))
 
         api_function.cli = cli_interface
         return api_function

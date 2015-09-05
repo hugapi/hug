@@ -29,6 +29,7 @@ def number(value):
 def multiple(value):
     '''Multiple Values'''
     return value if isinstance(value, list) else [value]
+multiple.cli_behaviour = {'action': 'append'}
 
 
 def comma_separated_list(value):
@@ -59,4 +60,5 @@ def one_of(values):
         return value
 
     matches.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
+    matches.cli_behaviour = {'choices': values}
     return matches
