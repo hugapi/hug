@@ -367,8 +367,11 @@ def test_extending_api():
 
 def test_cli():
     '''Test to ensure the CLI wrapper works as intended'''
-    @hug.cli('command', '1.0.0')
+    @hug.cli('command', '1.0.0', output=str)
     def cli_command(name:str, value:int):
-        return(name, value)
+        return (name, value)
 
     assert cli_command('Testing', 1) == ('Testing', 1)
+    hug.test.cli(cli_command, name="Bob", value="5") == ("Bob", 5)
+
+
