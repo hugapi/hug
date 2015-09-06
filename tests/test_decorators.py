@@ -401,3 +401,13 @@ def test_cli_with_conflicting_short_options():
     assert hug.test.cli(test) == ('Value', 'Value2')
     assert hug.test.cli(test, abe1='hi', abe2='there') == ('hi', 'there')
 
+
+def test_cli_with_directives():
+    '''Test to ensure it's possible to use directives with hug CLIs'''
+    @hug.cli()
+    def test(hug_timer):
+        return float(hug_timer)
+
+    assert isinstance(test(), float)
+    assert test(hug_timer=4) == 4
+    assert isinstance(hug.test.cli(test), float)
