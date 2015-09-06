@@ -261,7 +261,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         module.__hug__.versions.update(versions)
 
     callable_method = api_function
-    if use_directives:
+    if use_directives and not getattr(api_function, 'without_directives', None):
         @wraps(api_function)
         def callable_method(*args, **kwargs):
             for parameter in use_directives:
@@ -272,6 +272,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
                                     api_version=max(versions, key=lambda version: version or -1) if versions else None)
             return api_function(*args, **kwargs)
         callable_method.interface = interface
+        callable_method.without_directives = api_function
 
     api_function.interface = interface
     interface.api_function = api_function
@@ -387,9 +388,21 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
                 result = output_transform(result)
             cli_interface.output(result)
 
-        api_function.cli = cli_interface
+        callable_method = api_function
+        if use_directives and not getattr(api_function, 'without_directives', None):
+            @wraps(api_function)
+            def callable_method(*args, **kwargs):
+                for parameter in use_directives:
+                    if parameter in kwargs:
+                        continue
+                    arguments = (defaults[parameter], ) if parameter in defaults else ()
+                    kwargs[parameter] = directives[parameter](*arguments, module=module)
+                return api_function(*args, **kwargs)
+            callable_method.without_directives = api_function
+
+        callable_method.cli = cli_interface
         cli_interface.output = output
-        return api_function
+        return callable_method
     return decorator
 
 
