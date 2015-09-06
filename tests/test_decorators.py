@@ -372,6 +372,19 @@ def test_cli():
         return (name, value)
 
     assert cli_command('Testing', 1) == ('Testing', 1)
-    hug.test.cli(cli_command, name="Bob", value="5") == ("Bob", 5)
+    assert hug.test.cli(cli_command, name="Bob", value=5) == ("Bob", 5)
 
 
+def test_cli_with_defaults():
+    '''Test to ensure clis work correctly with default values'''
+    @hug.cli()
+    def happy(name:str, age:int, birthday:bool=False):
+        if birthday:
+            return "Happy {age} birthday {name}!".format(**locals())
+        else:
+            return "{name} is {age} years old".format(**locals())
+
+    assert happy('Hug', 1) == "Hug is 1 years old"
+    assert happy('Hug', 1, True) == "Happy 1 birthday Hug!"
+    assert hug.test.cli(happy, name="Bob", age=5) ==  "Bob is 5 years old"
+    assert hug.test.cli(happy, name="Bob", age=5, birthday=True) ==  "Happy 5 birthday Bob!"
