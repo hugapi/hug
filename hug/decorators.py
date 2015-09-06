@@ -356,7 +356,7 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             else:
                 short_option = option[0]
                 while short_option in used_options and len(short_option) < len(option):
-                    short_option = option[:len(short_option + 1)]
+                    short_option = option[:len(short_option) + 1]
 
                 used_options.add(short_option)
                 used_options.add(option)
