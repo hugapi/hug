@@ -388,3 +388,16 @@ def test_cli_with_defaults():
     assert happy('Hug', 1, True) == "Happy 1 birthday Hug!"
     assert hug.test.cli(happy, name="Bob", age=5) ==  "Bob is 5 years old"
     assert hug.test.cli(happy, name="Bob", age=5, birthday=True) ==  "Happy 5 birthday Bob!"
+
+
+def test_cli_with_conflicting_short_options():
+    '''Test to ensure that it's possible to expose an api with the same first few letters in option'''
+    @hug.cli()
+    def test(abe1="Value", abe2="Value2"):
+        return (abe1, abe2)
+
+    assert test() == ('Value', 'Value2')
+    assert test('hi', 'there') == ('hi', 'there')
+    assert hug.test.cli(test) == ('Value', 'Value2')
+    assert hug.test.cli(test, abe1='hi', abe2='there') == ('hi', 'there')
+
