@@ -327,7 +327,7 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
     return decorator
 
 
-def cli(name=None, version=None, doc=None, transform=None, output=hug.output_format.text):
+def cli(name=None, version=None, doc=None, transform=None, output=print):
     '''Enables exposing a Hug compatible function as a Command Line Interface'''
     def decorator(api_function):
         module = module = _api_module(api_function.__module__)
@@ -384,7 +384,7 @@ def cli(name=None, version=None, doc=None, transform=None, output=hug.output_for
             result = api_function(**pass_to_function)
             if output_transform:
                 result = output_transform(result)
-            print(output(result))
+            output(result)
 
         api_function.cli = cli_interface
         return api_function
