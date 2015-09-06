@@ -376,7 +376,7 @@ def test_cli():
 
 
 def test_cli_with_defaults():
-    '''Test to ensure clis work correctly with default values'''
+    '''Test to ensure CLIs work correctly with default values'''
     @hug.cli()
     def happy(name:str, age:int, birthday:bool=False):
         if birthday:
@@ -391,7 +391,7 @@ def test_cli_with_defaults():
 
 
 def test_cli_with_conflicting_short_options():
-    '''Test to ensure that it's possible to expose an api with the same first few letters in option'''
+    '''Test to ensure that it's possible to expose a CLI with the same first few letters in option'''
     @hug.cli()
     def test(abe1="Value", abe2="Value2"):
         return (abe1, abe2)
@@ -411,3 +411,21 @@ def test_cli_with_directives():
     assert isinstance(test(), float)
     assert test(hug_timer=4) == 4
     assert isinstance(hug.test.cli(test), float)
+
+
+def test_cli_with_output_transform():
+    '''Test to ensure it's possible to use output transforms with hug CLIs'''
+    @hug.cli()
+    def test() -> int:
+        return '5'
+
+    assert isinstance(test(), str)
+    assert isinstance(hug.test.cli(test), int)
+
+
+    @hug.cli(transform=int)
+    def test():
+        return '5'
+
+    assert isinstance(test(), str)
+    assert isinstance(hug.test.cli(test), int)
