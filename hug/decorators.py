@@ -354,18 +354,18 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             elif option in required:
                 args = (option, )
             else:
-                index = 1
+                short_option = option[0]
                 while short_option in used_options and len(short_option) < len(option):
-                    short_option = option[:index]
+                    short_option = option[:len(short_option + 1)]
 
                 used_options.add(short_option)
                 used_options.add(option)
                 if short_option != option:
-                    args = ('-{0}'.format(short_option), '--{0}'.format(long_option))
+                    args = ('-{0}'.format(short_option), '--{0}'.format(option))
 
             kwargs = {}
             if option in defaults:
-                kwargs['default'] = defaults['option']
+                kwargs['default'] = defaults[option]
             if option in api_function.__annotations__:
                 annotation = api_function.__annotations__[option]
                 kwargs['type'] = annotation
@@ -373,6 +373,7 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
                 kwargs.update(getattr(annotation, 'cli_behaviour', {}))
             if kwargs.get('type', None) == bool and kwargs['default'] == False:
                 kwargs['action'] = 'store_true'
+                kwargs.pop('type', None)
             parser.add_argument(*args, **kwargs)
 
         def cli_interface():

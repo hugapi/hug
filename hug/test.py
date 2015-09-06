@@ -62,6 +62,7 @@ def cli(method, **arguments):
     test_arguments.__dict__ = arguments
     with mock.patch('argparse.ArgumentParser.parse_args', lambda self: test_arguments):
         old_output = method.cli.output
+        method.cli.output = lambda data: to_return.append(data)
         to_return = []
         method.cli()
         method.cli.output = old_output
