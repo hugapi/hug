@@ -363,6 +363,8 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
                 used_options.add(option)
                 if short_option != option:
                     args = ('-{0}'.format(short_option), '--{0}'.format(option))
+                else:
+                    args = ('--{0}'.format(option), )
 
             kwargs = {}
             if option in defaults:
@@ -375,6 +377,7 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             if kwargs.get('type', None) == bool and kwargs['default'] == False:
                 kwargs['action'] = 'store_true'
                 kwargs.pop('type', None)
+
             parser.add_argument(*args, **kwargs)
 
         def cli_interface():
