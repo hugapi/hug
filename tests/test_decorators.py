@@ -429,3 +429,15 @@ def test_cli_with_output_transform():
 
     assert isinstance(test(), str)
     assert isinstance(hug.test.cli(test), int)
+
+
+def test_cli_with_short_short_options():
+    '''Test to ensure that it's possible to expose a CLI with 2 very short and similar options'''
+    @hug.cli()
+    def test(a1="Value", a2="Value2"):
+        return (a1, a2)
+
+    assert test() == ('Value', 'Value2')
+    assert test('hi', 'there') == ('hi', 'there')
+    assert hug.test.cli(test) == ('Value', 'Value2')
+    assert hug.test.cli(test, a1='hi', a2='there') == ('hi', 'there')
