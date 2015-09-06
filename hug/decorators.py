@@ -384,9 +384,10 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             result = api_function(**pass_to_function)
             if output_transform:
                 result = output_transform(result)
-            output(result)
+            cli_interface.output(result)
 
         api_function.cli = cli_interface
+        cli_interface.output = output
         return api_function
     return decorator
 
