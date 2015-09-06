@@ -19,8 +19,10 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import pytest
 import sys
+
+import pytest
+
 import hug
 
 api = sys.modules[__name__]
@@ -115,4 +117,3 @@ def test_per_api_directives():
         return hug_test
 
     assert hug.test.get(api, 'my_api_method').data == 'heyyy'
-

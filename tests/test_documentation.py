@@ -19,11 +19,13 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import sys
 import json
-import hug
+import sys
+
 from falcon import Request
 from falcon.testing import StartResponseMock, create_environ
+
+import hug
 
 api = sys.modules[__name__]
 
@@ -91,6 +93,3 @@ def test_basic_documentation():
     documentation = json.loads(response.data.decode('utf8'))['documentation']
     assert not 'versions' in documentation
     assert '/echo' in documentation
-
-
-

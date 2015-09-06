@@ -26,6 +26,8 @@ import json
 from hug.run import server
 from hug import output_format
 from functools import partial
+from unittest import mock
+from collections import namedtuple
 
 
 def call(method, api_module, url, body='', headers=None, **params):
@@ -53,3 +55,15 @@ for method in HTTP_METHODS:
     tester.__doc__ = '''Simulates a round-trip HTTP {0} against the given api_module / url'''.format(method.upper())
     globals()[method.lower()] = tester
 
+
+def cli(method, **arguments):
+    '''Simulates testing a hug cli method from the command line'''
+    test_arguments = mock.Mock()
+    test_arguments.__dict__ = arguments
+    with mock.patch('argparse.ArgumentParser.parse_args', lambda self: test_arguments):
+        old_output = method.cli.output
+        method.cli.output = lambda data: to_return.append(data)
+        to_return = []
+        method.cli()
+        method.cli.output = old_output
+        return to_return and to_return[0] or None

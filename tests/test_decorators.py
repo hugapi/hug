@@ -19,11 +19,13 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import falcon
-from falcon.testing import StartResponseMock, create_environ
 import sys
-import hug
+
+import falcon
 import pytest
+from falcon.testing import StartResponseMock, create_environ
+
+import hug
 
 api = sys.modules[__name__]
 
@@ -362,3 +364,80 @@ def test_extending_api():
 
     assert hug.test.get(api, 'fake/made_up_api').data == True
 
+
+def test_cli():
+    '''Test to ensure the CLI wrapper works as intended'''
+    @hug.cli('command', '1.0.0', output=str)
+    def cli_command(name:str, value:int):
+        return (name, value)
+
+    assert cli_command('Testing', 1) == ('Testing', 1)
+    assert hug.test.cli(cli_command, name="Bob", value=5) == ("Bob", 5)
+
+
+def test_cli_with_defaults():
+    '''Test to ensure CLIs work correctly with default values'''
+    @hug.cli()
+    def happy(name:str, age:int, birthday:bool=False):
+        if birthday:
+            return "Happy {age} birthday {name}!".format(**locals())
+        else:
+            return "{name} is {age} years old".format(**locals())
+
+    assert happy('Hug', 1) == "Hug is 1 years old"
+    assert happy('Hug', 1, True) == "Happy 1 birthday Hug!"
+    assert hug.test.cli(happy, name="Bob", age=5) ==  "Bob is 5 years old"
+    assert hug.test.cli(happy, name="Bob", age=5, birthday=True) ==  "Happy 5 birthday Bob!"
+
+
+def test_cli_with_conflicting_short_options():
+    '''Test to ensure that it's possible to expose a CLI with the same first few letters in option'''
+    @hug.cli()
+    def test(abe1="Value", abe2="Value2"):
+        return (abe1, abe2)
+
+    assert test() == ('Value', 'Value2')
+    assert test('hi', 'there') == ('hi', 'there')
+    assert hug.test.cli(test) == ('Value', 'Value2')
+    assert hug.test.cli(test, abe1='hi', abe2='there') == ('hi', 'there')
+
+
+def test_cli_with_directives():
+    '''Test to ensure it's possible to use directives with hug CLIs'''
+    @hug.cli()
+    def test(hug_timer):
+        return float(hug_timer)
+
+    assert isinstance(test(), float)
+    assert test(hug_timer=4) == 4
+    assert isinstance(hug.test.cli(test), float)
+
+
+def test_cli_with_output_transform():
+    '''Test to ensure it's possible to use output transforms with hug CLIs'''
+    @hug.cli()
+    def test() -> int:
+        return '5'
+
+    assert isinstance(test(), str)
+    assert isinstance(hug.test.cli(test), int)
+
+
+    @hug.cli(transform=int)
+    def test():
+        return '5'
+
+    assert isinstance(test(), str)
+    assert isinstance(hug.test.cli(test), int)
+
+
+def test_cli_with_short_short_options():
+    '''Test to ensure that it's possible to expose a CLI with 2 very short and similar options'''
+    @hug.cli()
+    def test(a1="Value", a2="Value2"):
+        return (a1, a2)
+
+    assert test() == ('Value', 'Value2')
+    assert test('hi', 'there') == ('hi', 'there')
+    assert hug.test.cli(test) == ('Value', 'Value2')
+    assert hug.test.cli(test, a1='hi', a2='there') == ('hi', 'there')

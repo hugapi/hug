@@ -24,6 +24,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import argparse
 import json
 import sys
 from collections import OrderedDict, namedtuple
@@ -260,7 +261,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         module.__hug__.versions.update(versions)
 
     callable_method = api_function
-    if use_directives:
+    if use_directives and not getattr(api_function, 'without_directives', None):
         @wraps(api_function)
         def callable_method(*args, **kwargs):
             for parameter in use_directives:
@@ -271,6 +272,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
                                     api_version=max(versions, key=lambda version: version or -1) if versions else None)
             return api_function(*args, **kwargs)
         callable_method.interface = interface
+        callable_method.without_directives = api_function
 
     api_function.interface = interface
     interface.api_function = api_function
@@ -322,6 +324,87 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
                     module.__hug__.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
 
         interface.examples = use_examples
+        return callable_method
+    return decorator
+
+
+def cli(name=None, version=None, doc=None, transform=None, output=print):
+    '''Enables exposing a Hug compatible function as a Command Line Interface'''
+    def decorator(api_function):
+        module = module = _api_module(api_function.__module__)
+        accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+        takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
+        directives = module.__hug__.directives()
+        use_directives = set(accepted_parameters).intersection(directives.keys())
+        output_transform = transform or api_function.__annotations__.get('return', None)
+
+        defaults = {}
+        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+            defaults[accepted_parameters[-(index + 1)]] = default
+        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+
+        used_options = set()
+        parser = argparse.ArgumentParser(description=doc or api_function.__doc__)
+        if version:
+            parser.add_argument('-v', '--version', action='version',
+                                version="{0} {1}".format(name or api_function.__name__, version))
+            used_options.update(('v', 'version'))
+        for option in accepted_parameters:
+            if option in use_directives:
+                continue
+            elif option in required:
+                args = (option, )
+            else:
+                short_option = option[0]
+                while short_option in used_options and len(short_option) < len(option):
+                    short_option = option[:len(short_option) + 1]
+
+                used_options.add(short_option)
+                used_options.add(option)
+                if short_option != option:
+                    args = ('-{0}'.format(short_option), '--{0}'.format(option))
+                else:
+                    args = ('--{0}'.format(option), )
+
+            kwargs = {}
+            if option in defaults:
+                kwargs['default'] = defaults[option]
+            if option in api_function.__annotations__:
+                annotation = api_function.__annotations__[option]
+                kwargs['type'] = annotation
+                kwargs['help'] = annotation.__doc__
+                kwargs.update(getattr(annotation, 'cli_behaviour', {}))
+            if kwargs.get('type', None) == bool and kwargs['default'] == False:
+                kwargs['action'] = 'store_true'
+                kwargs.pop('type', None)
+
+            parser.add_argument(*args, **kwargs)
+
+        def cli_interface():
+            pass_to_function = vars(parser.parse_args())
+            for directive in use_directives:
+                arguments = (defaults[option], ) if option in defaults else ()
+                pass_to_function[option] = directives[option](*arguments, module=module)
+
+            result = api_function(**pass_to_function)
+            if output_transform:
+                result = output_transform(result)
+            cli_interface.output(result)
+
+        callable_method = api_function
+        if use_directives and not getattr(api_function, 'without_directives', None):
+            @wraps(api_function)
+            def callable_method(*args, **kwargs):
+                for parameter in use_directives:
+                    if parameter in kwargs:
+                        continue
+                    arguments = (defaults[parameter], ) if parameter in defaults else ()
+                    kwargs[parameter] = directives[parameter](*arguments, module=module)
+                return api_function(*args, **kwargs)
+            callable_method.without_directives = api_function
+
+        callable_method.cli = cli_interface
+        cli_interface.output = output
         return callable_method
     return decorator
 
