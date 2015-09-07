@@ -31,9 +31,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from hug import directives, documentation, format, input_format, output_format, run, test, types
 from hug._version import current
-from hug.decorators import (call, connect, default_input_format, default_output_format,
+from hug.decorators import (call, cli, connect, default_input_format, default_output_format,
                             delete, directive, extend_api, get, head, not_found, options,
-                            patch, post, put, request_middleware, response_middleware, trace, cli)
+                            patch, post, put, request_middleware, response_middleware, trace)
 
 from hug import defaults  # isort:skip - must be imported last for defaults to have access to all modules
 
