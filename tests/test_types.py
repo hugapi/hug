@@ -20,11 +20,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 from datetime import datetime
+from decimal import Decimal
 
 import pytest
 
 import hug
-from decimal import Decimal
 
 
 def test_number():
