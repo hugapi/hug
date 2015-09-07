@@ -82,7 +82,7 @@ def test_parameters():
     assert hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle', other="yo").data == 'success'
 
     nan_test = hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle', end='NAN').data
-    assert 'invalid' in nan_test['errors']['end']
+    assert 'Invalid' in nan_test['errors']['end']
 
 
 def test_parameter_injection():

@@ -20,6 +20,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 from datetime import datetime
+from decimal import Decimal
 
 import pytest
 
@@ -46,11 +47,21 @@ def test_comma_separated_list():
     assert hug.types.comma_separated_list('value1,value2') == ['value1', 'value2']
 
 
+
+def test_float_number():
+    '''Tests to ensure the float type correctly allows floating point values'''
+    assert hug.types.float_number('1.1') == 1.1
+    assert hug.types.float_number('1') == float(1)
+    assert hug.types.float_number(1.1) == 1.1
+    with pytest.raises(ValueError):
+        hug.types.float_number('bacon')
+
+
 def test_decimal():
-    '''Tests to ensure the decimal type correctly allows floating point values'''
-    assert hug.types.decimal('1.1') == 1.1
-    assert hug.types.decimal('1') == float(1)
-    assert hug.types.decimal(1.1) == 1.1
+    '''Tests to ensure the decimal type correctly allows decimal values'''
+    assert hug.types.decimal('1.1') == Decimal('1.1')
+    assert hug.types.decimal('1') == Decimal('1')
+    assert hug.types.decimal(1.1) == Decimal(1.1)
     with pytest.raises(ValueError):
         hug.types.decimal('bacon')
 
@@ -77,3 +88,41 @@ def test_one_of():
     assert hug.types.one_of({'bacon', 'sausage', 'pancakes'})('pancakes') == 'pancakes'
     with pytest.raises(KeyError):
         hug.types.one_of({'bacon', 'sausage', 'pancakes'})('syrup')
+
+
+def test_accept():
+    '''Tests to ensure the accept type wrapper works as expected'''
+    custom_converter = lambda value: value + " converted"
+    custom_type = hug.types.accept(custom_converter, 'A string Value')
+    with pytest.raises(TypeError):
+        custom_type(1)
+
+
+def test_accept_custom_exception_text():
+    '''Tests to ensure it's easy to custom the exception text using the accept wrapper'''
+    custom_converter = lambda value: value + " converted"
+    custom_type = hug.types.accept(custom_converter, 'A string Value', 'Error occurred')
+    assert custom_type('bacon') == 'bacon converted'
+    with pytest.raises(ValueError):
+        custom_type(1)
+
+
+def test_accept_custom_exception_handlers():
+    '''Tests to ensure it's easy to custom the exception text using the accept wrapper'''
+    custom_converter = lambda value: (str(int(value)) if value else value) + " converted"
+    custom_type = hug.types.accept(custom_converter, 'A string Value', exception_handlers={TypeError: '0 provided'})
+    assert custom_type('1') == '1 converted'
+    with pytest.raises(ValueError):
+        custom_type('bacon')
+    with pytest.raises(ValueError):
+        custom_type(0)
+
+    custom_type = hug.types.accept(custom_converter, 'A string Value', exception_handlers={TypeError: KeyError})
+    with pytest.raises(KeyError):
+        custom_type(0)
+
+
+def test_accept_custom_cli_behavior():
+    '''Tests to ensure it's easy to customize the cli behavior using the accept wrapper'''
+    custom_type = hug.types.accept(hug.types.multiple, 'Multiple values', cli_behaviour={'type': list})
+    assert custom_type.cli_behaviour == {'type': list, 'action': 'append'}
