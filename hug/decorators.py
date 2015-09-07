@@ -214,14 +214,17 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     function_output = output or module.__hug__.output_format
     directives = module.__hug__.directives()
     use_directives = set(accepted_parameters).intersection(directives.keys())
-    if transform is None:
-        transform = api_function.__annotations__.get('return', None)
+    if transform is None and not isinstance(api_function.__annotations__.get('return', None), (str, type(None))):
+        transform = api_function.__annotations__['return']
+    output_type = transform or api_function.__annotations__.get('return', None)
 
     defaults = {}
     for index, default in enumerate(reversed(api_function.__defaults__ or ())):
         defaults[accepted_parameters[-(index + 1)]] = default
     required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
 
+    input_transformations = {key: value for key, value in api_function.__annotations__.items() if not
+                             isinstance(value, str)}
     def interface(request, response, api_version=None, **kwargs):
         if set_status:
             response.status = set_status
@@ -238,7 +241,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
                 input_parameters.update(body)
 
         errors = {}
-        for key, type_handler in api_function.__annotations__.items():
+        for key, type_handler in input_transformations.items():
             try:
                 if key in input_parameters:
                     input_parameters[key] = type_handler(input_parameters[key])
@@ -295,6 +298,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     interface.accepted_parameters = accepted_parameters
     interface.content_type = function_output.content_type
     interface.required = required
+    interface.output_type = output_type if isinstance(output_type, (str, type(None))) else output_type.__doc__
     return (interface, callable_method)
 
 
