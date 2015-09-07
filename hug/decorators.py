@@ -30,21 +30,23 @@ import sys
 from collections import OrderedDict, namedtuple
 from functools import partial, wraps
 from itertools import chain
+from wsgiref.simple_server import make_server
 
 import falcon
 from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 
 import hug.defaults
 import hug.output_format
-from hug.run import server
+from hug.run import INTRO, server
 
 
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
-    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned', '_middleware',
-                 '_not_found_handlers')
+    __slots__ = ('module', 'versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned',
+                 '_middleware', '_not_found_handlers')
 
-    def __init__(self):
+    def __init__(self, module):
+        self.module = module
         self.versions = set()
         self.routes = OrderedDict()
         self.versioned = OrderedDict()
@@ -111,6 +113,18 @@ class HugAPI(object):
             self._not_found_handlers = {}
 
         self.not_found_handlers[version] = handler
+
+    def serve(self, port=8000, no_documentation=False):
+        '''Runs the basic hug development server against this API'''
+        if no_documentation:
+            api = server(self.module, sink=None)
+        else:
+            api = server(self.module)
+
+        print(INTRO)
+        httpd = make_server('', port, api)
+        print("Serving on port {0}...".format(port))
+        httpd.serve_forever()
 
 
 def default_output_format(content_type='application/json', apply_globally=False):
@@ -187,7 +201,7 @@ def _api_module(module_name):
         def api_auto_instantiate(*kargs, **kwargs):
             module.__hug_wsgi__ = server(module)
             return module.__hug_wsgi__(*kargs, **kwargs)
-        module.__hug__ = HugAPI()
+        module.__hug__ = HugAPI(module)
         module.__hug_wsgi__ = api_auto_instantiate
     return module
 
