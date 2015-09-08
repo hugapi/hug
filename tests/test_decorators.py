@@ -364,14 +364,14 @@ def test_middleware():
     assert result.headers_dict['Bacon'] == 'Yumm'
 
 
-def test_only_if():
+def test_requires():
     '''Test to ensure only if requirements successfully keep calls from happening'''
     def user_is_not_tim(request, response, **kwargs):
         if request.headers.get('USER', '') != 'Tim':
             return True
         return 'Unauthorized'
 
-    @hug.get(only_if=user_is_not_tim)
+    @hug.get(requires=user_is_not_tim)
     def hello(request):
         return 'Hi!'
 

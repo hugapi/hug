@@ -208,7 +208,7 @@ def _api_module(module_name):
 
 
 def _create_interface(module, api_function, output=None, versions=None, parse_body=True, set_status=False,
-                      transform=None, only_if=()):
+                      transform=None, requires=()):
     '''Creates the request handling interface method for the given API function'''
     accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
     takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
@@ -232,7 +232,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
 
         api_version = int(api_version) if api_version is not None else api_version
         response.content_type = function_output.content_type
-        for requirement in only_if:
+        for requirement in requires:
             conclusion = requirement(response=response, request=request, module=module, api_version=api_version)
             if conclusion is not True:
                 if conclusion:
@@ -318,17 +318,17 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     return (interface, callable_method)
 
 
-def not_found(output=None, versions=None, parse_body=False, transform=None, only_if=()):
+def not_found(output=None, versions=None, parse_body=False, transform=None, requires=()):
     '''A decorator to register a 404 handler'''
     versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
-    only_if = (only_if, ) if not isinstance(only_if, (tuple, list)) else only_if
+    requires = (requires, ) if not isinstance(requires, (tuple, list)) else requires
 
     def decorator(api_function):
         module = _api_module(api_function.__module__)
         (interface, callable_method) = _create_interface(module, api_function, output=output,
                                                          versions=versions, parse_body=parse_body,
                                                          set_status=falcon.HTTP_NOT_FOUND, transform=transform,
-                                                         only_if=only_if)
+                                                         requires=requires)
 
         for version in versions:
             module.__hug__.set_not_found_handler(interface, version)
@@ -338,18 +338,18 @@ def not_found(output=None, versions=None, parse_body=False, transform=None, only
 
 
 def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True, transform=None,
-         only_if=()):
+         requires=()):
     '''Defines the base Hug API creating decorator, which exposes normal python methods as HTTP APIs'''
     urls = (urls, ) if isinstance(urls, str) else urls
     examples = (examples, ) if isinstance(examples, str) else examples
     versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
-    only_if = (only_if, ) if not isinstance(only_if, (tuple, list)) else only_if
+    requires = (requires, ) if not isinstance(requires, (tuple, list)) else requires
 
     def decorator(api_function):
         module = _api_module(api_function.__module__)
         (interface, callable_method) = _create_interface(module, api_function, output=output,
                                                          versions=versions, parse_body=parse_body, transform=transform,
-                                                         only_if=only_if)
+                                                         requires=requires)
 
         use_examples = examples
         if not interface.required and not use_examples:
