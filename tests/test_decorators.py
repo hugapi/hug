@@ -355,6 +355,21 @@ def test_middleware():
     assert result.headers_dict['Bacon'] == 'Yumm'
 
 
+def test_only_if():
+    '''Test to ensure only if requirements successfully keep calls from happening'''
+    def user_is_not_tim(request, response, **kwargs):
+        if request.headers.get('USER', '') != 'Tim':
+            return True
+        response.data = 'Unauthorized'.encode('utf8')
+
+    @hug.get(only_if=user_is_not_tim)
+    def hello(request):
+        return 'Hi!'
+
+    assert hug.test.get(api, 'hello').data == 'Hi!'
+    assert hug.test.get(api, 'hello', headers={'USER': 'Tim'}).data == 'Unauthorized'
+
+
 def test_extending_api():
     '''Test to ensure it's possible to extend the current API from an external file'''
     @hug.extend_api('/fake')
