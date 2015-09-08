@@ -47,6 +47,7 @@ def authenticator(function):
 def basic(request, response, verify_user, **kwargs):
     '''Basic HTTP Authentication'''
     http_auth = request.auth
+    response.set_header('WWW-Authenticate', 'Basic')
     if http_auth is None:
         return
 
@@ -64,6 +65,7 @@ def basic(request, response, verify_user, **kwargs):
             user_id, key = base64.decodebytes(bytes(user_and_key.strip(), 'utf8')).decode('utf8').split(':', 1)
             user = verify_user(user_id, key)
             if user:
+                response.set_header('WWW-Authenticate', '')
                 return user
         except (binascii.Error, ValueError):
             raise HTTPUnauthorized('Authentication Error',
