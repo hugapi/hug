@@ -227,7 +227,6 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
                              isinstance(value, str)}
     def interface(request, response, api_version=None, **kwargs):
         for requirement in only_if:
-            import pdb;pdb.set_trace()
             conclusion = requirement(response=response, request=request, module=module, api_version=api_version)
             if conclusion is not True:
                 return
