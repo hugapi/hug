@@ -29,7 +29,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from hug import directives, documentation, format, input_format, output_format, run, test, types
+from hug import authentication, directives, documentation, format, input_format, output_format, run, test, types
 from hug._version import current
 from hug.decorators import (call, cli, connect, default_input_format, default_output_format,
                             delete, directive, extend_api, get, head, not_found, options,
@@ -41,4 +41,4 @@ __version__ = current
 __all__ = ['run', 'types', 'test', 'input_format', 'output_format', 'documentation', 'call', 'delete', 'get', 'post',
            'put', 'options', 'connect', 'head', 'patch', 'trace', 'terminal', 'format', '__version__', 'defaults',
            'directives', 'default_output_format', 'default_input_format', 'extend_api', 'directive',
-           'request_middleware', 'response_middleware', 'not_found', 'cli']
+           'request_middleware', 'response_middleware', 'not_found', 'cli', 'authentication']
