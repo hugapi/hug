@@ -360,7 +360,7 @@ def test_only_if():
     def user_is_not_tim(request, response, **kwargs):
         if request.headers.get('USER', '') != 'Tim':
             return True
-        response.data = 'Unauthorized'.encode('utf8')
+        return 'Unauthorized'
 
     @hug.get(only_if=user_is_not_tim)
     def hello(request):
