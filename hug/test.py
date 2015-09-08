@@ -42,7 +42,13 @@ def call(method, api_module, url, body='', headers=None, **params):
     result = api(create_environ(path=url, method=method, headers=headers, query_string=urlencode(params), body=body),
                  response)
     if result:
-        response.data = result[0].decode('utf8')
+        try:
+            response.data = result[0].decode('utf8')
+        except TypeError:
+            response.data = []
+            for chunk in result:
+                response.data.append(chunk.decode('utf8'))
+            response.data = "".join(response.data)
         response.content_type = response.headers_dict['content-type']
         if response.content_type == 'application/json':
             response.data = json.loads(response.data)

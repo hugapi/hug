@@ -294,6 +294,15 @@ def test_return_modifer():
     assert hello() == 'world'
 
 
+def test_stream_return():
+    '''Test to ensure that its valid for a hug API endpoint to return a stream'''
+    @hug.get(output=hug.output_format.text)
+    def test():
+        return open('README.md', 'rb')
+
+    assert 'hug' in hug.test.get(api, 'test').data
+
+
 def test_output_format():
     '''Test to ensure it's possible to quickly change the default hug output format'''
     old_formatter = api.__hug__.output_format
@@ -456,3 +465,12 @@ def test_cli_with_short_short_options():
     assert test('hi', 'there') == ('hi', 'there')
     assert hug.test.cli(test) == ('Value', 'Value2')
     assert hug.test.cli(test, a1='hi', a2='there') == ('hi', 'there')
+
+
+def test_cli_file_return():
+    '''Test to ensure that its possible to return a file stream from a CLI'''
+    @hug.cli()
+    def test():
+        return open('README.md', 'rb')
+
+    assert 'hug' in hug.test.cli(test)
