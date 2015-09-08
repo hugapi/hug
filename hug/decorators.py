@@ -226,15 +226,18 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     input_transformations = {key: value for key, value in api_function.__annotations__.items() if not
                              isinstance(value, str)}
     def interface(request, response, api_version=None, **kwargs):
+        if set_status:
+            response.status = set_status
+
+        api_version = int(api_version) if api_version is not None else api_version
+        response.content_type = function_output.content_type
         for requirement in only_if:
             conclusion = requirement(response=response, request=request, module=module, api_version=api_version)
             if conclusion is not True:
+                if conclusion:
+                    response.data = function_output(conclusion)
                 return
 
-        if set_status:
-            response.status = set_status
-        api_version = int(api_version) if api_version is not None else api_version
-        response.content_type = function_output.content_type
         input_parameters = kwargs
         input_parameters.update(request.params)
         body_formatting_handler = parse_body and module.__hug__.input_format(request.content_type)
