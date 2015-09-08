@@ -32,7 +32,7 @@ api = sys.modules[__name__]
 
 def test_basic_auth():
     '''Test to ensure hugs provide basic_auth handler works as expected'''
-    @hug.get(only_if=hug.authentication.basic(hug.authentication.verify('Tim', 'Custom password')))
+    @hug.get(requires=hug.authentication.basic(hug.authentication.verify('Tim', 'Custom password')))
     def hello_world():
         return 'Hello world!'
 
