@@ -8,5 +8,6 @@ Changelog
 - Added support for documentation only type annotations, simply by passing just a string in as the type annotation
 - Added support for `only_if` argument to limit exposure of functions based on a given criteria
 - Added automatic documentation of output type transformations
+- Added initial built-in authentication support
 - `hug.types.decimal` renamed to `hug.types.float_number` and `hug.types.decimal` type added that returns python Decimal
 - `hug.types.accept` wrapper added, that makes it easy to customize doc strings and error handling for any preexisting type converter
