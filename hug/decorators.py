@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import argparse
 import json
+import os
 import sys
 from collections import OrderedDict, namedtuple
 from functools import partial, wraps
@@ -280,7 +281,14 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         to_return = api_function(**input_parameters)
         if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
             to_return = transform(to_return)
-        response.data = function_output(to_return)
+
+        to_return = function_output(to_return) if not hasattr(to_return, 'read') else to_return
+        if hasattr(to_return, 'read'):
+            response.stream = to_return
+            if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
+                response.stream_len = to_return
+        else:
+            response.data = to_return
 
     if versions:
         module.__hug__.versions.update(versions)
@@ -420,6 +428,8 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             result = api_function(**pass_to_function)
             if output_transform:
                 result = output_transform(result)
+            if hasattr(result, 'read'):
+                result = result.read().decode('utf8')
             cli_interface.output(result)
 
         callable_method = api_function
