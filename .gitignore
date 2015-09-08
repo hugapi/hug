@@ -20,6 +20,7 @@ MANIFEST
 # Installer logs
 pip-log.txt
 npm-debug.log
+pip-selfcheck.json
 
 # Unit test / coverage reports
 .coverage

@@ -24,26 +24,30 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import argparse
 import json
+import os
 import sys
 from collections import OrderedDict, namedtuple
 from functools import partial, wraps
 from itertools import chain
+from wsgiref.simple_server import make_server
 
 import falcon
 from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 
 import hug.defaults
 import hug.output_format
-from hug.run import server
+from hug.run import INTRO, server
 
 
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
-    __slots__ = ('versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned', '_middleware',
-                 '_not_found_handlers')
+    __slots__ = ('module', 'versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned',
+                 '_middleware', '_not_found_handlers')
 
-    def __init__(self):
+    def __init__(self, module):
+        self.module = module
         self.versions = set()
         self.routes = OrderedDict()
         self.versioned = OrderedDict()
@@ -110,6 +114,18 @@ class HugAPI(object):
             self._not_found_handlers = {}
 
         self.not_found_handlers[version] = handler
+
+    def serve(self, port=8000, no_documentation=False):
+        '''Runs the basic hug development server against this API'''
+        if no_documentation:
+            api = server(self.module, sink=None)
+        else:
+            api = server(self.module)
+
+        print(INTRO)
+        httpd = make_server('', port, api)
+        print("Serving on port {0}...".format(port))
+        httpd.serve_forever()
 
 
 def default_output_format(content_type='application/json', apply_globally=False):
@@ -186,32 +202,43 @@ def _api_module(module_name):
         def api_auto_instantiate(*kargs, **kwargs):
             module.__hug_wsgi__ = server(module)
             return module.__hug_wsgi__(*kargs, **kwargs)
-        module.__hug__ = HugAPI()
+        module.__hug__ = HugAPI(module)
         module.__hug_wsgi__ = api_auto_instantiate
     return module
 
 
 def _create_interface(module, api_function, output=None, versions=None, parse_body=True, set_status=False,
-                      transform=None):
+                      transform=None, requires=()):
     '''Creates the request handling interface method for the given API function'''
     accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
     takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
     function_output = output or module.__hug__.output_format
     directives = module.__hug__.directives()
     use_directives = set(accepted_parameters).intersection(directives.keys())
-    if transform is None:
-        transform = api_function.__annotations__.get('return', None)
+    if transform is None and not isinstance(api_function.__annotations__.get('return', None), (str, type(None))):
+        transform = api_function.__annotations__['return']
+    output_type = transform or api_function.__annotations__.get('return', None)
 
     defaults = {}
     for index, default in enumerate(reversed(api_function.__defaults__ or ())):
         defaults[accepted_parameters[-(index + 1)]] = default
     required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
 
+    input_transformations = {key: value for key, value in api_function.__annotations__.items() if not
+                             isinstance(value, str)}
     def interface(request, response, api_version=None, **kwargs):
         if set_status:
             response.status = set_status
+
         api_version = int(api_version) if api_version is not None else api_version
         response.content_type = function_output.content_type
+        for requirement in requires:
+            conclusion = requirement(response=response, request=request, module=module, api_version=api_version)
+            if conclusion is not True:
+                if conclusion:
+                    response.data = function_output(conclusion)
+                return
+
         input_parameters = kwargs
         input_parameters.update(request.params)
         body_formatting_handler = parse_body and module.__hug__.input_format(request.content_type)
@@ -223,7 +250,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
                 input_parameters.update(body)
 
         errors = {}
-        for key, type_handler in api_function.__annotations__.items():
+        for key, type_handler in input_transformations.items():
             try:
                 if key in input_parameters:
                     input_parameters[key] = type_handler(input_parameters[key])
@@ -254,13 +281,20 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         to_return = api_function(**input_parameters)
         if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
             to_return = transform(to_return)
-        response.data = function_output(to_return)
+
+        to_return = function_output(to_return) if not hasattr(to_return, 'read') else to_return
+        if hasattr(to_return, 'read'):
+            response.stream = to_return
+            if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
+                response.stream_len = to_return
+        else:
+            response.data = to_return
 
     if versions:
         module.__hug__.versions.update(versions)
 
     callable_method = api_function
-    if use_directives:
+    if use_directives and not getattr(api_function, 'without_directives', None):
         @wraps(api_function)
         def callable_method(*args, **kwargs):
             for parameter in use_directives:
@@ -271,6 +305,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
                                     api_version=max(versions, key=lambda version: version or -1) if versions else None)
             return api_function(*args, **kwargs)
         callable_method.interface = interface
+        callable_method.without_directives = api_function
 
     api_function.interface = interface
     interface.api_function = api_function
@@ -279,18 +314,21 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     interface.accepted_parameters = accepted_parameters
     interface.content_type = function_output.content_type
     interface.required = required
+    interface.output_type = output_type if isinstance(output_type, (str, type(None))) else output_type.__doc__
     return (interface, callable_method)
 
 
-def not_found(output=None, versions=None, parse_body=False, transform=None):
+def not_found(output=None, versions=None, parse_body=False, transform=None, requires=()):
     '''A decorator to register a 404 handler'''
     versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
+    requires = (requires, ) if not isinstance(requires, (tuple, list)) else requires
 
     def decorator(api_function):
         module = _api_module(api_function.__module__)
         (interface, callable_method) = _create_interface(module, api_function, output=output,
                                                          versions=versions, parse_body=parse_body,
-                                                         set_status=falcon.HTTP_NOT_FOUND, transform=transform)
+                                                         set_status=falcon.HTTP_NOT_FOUND, transform=transform,
+                                                         requires=requires)
 
         for version in versions:
             module.__hug__.set_not_found_handler(interface, version)
@@ -299,16 +337,19 @@ def not_found(output=None, versions=None, parse_body=False, transform=None):
     return decorator
 
 
-def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True, transform=None):
-    '''Defines the base Hug API creating decorator, which exposes normal python methdos as HTTP APIs'''
+def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True, transform=None,
+         requires=()):
+    '''Defines the base Hug API creating decorator, which exposes normal python methods as HTTP APIs'''
     urls = (urls, ) if isinstance(urls, str) else urls
     examples = (examples, ) if isinstance(examples, str) else examples
     versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
+    requires = (requires, ) if not isinstance(requires, (tuple, list)) else requires
 
     def decorator(api_function):
         module = _api_module(api_function.__module__)
         (interface, callable_method) = _create_interface(module, api_function, output=output,
-                                                         versions=versions, parse_body=parse_body, transform=transform)
+                                                         versions=versions, parse_body=parse_body, transform=transform,
+                                                         requires=requires)
 
         use_examples = examples
         if not interface.required and not use_examples:
@@ -322,6 +363,89 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
                     module.__hug__.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
 
         interface.examples = use_examples
+        return callable_method
+    return decorator
+
+
+def cli(name=None, version=None, doc=None, transform=None, output=print):
+    '''Enables exposing a Hug compatible function as a Command Line Interface'''
+    def decorator(api_function):
+        module = module = _api_module(api_function.__module__)
+        accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+        takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
+        directives = module.__hug__.directives()
+        use_directives = set(accepted_parameters).intersection(directives.keys())
+        output_transform = transform or api_function.__annotations__.get('return', None)
+
+        defaults = {}
+        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+            defaults[accepted_parameters[-(index + 1)]] = default
+        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+
+        used_options = set()
+        parser = argparse.ArgumentParser(description=doc or api_function.__doc__)
+        if version:
+            parser.add_argument('-v', '--version', action='version',
+                                version="{0} {1}".format(name or api_function.__name__, version))
+            used_options.update(('v', 'version'))
+        for option in accepted_parameters:
+            if option in use_directives:
+                continue
+            elif option in required:
+                args = (option, )
+            else:
+                short_option = option[0]
+                while short_option in used_options and len(short_option) < len(option):
+                    short_option = option[:len(short_option) + 1]
+
+                used_options.add(short_option)
+                used_options.add(option)
+                if short_option != option:
+                    args = ('-{0}'.format(short_option), '--{0}'.format(option))
+                else:
+                    args = ('--{0}'.format(option), )
+
+            kwargs = {}
+            if option in defaults:
+                kwargs['default'] = defaults[option]
+            if option in api_function.__annotations__:
+                annotation = api_function.__annotations__[option]
+                kwargs['type'] = annotation
+                kwargs['help'] = annotation.__doc__
+                kwargs.update(getattr(annotation, 'cli_behaviour', {}))
+            if kwargs.get('type', None) == bool and kwargs['default'] == False:
+                kwargs['action'] = 'store_true'
+                kwargs.pop('type', None)
+
+            parser.add_argument(*args, **kwargs)
+
+        def cli_interface():
+            pass_to_function = vars(parser.parse_args())
+            for directive in use_directives:
+                arguments = (defaults[option], ) if option in defaults else ()
+                pass_to_function[option] = directives[option](*arguments, module=module)
+
+            result = api_function(**pass_to_function)
+            if output_transform:
+                result = output_transform(result)
+            if hasattr(result, 'read'):
+                result = result.read().decode('utf8')
+            cli_interface.output(result)
+
+        callable_method = api_function
+        if use_directives and not getattr(api_function, 'without_directives', None):
+            @wraps(api_function)
+            def callable_method(*args, **kwargs):
+                for parameter in use_directives:
+                    if parameter in kwargs:
+                        continue
+                    arguments = (defaults[parameter], ) if parameter in defaults else ()
+                    kwargs[parameter] = directives[parameter](*arguments, module=module)
+                return api_function(*args, **kwargs)
+            callable_method.without_directives = api_function
+
+        callable_method.cli = cli_interface
+        cli_interface.output = output
         return callable_method
     return decorator
 

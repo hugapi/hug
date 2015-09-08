@@ -19,16 +19,43 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from decimal import Decimal
 
 
-def number(value):
-    '''A whole number'''
-    return int(value)
+def accept(formatter, doc=None, error_text=None, cli_behaviour=None, exception_handlers=None):
+    '''Allows quick wrapping any Python type converter for use with Hug type annotations'''
+    defined_exception_handlers = exception_handlers or {}
+    if defined_exception_handlers or error_text:
+        def hug_formatter(data):
+            try:
+                return formatter(data)
+            except Exception as exception:
+                for take_exception, rewrite in defined_exception_handlers.items():
+                    if isinstance(exception, take_exception):
+                        if isinstance(rewrite, str):
+                            raise ValueError(rewrite)
+                        else:
+                            raise rewrite(data)
+                if error_text:
+                    raise ValueError(error_text)
+                raise exception
+    else:
+        def hug_formatter(data):
+            return formatter(data)
+
+    new_cli_behaviour = getattr(formatter, 'cli_behaviour', {})
+    if cli_behaviour:
+        new_cli_behaviour.update(cli_behaviour)
+    if new_cli_behaviour:
+        hug_formatter.cli_behaviour = new_cli_behaviour
+    hug_formatter.__doc__ = doc or formatter.__doc__
+    return hug_formatter
 
 
 def multiple(value):
     '''Multiple Values'''
     return value if isinstance(value, list) else [value]
+multiple.cli_behaviour = {'action': 'append'}
 
 
 def comma_separated_list(value):
@@ -36,14 +63,10 @@ def comma_separated_list(value):
     return value.split(",")
 
 
-def decimal(value):
-    '''A decimal number'''
-    return float(value)
-
-
-def text(value):
-    '''Basic text / string value'''
-    return str(value)
+number = accept(int, 'A whole number', 'Invalid whole number provided')
+float_number = accept(float, 'A float number', 'Invalid float number provided')
+decimal = accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
+text = accept(str, 'Basic text / string value', 'Invalid text value provided')
 
 
 def inline_dictionary(value):
@@ -59,4 +82,5 @@ def one_of(values):
         return value
 
     matches.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
+    matches.cli_behaviour = {'choices': values}
     return matches

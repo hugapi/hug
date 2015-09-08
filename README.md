@@ -5,12 +5,13 @@
 [![Build Status](https://travis-ci.org/timothycrosley/hug.png?branch=master)](https://travis-ci.org/timothycrosley/hug)
 [![Coverage Status](https://coveralls.io/repos/timothycrosley/hug/badge.svg?branch=master&service=github)](https://coveralls.io/github/timothycrosley/hug?branch=master)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/hug/)
+[![Join the chat at https://gitter.im/timothycrosley/hug](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/timothycrosley/hug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Hug aims to make developing Python driven APIs as simple as possible, but no simpler. As a result, it drastically simplifies Python API development.
 
 Hug's Design Objectives:
 
-- Make developing a Python driven API as succint as a written definition.
+- Make developing a Python driven API as succinct as a written definition.
 - The framework should encourage code that self-documents.
 - It should be fast. Never should a developer feel the need to look somewhere else for performance reasons.
 - Writing tests for APIs written on-top of Hug should be easy and intuitive.
@@ -165,7 +166,7 @@ as shown, you can easily change the output format for both an entire API as well
 **Input Formatters** a function that takes the body of data given from a user of your API and formats it for handling.
 
     @hug.default_input_formatter("application/json")
-    def my_output_formatter(data):
+    def my_input_formatter(data):
         return ('Results', hug.input_format.json(data))
 
 Input formatters are mapped based on the content_type of the request data, and only perform basic parsing. More detailed

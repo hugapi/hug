@@ -19,10 +19,12 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import pytest
-import hug
 from collections import namedtuple
 from datetime import datetime
+
+import pytest
+
+import hug
 
 
 def test_text():
@@ -68,4 +70,19 @@ def test_json_camelcase():
     assert 'underScore' in output
     assert 'valuesCan' in output
     assert 'Be Converted' in output
+
+
+def test_image():
+    '''Ensure that it's possible to output images with hug'''
+    hasattr(hug.output_format.png_image('logo.png'), 'read')
+    with open('logo.png', 'rb') as image_file:
+        hasattr(hug.output_format.png_image(image_file), 'read')
+
+    assert hug.output_format.png_image('Not Existent') == None
+
+    class FakeImageWithSave():
+        def save(self, to, format):
+            to.write(b'test')
+    hasattr(hug.output_format.png_image(FakeImageWithSave()), 'read')
+
 

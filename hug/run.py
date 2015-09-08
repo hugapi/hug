@@ -22,8 +22,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 import argparse
 import importlib
 import json
-import sys
 import os
+import sys
 from collections import OrderedDict, namedtuple
 from functools import partial
 from wsgiref.simple_server import make_server

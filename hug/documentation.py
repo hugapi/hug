@@ -62,6 +62,8 @@ def generate(module, base_url="", api_version=None):
                             doc_examples.append(example_text)
                     doc['outputs'] = OrderedDict(format=handler.output_format.__doc__,
                                                  content_type=handler.content_type)
+                    if handler.output_type:
+                        doc['outputs']['type'] = handler.output_type
 
                     parameters = [param for param in handler.accepted_parameters if not param in ('request',
                                                                                                   'response')
@@ -70,8 +72,9 @@ def generate(module, base_url="", api_version=None):
                         inputs = doc.setdefault('inputs', OrderedDict())
                         types = handler.api_function.__annotations__
                         for argument in parameters:
+                            kind = types.get(argument, hug.types.text)
                             input_definition = inputs.setdefault(argument, OrderedDict())
-                            input_definition['type'] = types.get(argument, hug.types.text).__doc__
+                            input_definition['type'] = kind if isinstance(kind, str) else kind.__doc__
                             default = handler.defaults.get(argument, None)
                             if default is not None:
                                 input_definition['default'] = default

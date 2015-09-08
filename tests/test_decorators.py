@@ -19,11 +19,13 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import falcon
-from falcon.testing import StartResponseMock, create_environ
 import sys
-import hug
+
+import falcon
 import pytest
+from falcon.testing import StartResponseMock, create_environ
+
+import hug
 
 api = sys.modules[__name__]
 
@@ -80,7 +82,7 @@ def test_parameters():
     assert hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle', other="yo").data == 'success'
 
     nan_test = hug.test.get(api, 'multiple_parameter_types', start='start', middle='middle', end='NAN').data
-    assert 'invalid' in nan_test['errors']['end']
+    assert 'Invalid' in nan_test['errors']['end']
 
 
 def test_parameter_injection():
@@ -292,6 +294,15 @@ def test_return_modifer():
     assert hello() == 'world'
 
 
+def test_stream_return():
+    '''Test to ensure that its valid for a hug API endpoint to return a stream'''
+    @hug.get(output=hug.output_format.text)
+    def test():
+        return open('README.md', 'rb')
+
+    assert 'hug' in hug.test.get(api, 'test').data
+
+
 def test_output_format():
     '''Test to ensure it's possible to quickly change the default hug output format'''
     old_formatter = api.__hug__.output_format
@@ -353,6 +364,21 @@ def test_middleware():
     assert result.headers_dict['Bacon'] == 'Yumm'
 
 
+def test_requires():
+    '''Test to ensure only if requirements successfully keep calls from happening'''
+    def user_is_not_tim(request, response, **kwargs):
+        if request.headers.get('USER', '') != 'Tim':
+            return True
+        return 'Unauthorized'
+
+    @hug.get(requires=user_is_not_tim)
+    def hello(request):
+        return 'Hi!'
+
+    assert hug.test.get(api, 'hello').data == 'Hi!'
+    assert hug.test.get(api, 'hello', headers={'USER': 'Tim'}).data == 'Unauthorized'
+
+
 def test_extending_api():
     '''Test to ensure it's possible to extend the current API from an external file'''
     @hug.extend_api('/fake')
@@ -362,3 +388,89 @@ def test_extending_api():
 
     assert hug.test.get(api, 'fake/made_up_api').data == True
 
+
+def test_cli():
+    '''Test to ensure the CLI wrapper works as intended'''
+    @hug.cli('command', '1.0.0', output=str)
+    def cli_command(name:str, value:int):
+        return (name, value)
+
+    assert cli_command('Testing', 1) == ('Testing', 1)
+    assert hug.test.cli(cli_command, name="Bob", value=5) == ("Bob", 5)
+
+
+def test_cli_with_defaults():
+    '''Test to ensure CLIs work correctly with default values'''
+    @hug.cli()
+    def happy(name:str, age:int, birthday:bool=False):
+        if birthday:
+            return "Happy {age} birthday {name}!".format(**locals())
+        else:
+            return "{name} is {age} years old".format(**locals())
+
+    assert happy('Hug', 1) == "Hug is 1 years old"
+    assert happy('Hug', 1, True) == "Happy 1 birthday Hug!"
+    assert hug.test.cli(happy, name="Bob", age=5) ==  "Bob is 5 years old"
+    assert hug.test.cli(happy, name="Bob", age=5, birthday=True) ==  "Happy 5 birthday Bob!"
+
+
+def test_cli_with_conflicting_short_options():
+    '''Test to ensure that it's possible to expose a CLI with the same first few letters in option'''
+    @hug.cli()
+    def test(abe1="Value", abe2="Value2"):
+        return (abe1, abe2)
+
+    assert test() == ('Value', 'Value2')
+    assert test('hi', 'there') == ('hi', 'there')
+    assert hug.test.cli(test) == ('Value', 'Value2')
+    assert hug.test.cli(test, abe1='hi', abe2='there') == ('hi', 'there')
+
+
+def test_cli_with_directives():
+    '''Test to ensure it's possible to use directives with hug CLIs'''
+    @hug.cli()
+    def test(hug_timer):
+        return float(hug_timer)
+
+    assert isinstance(test(), float)
+    assert test(hug_timer=4) == 4
+    assert isinstance(hug.test.cli(test), float)
+
+
+def test_cli_with_output_transform():
+    '''Test to ensure it's possible to use output transforms with hug CLIs'''
+    @hug.cli()
+    def test() -> int:
+        return '5'
+
+    assert isinstance(test(), str)
+    assert isinstance(hug.test.cli(test), int)
+
+
+    @hug.cli(transform=int)
+    def test():
+        return '5'
+
+    assert isinstance(test(), str)
+    assert isinstance(hug.test.cli(test), int)
+
+
+def test_cli_with_short_short_options():
+    '''Test to ensure that it's possible to expose a CLI with 2 very short and similar options'''
+    @hug.cli()
+    def test(a1="Value", a2="Value2"):
+        return (a1, a2)
+
+    assert test() == ('Value', 'Value2')
+    assert test('hi', 'there') == ('hi', 'there')
+    assert hug.test.cli(test) == ('Value', 'Value2')
+    assert hug.test.cli(test, a1='hi', a2='there') == ('hi', 'there')
+
+
+def test_cli_file_return():
+    '''Test to ensure that its possible to return a file stream from a CLI'''
+    @hug.cli()
+    def test():
+        return open('README.md', 'rb')
+
+    assert 'hug' in hug.test.cli(test)

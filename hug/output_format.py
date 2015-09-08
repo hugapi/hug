@@ -20,9 +20,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import json as json_converter
+import os
 from datetime import date, datetime
+from io import BytesIO
 
 from hug.format import content_type
+
+IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
+               'cur', 'dcx', 'fli', 'flc', 'gbr', 'gd', 'ico', 'icns', 'imt', 'iptc', 'naa', 'mcidas', 'mpo', 'pcd',
+               'psd', 'sgi', 'tga', 'wal', 'xpm')
 
 
 def _json_converter(item):
@@ -71,3 +77,23 @@ def json_camelcase(content):
 def pretty_json(content):
     '''JSON (Javascript Serialized Object Notion) pretty printed and indented'''
     return json(content, indent=4, separators=(',', ': '))
+
+
+def image(image_format, doc=None):
+    '''Dynamically creates an image type handler for the specified image type'''
+    @content_type('image/{0}'.format(image_format))
+    def image_handler(data):
+        if hasattr(data, 'read'):
+            return data
+        elif hasattr(data, 'save'):
+            with BytesIO() as output:
+                data.save(output, format=image_format.upper())
+        elif os.path.isfile(data):
+            return open(data, 'rb')
+
+    image_handler.__doc__ = doc or "{0} formatted image".format(image_format)
+    return image_handler
+
+
+for image_type in IMAGE_TYPES:
+    globals()['{0}_image'.format(image_type)] = image(image_type)
