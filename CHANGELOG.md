@@ -13,3 +13,6 @@ Changelog
 - Added support for returning streams within hugged functions
 - `hug.types.decimal` renamed to `hug.types.float_number` and `hug.types.decimal` type added that returns python Decimal
 - `hug.types.accept` wrapper added, that makes it easy to customize doc strings and error handling for any preexisting type converter
+
+### 1.3.1
+- Fixed string only annotations causing exceptions when used in conjunction with `hug.cli`

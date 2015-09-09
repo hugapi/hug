@@ -474,3 +474,12 @@ def test_cli_file_return():
         return open('README.md', 'rb')
 
     assert 'hug' in hug.test.cli(test)
+
+
+def test_cli_with_string_annotation():
+    '''Test to ensure CLI's work correctly with string annotations'''
+    @hug.cli()
+    def test(value_1:'The first value', value_2:'The second value'=None):
+        return True
+
+    assert hug.test.cli(test, value_1=True) == True
