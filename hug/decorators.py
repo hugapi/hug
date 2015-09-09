@@ -286,7 +286,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         if hasattr(to_return, 'read'):
             response.stream = to_return
             if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
-                response.stream_len = to_return
+                response.stream_len = os.path.getsize(to_return.name)
         else:
             response.data = to_return
 
@@ -410,9 +410,12 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
                 kwargs['default'] = defaults[option]
             if option in api_function.__annotations__:
                 annotation = api_function.__annotations__[option]
-                kwargs['type'] = annotation
-                kwargs['help'] = annotation.__doc__
-                kwargs.update(getattr(annotation, 'cli_behaviour', {}))
+                if isinstance(annotation, str):
+                    kwargs['help'] = annotation
+                else:
+                    kwargs['type'] = annotation
+                    kwargs['help'] = annotation.__doc__
+                    kwargs.update(getattr(annotation, 'cli_behaviour', {}))
             if kwargs.get('type', None) == bool and kwargs['default'] == False:
                 kwargs['action'] = 'store_true'
                 kwargs.pop('type', None)

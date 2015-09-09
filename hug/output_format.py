@@ -86,8 +86,10 @@ def image(image_format, doc=None):
         if hasattr(data, 'read'):
             return data
         elif hasattr(data, 'save'):
-            with BytesIO() as output:
-                data.save(output, format=image_format.upper())
+            output =  BytesIO()
+            data.save(output, format=image_format.upper())
+            output.seek(0)
+            return output
         elif os.path.isfile(data):
             return open(data, 'rb')
 
