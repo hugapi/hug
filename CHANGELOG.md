@@ -16,3 +16,4 @@ Changelog
 
 ### 1.3.1
 - Fixed string only annotations causing exceptions when used in conjunction with `hug.cli`
+- Fixed return of image file not correctly able to set stream len information
