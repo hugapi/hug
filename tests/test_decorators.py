@@ -482,4 +482,4 @@ def test_cli_with_string_annotation():
     def test(value_1:'The first value', value_2:'The second value'=None):
         return True
 
-    assert hug.test.cli(True) == True
+    assert hug.test.cli(test, value_1=True) == True
