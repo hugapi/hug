@@ -286,7 +286,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         if hasattr(to_return, 'read'):
             response.stream = to_return
             if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
-                response.stream_len = to_return
+                response.stream_len = os.path.getsize(to_return.name)
         else:
             response.data = to_return
 
