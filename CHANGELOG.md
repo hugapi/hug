@@ -21,5 +21,3 @@ Changelog
 
 ### 1.4.0
 - Add *args support to hug.cli
-
-
