@@ -483,3 +483,13 @@ def test_cli_with_string_annotation():
         return True
 
     assert hug.test.cli(test, value_1=True) == True
+
+
+def test_cli_with_kargs():
+    '''Test to ensure CLI's work correctly when taking kargs'''
+    @hug.cli()
+    def test(*values):
+        return values
+
+    assert test(1, 2, 3) == (1, 2, 3)
+    assert hug.test.cli(test, 1, 2, 3) == (1, 2, 3)
