@@ -19,3 +19,5 @@ Changelog
 - Fixed return of image file not correctly able to set stream len information / not correctly returning with PIL images
 - Added examples of image loading with hug
 
+### 1.4.0
+- Add *args support to hug.cli
