@@ -62,8 +62,11 @@ for method in HTTP_METHODS:
     globals()[method.lower()] = tester
 
 
-def cli(method, **arguments):
+def cli(method, *kargs, **arguments):
     '''Simulates testing a hug cli method from the command line'''
+    if kargs:
+        arguments[method.cli.karg_method] = kargs
+
     test_arguments = mock.Mock()
     test_arguments.__dict__ = arguments
     with mock.patch('argparse.ArgumentParser.parse_args', lambda self: test_arguments):

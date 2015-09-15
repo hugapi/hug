@@ -19,3 +19,9 @@ Changelog
 - Fixed return of image file not correctly able to set stream len information / not correctly returning with PIL images
 - Added examples of image loading with hug
 
+### 1.4.0
+- Added *args support to hug.cli
+- Added built-in html output support
+- Added multi-api composition example to examples folder
+- Fixed issue #70: error when composing two API modules into a single one without directives
+- Fixed issue #73: README file is incorrectly formatted on PYPI

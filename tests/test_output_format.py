@@ -33,6 +33,12 @@ def test_text():
     hug.output_format.text(str(1)) == "1"
 
 
+def test_html():
+    '''Ensure that it's possible to output a Hug API method as HTML'''
+    hug.output_format.html("<html>Hello World!</html>") == "<html>Hello World!</html>"
+    hug.output_format.html(str(1)) == "1"
+
+
 def test_json():
     '''Ensure that it's possible to output a Hug API method as JSON'''
     now = datetime.now()

@@ -20,7 +20,7 @@ Hug's Design Objectives:
 
 As a result of these goals Hug is Python3+ only and uses Falcon under the cover to quickly handle requests.
 
-![HUG Hello World Example](https://raw.github.com/timothycrosley/hug/develop/example.gif)
+[![HUG Hello World Example](https://raw.github.com/timothycrosley/hug/develop/example.gif)](https://github.com/timothycrosley/hug/blob/develop/examples/hello_world.py)
 
 Installing Hug
 ===================

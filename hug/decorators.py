@@ -94,7 +94,7 @@ class HugAPI(object):
         for item_route, handler in module.__hug__.routes.items():
             self.routes[route + item_route] = handler
 
-        for directive in getattr(module.__hug__, '_directives', ()).values():
+        for directive in getattr(module.__hug__, '_directives', {}).values():
             self.add_directive(directive)
 
         for middleware in (module.__hug__.middleware or ()):
@@ -371,7 +371,8 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
     '''Enables exposing a Hug compatible function as a Command Line Interface'''
     def decorator(api_function):
         module = module = _api_module(api_function.__module__)
-        accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+        takes_kargs = bool(api_function.__code__.co_flags & 0x04)
+        accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + (1 if takes_kargs else 0)]
         takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
         directives = module.__hug__.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
@@ -379,8 +380,10 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
 
         defaults = {}
         for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+            accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + 1]
             defaults[accepted_parameters[-(index + 1)]] = default
         required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+        karg_method = accepted_parameters[-1] if takes_kargs else None
 
         used_options = set()
         parser = argparse.ArgumentParser(description=doc or api_function.__doc__)
@@ -419,6 +422,8 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             if kwargs.get('type', None) == bool and kwargs['default'] == False:
                 kwargs['action'] = 'store_true'
                 kwargs.pop('type', None)
+            if option == karg_method:
+                kwargs['nargs'] = '*'
 
             parser.add_argument(*args, **kwargs)
 
@@ -428,7 +433,11 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
                 arguments = (defaults[option], ) if option in defaults else ()
                 pass_to_function[option] = directives[option](*arguments, module=module)
 
-            result = api_function(**pass_to_function)
+            if karg_method:
+                karg_values = pass_to_function.pop(karg_method, ())
+                result = api_function(*karg_values, **pass_to_function)
+            else:
+                result = api_function(**pass_to_function)
             if output_transform:
                 result = output_transform(result)
             if hasattr(result, 'read'):
@@ -449,6 +458,7 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
 
         callable_method.cli = cli_interface
         cli_interface.output = output
+        cli_interface.karg_method = karg_method
         return callable_method
     return decorator
 
