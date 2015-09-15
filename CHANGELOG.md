@@ -20,6 +20,7 @@ Changelog
 - Added examples of image loading with hug
 
 ### 1.4.0
-- Add *args support to hug.cli
-- Fixed issue #70: error when composing two API modules into a single one without directives
+- Added *args support to hug.cli
+- Added built-in html output support
 - Added multi-api composition example to examples folder
+- Fixed issue #70: error when composing two API modules into a single one without directives
