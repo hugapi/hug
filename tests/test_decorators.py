@@ -389,6 +389,16 @@ def test_extending_api():
     assert hug.test.get(api, 'fake/made_up_api').data == True
 
 
+def test_extending_api_simple():
+    '''Test to ensure it's possible to extend the current API from an external file with just one API endpoint'''
+    @hug.extend_api('/fake_simple')
+    def extend_with():
+        import tests.module_fake_simple
+        return (tests.module_fake_simple, )
+
+    assert hug.test.get(api, 'fake_simple/made_up_api').data == 'hello'
+
+
 def test_cli():
     '''Test to ensure the CLI wrapper works as intended'''
     @hug.cli('command', '1.0.0', output=str)
