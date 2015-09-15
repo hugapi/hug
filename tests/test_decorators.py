@@ -396,7 +396,7 @@ def test_extending_api_simple():
         import tests.module_fake_simple
         return (tests.module_fake_simple, )
 
-    assert hug.test.get(api, 'fake_simple/made_up_api').data == 'hello'
+    assert hug.test.get(api, 'fake_simple/made_up_hello').data == 'hello'
 
 
 def test_cli():
