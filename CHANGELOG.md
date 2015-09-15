@@ -24,3 +24,4 @@ Changelog
 - Added built-in html output support
 - Added multi-api composition example to examples folder
 - Fixed issue #70: error when composing two API modules into a single one without directives
+- Fixed issue #73: README file is incorrectly formatted on PYPI
