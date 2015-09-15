@@ -21,5 +21,5 @@ Changelog
 
 ### 1.4.0
 - Add *args support to hug.cli
-- Fixed issue #70: error when composing two API modules into a single one without directives.
+- Fixed issue #70: error when composing two API modules into a single one without directives
 - Added multi-api composition example to examples folder
