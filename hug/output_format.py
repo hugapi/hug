@@ -55,6 +55,12 @@ def text(content):
     return str(content).encode('utf8')
 
 
+@content_type('text/html')
+def html(content):
+    '''HTML (Hypertext Markup Language)'''
+    return str(content).encode('utf8')
+
+
 def _camelcase(dictionary):
     if not isinstance(dictionary, dict):
         return dictionary
