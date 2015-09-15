@@ -94,7 +94,7 @@ class HugAPI(object):
         for item_route, handler in module.__hug__.routes.items():
             self.routes[route + item_route] = handler
 
-        for directive in getattr(module.__hug__, '_directives', ()).values():
+        for directive in getattr(module.__hug__, '_directives', {}).values():
             self.add_directive(directive)
 
         for middleware in (module.__hug__.middleware or ()):
