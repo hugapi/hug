@@ -29,5 +29,5 @@ Changelog
 ### 1.5.0
 - Added built-in support for outputting svg images
 - Added support for rendering images from pygal graphs, or other image framworks that support `render`, automatically
-- Added support for marshmellow powered output transformations
-- Added support for marshmellow powered input types
+- Added support for marshmallow powered output transformations
+- Added support for marshmallow powered input types
