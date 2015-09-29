@@ -293,17 +293,32 @@ def test_return_modifer():
     assert hug.test.get(api, 'hello').data == "world"
     assert hello() == 'world'
 
-    class MarshmellowStyleObject(object):
+
+def test_marshmallow_support():
+    '''Ensure that you can use Marshmallow style objects to control input and output validation and transformation'''
+    class MarshmallowStyleObject(object):
         def dump(self, item):
-            return 'Success'
-    schema = MarshmellowStyleObject()
+            return 'Dump Success'
+
+        def load(self, item):
+            return 'Load Success'
+
+    schema = MarshmallowStyleObject()
 
     @hug.get()
-    def test_marshmellow_style() -> schema:
+    def test_marshmallow_style() -> schema:
         return "world"
 
-    assert hug.test.get(api, 'test_marshmellow_style').data == "Success"
-    assert test_marshmellow_style() == 'world'
+    assert hug.test.get(api, 'test_marshmallow_style').data == "Dump Success"
+    assert test_marshmallow_style() == 'world'
+
+
+    @hug.get()
+    def test_marshmallow_input(item:schema):
+        return item
+
+    assert hug.test.get(api, 'test_marshmallow_input', item='bacon').data == "Load Success"
+    assert test_marshmallow_style() == 'world'
 
 
 def test_stream_return():
