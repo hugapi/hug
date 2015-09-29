@@ -25,3 +25,8 @@ Changelog
 - Added multi-api composition example to examples folder
 - Fixed issue #70: error when composing two API modules into a single one without directives
 - Fixed issue #73: README file is incorrectly formatted on PYPI
+
+### 1.5.0
+- Added built-in support for outputting svg images
+- Added support for rendering images from pygal graphs, or other image framworks that support `render`, automatically
+- Added support for marshmellow powered output transformations
