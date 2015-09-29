@@ -217,7 +217,12 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     use_directives = set(accepted_parameters).intersection(directives.keys())
     if transform is None and not isinstance(api_function.__annotations__.get('return', None), (str, type(None))):
         transform = api_function.__annotations__['return']
-    output_type = transform or api_function.__annotations__.get('return', None)
+
+    if hasattr(transform, 'dump'):
+        transform = transform.dump
+        output_type = transform
+    else:
+        output_type = transform or api_function.__annotations__.get('return', None)
 
     defaults = {}
     for index, default in enumerate(reversed(api_function.__defaults__ or ())):

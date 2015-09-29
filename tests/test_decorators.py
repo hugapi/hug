@@ -293,6 +293,18 @@ def test_return_modifer():
     assert hug.test.get(api, 'hello').data == "world"
     assert hello() == 'world'
 
+    class MarshmellowStyleObject(object):
+        def dump(self, item):
+            return 'Success'
+    schema = MarshmellowStyleObject()
+
+    @hug.get()
+    def test_marshmellow_style() -> schema:
+        return "world"
+
+    assert hug.test.get(api, 'test_marshmellow_style').data == "Success"
+    assert test_marshmellow_style() == 'world'
+
 
 def test_stream_return():
     '''Test to ensure that its valid for a hug API endpoint to return a stream'''
