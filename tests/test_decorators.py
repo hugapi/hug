@@ -301,7 +301,10 @@ def test_marshmallow_support():
             return 'Dump Success'
 
         def load(self, item):
-            return 'Load Success'
+            return ('Load Success', None)
+
+        def loads(self, item):
+            return self.load(item)
 
     schema = MarshmallowStyleObject()
 
