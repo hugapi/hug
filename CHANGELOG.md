@@ -30,4 +30,5 @@ Changelog
 - Added built-in support for outputting svg images
 - Added support for rendering images from pygal graphs, or other image framworks that support `render`, automatically
 - Added support for marshmallow powered output transformations
-- Added support for marshmallow powered input types
+- Added support for marshmallow schema powered input types
+- Added support for using individual marshmallow fields directly as input types
