@@ -20,28 +20,29 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import json as json_converter
-import re
 
-from hug.format import content_type
-
-UNDERSCORE = (re.compile('(.)([A-Z][a-z]+)'), re.compile('([a-z0-9])([A-Z])'))
+from hug.format import content_type, underscore
 
 
 @content_type('application/json')
 def json(body):
+    '''Takes JSON formatted data, converting it into native Python objects'''
     return json_converter.loads(body)
 
 
-def _under_score_dict(dictionary):
+def _underscore_dict(dictionary):
     new_dictionary = {}
     for key, value in dictionary.items():
         if isinstance(value, dict):
-            value = _under_score_dict(value)
+            value = _underscore_dict(value)
         if isinstance(key, str):
-            key = UNDERSCORE[1].sub(r'\1_\2', UNDERSCORE[0].sub(r'\1_\2', key)).lower()
+            key = underscore(key)
         new_dictionary[key] = value
     return new_dictionary
 
 
 def json_underscore(body):
-    return _under_score_dict(json(body))
+    '''Takes JSON formatted data, converting it into native Python objects, where the keys in any JSON dict are
+        transformed from camelcase to underscore
+    '''
+    return _underscore_dict(json(body))

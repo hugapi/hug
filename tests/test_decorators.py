@@ -505,6 +505,17 @@ def test_cli_with_directives():
     assert isinstance(hug.test.cli(test), float)
 
 
+def test_cli_with_named_directives():
+    '''Test to ensure you can pass named directives into the cli'''
+    @hug.cli()
+    def test(timer:hug.directives.Timer):
+        return float(timer)
+
+    assert isinstance(test(), float)
+    assert test(timer=4) == 4
+    assert isinstance(hug.test.cli(test), float)
+
+
 def test_cli_with_output_transform():
     '''Test to ensure it's possible to use output transforms with hug CLIs'''
     @hug.cli()
