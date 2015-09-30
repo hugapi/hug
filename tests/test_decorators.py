@@ -341,6 +341,16 @@ def test_marshmallow_support():
 
     assert hug.test.get(api, 'test_marshmallow_input', item='bacon').data == {'errors': {'item': {'type': 'invalid'}}}
 
+    class MarshmallowStyleField(object):
+        def deserialize(self, value):
+            return str(value)
+
+    @hug.get()
+    def test_marshmallow_input_field(item:MarshmallowStyleField()):
+        return item
+
+    assert hug.test.get(api, 'test_marshmallow_input_field', item='bacon').data == 'bacon'
+
 
 def test_stream_return():
     '''Test to ensure that its valid for a hug API endpoint to return a stream'''
