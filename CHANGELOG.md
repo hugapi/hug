@@ -33,3 +33,4 @@ Changelog
 - Added support for marshmallow schema powered input types
 - Added support for using individual marshmallow fields directly as input types
 - Added support for attaching directives to specific named parameters, allowing directives to be used multiple times in a single API call
+- Added support for attaching named directives using only the text name of the directive
