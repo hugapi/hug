@@ -106,6 +106,15 @@ def test_current_api():
         hug.test.get(api, 'v3/version_call_tester').data
 
 
+def test_named_directives():
+    '''Ensure that it's possible to attach directives to named parameters'''
+    @hug.get()
+    def test(time:hug.directive('timer')=3):
+        return time
+
+    assert isinstance(hug(), hug.directives.Timer)
+
+
 def test_per_api_directives():
     '''Test to ensure it's easy to define a directive within an API'''
     @hug.directive(apply_globally=False)
