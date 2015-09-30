@@ -1,6 +1,7 @@
 """hug/format.py
 
-Defines formatting utility methods that are common both to input and output formatting
+Defines formatting utility methods that are common both to input and output formatting and aid in general formatting of
+fields and content
 
 Copyright (C) 2015  Timothy Edmund Crosley
 
@@ -19,6 +20,9 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import re
+
+UNDERSCORE = (re.compile('(.)([A-Z][a-z]+)'), re.compile('([a-z0-9])([A-Z])'))
 
 
 def content_type(content_type):
@@ -27,3 +31,13 @@ def content_type(content_type):
         method.content_type = content_type
         return method
     return decorator
+
+
+def underscore(text):
+    '''Converts text that may be camelcased into an underscored format'''
+    return UNDERSCORE[1].sub(r'\1_\2', UNDERSCORE[0].sub(r'\1_\2', text)).lower()
+
+
+def camelcase(text):
+    '''Converts text that may be underscored into a camelcase format'''
+    return text[0] + "".join(text.title().split('_'))[1:]

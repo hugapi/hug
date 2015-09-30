@@ -4,7 +4,7 @@ Changelog
 ### 1.3.0
 - Started keeping a log of all changes between releases
 - Added support for quickly exposing functions as cli clients with `hug.cli` decorator
-- Added support for quickly serving up development APIs from withing the module using: `if __name__ == '__main__': __hug__.serve()
+- Added support for quickly serving up development APIs from withing the module using: `if __name__ == '__main__': __hug__.serve()`
 - Added support for documentation only type annotations, simply by passing just a string in as the type annotation
 - Added support for `requires` argument to limit execution of functions based on a given criteria
 - Added automatic documentation of output type transformations
@@ -25,3 +25,12 @@ Changelog
 - Added multi-api composition example to examples folder
 - Fixed issue #70: error when composing two API modules into a single one without directives
 - Fixed issue #73: README file is incorrectly formatted on PYPI
+
+### 1.5.0
+- Added built-in support for outputting svg images
+- Added support for rendering images from pygal graphs, or other image framworks that support `render`, automatically
+- Added support for marshmallow powered output transformations
+- Added support for marshmallow schema powered input types
+- Added support for using individual marshmallow fields directly as input types
+- Added support for attaching directives to specific named parameters, allowing directives to be used multiple times in a single API call
+- Added support for attaching named directives using only the text name of the directive

@@ -24,11 +24,11 @@ import os
 from datetime import date, datetime
 from io import BytesIO
 
-from hug.format import content_type
+from hug.format import camelcase, content_type
 
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
                'cur', 'dcx', 'fli', 'flc', 'gbr', 'gd', 'ico', 'icns', 'imt', 'iptc', 'naa', 'mcidas', 'mpo', 'pcd',
-               'psd', 'sgi', 'tga', 'wal', 'xpm')
+               'psd', 'sgi', 'tga', 'wal', 'xpm', 'svg', 'svg+xml')
 
 
 def _json_converter(item):
@@ -68,7 +68,7 @@ def _camelcase(dictionary):
     new_dictionary = {}
     for key, value in dictionary.items():
         if isinstance(key, str):
-            key = key[0] + "".join(key.title().split('_'))[1:]
+            key = camelcase(key)
         new_dictionary[key] = _camelcase(value)
     return new_dictionary
 
@@ -96,6 +96,8 @@ def image(image_format, doc=None):
             data.save(output, format=image_format.upper())
             output.seek(0)
             return output
+        elif hasattr(data, 'render'):
+            return data.render()
         elif os.path.isfile(data):
             return open(data, 'rb')
 
@@ -104,4 +106,4 @@ def image(image_format, doc=None):
 
 
 for image_type in IMAGE_TYPES:
-    globals()['{0}_image'.format(image_type)] = image(image_type)
+    globals()['{0}_image'.format(image_type.replace("+", "_"))] = image(image_type)

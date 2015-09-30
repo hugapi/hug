@@ -294,6 +294,64 @@ def test_return_modifer():
     assert hello() == 'world'
 
 
+def test_marshmallow_support():
+    '''Ensure that you can use Marshmallow style objects to control input and output validation and transformation'''
+    class MarshmallowStyleObject(object):
+        def dump(self, item):
+            return 'Dump Success'
+
+        def load(self, item):
+            return ('Load Success', None)
+
+        def loads(self, item):
+            return self.load(item)
+
+    schema = MarshmallowStyleObject()
+
+    @hug.get()
+    def test_marshmallow_style() -> schema:
+        return "world"
+
+    assert hug.test.get(api, 'test_marshmallow_style').data == "Dump Success"
+    assert test_marshmallow_style() == 'world'
+
+
+    @hug.get()
+    def test_marshmallow_input(item:schema):
+        return item
+
+    assert hug.test.get(api, 'test_marshmallow_input', item='bacon').data == "Load Success"
+    assert test_marshmallow_style() == 'world'
+
+    class MarshmallowStyleObjectWithError(object):
+        def dump(self, item):
+            return 'Dump Success'
+
+        def load(self, item):
+            return ('Load Success', {'type': 'invalid'})
+
+        def loads(self, item):
+            return self.load(item)
+
+    schema = MarshmallowStyleObjectWithError()
+
+    @hug.get()
+    def test_marshmallow_input(item:schema):
+        return item
+
+    assert hug.test.get(api, 'test_marshmallow_input', item='bacon').data == {'errors': {'item': {'type': 'invalid'}}}
+
+    class MarshmallowStyleField(object):
+        def deserialize(self, value):
+            return str(value)
+
+    @hug.get()
+    def test_marshmallow_input_field(item:MarshmallowStyleField()):
+        return item
+
+    assert hug.test.get(api, 'test_marshmallow_input_field', item='bacon').data == 'bacon'
+
+
 def test_stream_return():
     '''Test to ensure that its valid for a hug API endpoint to return a stream'''
     @hug.get(output=hug.output_format.text)
@@ -444,6 +502,17 @@ def test_cli_with_directives():
 
     assert isinstance(test(), float)
     assert test(hug_timer=4) == 4
+    assert isinstance(hug.test.cli(test), float)
+
+
+def test_cli_with_named_directives():
+    '''Test to ensure you can pass named directives into the cli'''
+    @hug.cli()
+    def test(timer:hug.directives.Timer):
+        return float(timer)
+
+    assert isinstance(test(), float)
+    assert test(timer=4) == 4
     assert isinstance(hug.test.cli(test), float)
 
 

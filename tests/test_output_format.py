@@ -91,4 +91,7 @@ def test_image():
             to.write(b'test')
     hasattr(hug.output_format.png_image(FakeImageWithSave()), 'read')
 
-
+    class FakeImageWithSave():
+        def render(self):
+            return 'test'
+    assert hug.output_format.svg_xml_image(FakeImageWithSave()) == 'test'

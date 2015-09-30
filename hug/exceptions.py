@@ -1,6 +1,6 @@
-"""hug/input_formats.py
+"""hug/exceptions.py
 
-Defines the built-in Hug input_formatting handlers
+Defines the custom exceptions that are part of, and support
 
 Copyright (C) 2015  Timothy Edmund Crosley
 
@@ -19,30 +19,10 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import json as json_converter
-
-from hug.format import content_type, underscore
 
 
-@content_type('application/json')
-def json(body):
-    '''Takes JSON formatted data, converting it into native Python objects'''
-    return json_converter.loads(body)
-
-
-def _underscore_dict(dictionary):
-    new_dictionary = {}
-    for key, value in dictionary.items():
-        if isinstance(value, dict):
-            value = _underscore_dict(value)
-        if isinstance(key, str):
-            key = underscore(key)
-        new_dictionary[key] = value
-    return new_dictionary
-
-
-def json_underscore(body):
-    '''Takes JSON formatted data, converting it into native Python objects, where the keys in any JSON dict are
-        transformed from camelcase to underscore
-    '''
-    return _underscore_dict(json(body))
+class InvalidTypeData(Exception):
+    '''Should be raised when data passed in doesn't match a types expectations'''
+    def __init__(self, message, reasons=None):
+        self.message = message
+        self.reasons = reasons

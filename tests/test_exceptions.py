@@ -1,8 +1,8 @@
-"""hug/input_formats.py
+"""tests/test_exceptions.py.
 
-Defines the built-in Hug input_formatting handlers
+Tests to ensure custom exceptions work and are formatted as expected
 
-Copyright (C) 2015  Timothy Edmund Crosley
+Copyright (C) 2015 Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -19,30 +19,30 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import json as json_converter
+import pytest
 
-from hug.format import content_type, underscore
-
-
-@content_type('application/json')
-def json(body):
-    '''Takes JSON formatted data, converting it into native Python objects'''
-    return json_converter.loads(body)
+import hug
 
 
-def _underscore_dict(dictionary):
-    new_dictionary = {}
-    for key, value in dictionary.items():
-        if isinstance(value, dict):
-            value = _underscore_dict(value)
-        if isinstance(key, str):
-            key = underscore(key)
-        new_dictionary[key] = value
-    return new_dictionary
+def test_invalid_type_data():
+    try:
+        raise hug.exceptions.InvalidTypeData('not a good type')
+    except hug.exceptions.InvalidTypeData as exception:
+        error = exception
 
+    assert error.message == 'not a good type'
+    assert error.reasons is None
 
-def json_underscore(body):
-    '''Takes JSON formatted data, converting it into native Python objects, where the keys in any JSON dict are
-        transformed from camelcase to underscore
-    '''
-    return _underscore_dict(json(body))
+    try:
+        raise hug.exceptions.InvalidTypeData('not a good type', [1, 2, 3])
+    except hug.exceptions.InvalidTypeData as exception:
+        error = exception
+
+    assert error.message == 'not a good type'
+    assert error.reasons == [1, 2, 3]
+
+    with pytest.raises(Exception):
+        try:
+            raise hug.exceptions.InvalidTypeData()
+        except hug.exceptions.InvalidTypeData as exception:
+            pass

@@ -38,6 +38,8 @@ from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 
 import hug.defaults
 import hug.output_format
+from hug.exceptions import InvalidTypeData
+from hug.format import underscore
 from hug.run import INTRO, server
 
 
@@ -74,6 +76,10 @@ class HugAPI(object):
         '''Returns all directives applicable to this Hug API'''
         directive_sources = chain(hug.defaults.directives.items(), getattr(self, '_directives', {}).items())
         return {'hug_' + directive_name: directive for directive_name, directive in directive_sources}
+
+    def directive(self, name, default=None):
+        '''Returns the loaded directive with the specified name, or default if passed name is not present'''
+        return getattr(self, '_directives', {}).get(name,  hug.defaults.directives.get(name, default))
 
     def add_directive(self, directive):
         self._directives = getattr(self, '_directives', {})
@@ -157,11 +163,12 @@ def default_input_format(content_type='application/json', apply_globally=False):
 def directive(apply_globally=True):
     '''A decorator that registers a single hug directive'''
     def decorator(directive_method):
-        module = _api_module(directive_method.__module__)
         if apply_globally:
-            hug.defaults.directives[directive_method.__name__] = directive_method
+            hug.defaults.directives[underscore(directive_method.__name__)] = directive_method
         else:
+            module = _api_module(directive_method.__module__)
             module.__hug__.add_directive(directive_method)
+        directive_method.directive = True
         return directive_method
     return decorator
 
@@ -207,6 +214,19 @@ def _api_module(module_name):
     return module
 
 
+def _marshmallow_schema(marshmallow):
+    '''Dynamically generates a hug style type handler from a Marshmallow style schema'''
+    def marshmallow_type(input_data):
+        result, errors = marshmallow.loads(input_data) if isinstance(input_data, str) else marshmallow.load(input_data)
+        if errors:
+            raise InvalidTypeData('Invalid {0} passed in'.format(marshmallow.__class__.__name__), errors)
+        return result
+
+    marshmallow_type.__doc__ = marshmallow.__doc__
+    marshmallow_type.__name__ = marshmallow.__class__.__name__
+    return marshmallow_type
+
+
 def _create_interface(module, api_function, output=None, versions=None, parse_body=True, set_status=False,
                       transform=None, requires=()):
     '''Creates the request handling interface method for the given API function'''
@@ -217,15 +237,34 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     use_directives = set(accepted_parameters).intersection(directives.keys())
     if transform is None and not isinstance(api_function.__annotations__.get('return', None), (str, type(None))):
         transform = api_function.__annotations__['return']
-    output_type = transform or api_function.__annotations__.get('return', None)
+
+    if hasattr(transform, 'dump'):
+        transform = transform.dump
+        output_type = transform
+    else:
+        output_type = transform or api_function.__annotations__.get('return', None)
 
     defaults = {}
     for index, default in enumerate(reversed(api_function.__defaults__ or ())):
         defaults[accepted_parameters[-(index + 1)]] = default
     required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
 
-    input_transformations = {key: value for key, value in api_function.__annotations__.items() if not
-                             isinstance(value, str)}
+    input_transformations = {}
+    named_directives = {directive_name: directives[directive_name] for directive_name in use_directives}
+    for name, transformer in api_function.__annotations__.items():
+        if isinstance(transformer, str):
+            continue
+        elif hasattr(transformer, 'directive'):
+            named_directives[name] = transformer
+            continue
+
+        if hasattr(transformer, 'load'):
+            transformer = _marshmallow_schema(transformer)
+        elif hasattr(transformer, 'deserialize'):
+            transformer = transformer.deserialize
+
+        input_transformations[name] = transformer
+
     def interface(request, response, api_version=None, **kwargs):
         if set_status:
             response.status = set_status
@@ -254,6 +293,8 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
             try:
                 if key in input_parameters:
                     input_parameters[key] = type_handler(input_parameters[key])
+            except InvalidTypeData as error:
+                errors[key] = error.reasons or str(reason.message)
             except Exception as error:
                 errors[key] = str(error)
 
@@ -263,10 +304,10 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
             input_parameters['response'] = response
         if 'api_version' in accepted_parameters:
             input_parameters['api_version'] = api_version
-        for parameter in use_directives:
+        for parameter, directive in named_directives.items():
             arguments = (defaults[parameter], ) if parameter in defaults else ()
-            input_parameters[parameter] = directives[parameter](*arguments, response=response, request=request,
-                                                                module=module, api_version=api_version)
+            input_parameters[parameter] = directive(*arguments, response=response, request=request,  module=module,
+                                                    api_version=api_version)
         for require in required:
             if not require in input_parameters:
                 errors[require] = "Required parameter not supplied"
@@ -294,14 +335,14 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         module.__hug__.versions.update(versions)
 
     callable_method = api_function
-    if use_directives and not getattr(api_function, 'without_directives', None):
+    if named_directives and not getattr(api_function, 'without_directives', None):
         @wraps(api_function)
         def callable_method(*args, **kwargs):
-            for parameter in use_directives:
+            for parameter, directive in named_directives.items():
                 if parameter in kwargs:
                     continue
                 arguments = (defaults[parameter], ) if parameter in defaults else ()
-                kwargs[parameter] = directives[parameter](*arguments, module=module,
+                kwargs[parameter] = directive(*arguments, module=module,
                                     api_version=max(versions, key=lambda version: version or -1) if versions else None)
             return api_function(*args, **kwargs)
         callable_method.interface = interface
@@ -391,10 +432,17 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             parser.add_argument('-v', '--version', action='version',
                                 version="{0} {1}".format(name or api_function.__name__, version))
             used_options.update(('v', 'version'))
+
+        annotations = api_function.__annotations__
+        named_directives = {directive_name: directives[directive_name] for directive_name in use_directives}
         for option in accepted_parameters:
             if option in use_directives:
                 continue
-            elif option in required:
+            elif hasattr(annotations.get(option, None), 'directive'):
+                named_directives[option] = annotations[option]
+                continue
+
+            if option in required:
                 args = (option, )
             else:
                 short_option = option[0]
@@ -411,8 +459,8 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             kwargs = {}
             if option in defaults:
                 kwargs['default'] = defaults[option]
-            if option in api_function.__annotations__:
-                annotation = api_function.__annotations__[option]
+            if option in annotations:
+                annotation = annotations[option]
                 if isinstance(annotation, str):
                     kwargs['help'] = annotation
                 else:
@@ -429,9 +477,9 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
 
         def cli_interface():
             pass_to_function = vars(parser.parse_args())
-            for directive in use_directives:
+            for option, directive in named_directives.items():
                 arguments = (defaults[option], ) if option in defaults else ()
-                pass_to_function[option] = directives[option](*arguments, module=module)
+                pass_to_function[option] = directive(*arguments, module=module)
 
             if karg_method:
                 karg_values = pass_to_function.pop(karg_method, ())
@@ -445,14 +493,14 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             cli_interface.output(result)
 
         callable_method = api_function
-        if use_directives and not getattr(api_function, 'without_directives', None):
+        if named_directives and not getattr(api_function, 'without_directives', None):
             @wraps(api_function)
             def callable_method(*args, **kwargs):
-                for parameter in use_directives:
+                for parameter, directive in named_directives.items():
                     if parameter in kwargs:
                         continue
                     arguments = (defaults[parameter], ) if parameter in defaults else ()
-                    kwargs[parameter] = directives[parameter](*arguments, module=module)
+                    kwargs[parameter] = directive(*arguments, module=module)
                 return api_function(*args, **kwargs)
             callable_method.without_directives = api_function
 
