@@ -115,6 +115,15 @@ def test_named_directives():
     assert isinstance(test(), hug.directives.Timer)
 
 
+def test_named_directives_by_name():
+    '''Ensure that it's possible to attach directives to named parameters using only the name of the directive'''
+    @hug.get()
+    def test(time:__hug__.directive('timer')=3):
+        return time
+
+    assert isinstance(test(), hug.directives.Timer)
+
+
 def test_per_api_directives():
     '''Test to ensure it's easy to define a directive within an API'''
     @hug.directive(apply_globally=False)
