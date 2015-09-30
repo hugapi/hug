@@ -243,8 +243,18 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         defaults[accepted_parameters[-(index + 1)]] = default
     required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
 
-    input_transformations = {key: _marshmallow_schema(value) if hasattr(value, 'load') else value for key, value in
-                             api_function.__annotations__.items() if not isinstance(value, str)}
+    input_transformations = {}
+    for name, transformer in api_function.__annotations__.items():
+        if isinstance(transformer, str):
+            continue
+
+        if hasattr(transformer, 'load'):
+            transformer = _marshmallow_schema(transformer)
+        elif hasattr(transformer, 'deserialize'):
+            transformer = transformer.deserialize
+
+        input_transformations[name] = transformer
+
     def interface(request, response, api_version=None, **kwargs):
         if set_status:
             response.status = set_status
