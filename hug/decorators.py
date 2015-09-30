@@ -38,6 +38,7 @@ from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 
 import hug.defaults
 import hug.output_format
+from hug.exceptions import InvalidTypeData
 from hug.run import INTRO, server
 
 
@@ -207,6 +208,19 @@ def _api_module(module_name):
     return module
 
 
+def _marshmallow_schema(marshmallow):
+    '''Dynamically generates a hug style type handler from a Marshmallow style schema'''
+    def marshmallow_type(input_data):
+        result, errors = marshmallow.loads(input_data) if isinstance(input_data, str) else marshmallow.load(input_data)
+        if errors:
+            raise InvalidTypeData('Invalid {0} passed in'.format(marshmallow.__class__.__name__), errors)
+        return result
+
+    marshmallow_type.__doc__ = marshmallow.__doc__
+    marshmallow_type.__name__ = marshmallow.__class__.__name__
+    return marshmallow_type
+
+
 def _create_interface(module, api_function, output=None, versions=None, parse_body=True, set_status=False,
                       transform=None, requires=()):
     '''Creates the request handling interface method for the given API function'''
@@ -229,8 +243,8 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         defaults[accepted_parameters[-(index + 1)]] = default
     required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
 
-    input_transformations = {key: value for key, value in api_function.__annotations__.items() if not
-                             isinstance(value, str)}
+    input_transformations = {key: _marshmallow_schema(value) if hasattr(value, 'load') else value for key, value in
+                             api_function.__annotations__.items() if not isinstance(value, str)}
     def interface(request, response, api_version=None, **kwargs):
         if set_status:
             response.status = set_status
@@ -259,6 +273,8 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
             try:
                 if key in input_parameters:
                     input_parameters[key] = type_handler(input_parameters[key])
+            except InvalidTypeData as error:
+                errors[key] = error.reasons or str(reason.message)
             except Exception as error:
                 errors[key] = str(error)
 
