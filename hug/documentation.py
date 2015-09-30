@@ -67,7 +67,8 @@ def generate(module, base_url="", api_version=None):
 
                     parameters = [param for param in handler.accepted_parameters if not param in ('request',
                                                                                                   'response')
-                                                                                    and not param.startswith('hug_')]
+                                                                                    and not param.startswith('hug_')
+                                                                                    and not hasattr(param, 'directive')]
                     if parameters:
                         inputs = doc.setdefault('inputs', OrderedDict())
                         types = handler.api_function.__annotations__
