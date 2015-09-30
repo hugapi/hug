@@ -323,6 +323,24 @@ def test_marshmallow_support():
     assert hug.test.get(api, 'test_marshmallow_input', item='bacon').data == "Load Success"
     assert test_marshmallow_style() == 'world'
 
+    class MarshmallowStyleObjectWithError(object):
+        def dump(self, item):
+            return 'Dump Success'
+
+        def load(self, item):
+            return ('Load Success', {'type': 'invalid'})
+
+        def loads(self, item):
+            return self.load(item)
+
+    schema = MarshmallowStyleObjectWithError()
+
+    @hug.get()
+    def test_marshmallow_input(item:schema):
+        return item
+
+    assert hug.test.get(api, 'test_marshmallow_input', item='bacon').data == {'errors': {'item': {'type': 'invalid'}}}
+
 
 def test_stream_return():
     '''Test to ensure that its valid for a hug API endpoint to return a stream'''
