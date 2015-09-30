@@ -77,6 +77,10 @@ class HugAPI(object):
         directive_sources = chain(hug.defaults.directives.items(), getattr(self, '_directives', {}).items())
         return {'hug_' + directive_name: directive for directive_name, directive in directive_sources}
 
+    def directive(self, name, default=None):
+        '''Returns the loaded directive with the specified name, or default if passed name is not present'''
+        return getattr(self, '_directives', {}).get(name,  hug.defaults.directives.get(name, default))
+
     def add_directive(self, directive):
         self._directives = getattr(self, '_directives', {})
         self._directives[directive.__name__] = directive
