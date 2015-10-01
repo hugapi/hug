@@ -94,7 +94,7 @@ def image(image_format, doc=None):
         if hasattr(data, 'read'):
             return data
         elif hasattr(data, 'save'):
-            output =  BytesIO()
+            output = BytesIO()
             data.save(output, format=image_format.upper())
             output.seek(0)
             return output
