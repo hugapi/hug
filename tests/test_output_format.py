@@ -60,6 +60,9 @@ def test_json():
     converted = hug.input_format.json(hug.output_format.json(data).decode('utf8'))
     assert converted == {'name': 'name', 'value': 'value'}
 
+    data = set((1, 2, 3, 3))
+    assert hug.input_format.json(hug.output_format.json(data).decode('utf8')) == [1, 2, 3]
+
 
 def test_pretty_json():
     '''Ensure that it's possible to output a Hug API method as prettified and indented JSON'''
