@@ -27,7 +27,6 @@ from hug.run import server
 from hug import output_format
 from functools import partial
 from unittest import mock
-from collections import namedtuple
 
 
 def call(method, api_module, url, body='', headers=None, **params):

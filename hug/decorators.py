@@ -25,7 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import argparse
-import json
 import os
 import sys
 from collections import OrderedDict, namedtuple
@@ -294,7 +293,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
                 if key in input_parameters:
                     input_parameters[key] = type_handler(input_parameters[key])
             except InvalidTypeData as error:
-                errors[key] = error.reasons or str(reason.message)
+                errors[key] = error.reasons or str(error.message)
             except Exception as error:
                 errors[key] = str(error)
 
@@ -414,7 +413,6 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
         module = module = _api_module(api_function.__module__)
         takes_kargs = bool(api_function.__code__.co_flags & 0x04)
         accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + (1 if takes_kargs else 0)]
-        takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
         directives = module.__hug__.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
         output_transform = transform or api_function.__annotations__.get('return', None)
