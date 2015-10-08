@@ -283,6 +283,7 @@ def not_found_handler():
 
 Why Hug?
 ===================
+
 HUG simply stands for Hopefully Useful Guide. This represents the projects goal to help guide developers into creating well written and intuitive APIs.
 
 --------------------------------------------
