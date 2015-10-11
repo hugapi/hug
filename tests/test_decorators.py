@@ -42,6 +42,34 @@ def test_basic_call():
     assert hug.test.get(api, '/hello_world').data == "Hello World!"
 
 
+def test_basic_call_on_method():
+    '''Test to ensure the most basic call still works if applied to a method'''
+    class API(object):
+
+        @hug.call()
+        def hello_world(self=None):
+            return "Hello World!"
+
+    api_instance = API()
+    assert api_instance.hello_world.interface
+    assert api_instance.hello_world() == 'Hello World!'
+    assert hug.test.get(api, '/hello_world').data == "Hello World!"
+
+    class API(object):
+
+        def hello_world(self):
+            return "Hello World!"
+
+    api_instance = API()
+
+    @hug.call()
+    def hello_world():
+        return api_instance.hello_world()
+
+    assert api_instance.hello_world() == 'Hello World!'
+    assert hug.test.get(api, '/hello_world').data == "Hello World!"
+
+
 def test_single_parameter():
     '''Test that an api with a single parameter interacts as desired'''
     @hug.call()
