@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 import argparse
 import os
 import sys
+from types import MethodType
 from collections import OrderedDict, namedtuple
 from functools import partial, wraps
 from itertools import chain
@@ -246,7 +247,12 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     defaults = {}
     for index, default in enumerate(reversed(api_function.__defaults__ or ())):
         defaults[accepted_parameters[-(index + 1)]] = default
+
     required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+    is_method = False
+    if type(api_function) == MethodType:
+        is_method = True
+        required = required[1:]
 
     input_transformations = {}
     named_directives = {directive_name: directives[directive_name] for directive_name in use_directives}
@@ -347,7 +353,10 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         callable_method.interface = interface
         callable_method.without_directives = api_function
 
-    api_function.interface = interface
+    if is_method:
+        api_function.__dict__['interface'] = interface
+    else:
+        api_function.interface = interface
     interface.api_function = api_function
     interface.output_format = function_output
     interface.defaults = defaults
@@ -422,6 +431,10 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + 1]
             defaults[accepted_parameters[-(index + 1)]] = default
         required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+        is_method = False
+        if type(api_function) == MethodType:
+            is_method = True
+            required = required[1:]
         karg_method = accepted_parameters[-1] if takes_kargs else None
 
         used_options = set()
@@ -502,7 +515,10 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
                 return api_function(*args, **kwargs)
             callable_method.without_directives = api_function
 
-        callable_method.cli = cli_interface
+        if is_method:
+            callable_method.__dict__['cli'] = cli_interface
+        else:
+            callable_method.cli = cli_interface
         cli_interface.output = output
         cli_interface.karg_method = karg_method
         return callable_method
