@@ -61,8 +61,9 @@ for method in HTTP_METHODS:
     globals()[method.lower()] = tester
 
 
-def cli(method, collect_output=True, *kargs, **arguments):
+def cli(method, *kargs, **arguments):
     '''Simulates testing a hug cli method from the command line'''
+    collect_output = arguments.get('collect_output', True)
     if kargs:
         arguments[method.cli.karg_method] = kargs
 
