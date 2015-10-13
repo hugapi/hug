@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 import argparse
 import os
 import sys
-from types import MethodType
 from collections import OrderedDict, namedtuple
 from functools import partial, wraps
 from itertools import chain
@@ -250,7 +249,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
 
     required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
     is_method = False
-    if type(api_function) == MethodType:
+    if 'method' in api_function.__class__.__name__:
         is_method = True
         required = required[1:]
 
@@ -416,7 +415,7 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
     return decorator
 
 
-def cli(name=None, version=None, doc=None, transform=None, output=print):
+def cli(name=None, version=None, doc=None, transform=None, output=None):
     '''Enables exposing a Hug compatible function as a Command Line Interface'''
     def decorator(api_function):
         module = module = _api_module(api_function.__module__)
@@ -432,7 +431,7 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             defaults[accepted_parameters[-(index + 1)]] = default
         required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
         is_method = False
-        if type(api_function) == MethodType:
+        if 'method' in api_function.__class__.__name__:
             is_method = True
             required = required[1:]
         karg_method = accepted_parameters[-1] if takes_kargs else None
@@ -501,7 +500,10 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
                 result = output_transform(result)
             if hasattr(result, 'read'):
                 result = result.read().decode('utf8')
-            cli_interface.output(result)
+            if cli_interface.output:
+                cli_interface.output(result)
+            else:
+                print(result)
 
         callable_method = api_function
         if named_directives and not getattr(api_function, 'without_directives', None):
