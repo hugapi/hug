@@ -63,7 +63,7 @@ for method in HTTP_METHODS:
 
 def cli(method, *kargs, **arguments):
     '''Simulates testing a hug cli method from the command line'''
-    collect_output = arguments.get('collect_output', True)
+    collect_output = arguments.pop('collect_output', True)
     if kargs:
         arguments[method.cli.karg_method] = kargs
 
