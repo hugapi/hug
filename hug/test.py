@@ -63,6 +63,7 @@ for method in HTTP_METHODS:
 
 def cli(method, *kargs, **arguments):
     '''Simulates testing a hug cli method from the command line'''
+    collect_output = arguments.pop('collect_output', True)
     if kargs:
         arguments[method.cli.karg_method] = kargs
 
@@ -70,7 +71,8 @@ def cli(method, *kargs, **arguments):
     test_arguments.__dict__ = arguments
     with mock.patch('argparse.ArgumentParser.parse_args', lambda self: test_arguments):
         old_output = method.cli.output
-        method.cli.output = lambda data: to_return.append(data)
+        if collect_output:
+            method.cli.output = lambda data: to_return.append(data)
         to_return = []
         method.cli()
         method.cli.output = old_output
