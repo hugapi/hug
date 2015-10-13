@@ -629,3 +629,4 @@ def test_cli_using_method():
     api_instance = API()
     assert api_instance.hello_world_method() == 'Hello World!'
     assert hug.test.cli(api_instance.hello_world_method) == 'Hello World!'
+    assert hug.test.cli(api_instance.hello_world_method, collect_output=False)
