@@ -7,3 +7,4 @@ Cython==0.22.1
 ipython==3.2.1
 wheel==0.24.0
 python-coveralls==2.5.0
+frosted==1.4.1

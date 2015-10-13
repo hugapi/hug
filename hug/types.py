@@ -69,9 +69,9 @@ decimal = accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
 text = accept(str, 'Basic text / string value', 'Invalid text value provided')
 
 
-def inline_dictionary(value):
+def inline_dictionary(input_value):
     '''A single line dictionary, where items are separted by commas and key:value are separated by a pipe'''
-    return {key.strip(): value.strip() for key, value in (item.split(":") for item in value.split("|"))}
+    return {key.strip(): value.strip() for key, value in (item.split(":") for item in input_value.split("|"))}
 
 
 def one_of(values):

@@ -25,7 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import argparse
-import json
 import os
 import sys
 from collections import OrderedDict, namedtuple
@@ -247,7 +246,12 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     defaults = {}
     for index, default in enumerate(reversed(api_function.__defaults__ or ())):
         defaults[accepted_parameters[-(index + 1)]] = default
+
     required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+    is_method = False
+    if 'method' in api_function.__class__.__name__:
+        is_method = True
+        required = required[1:]
 
     input_transformations = {}
     named_directives = {directive_name: directives[directive_name] for directive_name in use_directives}
@@ -294,7 +298,7 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
                 if key in input_parameters:
                     input_parameters[key] = type_handler(input_parameters[key])
             except InvalidTypeData as error:
-                errors[key] = error.reasons or str(reason.message)
+                errors[key] = error.reasons or str(error.message)
             except Exception as error:
                 errors[key] = str(error)
 
@@ -348,7 +352,10 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
         callable_method.interface = interface
         callable_method.without_directives = api_function
 
-    api_function.interface = interface
+    if is_method:
+        api_function.__dict__['interface'] = interface
+    else:
+        api_function.interface = interface
     interface.api_function = api_function
     interface.output_format = function_output
     interface.defaults = defaults
@@ -408,13 +415,12 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
     return decorator
 
 
-def cli(name=None, version=None, doc=None, transform=None, output=print):
+def cli(name=None, version=None, doc=None, transform=None, output=None):
     '''Enables exposing a Hug compatible function as a Command Line Interface'''
     def decorator(api_function):
         module = module = _api_module(api_function.__module__)
         takes_kargs = bool(api_function.__code__.co_flags & 0x04)
         accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + (1 if takes_kargs else 0)]
-        takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
         directives = module.__hug__.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
         output_transform = transform or api_function.__annotations__.get('return', None)
@@ -424,6 +430,10 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
             accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + 1]
             defaults[accepted_parameters[-(index + 1)]] = default
         required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+        is_method = False
+        if 'method' in api_function.__class__.__name__:
+            is_method = True
+            required = required[1:]
         karg_method = accepted_parameters[-1] if takes_kargs else None
 
         used_options = set()
@@ -490,7 +500,10 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
                 result = output_transform(result)
             if hasattr(result, 'read'):
                 result = result.read().decode('utf8')
-            cli_interface.output(result)
+            if cli_interface.output is not None:
+                cli_interface.output(result)
+            else:
+                print(result)
 
         callable_method = api_function
         if named_directives and not getattr(api_function, 'without_directives', None):
@@ -504,7 +517,10 @@ def cli(name=None, version=None, doc=None, transform=None, output=print):
                 return api_function(*args, **kwargs)
             callable_method.without_directives = api_function
 
-        callable_method.cli = cli_interface
+        if is_method:
+            callable_method.__dict__['cli'] = cli_interface
+        else:
+            callable_method.cli = cli_interface
         cli_interface.output = output
         cli_interface.karg_method = karg_method
         return callable_method

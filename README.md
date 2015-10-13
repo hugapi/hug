@@ -119,6 +119,7 @@ To run the hello world Hug example API.
 
 Building Blocks of a Hug API
 ===================
+
 When Building an API using the Hug framework you'll use the following concepts:
 
 **METHOD Decorators** `get`, `post`, `update`, etc HTTP method decorators that expose your Python function as an API while keeping your Python method unchanged
@@ -209,6 +210,7 @@ You can also easily add any Falcon style middleware using:
 __hug__.add_middleware(MiddlewareObject())
 ```
 
+
 Splitting APIs over multiple files
 ===================
 
@@ -250,6 +252,7 @@ Or alternatively - for cases like this - where only one module is being included
 __hug__.extend(something, '/something')
 ```
 
+
 Configuring Hug 404
 ===================
 
@@ -281,8 +284,10 @@ def not_found_handler():
     return "Not Found"
 ```
 
+
 Why Hug?
 ===================
+
 HUG simply stands for Hopefully Useful Guide. This represents the projects goal to help guide developers into creating well written and intuitive APIs.
 
 --------------------------------------------

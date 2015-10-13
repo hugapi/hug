@@ -55,7 +55,7 @@ def basic(request, response, verify_user, **kwargs):
         http_auth = http_auth.decode('utf8')
     try:
         auth_type, user_and_key = http_auth.split(' ', 1)
-    except ValueError as err:
+    except ValueError:
         raise HTTPUnauthorized('Authentication Error',
                                'Authentication header is improperly formed')
 

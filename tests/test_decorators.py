@@ -42,6 +42,47 @@ def test_basic_call():
     assert hug.test.get(api, '/hello_world').data == "Hello World!"
 
 
+def test_basic_call_on_method():
+    '''Test to ensure the most basic call still works if applied to a method'''
+    class API(object):
+
+        @hug.call()
+        def hello_world(self=None):
+            return "Hello World!"
+
+    api_instance = API()
+    assert api_instance.hello_world.interface
+    assert api_instance.hello_world() == 'Hello World!'
+    assert hug.test.get(api, '/hello_world').data == "Hello World!"
+
+    class API(object):
+
+        def hello_world(self):
+            return "Hello World!"
+
+    api_instance = API()
+
+    @hug.call()
+    def hello_world():
+        return api_instance.hello_world()
+
+    assert api_instance.hello_world() == 'Hello World!'
+    assert hug.test.get(api, '/hello_world').data == "Hello World!"
+
+    class API(object):
+
+        def __init__(self):
+            hug.call()(self.hello_world_method)
+
+        def hello_world_method(self):
+            return "Hello World!"
+
+    api_instance = API()
+
+    assert api_instance.hello_world_method() == 'Hello World!'
+    assert hug.test.get(api, '/hello_world_method').data == "Hello World!"
+
+
 def test_single_parameter():
     '''Test that an api with a single parameter interacts as desired'''
     @hug.call()
@@ -572,3 +613,20 @@ def test_cli_with_kargs():
 
     assert test(1, 2, 3) == (1, 2, 3)
     assert hug.test.cli(test, 1, 2, 3) == (1, 2, 3)
+
+
+def test_cli_using_method():
+    '''Test to ensure that attaching a cli to a class method works as expected'''
+    class API(object):
+
+        def __init__(self):
+            hug.cli()(self.hello_world_method)
+
+        def hello_world_method(self):
+            variable = 'Hello World!'
+            return variable
+
+    api_instance = API()
+    assert api_instance.hello_world_method() == 'Hello World!'
+    assert hug.test.cli(api_instance.hello_world_method) == 'Hello World!'
+    assert hug.test.cli(api_instance.hello_world_method, collect_output=False) is None

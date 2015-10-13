@@ -37,3 +37,10 @@ Changelog
 
 ### 1.5.1
 - Added built-in support for serializing sets
+
+### 1.6.0
+- Adds support for attaching hug routes to method calls
+- Hug is now compiled using Cython (when it is available) for an additional performance boost
+
+
+
