@@ -3,7 +3,7 @@ pytest==2.6.1
 pytest-cov==1.8.1
 tox==1.7.2
 isort==4.2.2
-Cython==0.22.1
+Cython==0.23.4
 ipython==3.2.1
 wheel==0.24.0
 python-coveralls==2.5.0
