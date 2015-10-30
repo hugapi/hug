@@ -72,6 +72,7 @@ def test_boolean():
     assert hug.types.boolean('T') == True
     assert hug.types.boolean('') == False
     assert hug.types.boolean('False') == True
+    assert hug.types.boolean('False') == True
 
 
 def test_text():
