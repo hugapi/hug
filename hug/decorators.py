@@ -226,10 +226,20 @@ def _marshmallow_schema(marshmallow):
     return marshmallow_type
 
 
-def _create_interface(module, api_function, output=None, versions=None, parse_body=True, set_status=False,
-                      transform=None, requires=()):
+def _create_interface(module, api_function, parameters=None, defaults={}, output=None, versions=None,
+                      parse_body=True, set_status=False, transform=None, requires=()):
     '''Creates the request handling interface method for the given API function'''
-    accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+    if not parameters:
+        accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+        defaults = {}
+        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+            defaults[accepted_parameters[-(index + 1)]] = default
+
+        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+    else:
+        accepted_parameters = tuple(parameters)
+        required = tuple([p for p in accepted_parameters if p not in defaults])
+
     takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
     function_output = output or module.__hug__.output_format
     directives = module.__hug__.directives()
@@ -243,11 +253,6 @@ def _create_interface(module, api_function, output=None, versions=None, parse_bo
     else:
         output_type = transform or api_function.__annotations__.get('return', None)
 
-    defaults = {}
-    for index, default in enumerate(reversed(api_function.__defaults__ or ())):
-        defaults[accepted_parameters[-(index + 1)]] = default
-
-    required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
     is_method = False
     if 'method' in api_function.__class__.__name__:
         is_method = True
@@ -385,8 +390,8 @@ def not_found(output=None, versions=None, parse_body=False, transform=None, requ
     return decorator
 
 
-def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None, parse_body=True, transform=None,
-         requires=()):
+def call(urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(), versions=None,
+         parse_body=True, transform=None, requires=()):
     '''Defines the base Hug API creating decorator, which exposes normal python methods as HTTP APIs'''
     urls = (urls, ) if isinstance(urls, str) else urls
     examples = (examples, ) if isinstance(examples, str) else examples
@@ -396,6 +401,7 @@ def call(urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None
     def decorator(api_function):
         module = _api_module(api_function.__module__)
         (interface, callable_method) = _create_interface(module, api_function, output=output,
+                                                         parameters=parameters, defaults=defaults,
                                                          versions=versions, parse_body=parse_body, transform=transform,
                                                          requires=requires)
 

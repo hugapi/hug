@@ -66,6 +66,15 @@ def test_decimal():
         hug.types.decimal('bacon')
 
 
+def test_boolean():
+    '''Test to ensure the custom boolean type correctly supports boolean conversion'''
+    assert hug.types.boolean('1') == True
+    assert hug.types.boolean('T') == True
+    assert hug.types.boolean('') == False
+    assert hug.types.boolean('False') == True
+    assert hug.types.boolean(False) == False
+
+
 def test_text():
     '''Tests that Hugs text validator correctly handles basic values'''
     assert hug.types.text('1') == '1'
