@@ -9,6 +9,7 @@ Notable Bug Reporters
 Code Contributors
 ===================
 - Fabian Kochem (@vortec)
+- Kostas Dizas (@kostasdizas)
 
 Documenters
 ===================
