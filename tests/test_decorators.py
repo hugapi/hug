@@ -126,6 +126,16 @@ def test_parameters():
     assert 'Invalid' in nan_test['errors']['end']
 
 
+def test_parameters_override():
+    '''Test to ensure the parameters override is handled as expected'''
+    @hug.get(parameters=('parameter1', 'parameter2'))
+    def test_call(**kwargs):
+        return kwargs
+
+    assert hug.test.get(api, 'test_call', parameter1='one', parameter2='two').data == {'parameter1': 'one',
+                                                                                       'parameter2': 'two'}
+
+
 def test_parameter_injection():
     '''Tests that hug correctly auto injects variables such as request and response'''
     @hug.call()
