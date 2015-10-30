@@ -67,6 +67,7 @@ number = accept(int, 'A whole number', 'Invalid whole number provided')
 float_number = accept(float, 'A float number', 'Invalid float number provided')
 decimal = accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
 text = accept(str, 'Basic text / string value', 'Invalid text value provided')
+boolean = accept(bool, 'Providing any value will set this to true', 'Invalid boolean value provided')
 
 
 def inline_dictionary(input_value):
