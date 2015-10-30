@@ -14,6 +14,7 @@ Code Contributors
 Documenters
 ===================
 - Timothy Cyrus (@tcyrus)
+- M.Yasoob Ullah Khalid (@yasoob)
 
 --------------------------------------------
 
