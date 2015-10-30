@@ -13,7 +13,7 @@ Code Contributors
 
 Documenters
 ===================
--
+- Timothy Cyrus (@tcyrus)
 
 --------------------------------------------
 
