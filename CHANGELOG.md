@@ -42,5 +42,7 @@ Changelog
 - Adds support for attaching hug routes to method calls
 - Hug is now compiled using Cython (when it is available) for an additional performance boost
 
-
-
+### 1.6.1
+- Added support for overriding parameters via decorator to ease use of **kwargs
+- Added built-in boolean type support
+- Improved testing environment
