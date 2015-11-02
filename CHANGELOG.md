@@ -46,3 +46,7 @@ Changelog
 - Added support for overriding parameters via decorator to ease use of **kwargs
 - Added built-in boolean type support
 - Improved testing environment
+
+### 1.6.2
+- Added a `mapping` type that allows users to quikly map string values to Python types
+- Added a `smart_boolean` type that respects explicit true/false in string values
