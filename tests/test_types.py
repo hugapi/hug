@@ -77,7 +77,7 @@ def test_boolean():
 
 def test_mapping():
     '''Test to ensure the mapping type works as expected'''
-    mapping_type = mapping({'n': None, 'l': [], 's': set()})
+    mapping_type = hug.types.mapping({'n': None, 'l': [], 's': set()})
     assert mapping_type('n') == None
     assert mapping_type('l') == []
     assert mapping_type('s') == set()

@@ -85,3 +85,16 @@ def one_of(values):
     matches.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
     matches.cli_behaviour = {'choices': values}
     return matches
+
+
+def mapping(value_map):
+    '''Ensures the value is one of an acceptable set of values mapping those values to a Python equivelent'''
+    values = value_map.keys()
+    def matches(value):
+        if not value in value_map.keys():
+            raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(values)))
+        return value_map[value]
+
+    matches.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
+    matches.cli_behaviour = {'choices': values}
+    return matches
