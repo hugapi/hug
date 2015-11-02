@@ -81,7 +81,7 @@ def smart_boolean(input_value):
     elif value in ('false', ''):
         return False
 
-    raise KeyError('Invalid value bassed in for true/false field')
+    raise KeyError('Invalid value passed in for true/false field')
 
 
 def inline_dictionary(input_value):
