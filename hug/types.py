@@ -70,6 +70,20 @@ text = accept(str, 'Basic text / string value', 'Invalid text value provided')
 boolean = accept(bool, 'Providing any value will set this to true', 'Invalid boolean value provided')
 
 
+def smart_boolean(input_value):
+    '''Accepts a true or false value'''
+    if type(input_value) == bool or input_value is None:
+        return bool(input_value)
+
+    value = input_value.lower()
+    if value == 'true':
+        return True
+    elif value in ('false', ''):
+        return False
+
+    raise KeyError('Invalid value bassed in for true/false field')
+
+
 def inline_dictionary(input_value):
     '''A single line dictionary, where items are separted by commas and key:value are separated by a pipe'''
     return {key.strip(): value.strip() for key, value in (item.split(":") for item in input_value.split("|"))}
@@ -81,6 +95,19 @@ def one_of(values):
         if not value in values:
             raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(values)))
         return value
+
+    matches.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
+    matches.cli_behaviour = {'choices': values}
+    return matches
+
+
+def mapping(value_map):
+    '''Ensures the value is one of an acceptable set of values mapping those values to a Python equivelent'''
+    values = value_map.keys()
+    def matches(value):
+        if not value in value_map.keys():
+            raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(values)))
+        return value_map[value]
 
     matches.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
     matches.cli_behaviour = {'choices': values}
