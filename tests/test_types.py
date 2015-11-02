@@ -75,6 +75,28 @@ def test_boolean():
     assert hug.types.boolean(False) == False
 
 
+def test_mapping():
+    '''Test to ensure the mapping type works as expected'''
+    mapping_type = mapping({'n': None, 'l': [], 's': set()})
+    assert mapping_type('n') == None
+    assert mapping_type('l') == []
+    assert mapping_type('s') == set()
+    with pytest.raises(KeyError):
+        mapping_type('bacon')
+
+
+def test_smart_boolean():
+    '''Test to ensure that the smart boolean type works as expected'''
+    assert hug.types.smart_boolean('true') == True
+    assert hug.types.smart_boolean('') == False
+    assert hug.types.smart_boolean('false') == False
+    assert hug.types.smart_boolean(True) == True
+    assert hug.types.smart_boolean(None) == False
+    assert hug.types.smart_boolean(False) == False
+    with pytest.raises(KeyError):
+        hug.types.smart_boolean('bacon')
+
+
 def test_text():
     '''Tests that Hugs text validator correctly handles basic values'''
     assert hug.types.text('1') == '1'
