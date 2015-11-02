@@ -51,6 +51,6 @@ Changelog
 - Added a `mapping` type that allows users to quikly map string values to Python types
 - Added a `smart_boolean` type that respects explicit true/false in string values
 
-### 1.6.4
+### 1.6.5
 - Fixed a small spelling error on the `smart_boolean` type
 
