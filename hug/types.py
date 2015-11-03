@@ -72,13 +72,13 @@ boolean = accept(bool, 'Providing any value will set this to true', 'Invalid boo
 
 def smart_boolean(input_value):
     '''Accepts a true or false value'''
-    if type(input_value) == bool or input_value is None:
+    if type(input_value) == bool or input_value in (None, 1, 0):
         return bool(input_value)
 
     value = input_value.lower()
-    if value == 'true':
+    if value in ('true', 't', '1'):
         return True
-    elif value in ('false', ''):
+    elif value in ('false', 'f', '0', ''):
         return False
 
     raise KeyError('Invalid value passed in for true/false field')
