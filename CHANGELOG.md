@@ -54,3 +54,6 @@ Changelog
 ### 1.6.5
 - Fixed a small spelling error on the `smart_boolean` type
 
+### 1.6.7
+- Improved the `smart_boolean` type even further, to allow 0, 1, t, f strings as input
+- Enabled normal boolean type to easily work with cli apps, by having it interact via 'store_true'
