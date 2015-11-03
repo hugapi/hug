@@ -55,4 +55,4 @@ Changelog
 - Fixed a small spelling error on the `smart_boolean` type
 
 ### 1.6.7
-- Improve the smart_boolean even further, to allow 0, 1, t, f strings as input
+- Improved the `smart_boolean` type even further, to allow 0, 1, t, f strings as input
