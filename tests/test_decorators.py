@@ -316,6 +316,39 @@ def test_error_handling():
     assert response.data['errors']['Failed'] == 'For Science!'
 
 
+def test_error_handling_builtin_exception():
+    '''Test to ensure built in exception types errors are handled as expected'''
+    def raise_error(value):
+        raise KeyError('Invalid value')
+
+    @hug.get()
+    def test_error(data:raise_error):
+        return True
+
+    response = hug.test.get(api, 'test_error', data=1)
+    assert 'errors' in response.data
+    assert response.data['errors']['data'] == 'Invalid value'
+
+
+def test_error_handling_custom():
+    '''Test to ensure custom exceptions work as expected'''
+    class Error(Exception):
+
+        def __str__(self):
+            return 'Error'
+
+    def raise_error(value):
+        raise Error()
+
+    @hug.get()
+    def test_error(data:raise_error):
+        return True
+
+    response = hug.test.get(api, 'test_error', data=1)
+    assert 'errors' in response.data
+    assert response.data['errors']['data'] == 'Error'
+
+
 def test_return_modifer():
     '''Ensures you can modify the output of a HUG API using -> annotation'''
     @hug.get()
