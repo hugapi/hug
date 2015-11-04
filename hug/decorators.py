@@ -325,7 +325,10 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
             except InvalidTypeData as error:
                 errors[key] = error.reasons or str(error.message)
             except Exception as error:
-                errors[key] = str(error)
+                if hasattr(error, 'args') and error.args:
+                    errors[key] = error.args[0]
+                else:
+                    errors[key] = str(error)
 
         if 'request' in accepted_parameters:
             input_parameters['request'] = request
