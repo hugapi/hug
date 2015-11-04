@@ -52,6 +52,10 @@ def test_session_middleware():
         session['counter'] = counter
         return counter
 
+    def get_cookies(response):
+        simple_cookie = SimpleCookie(response.headers_dict['set-cookie'])
+        return {morsel.key: morsel.value for morsel in simple_cookie.values()}
+
     # Add middleware
     session_store = TestSessionStore()
     middleware = SessionMiddleware(session_store, cookie_name='test-sid')
@@ -59,8 +63,7 @@ def test_session_middleware():
 
     # Get cookies from response
     response = hug.test.get(api, '/count')
-    simple_cookie = SimpleCookie(response.headers_dict['set-cookie'])
-    cookies = {morsel.key: morsel.value for morsel in simple_cookie.values()}
+    cookies = get_cookies(response)
 
     # Assert session cookie has been set and session exists in session store
     assert 'test-sid' in cookies
@@ -72,3 +75,11 @@ def test_session_middleware():
     headers = {'Cookie': 'test-sid={}'.format(sid)}
     assert hug.test.get(api, '/count', headers=headers).data == 2
     assert session_store.sessions[sid] == {'counter': 2}
+
+    # Assert a non-existing session cookie gets ignored
+    headers = {'Cookie': 'test-sid=foobarfoo'}
+    response = hug.test.get(api, '/count', headers=headers)
+    cookies = get_cookies(response)
+    assert response.data == 1
+    assert 'foobarfoo' not in session_store.sessions
+    assert cookies['test-sid'] != 'foobarfoo'

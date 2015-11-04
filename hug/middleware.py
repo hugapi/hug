@@ -58,14 +58,12 @@ class SessionMiddleware:
         if sid is not None:
             if self.store.exists(sid):
                 data = self.store.get(sid)
-            else:
-                return
         request.context.update({self.context_name: data})
 
     def process_response(self, request, response, resource):
         '''Save request context in coupled store object. Set cookie containing a session ID.'''
         sid = request.cookies.get(self.cookie_name, None)
-        if sid is None:
+        if sid is None or not self.store.exists(sid):
             sid = self.generate_sid()
 
         self.store.set(sid, request.context.get(self.context_name, {}))
