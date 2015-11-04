@@ -22,12 +22,21 @@ import uuid
 
 
 class SessionMiddleware:
-    '''
+    '''Simple middleware that injects a session dictionary into the context of a request. It sets a session cookie
+    and stores/restores data via a coupled store object.
 
+    A session store object must implement the following methods:
+    * get(session_id) - return session data
+    * exists(session_id) - return boolean if session ID exists or not
+    * set(session_id, session_data) - save session data for given session ID
+
+    The name of the context key can be set via the 'context_name' argument.
+    The cookie arguments are the same as for falcons set_cookie() function, just prefixed with 'cookie_'.
     '''
-    def __init__(self, store, cookie_name='sid', cookie_expires=None, cookie_max_age=None, cookie_domain=None,
-                 cookie_path=None, cookie_secure=True, cookie_http_only=True):
+    def __init__(self, store, context_name='session', cookie_name='sid', cookie_expires=None, cookie_max_age=None,
+                 cookie_domain=None, cookie_path=None, cookie_secure=True, cookie_http_only=True):
         self.store = store
+        self.context_name = context_name
         self.cookie_name = cookie_name
         self.cookie_expires = cookie_expires
         self.cookie_max_age = cookie_max_age
@@ -41,17 +50,17 @@ class SessionMiddleware:
         return str(uuid.uuid4())
 
     def process_request(self, request, response):
-        '''
-        Get session ID from cookie, load corresponding session data from coupled store and inject session data into
+        '''Get session ID from cookie, load corresponding session data from coupled store and inject session data into
         the request context.
         '''
         sid = request.cookies.get(self.cookie_name, None)
+        data = {}
         if sid is not None:
-            try:
+            if self.store.exists(sid):
                 data = self.store.get(sid)
-            except SessionNotFound:
+            else:
                 return
-            request.context.update(data)
+        request.context.update({self.context_name: data})
 
     def process_response(self, request, response, resource):
         '''Save request context in coupled store object. Set cookie containing a session ID.'''
@@ -59,7 +68,7 @@ class SessionMiddleware:
         if sid is None:
             sid = self.generate_sid()
 
-        self.store.set(sid, request.context)
+        self.store.set(sid, request.context.get(self.context_name, {}))
         response.set_cookie(self.cookie_name, sid, expires=self.cookie_expires, max_age=self.cookie_max_age,
                             domain=self.cookie_domain, path=self.cookie_path, secure=self.cookie_secure,
                             http_only=self.cookie_http_only)

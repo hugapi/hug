@@ -47,24 +47,28 @@ def test_session_middleware():
 
     @hug.get()
     def count(request):
-        counter = request.context.get('counter', 0) + 1
-        request.context['counter'] = counter
+        session = request.context['session']
+        counter = session.get('counter', 0) + 1
+        session['counter'] = counter
         return counter
 
+    # Add middleware
     session_store = TestSessionStore()
     middleware = SessionMiddleware(session_store, cookie_name='test-sid')
     __hug__.add_middleware(middleware)
 
-    # Session will be created upon first visit
+    # Get cookies from response
     response = hug.test.get(api, '/count')
-
     simple_cookie = SimpleCookie(response.headers_dict['set-cookie'])
     cookies = {morsel.key: morsel.value for morsel in simple_cookie.values()}
-    assert response.data == 1
+
+    # Assert session cookie has been set and session exists in session store
     assert 'test-sid' in cookies
     sid = cookies['test-sid']
     assert sid in session_store.sessions
+    assert session_store.sessions[sid] == {'counter': 1}
 
-    # Session will persist throughout the requests
+    # Assert session persists throughout the requests
     headers = {'Cookie': 'test-sid={}'.format(sid)}
     assert hug.test.get(api, '/count', headers=headers).data == 2
+    assert session_store.sessions[sid] == {'counter': 2}
