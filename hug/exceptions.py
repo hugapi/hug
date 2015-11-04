@@ -26,3 +26,8 @@ class InvalidTypeData(Exception):
     def __init__(self, message, reasons=None):
         self.message = message
         self.reasons = reasons
+
+
+class SessionNotFound(Exception):
+    '''Should be raised when a session ID has not been found inside a session store'''
+    pass

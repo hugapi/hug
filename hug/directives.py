@@ -27,7 +27,7 @@ from timeit import default_timer as python_timer
 
 
 def _built_in_directive(directive):
-    '''Makes a callable as a built-in directive'''
+    '''Marks a callable as a built-in directive'''
     directive.directive = True
     return directive
 
