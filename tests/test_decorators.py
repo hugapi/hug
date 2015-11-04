@@ -344,6 +344,16 @@ def test_return_modifer():
     assert hug.test.get(api, 'hello').data == "world"
     assert hello() == 'world'
 
+    def transform_with_request_data(data, request, response):
+        return (data, request and True, response and True)
+
+    @hug.get(transform=transform_with_request_data)
+    def hello():
+        return "world"
+
+    response = hug.test.get(api, 'hello')
+    assert response.data == ['world', True, True]
+
 
 def test_marshmallow_support():
     '''Ensure that you can use Marshmallow style objects to control input and output validation and transformation'''
