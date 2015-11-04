@@ -58,3 +58,6 @@ Changelog
 - Auto supply `response` and `request` to output transformations and formats when they are taken as arguments
 - Improved the `smart_boolean` type even further, to allow 0, 1, t, f strings as input
 - Enabled normal boolean type to easily work with cli apps, by having it interact via 'store_true'
+
+### 1.7.1
+- Fix a bug that caused error messages sourced from exceptions to be double quoted
