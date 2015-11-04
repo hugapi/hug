@@ -344,6 +344,16 @@ def test_return_modifer():
     assert hug.test.get(api, 'hello').data == "world"
     assert hello() == 'world'
 
+    def transform_with_request_data(data, request, response):
+        return (data, request and True, response and True)
+
+    @hug.get(transform=transform_with_request_data)
+    def hello():
+        return "world"
+
+    response = hug.test.get(api, 'hello')
+    assert response.data == ['world', True, True]
+
 
 def test_marshmallow_support():
     '''Ensure that you can use Marshmallow style objects to control input and output validation and transformation'''
@@ -410,6 +420,23 @@ def test_stream_return():
         return open('README.md', 'rb')
 
     assert 'hug' in hug.test.get(api, 'test').data
+
+
+def test_smart_outputter():
+    '''Test to ensure that the output formatter can accept request and response arguments'''
+    def smart_output_type(response, request):
+        if response and request:
+            return 'application/json'
+
+    @hug.format.content_type(smart_output_type)
+    def output_formatter(data, request, response):
+        return hug.output_format.json((data, request and True, response and True))
+
+    @hug.get(output=output_formatter)
+    def test():
+        return True
+
+    assert hug.test.get(api, 'test').data == [True, True, True]
 
 
 def test_output_format():
