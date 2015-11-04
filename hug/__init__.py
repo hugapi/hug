@@ -29,17 +29,17 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from hug import (authentication, directives, documentation, exceptions,
-                 format, input_format, output_format, run, test, types)
+from hug import (authentication, directives, documentation, exceptions, format, input_format, middleware, output_format,
+                 run, test, types)
 from hug._version import current
-from hug.decorators import (call, cli, connect, default_input_format, default_output_format,
-                            delete, directive, extend_api, get, head, not_found, options,
-                            patch, post, put, request_middleware, response_middleware, trace)
+from hug.decorators import (call, cli, connect, default_input_format, default_output_format, delete, directive,
+                            extend_api, get, head, not_found, options, patch, post, put, request_middleware,
+                            response_middleware, trace)
 
 from hug import defaults  # isort:skip - must be imported last for defaults to have access to all modules
 
 __version__ = current
-__all__ = ['run', 'types', 'test', 'input_format', 'output_format', 'documentation', 'call', 'delete', 'get', 'post',
-           'put', 'options', 'connect', 'head', 'patch', 'trace', 'terminal', 'format', '__version__', 'defaults',
-           'directives', 'default_output_format', 'default_input_format', 'extend_api', 'directive',
-           'request_middleware', 'response_middleware', 'not_found', 'cli', 'authentication', 'exceptions']
+__all__ = ['__version__', 'authentication', 'call', 'cli', 'connect', 'default_input_format', 'default_output_format',
+           'defaults', 'delete', 'directive', 'directives', 'documentation', 'exceptions', 'extend_api', 'format',
+           'get', 'head', 'input_format', 'middleware', 'not_found', 'options', 'output_format', 'patch', 'post', 'put',
+           'request_middleware', 'response_middleware', 'run', 'terminal', 'test', 'trace', 'types']
