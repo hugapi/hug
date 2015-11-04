@@ -422,6 +422,23 @@ def test_stream_return():
     assert 'hug' in hug.test.get(api, 'test').data
 
 
+def test_smart_outputter():
+    '''Test to ensure that the output formatter can accept request and response arguments'''
+    def smart_output_type(response, request):
+        if response and request:
+            return 'application/json'
+
+    @hug.format.content_type(smart_output_type)
+    def output_formatter(data, request, response):
+        return hug.output_format.json((data, request and True, response and True))
+
+    @hug.get(output=output_formatter)
+    def test():
+        return True
+
+    assert hug.test.get(api, 'test').data == [True, True, True]
+
+
 def test_output_format():
     '''Test to ensure it's possible to quickly change the default hug output format'''
     old_formatter = api.__hug__.output_format
