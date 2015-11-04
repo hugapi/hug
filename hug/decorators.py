@@ -41,6 +41,8 @@ from hug.exceptions import InvalidTypeData
 from hug.format import underscore
 from hug.run import INTRO, server
 
+AUTO_INCLUDE = {'request', 'response'}
+
 
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
@@ -242,6 +244,9 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
 
     takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
     function_output = output or module.__hug__.output_format
+    function_output_args = (AUTO_INCLUDE.intersection(function_output.__code__.co_varnames) if
+                            hasattr(function_output, '__code__') else ())
+    default_kwargs = {}
     directives = module.__hug__.directives()
     use_directives = set(accepted_parameters).intersection(directives.keys())
     if transform is None and not isinstance(api_function.__annotations__.get('return', None), (str, type(None))):
@@ -252,6 +257,9 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
         output_type = transform
     else:
         output_type = transform or api_function.__annotations__.get('return', None)
+
+    if transform and hasattr(transform, '__code__'):
+        transform_args = AUTO_INCLUDE.intersection(transform.__code__.co_varnames)
 
     is_method = False
     if 'method' in api_function.__class__.__name__:
@@ -278,13 +286,25 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
         if set_status:
             response.status = set_status
 
+        if function_output_args:
+            function_output_kwargs = {}
+            if 'response' in function_output_args:
+                function_output_kwargs['response'] = response
+            if 'request' in function_output_args:
+                function_output_kwargs['request'] = request
+        else:
+            function_output_kwargs = default_kwargs
+
         api_version = int(api_version) if api_version is not None else api_version
-        response.content_type = function_output.content_type
+        if callable(function_output.content_type):
+            response.content_type = function_output.content_type(request=request, response=response)
+        else:
+            response.content_type = function_output.content_type
         for requirement in requires:
             conclusion = requirement(response=response, request=request, module=module, api_version=api_version)
             if conclusion is not True:
                 if conclusion:
-                    response.data = function_output(conclusion)
+                    response.data = function_output(conclusion, **function_output_kwargs)
                 return
 
         input_parameters = kwargs
@@ -321,7 +341,7 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
             if not require in input_parameters:
                 errors[require] = "Required parameter not supplied"
         if errors:
-            response.data = function_output({"errors": errors})
+            response.data = function_output({"errors": errors}, **function_output_kwargs)
             response.status = HTTP_BAD_REQUEST
             return
 
@@ -330,9 +350,18 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
 
         to_return = api_function(**input_parameters)
         if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
-            to_return = transform(to_return)
+            if transform_args:
+                extra_kwargs = {}
+                if 'response' in transform_args:
+                    extra_kwargs['response'] = response
+                if 'request' in transform_args:
+                    extra_kwargs['request'] = request
+                to_return = transform(to_return, **extra_kwargs)
+            else:
+                to_return = transform(to_return)
 
-        to_return = function_output(to_return) if not hasattr(to_return, 'read') else to_return
+        to_return = (function_output(to_return, **function_output_kwargs) if
+                     not hasattr(to_return, 'read') else to_return)
         if hasattr(to_return, 'read'):
             response.stream = to_return
             if hasattr(to_return, 'name') and os.path.isfile(to_return.name):

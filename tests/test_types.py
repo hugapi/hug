@@ -88,8 +88,14 @@ def test_mapping():
 def test_smart_boolean():
     '''Test to ensure that the smart boolean type works as expected'''
     assert hug.types.smart_boolean('true') == True
+    assert hug.types.smart_boolean('t') == True
+    assert hug.types.smart_boolean('1') == True
+    assert hug.types.smart_boolean(1) == True
     assert hug.types.smart_boolean('') == False
     assert hug.types.smart_boolean('false') == False
+    assert hug.types.smart_boolean('f') == False
+    assert hug.types.smart_boolean('0') == False
+    assert hug.types.smart_boolean(0) == False
     assert hug.types.smart_boolean(True) == True
     assert hug.types.smart_boolean(None) == False
     assert hug.types.smart_boolean(False) == False
