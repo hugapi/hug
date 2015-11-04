@@ -61,3 +61,7 @@ Changelog
 
 ### 1.7.1
 - Fix a bug that caused error messages sourced from exceptions to be double quoted
+
+### 1.8.0
+- Added a `middleware` module make it easier to bundle generally useful middlewares going forward
+- Added a generic / reusable `SessionMiddleware` (Thanks @vortec!)
