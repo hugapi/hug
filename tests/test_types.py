@@ -173,3 +173,13 @@ def test_json():
     assert hug.types.json(json.dumps({'this': 'works'})) == {'this': 'works'}
     with pytest.raises(ValueError):
         hug.types.json('Invalid JSON')
+
+
+def test_multi():
+    '''Test to ensure that the multi type correctly handles a variety of value types'''
+    multi_type = hug.types.multi(hug.types.json, hug.types.smart_boolean)
+    assert multi_type({'this': 'works'}) == {'this': 'works'}
+    assert multi_type(json.dumps({'this': 'works'})) == {'this': 'works'}
+    assert multi_type('t') == True
+    with pytest.raises(ValueError):
+        multi_type('Bacon!')
