@@ -19,6 +19,8 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import urllib
+import json
 from datetime import datetime
 from decimal import Decimal
 
@@ -163,3 +165,21 @@ def test_accept_custom_cli_behavior():
     '''Tests to ensure it's easy to customize the cli behavior using the accept wrapper'''
     custom_type = hug.types.accept(hug.types.multiple, 'Multiple values', cli_behaviour={'type': list})
     assert custom_type.cli_behaviour == {'type': list, 'action': 'append'}
+
+
+def test_json():
+    '''Test to ensure that the json type correctly handles url encoded json, as well as direct json'''
+    assert hug.types.json({'this': 'works'}) == {'this': 'works'}
+    assert hug.types.json(json.dumps({'this': 'works'})) == {'this': 'works'}
+    with pytest.raises(ValueError):
+        hug.types.json('Invalid JSON')
+
+
+def test_multi():
+    '''Test to ensure that the multi type correctly handles a variety of value types'''
+    multi_type = hug.types.multi(hug.types.json, hug.types.smart_boolean)
+    assert multi_type({'this': 'works'}) == {'this': 'works'}
+    assert multi_type(json.dumps({'this': 'works'})) == {'this': 'works'}
+    assert multi_type('t') == True
+    with pytest.raises(ValueError):
+        multi_type('Bacon!')

@@ -65,3 +65,7 @@ Changelog
 ### 1.8.0
 - Added a `middleware` module make it easier to bundle generally useful middlewares going forward
 - Added a generic / reusable `SessionMiddleware` (Thanks @vortec!)
+
+### 1.8.1
+- Added `json` as a built in hug type to handle urlencoded json data in a request
+- Added `multi` as a built in hug type that will allow a single field to be one of multiple types

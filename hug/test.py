@@ -19,14 +19,16 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from falcon.testing import StartResponseMock, create_environ
-from falcon import HTTP_METHODS
-from urllib.parse import urlencode
 import json
-from hug.run import server
-from hug import output_format
 from functools import partial
 from unittest import mock
+from urllib.parse import urlencode
+
+from falcon import HTTP_METHODS
+from falcon.testing import StartResponseMock, create_environ
+
+from hug import output_format
+from hug.run import server
 
 
 def call(method, api_module, url, body='', headers=None, **params):
