@@ -68,3 +68,4 @@ Changelog
 
 ### 1.8.1
 - Added `json` as a built in hug type to handle urlencoded json data in a request
+- Added `multi` as a built in hug type that will allow a single field to be one of multiple types
