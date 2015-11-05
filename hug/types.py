@@ -125,3 +125,18 @@ def json(value):
             raise ValueError('Incorrectly formatted JSON provided')
     else:
         return value
+
+
+def multi(*types):
+    '''Enables accepting one of multiple type methods'''
+    type_strings = (type_method.__doc__ for type_method in types)
+    doc_string = 'Accepts any of the following value types:{0}\n'.format('\n  - '.join(type_strings))
+    def multi_type(value):
+        for type_method in types:
+            try:
+                return type_method(value)
+            except:
+                pass
+        raise ValueError(doc_string)
+    multi_type.__doc__ = doc_string
+    return multi_type
