@@ -20,6 +20,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 from decimal import Decimal
+from json import loads as load_json
 
 
 def accept(formatter, doc=None, error_text=None, cli_behaviour=None, exception_handlers=None):
@@ -113,3 +114,14 @@ def mapping(value_map):
     matches.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
     matches.cli_behaviour = {'choices': values}
     return matches
+
+
+def json(value):
+    '''Accepts a JSON formatted data structure'''
+    if type(value) in (str, bytes):
+        try:
+            return load_json(value)
+        except Exception:
+            raise ValueError('Incorrectly formatted JSON provided')
+    else:
+        return value
