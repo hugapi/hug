@@ -208,7 +208,9 @@ def _api_module(module_name):
     module = sys.modules[module_name]
     if not '__hug__' in module.__dict__:
         def api_auto_instantiate(*kargs, **kwargs):
-            module.__hug_wsgi__ = server(module)
+            if not hasattr(module, '__hug_serving__'):
+                module.__hug_wsgi__ = server(module)
+                module.__hug_serving__ = True
             return module.__hug_wsgi__(*kargs, **kwargs)
         module.__hug__ = HugAPI(module)
         module.__hug_wsgi__ = api_auto_instantiate
