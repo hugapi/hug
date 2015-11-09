@@ -69,3 +69,6 @@ Changelog
 ### 1.8.1
 - Added `json` as a built in hug type to handle urlencoded json data in a request
 - Added `multi` as a built in hug type that will allow a single field to be one of multiple types
+
+### 1.8.2
+- Drastically improved hug performance when dealing with a large number of requests in wsgi mode
