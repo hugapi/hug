@@ -30,6 +30,8 @@ IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'p
                'cur', 'dcx', 'fli', 'flc', 'gbr', 'gd', 'ico', 'icns', 'imt', 'iptc', 'naa', 'mcidas', 'mpo', 'pcd',
                'psd', 'sgi', 'tga', 'wal', 'xpm', 'svg', 'svg+xml')
 
+VIDEO_TYPES = (('flv', 'video/x-flv'), ('mp4', 'video/mp4'), ('m3u8', 'application/x-mpegURL'), ('ts', 'video/MP2T'),
+               ('3gp', 'video/3gpp'), ('mov', 'video/quicktime'), ('avi', 'video/x-msvideo'), ('wmv', 'video/x-ms-wmv'))
 
 def _json_converter(item):
     if isinstance(item, (date, datetime)):
@@ -109,3 +111,27 @@ def image(image_format, doc=None):
 
 for image_type in IMAGE_TYPES:
     globals()['{0}_image'.format(image_type.replace("+", "_"))] = image(image_type)
+
+
+def video(video_type, video_mime, doc=None):
+    '''Dynamically creates a video type handler for the specified video type'''
+    @content_type(video_mime)
+    def video_handler(data):
+        if hasattr(data, 'read'):
+            return data
+        elif hasattr(data, 'save'):
+            output = BytesIO()
+            data.save(output, format=video_type.upper())
+            output.seek(0)
+            return output
+        elif hasattr(data, 'render'):
+            return data.render()
+        elif os.path.isfile(data):
+            return open(data, 'rb')
+
+    video_handler.__doc__ = doc or "{0} formatted video".format(video_type)
+    return video_handler
+
+
+for (video_type, video_mime) in VIDEO_TYPES:
+    globals()['{0}_video'.format(video_type)] = video(video_type, video_mime)
