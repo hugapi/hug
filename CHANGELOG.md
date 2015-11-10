@@ -72,3 +72,6 @@ Changelog
 
 ### 1.8.2
 - Drastically improved hug performance when dealing with a large number of requests in wsgi mode
+
+### 1.9.0
+- Added initial built-in support for video output formats (Thanks @arpesenti!)

@@ -98,3 +98,22 @@ def test_image():
         def render(self):
             return 'test'
     assert hug.output_format.svg_xml_image(FakeImageWithSave()) == 'test'
+
+
+def test_video():
+    '''Ensure that it's possible to output videos with hug'''
+    hasattr(hug.output_format.mp4_video('example.gif'), 'read')
+    with open('example.gif', 'rb') as image_file:
+        hasattr(hug.output_format.mp4_video(image_file), 'read')
+
+    assert hug.output_format.mp4_video('Not Existent') == None
+
+    class FakeVideoWithSave():
+        def save(self, to, format):
+            to.write(b'test')
+    hasattr(hug.output_format.mp4_video(FakeVideoWithSave()), 'read')
+
+    class FakeVideoWithSave():
+        def render(self):
+            return 'test'
+    assert hug.output_format.avi_video(FakeVideoWithSave()) == 'test'
