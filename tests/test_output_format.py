@@ -37,6 +37,8 @@ def test_html():
     '''Ensure that it's possible to output a Hug API method as HTML'''
     hug.output_format.html("<html>Hello World!</html>") == "<html>Hello World!</html>"
     hug.output_format.html(str(1)) == "1"
+    with open('README.md', 'rb') as html_file:
+        hasattr(hug.output_format.html(html_file), 'read')
 
 
 def test_json():
@@ -62,6 +64,9 @@ def test_json():
 
     data = set((1, 2, 3, 3))
     assert hug.input_format.json(hug.output_format.json(data).decode('utf8')) == [1, 2, 3]
+
+    with open('README.md', 'rb') as json_file:
+        hasattr(hug.output_format.json(json_file), 'read')
 
 
 def test_pretty_json():
