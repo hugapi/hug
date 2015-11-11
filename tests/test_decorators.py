@@ -520,6 +520,13 @@ def test_input_format():
         return body
 
     assert hug.test.get(api, 'hello', body={'should': 'work'}).data == {'no': 'relation'}
+
+    @hug.get()
+    def hello(body):
+        return body
+
+    assert not hug.test.get(api, 'hello').data
+
     api.__hug__.set_input_format('application/json', old_format)
 
 

@@ -19,16 +19,24 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from io import BytesIO
+
 import hug
 
 
+def test_text():
+    '''Ensure that plain text input format works as intended'''
+    test_data = BytesIO(b'{"a": "b"}')
+    assert hug.input_format.text(test_data) == '{"a": "b"}'
+
+
 def test_json():
-    '''Ensure that the json import format works as intended'''
-    test_data = '{"a": "b"}'
+    '''Ensure that the json input format works as intended'''
+    test_data = BytesIO(b'{"a": "b"}')
     assert hug.input_format.json(test_data) == {'a': 'b'}
 
 
 def test_json_underscore():
     '''Ensure that camelCase keys can be converted into under_score for easier use within Python'''
-    test_data = '{"CamelCase": {"becauseWeCan": "ValueExempt"}}'
+    test_data = BytesIO(b'{"CamelCase": {"becauseWeCan": "ValueExempt"}}')
     assert hug.input_format.json_underscore(test_data) == {'camel_case': {'because_we_can': 'ValueExempt'}}
