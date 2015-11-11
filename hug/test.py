@@ -50,6 +50,8 @@ def call(method, api_module, url, body='', headers=None, **params):
             for chunk in result:
                 response.data.append(chunk.decode('utf8'))
             response.data = "".join(response.data)
+        except UnicodeDecodeError:
+            response.data = result[0]
         response.content_type = response.headers_dict['content-type']
         if response.content_type == 'application/json':
             response.data = json.loads(response.data)

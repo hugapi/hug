@@ -48,6 +48,9 @@ def _json_converter(item):
 @content_type('application/json')
 def json(content, **kwargs):
     '''JSON (Javascript Serialized Object Notation)'''
+    if hasattr(content, 'read'):
+        return content
+
     if isinstance(content, tuple) and getattr(content, '_fields', None):
         content = {field: getattr(content, field) for field in content._fields}
     return json_converter.dumps(content, default=_json_converter, **kwargs).encode('utf8')
@@ -56,12 +59,18 @@ def json(content, **kwargs):
 @content_type('text/plain')
 def text(content):
     '''Free form UTF8 text'''
+    if hasattr(content, 'read'):
+        return content
+
     return str(content).encode('utf8')
 
 
 @content_type('text/html')
 def html(content):
     '''HTML (Hypertext Markup Language)'''
+    if hasattr(content, 'read'):
+        return content
+
     return str(content).encode('utf8')
 
 
