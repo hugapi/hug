@@ -122,3 +122,4 @@ def test_video():
         def render(self):
             return 'test'
     assert hug.output_format.avi_video(FakeVideoWithSave()) == 'test'
+    

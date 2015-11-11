@@ -126,6 +126,15 @@ def test_parameters():
     assert 'Invalid' in nan_test['errors']['end']
 
 
+def test_range_request():
+    '''Test to ensure that requesting a range works as expected'''
+    @hug.get(output=hug.output_format.png_image)
+    def image():
+        return 'logo.png'
+
+    assert hug.test.get(api, 'image', headers={'range': 'bytes=0-100'})
+    assert hug.test.get(api, 'image', headers={'range': 'bytes=0--1'})
+
 def test_parameters_override():
     '''Test to ensure the parameters override is handled as expected'''
     @hug.get(parameters=('parameter1', 'parameter2'))
