@@ -20,10 +20,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import json as json_converter
+import mimetypes
 import os
 from datetime import date, datetime
 from io import BytesIO
 
+from falcon import HTTP_NOT_FOUND
 from hug.format import camelcase, content_type
 
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
@@ -144,3 +146,19 @@ def video(video_type, video_mime, doc=None):
 
 for (video_type, video_mime) in VIDEO_TYPES:
     globals()['{0}_video'.format(video_type)] = video(video_type, video_mime)
+
+
+@content_type('file/dynamic')
+def file(data, response):
+    '''A dynamically retrieved file'''
+    if hasattr(data, 'read'):
+        name, data = getattr(data, 'name', ''), data
+    elif os.path.isfile(data):
+        name, data = data, open(data, 'rb')
+    else:
+        response.content_type = 'text/plain'
+        response.status = HTTP_NOT_FOUND
+        return 'File not found!'
+
+    response.content_type = mimetypes.guess_type(name, None)[0]
+    return data
