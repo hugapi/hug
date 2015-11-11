@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from io import BytesIO
 import json
 from functools import partial
 from unittest import mock
@@ -50,6 +51,8 @@ def call(method, api_module, url, body='', headers=None, **params):
             for chunk in result:
                 response.data.append(chunk.decode('utf8'))
             response.data = "".join(response.data)
+        except UnicodeDecodeError:
+            response.data = result[0]
         response.content_type = response.headers_dict['content-type']
         if response.content_type == 'application/json':
             response.data = json.loads(response.data)

@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from io import BytesIO
 from collections import namedtuple
 from datetime import datetime
 
@@ -37,6 +38,8 @@ def test_html():
     '''Ensure that it's possible to output a Hug API method as HTML'''
     hug.output_format.html("<html>Hello World!</html>") == "<html>Hello World!</html>"
     hug.output_format.html(str(1)) == "1"
+    with open('README.md', 'rb') as html_file:
+        assert hasattr(hug.output_format.html(html_file), 'read')
 
 
 def test_json():
@@ -57,11 +60,14 @@ def test_json():
     class NamedTupleObject(namedtuple('BaseTuple', ('name', 'value'))):
         pass
     data = NamedTupleObject('name', 'value')
-    converted = hug.input_format.json(hug.output_format.json(data).decode('utf8'))
+    converted = hug.input_format.json(BytesIO(hug.output_format.json(data)))
     assert converted == {'name': 'name', 'value': 'value'}
 
     data = set((1, 2, 3, 3))
-    assert hug.input_format.json(hug.output_format.json(data).decode('utf8')) == [1, 2, 3]
+    assert hug.input_format.json(BytesIO(hug.output_format.json(data))) == [1, 2, 3]
+
+    with open('README.md', 'rb') as json_file:
+        assert hasattr(hug.output_format.json(json_file), 'read')
 
 
 def test_pretty_json():
@@ -83,18 +89,52 @@ def test_json_camelcase():
 
 def test_image():
     '''Ensure that it's possible to output images with hug'''
-    hasattr(hug.output_format.png_image('logo.png'), 'read')
+    assert hasattr(hug.output_format.png_image('logo.png'), 'read')
     with open('logo.png', 'rb') as image_file:
-        hasattr(hug.output_format.png_image(image_file), 'read')
+        assert hasattr(hug.output_format.png_image(image_file), 'read')
 
     assert hug.output_format.png_image('Not Existent') == None
 
     class FakeImageWithSave():
         def save(self, to, format):
             to.write(b'test')
-    hasattr(hug.output_format.png_image(FakeImageWithSave()), 'read')
+    assert hasattr(hug.output_format.png_image(FakeImageWithSave()), 'read')
 
     class FakeImageWithSave():
         def render(self):
             return 'test'
     assert hug.output_format.svg_xml_image(FakeImageWithSave()) == 'test'
+
+
+def test_file():
+    '''Ensure that it's possible to easily output files'''
+    class FakeResponse(object):
+        pass
+
+    fake_response = FakeResponse()
+    assert hasattr(hug.output_format.file('logo.png', fake_response), 'read')
+    assert fake_response.content_type == 'image/png'
+    with open('logo.png', 'rb') as image_file:
+        hasattr(hug.output_format.file(image_file, fake_response), 'read')
+
+    assert not hasattr(hug.output_format.file('NON EXISTENT FILE', fake_response), 'read')
+
+
+def test_video():
+    '''Ensure that it's possible to output videos with hug'''
+    assert hasattr(hug.output_format.mp4_video('example.gif'), 'read')
+    with open('example.gif', 'rb') as image_file:
+        assert hasattr(hug.output_format.mp4_video(image_file), 'read')
+
+    assert hug.output_format.mp4_video('Not Existent') == None
+
+    class FakeVideoWithSave():
+        def save(self, to, format):
+            to.write(b'test')
+    assert hasattr(hug.output_format.mp4_video(FakeVideoWithSave()), 'read')
+
+    class FakeVideoWithSave():
+        def render(self):
+            return 'test'
+    assert hug.output_format.avi_video(FakeVideoWithSave()) == 'test'
+

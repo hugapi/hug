@@ -11,6 +11,7 @@ Code Contributors
 - Fabian Kochem (@vortec)
 - Kostas Dizas (@kostasdizas)
 - Ali-Akber Saifee (@alisaifee)
+- @arpesenti
 
 Documenters
 ===================

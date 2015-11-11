@@ -33,10 +33,9 @@ from itertools import chain
 from wsgiref.simple_server import make_server
 
 import falcon
-from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
-
 import hug.defaults
 import hug.output_format
+from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 from hug.exceptions import InvalidTypeData
 from hug.format import underscore
 from hug.run import INTRO, server
@@ -311,13 +310,17 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
 
         input_parameters = kwargs
         input_parameters.update(request.params)
-        body_formatting_handler = parse_body and module.__hug__.input_format(request.content_type)
-        if body_formatting_handler:
-            body = body_formatting_handler(request.stream.read().decode('utf8'))
+        if parse_body and request.content_length is not None:
+            body = request.stream
+            body_formatting_handler = body and module.__hug__.input_format(request.content_type)
+            if body_formatting_handler:
+                body = body_formatting_handler(body)
             if 'body' in accepted_parameters:
                 input_parameters['body'] = body
             if isinstance(body, dict):
                 input_parameters.update(body)
+        elif 'body' in accepted_parameters:
+            input_parameters['body'] = None
 
         errors = {}
         for key, type_handler in input_transformations.items():
@@ -365,12 +368,26 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
             else:
                 to_return = transform(to_return)
 
-        to_return = (function_output(to_return, **function_output_kwargs) if
-                     not hasattr(to_return, 'read') else to_return)
+        to_return = function_output(to_return, **function_output_kwargs)
         if hasattr(to_return, 'read'):
-            response.stream = to_return
+            size = None
             if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
-                response.stream_len = os.path.getsize(to_return.name)
+                size = os.path.getsize(to_return.name)
+            if request.range and size:
+                start, end = request.range
+                if end < 0:
+                    end = size + end
+                end = min(end, size)
+                length = end - start + 1
+                to_return.seek(start)
+                response.data = to_return.read(length)
+                response.status = falcon.HTTP_206
+                response.content_range = (start, end, size)
+                to_return.close()
+            else:
+                response.stream = to_return
+                if size:
+                    response.stream_len = size
         else:
             response.data = to_return
 

@@ -72,3 +72,12 @@ Changelog
 
 ### 1.8.2
 - Drastically improved hug performance when dealing with a large number of requests in wsgi mode
+
+### 1.9.0
+- Added initial built-in support for video output formats (Thanks @arpesenti!)
+- Added built-in automatic support for range-requests when streaming files (such as videos)
+- Output formatting functions are now called, even if a stream is returned.
+- Input formatting functions now need to be responsible for dealing with text encoding and streaming
+- Added additional default input format for `text/plain` and a few other common text based formats
+- If no input format is available, but the body parameter is requested - the body stream is now returned
+- Added support for a generic `file` output formatter that automatically determines the content type for the file

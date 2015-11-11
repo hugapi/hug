@@ -20,16 +20,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import json as json_converter
+import mimetypes
 import os
 from datetime import date, datetime
 from io import BytesIO
 
+from falcon import HTTP_NOT_FOUND
 from hug.format import camelcase, content_type
 
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
                'cur', 'dcx', 'fli', 'flc', 'gbr', 'gd', 'ico', 'icns', 'imt', 'iptc', 'naa', 'mcidas', 'mpo', 'pcd',
                'psd', 'sgi', 'tga', 'wal', 'xpm', 'svg', 'svg+xml')
 
+VIDEO_TYPES = (('flv', 'video/x-flv'), ('mp4', 'video/mp4'), ('m3u8', 'application/x-mpegURL'), ('ts', 'video/MP2T'),
+               ('3gp', 'video/3gpp'), ('mov', 'video/quicktime'), ('avi', 'video/x-msvideo'), ('wmv', 'video/x-ms-wmv'))
 
 def _json_converter(item):
     if isinstance(item, (date, datetime)):
@@ -46,6 +50,9 @@ def _json_converter(item):
 @content_type('application/json')
 def json(content, **kwargs):
     '''JSON (Javascript Serialized Object Notation)'''
+    if hasattr(content, 'read'):
+        return content
+
     if isinstance(content, tuple) and getattr(content, '_fields', None):
         content = {field: getattr(content, field) for field in content._fields}
     return json_converter.dumps(content, default=_json_converter, **kwargs).encode('utf8')
@@ -54,12 +61,18 @@ def json(content, **kwargs):
 @content_type('text/plain')
 def text(content):
     '''Free form UTF8 text'''
+    if hasattr(content, 'read'):
+        return content
+
     return str(content).encode('utf8')
 
 
 @content_type('text/html')
 def html(content):
     '''HTML (Hypertext Markup Language)'''
+    if hasattr(content, 'read'):
+        return content
+
     return str(content).encode('utf8')
 
 
@@ -109,3 +122,43 @@ def image(image_format, doc=None):
 
 for image_type in IMAGE_TYPES:
     globals()['{0}_image'.format(image_type.replace("+", "_"))] = image(image_type)
+
+
+def video(video_type, video_mime, doc=None):
+    '''Dynamically creates a video type handler for the specified video type'''
+    @content_type(video_mime)
+    def video_handler(data):
+        if hasattr(data, 'read'):
+            return data
+        elif hasattr(data, 'save'):
+            output = BytesIO()
+            data.save(output, format=video_type.upper())
+            output.seek(0)
+            return output
+        elif hasattr(data, 'render'):
+            return data.render()
+        elif os.path.isfile(data):
+            return open(data, 'rb')
+
+    video_handler.__doc__ = doc or "{0} formatted video".format(video_type)
+    return video_handler
+
+
+for (video_type, video_mime) in VIDEO_TYPES:
+    globals()['{0}_video'.format(video_type)] = video(video_type, video_mime)
+
+
+@content_type('file/dynamic')
+def file(data, response):
+    '''A dynamically retrieved file'''
+    if hasattr(data, 'read'):
+        name, data = getattr(data, 'name', ''), data
+    elif os.path.isfile(data):
+        name, data = data, open(data, 'rb')
+    else:
+        response.content_type = 'text/plain'
+        response.status = HTTP_NOT_FOUND
+        return 'File not found!'
+
+    response.content_type = mimetypes.guess_type(name, None)[0]
+    return data
