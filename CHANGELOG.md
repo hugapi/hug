@@ -77,4 +77,6 @@ Changelog
 - Added initial built-in support for video output formats (Thanks @arpesenti!)
 - Added built-in automatic support for range-requests when streaming files (such as videos)
 - Output formatting functions are now called, even if a stream is returned.
-
+- Input formatting functions now need to be responsible for dealing with text encoding and streaming
+- Added additional default input format for `text/plain` and a few other common text based formats
+- If no input format is available, but the body parameter is requested - the body stream is now returned
