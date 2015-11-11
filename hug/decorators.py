@@ -365,12 +365,24 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
             else:
                 to_return = transform(to_return)
 
-        to_return = (function_output(to_return, **function_output_kwargs) if
-                     not hasattr(to_return, 'read') else to_return)
+        to_return = function_output(to_return, **function_output_kwargs)
         if hasattr(to_return, 'read'):
-            response.stream = to_return
-            if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
-                response.stream_len = os.path.getsize(to_return.name)
+            size = os.path.isfile(to_return.name) if hasattr(to_return, 'name') else None
+            if request.range and size:
+                start, end = request.range
+                if end < 0:
+                    end = size + end
+                end = min(end, size)
+                length = end - start + 1
+                to_return.seek(start)
+                response.data = to_return.read(length)
+                response.status = falcon.HTTP_206
+                response.content_range = (start, end, size)
+                to_return.close()
+            else:
+                response.stream = to_return
+                if size:
+                    response.stream_len = size
         else:
             response.data = to_return
 
