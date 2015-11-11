@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from io import BytesIO
 from collections import namedtuple
 from datetime import datetime
 
@@ -59,11 +60,11 @@ def test_json():
     class NamedTupleObject(namedtuple('BaseTuple', ('name', 'value'))):
         pass
     data = NamedTupleObject('name', 'value')
-    converted = hug.input_format.json(hug.output_format.json(data).decode('utf8'))
+    converted = hug.input_format.json(BytesIO(hug.output_format.json(data)))
     assert converted == {'name': 'name', 'value': 'value'}
 
     data = set((1, 2, 3, 3))
-    assert hug.input_format.json(hug.output_format.json(data).decode('utf8')) == [1, 2, 3]
+    assert hug.input_format.json(BytesIO(hug.output_format.json(data))) == [1, 2, 3]
 
     with open('README.md', 'rb') as json_file:
         hasattr(hug.output_format.json(json_file), 'read')
@@ -122,4 +123,4 @@ def test_video():
         def render(self):
             return 'test'
     assert hug.output_format.avi_video(FakeVideoWithSave()) == 'test'
-    
+
