@@ -311,9 +311,11 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
 
         input_parameters = kwargs
         input_parameters.update(request.params)
-        body_formatting_handler = parse_body and module.__hug__.input_format(request.content_type)
-        if body_formatting_handler:
-            body = body_formatting_handler(request.stream.read().decode('utf8'))
+        if parse_body:
+            body = request.stream
+            body_formatting_handler = body and module.__hug__.input_format(request.content_type)
+            if body_formatting_handler:
+                body = body_formatting_handler(body)
             if 'body' in accepted_parameters:
                 input_parameters['body'] = body
             if isinstance(body, dict):

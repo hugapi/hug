@@ -24,10 +24,16 @@ import json as json_converter
 from hug.format import content_type, underscore
 
 
+@content_type('text/plain')
+def text(body):
+    '''Takes plain text data'''
+    return body.read().decode('utf8')
+
+
 @content_type('application/json')
 def json(body):
     '''Takes JSON formatted data, converting it into native Python objects'''
-    return json_converter.loads(body)
+    return json_converter.loads(text(body))
 
 
 def _underscore_dict(dictionary):
