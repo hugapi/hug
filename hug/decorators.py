@@ -310,7 +310,7 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
 
         input_parameters = kwargs
         input_parameters.update(request.params)
-        if parse_body:
+        if parse_body and request.content_length is not None:
             body = request.stream
             body_formatting_handler = body and module.__hug__.input_format(request.content_type)
             if body_formatting_handler:
@@ -319,6 +319,8 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
                 input_parameters['body'] = body
             if isinstance(body, dict):
                 input_parameters.update(body)
+        elif 'body' in accepted_parameters:
+            input_parameters['body'] = None
 
         errors = {}
         for key, type_handler in input_transformations.items():
