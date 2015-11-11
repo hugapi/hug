@@ -76,3 +76,5 @@ Changelog
 ### 1.9.0
 - Added initial built-in support for video output formats (Thanks @arpesenti!)
 - Added built-in automatic support for range-requests when streaming files (such as videos)
+- Output formatting functions are now called, even if a stream is returned.
+
