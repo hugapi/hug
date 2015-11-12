@@ -184,7 +184,7 @@ as shown, you can easily change the output format for both an entire API as well
 **Input Formatters** a function that takes the body of data given from a user of your API and formats it for handling.
 
 ```py
-@hug.default_input_formatter("application/json")
+@hug.default_input_format("application/json")
 def my_input_formatter(data):
     return ('Results', hug.input_format.json(data))
 ```
