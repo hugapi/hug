@@ -476,22 +476,31 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
     '''Enables exposing a Hug compatible function as a Command Line Interface'''
     def decorator(api_function):
         module = module = _api_module(api_function.__module__)
+
         takes_kargs = bool(api_function.__code__.co_flags & 0x04)
-        accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + (1 if takes_kargs else 0)]
+        if takes_kargs:
+            accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + 1]
+            karg_method = accepted_parameters[-1]
+        else:
+            karg_method = None
+            accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+
+        defaults = {}
+        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+            defaults[accepted_parameters[-(index + 1)]] = default
+
+        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+
+
         directives = module.__hug__.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
         output_transform = transform or api_function.__annotations__.get('return', None)
 
-        defaults = {}
-        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
-            accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + 1]
-            defaults[accepted_parameters[-(index + 1)]] = default
-        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
         is_method = False
         if 'method' in api_function.__class__.__name__:
             is_method = True
             required = required[1:]
-        karg_method = accepted_parameters[-1] if takes_kargs else None
+            accepted_parameters = accepted_parameters[1:]
 
         used_options = set()
         parser = argparse.ArgumentParser(description=doc or api_function.__doc__)
