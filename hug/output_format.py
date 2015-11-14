@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import base64
 import json as json_converter
 import mimetypes
 import os
@@ -35,15 +36,19 @@ IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'p
 VIDEO_TYPES = (('flv', 'video/x-flv'), ('mp4', 'video/mp4'), ('m3u8', 'application/x-mpegURL'), ('ts', 'video/MP2T'),
                ('3gp', 'video/3gpp'), ('mov', 'video/quicktime'), ('avi', 'video/x-msvideo'), ('wmv', 'video/x-ms-wmv'))
 
+
 def _json_converter(item):
-    if isinstance(item, (date, datetime)):
+    if hasattr(item, '__native_types__'):
+        return item.__native_types__()
+    elif isinstance(item, (date, datetime)):
         return item.isoformat()
     elif isinstance(item, bytes):
-        return item.decode('utf8')
+        try:
+            return item.decode('utf8')
+        except UnicodeDecodeError:
+            return base64.b64encode(item)
     elif isinstance(item, set):
         return list(item)
-    elif getattr(item, '__native_types__', None):
-        return item.__native_types__()
     raise TypeError("Type not serializable")
 
 
