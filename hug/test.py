@@ -87,8 +87,8 @@ def cli(method, *kargs, **arguments):
 
     try:
         method.cli()
-    except Exception:
-        pass
+    except Exception as e:
+        to_return = (e, )
 
     method.cli.output = old_output
     sys.argv = old_sys_argv
