@@ -688,7 +688,7 @@ def test_cli_with_string_annotation():
     def test(value_1:'The first value', value_2:'The second value'=None):
         return True
 
-    assert hug.test.cli(test, value_1=True) == True
+    assert hug.test.cli(test, True) == True
 
 
 def test_cli_with_kargs():
@@ -698,7 +698,7 @@ def test_cli_with_kargs():
         return values
 
     assert test(1, 2, 3) == (1, 2, 3)
-    assert hug.test.cli(test, 1, 2, 3) == (1, 2, 3)
+    assert hug.test.cli(test, 1, 2, 3) == ('1', '2', '3')
 
 
 def test_cli_using_method():

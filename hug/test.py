@@ -73,10 +73,12 @@ def cli(method, *kargs, **arguments):
 
     command_args = [method.__name__] + list(kargs)
     for name, value in arguments.items():
-        command_args.extend(['--{0}'.format(name), '{0}'.format(value)])
+        command_args.append('--{0}'.format(name))
+        if not value in (True, False):
+            command_args.append('{0}'.format(value))
 
     old_sys_argv = sys.argv
-    sys.argv = command_args
+    sys.argv = [str(part) for part in command_args]
 
     old_output = method.cli.output
     if collect_output:
