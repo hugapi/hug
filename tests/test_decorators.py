@@ -726,3 +726,13 @@ def test_cli_with_nested_variables():
         return 'Hi!'
 
     assert hug.test.cli(test) == 'Hi!'
+
+
+def test_cli_with_exception():
+    '''Test to ensure that a cli with an exception is correctly handled'''
+    @hug.cli()
+    def test():
+        raise ValueError()
+        return 'Hi!'
+
+    assert hug.test.cli(test) != 'Hi!'
