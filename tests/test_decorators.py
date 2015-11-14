@@ -716,3 +716,13 @@ def test_cli_using_method():
     assert api_instance.hello_world_method() == 'Hello World!'
     assert hug.test.cli(api_instance.hello_world_method) == 'Hello World!'
     assert hug.test.cli(api_instance.hello_world_method, collect_output=False) is None
+
+
+def test_cli_with_nested_variables():
+    '''Test to ensure that a cli containing multiple nested variables works correctly'''
+    @hug.cli()
+    def test(value_1=None, value_2=None):
+        value_3 = 'bacon'
+        return 'Hi!'
+
+    assert hug.test.cli(test) == 'Hi!'
