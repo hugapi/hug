@@ -591,7 +591,7 @@ def test_cli():
         return (name, value)
 
     assert cli_command('Testing', 1) == ('Testing', 1)
-    assert hug.test.cli(cli_command, name="Bob", value=5) == ("Bob", 5)
+    assert hug.test.cli(cli_command, "Bob", 5) == ("Bob", 5)
 
 
 def test_cli_with_defaults():
@@ -605,8 +605,8 @@ def test_cli_with_defaults():
 
     assert happy('Hug', 1) == "Hug is 1 years old"
     assert happy('Hug', 1, True) == "Happy 1 birthday Hug!"
-    assert hug.test.cli(happy, name="Bob", age=5) ==  "Bob is 5 years old"
-    assert hug.test.cli(happy, name="Bob", age=5, birthday=True) ==  "Happy 5 birthday Bob!"
+    assert hug.test.cli(happy, "Bob", 5) ==  "Bob is 5 years old"
+    assert hug.test.cli(happy, "Bob", 5, birthday=True) ==  "Happy 5 birthday Bob!"
 
 
 def test_cli_with_conflicting_short_options():
