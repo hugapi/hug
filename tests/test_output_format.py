@@ -69,6 +69,8 @@ def test_json():
     with open('README.md', 'rb') as json_file:
         assert hasattr(hug.output_format.json(json_file), 'read')
 
+    assert hug.input_format.json(BytesIO(hug.output_format.json(b'\x9c'))) == 'nA=='
+
 
 def test_pretty_json():
     '''Ensure that it's possible to output a Hug API method as prettified and indented JSON'''
