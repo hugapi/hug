@@ -17,6 +17,7 @@ Documenters
 ===================
 - Timothy Cyrus (@tcyrus)
 - M.Yasoob Ullah Khalid (@yasoob)
+- Lionel Montrieux (@lmontrieux)
 
 --------------------------------------------
 

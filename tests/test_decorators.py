@@ -591,7 +591,7 @@ def test_cli():
         return (name, value)
 
     assert cli_command('Testing', 1) == ('Testing', 1)
-    assert hug.test.cli(cli_command, name="Bob", value=5) == ("Bob", 5)
+    assert hug.test.cli(cli_command, "Bob", 5) == ("Bob", 5)
 
 
 def test_cli_with_defaults():
@@ -605,8 +605,8 @@ def test_cli_with_defaults():
 
     assert happy('Hug', 1) == "Hug is 1 years old"
     assert happy('Hug', 1, True) == "Happy 1 birthday Hug!"
-    assert hug.test.cli(happy, name="Bob", age=5) ==  "Bob is 5 years old"
-    assert hug.test.cli(happy, name="Bob", age=5, birthday=True) ==  "Happy 5 birthday Bob!"
+    assert hug.test.cli(happy, "Bob", 5) ==  "Bob is 5 years old"
+    assert hug.test.cli(happy, "Bob", 5, birthday=True) ==  "Happy 5 birthday Bob!"
 
 
 def test_cli_with_conflicting_short_options():
@@ -688,7 +688,7 @@ def test_cli_with_string_annotation():
     def test(value_1:'The first value', value_2:'The second value'=None):
         return True
 
-    assert hug.test.cli(test, value_1=True) == True
+    assert hug.test.cli(test, True) == True
 
 
 def test_cli_with_kargs():
@@ -698,7 +698,7 @@ def test_cli_with_kargs():
         return values
 
     assert test(1, 2, 3) == (1, 2, 3)
-    assert hug.test.cli(test, 1, 2, 3) == (1, 2, 3)
+    assert hug.test.cli(test, 1, 2, 3) == ('1', '2', '3')
 
 
 def test_cli_using_method():
@@ -716,3 +716,23 @@ def test_cli_using_method():
     assert api_instance.hello_world_method() == 'Hello World!'
     assert hug.test.cli(api_instance.hello_world_method) == 'Hello World!'
     assert hug.test.cli(api_instance.hello_world_method, collect_output=False) is None
+
+
+def test_cli_with_nested_variables():
+    '''Test to ensure that a cli containing multiple nested variables works correctly'''
+    @hug.cli()
+    def test(value_1=None, value_2=None):
+        value_3 = 'bacon'
+        return 'Hi!'
+
+    assert hug.test.cli(test) == 'Hi!'
+
+
+def test_cli_with_exception():
+    '''Test to ensure that a cli with an exception is correctly handled'''
+    @hug.cli()
+    def test():
+        raise ValueError()
+        return 'Hi!'
+
+    assert hug.test.cli(test) != 'Hi!'

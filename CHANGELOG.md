@@ -81,3 +81,7 @@ Changelog
 - Added additional default input format for `text/plain` and a few other common text based formats
 - If no input format is available, but the body parameter is requested - the body stream is now returned
 - Added support for a generic `file` output formatter that automatically determines the content type for the file
+
+### 1.9.1
+- Fixes a bug that caused hug cli clients to occasionally incorrectly require additional arguments
+- Added support for automatically converting non utf8 bytes to base64 during json output
