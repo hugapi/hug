@@ -609,6 +609,41 @@ def test_cli_with_defaults():
     assert hug.test.cli(happy, "Bob", 5, birthday=True) ==  "Happy 5 birthday Bob!"
 
 
+def test_cli_with_hug_types():
+    '''Test to ensure CLIs work as expected when using hug types'''
+    @hug.cli()
+    def happy(name:hug.types.text, age:hug.types.number, birthday:hug.types.boolean=False):
+        if birthday:
+            return "Happy {age} birthday {name}!".format(**locals())
+        else:
+            return "{name} is {age} years old".format(**locals())
+
+    assert happy('Hug', 1) == "Hug is 1 years old"
+    assert happy('Hug', 1, True) == "Happy 1 birthday Hug!"
+    assert hug.test.cli(happy, "Bob", 5) ==  "Bob is 5 years old"
+    assert hug.test.cli(happy, "Bob", 5, birthday=True) ==  "Happy 5 birthday Bob!"
+
+    @hug.cli()
+    def succeed(success:hug.types.smart_boolean=False):
+        if success:
+            return 'Yes!'
+        else:
+            return 'No :('
+
+    assert hug.test.cli(succeed) ==  'No :('
+    assert hug.test.cli(succeed, success=True) ==  'Yes!'
+
+    @hug.cli()
+    def succeed(success:hug.types.smart_boolean=True):
+        if success:
+            return 'Yes!'
+        else:
+            return 'No :('
+
+    assert hug.test.cli(succeed) ==  'Yes!'
+    assert hug.test.cli(succeed, success='false') ==  'No :('
+
+
 def test_cli_with_conflicting_short_options():
     '''Test to ensure that it's possible to expose a CLI with the same first few letters in option'''
     @hug.cli()
