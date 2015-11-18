@@ -88,3 +88,6 @@ Changelog
 
 ### 1.9.2
 - Improved boolean type behavior on CLIs
+
+### 1.9.3
+- Fixed a bug that caused a CLI argument when adding an argument starting with `help`
