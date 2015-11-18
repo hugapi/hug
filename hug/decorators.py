@@ -481,9 +481,11 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
         if takes_kargs:
             accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + 1]
             karg_method = accepted_parameters[-1]
+            nargs_set = True
         else:
             karg_method = None
             accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+            nargs_set = False
 
         defaults = {}
         for index, default in enumerate(reversed(api_function.__defaults__ or ())):
@@ -550,8 +552,12 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
             elif kwargs.get('action', None) == 'store_true':
                 kwargs.pop('action', None) == 'store_true'
 
-            if option == karg_method:
+            if option == karg_method or ():
                 kwargs['nargs'] = '*'
+            elif not nargs_set and kwargs.get('action', None) == 'append' and not option in defaults:
+                kwargs['nargs'] = '*'
+                kwargs.pop('action', '')
+                nargs_set = True
 
             parser.add_argument(*args, **kwargs)
 
