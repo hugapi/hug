@@ -11,11 +11,13 @@ Code Contributors
 - Fabian Kochem (@vortec)
 - Kostas Dizas (@kostasdizas)
 - Ali-Akber Saifee (@alisaifee)
+- @arpesenti
 
 Documenters
 ===================
 - Timothy Cyrus (@tcyrus)
 - M.Yasoob Ullah Khalid (@yasoob)
+- Lionel Montrieux (@lmontrieux)
 
 --------------------------------------------
 

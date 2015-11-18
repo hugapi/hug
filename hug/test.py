@@ -19,6 +19,8 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from io import BytesIO
+import sys
 import json
 from functools import partial
 from unittest import mock
@@ -50,6 +52,8 @@ def call(method, api_module, url, body='', headers=None, **params):
             for chunk in result:
                 response.data.append(chunk.decode('utf8'))
             response.data = "".join(response.data)
+        except UnicodeDecodeError:
+            response.data = result[0]
         response.content_type = response.headers_dict['content-type']
         if response.content_type == 'application/json':
             response.data = json.loads(response.data)
@@ -66,16 +70,27 @@ for method in HTTP_METHODS:
 def cli(method, *kargs, **arguments):
     '''Simulates testing a hug cli method from the command line'''
     collect_output = arguments.pop('collect_output', True)
-    if kargs:
-        arguments[method.cli.karg_method] = kargs
 
-    test_arguments = mock.Mock()
-    test_arguments.__dict__ = arguments
-    with mock.patch('argparse.ArgumentParser.parse_args', lambda self: test_arguments):
-        old_output = method.cli.output
-        if collect_output:
-            method.cli.output = lambda data: to_return.append(data)
-        to_return = []
+    command_args = [method.__name__] + list(kargs)
+    for name, value in arguments.items():
+        command_args.append('--{0}'.format(name))
+        if not value in (True, False):
+            command_args.append('{0}'.format(value))
+
+    old_sys_argv = sys.argv
+    sys.argv = [str(part) for part in command_args]
+
+    old_output = method.cli.output
+    if collect_output:
+        method.cli.output = lambda data: to_return.append(data)
+    to_return = []
+
+    try:
         method.cli()
-        method.cli.output = old_output
-        return to_return and to_return[0] or None
+    except Exception as e:
+        to_return = (e, )
+
+    method.cli.output = old_output
+    sys.argv = old_sys_argv
+    return to_return and to_return[0] or None
+

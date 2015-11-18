@@ -33,10 +33,9 @@ from itertools import chain
 from wsgiref.simple_server import make_server
 
 import falcon
-from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
-
 import hug.defaults
 import hug.output_format
+from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 from hug.exceptions import InvalidTypeData
 from hug.format import underscore
 from hug.run import INTRO, server
@@ -311,13 +310,17 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
 
         input_parameters = kwargs
         input_parameters.update(request.params)
-        body_formatting_handler = parse_body and module.__hug__.input_format(request.content_type)
-        if body_formatting_handler:
-            body = body_formatting_handler(request.stream.read().decode('utf8'))
+        if parse_body and request.content_length is not None:
+            body = request.stream
+            body_formatting_handler = body and module.__hug__.input_format(request.content_type)
+            if body_formatting_handler:
+                body = body_formatting_handler(body)
             if 'body' in accepted_parameters:
                 input_parameters['body'] = body
             if isinstance(body, dict):
                 input_parameters.update(body)
+        elif 'body' in accepted_parameters:
+            input_parameters['body'] = None
 
         errors = {}
         for key, type_handler in input_transformations.items():
@@ -367,7 +370,9 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
 
         to_return = function_output(to_return, **function_output_kwargs)
         if hasattr(to_return, 'read'):
-            size = os.path.isfile(to_return.name) if hasattr(to_return, 'name') else None
+            size = None
+            if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
+                size = os.path.getsize(to_return.name)
             if request.range and size:
                 start, end = request.range
                 if end < 0:
@@ -471,22 +476,31 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
     '''Enables exposing a Hug compatible function as a Command Line Interface'''
     def decorator(api_function):
         module = module = _api_module(api_function.__module__)
+
         takes_kargs = bool(api_function.__code__.co_flags & 0x04)
-        accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + (1 if takes_kargs else 0)]
+        if takes_kargs:
+            accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + 1]
+            karg_method = accepted_parameters[-1]
+        else:
+            karg_method = None
+            accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+
+        defaults = {}
+        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+            defaults[accepted_parameters[-(index + 1)]] = default
+
+        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+
+
         directives = module.__hug__.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
         output_transform = transform or api_function.__annotations__.get('return', None)
 
-        defaults = {}
-        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
-            accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + 1]
-            defaults[accepted_parameters[-(index + 1)]] = default
-        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
         is_method = False
         if 'method' in api_function.__class__.__name__:
             is_method = True
             required = required[1:]
-        karg_method = accepted_parameters[-1] if takes_kargs else None
+            accepted_parameters = accepted_parameters[1:]
 
         used_options = set()
         parser = argparse.ArgumentParser(description=doc or api_function.__doc__)
@@ -529,9 +543,12 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
                     kwargs['type'] = annotation
                     kwargs['help'] = annotation.__doc__
                     kwargs.update(getattr(annotation, 'cli_behaviour', {}))
-            if kwargs.get('type', None) == bool and kwargs['default'] == False:
+            if ((kwargs.get('type', None) == bool or kwargs.get('action', None) == 'store_true') and
+                    kwargs['default'] == False):
                 kwargs['action'] = 'store_true'
                 kwargs.pop('type', None)
+            elif kwargs.get('action', None) == 'store_true':
+                kwargs.pop('action', None) == 'store_true'
             if option == karg_method:
                 kwargs['nargs'] = '*'
 

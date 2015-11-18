@@ -85,6 +85,8 @@ def smart_boolean(input_value):
 
     raise KeyError('Invalid value passed in for true/false field')
 
+smart_boolean.cli_behaviour = {'action': 'store_true'}
+
 
 def inline_dictionary(input_value):
     '''A single line dictionary, where items are separted by commas and key:value are separated by a pipe'''
