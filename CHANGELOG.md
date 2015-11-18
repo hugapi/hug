@@ -88,3 +88,8 @@ Changelog
 
 ### 1.9.2
 - Improved boolean type behavior on CLIs
+
+### 1.9.3
+- Enabled `hug.types.multiple` to be exposed as nargs `*`
+- Fixed a bug that caused a CLI argument when adding an argument starting with `help`
+- Fixed a bug that caused CLI arguments that used `hug.types.multiple` to be parsed as nested lists
