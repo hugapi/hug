@@ -85,3 +85,6 @@ Changelog
 ### 1.9.1
 - Fixes a bug that caused hug cli clients to occasionally incorrectly require additional arguments
 - Added support for automatically converting non utf8 bytes to base64 during json output
+
+### 1.9.2
+- Improve boolean type behavior on CLIs
