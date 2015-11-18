@@ -550,9 +550,6 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
             elif kwargs.get('action', None) == 'store_true':
                 kwargs.pop('action', None) == 'store_true'
 
-            if kwargs.get('action', None) == 'append':
-                kwargs.pop('type', None) == 'store_true'
-
             if option == karg_method:
                 kwargs['nargs'] = '*'
 

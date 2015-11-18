@@ -53,23 +53,23 @@ def accept(formatter, doc=None, error_text=None, cli_behaviour=None, exception_h
     return hug_formatter
 
 
-def multiple(value):
-    '''Multiple Values'''
-    return value if isinstance(value, list) else [value]
-multiple.cli_behaviour = {'action': 'append'}
-
-
-def comma_separated_list(value):
-    '''Multiple values, separated by a comma'''
-    return value.split(",")
-
-
 number = accept(int, 'A whole number', 'Invalid whole number provided')
 float_number = accept(float, 'A float number', 'Invalid float number provided')
 decimal = accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
 text = accept(str, 'Basic text / string value', 'Invalid text value provided')
 boolean = accept(bool, 'Providing any value will set this to true',
                  'Invalid boolean value provided', cli_behaviour={'action': 'store_true'})
+
+
+def multiple(value):
+    '''Multiple Values'''
+    return value if isinstance(value, list) else [value]
+multiple.cli_behaviour = {'action': 'append', 'type':text}
+
+
+def comma_separated_list(value):
+    '''Multiple values, separated by a comma'''
+    return value.split(",")
 
 
 def smart_boolean(input_value):
