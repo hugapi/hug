@@ -87,4 +87,4 @@ Changelog
 - Added support for automatically converting non utf8 bytes to base64 during json output
 
 ### 1.9.2
-- Improve boolean type behavior on CLIs
+- Improved boolean type behavior on CLIs
