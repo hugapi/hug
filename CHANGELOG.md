@@ -91,3 +91,4 @@ Changelog
 
 ### 1.9.3
 - Fixed a bug that caused a CLI argument when adding an argument starting with `help`
+- Fixed a bug that caused CLI arguments that used `hug.types.multiple` to be parsed as nested lists
