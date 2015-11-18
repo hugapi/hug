@@ -647,7 +647,7 @@ def test_cli_with_hug_types():
 def test_cli_with_conflicting_short_options():
     '''Test to ensure that it's possible to expose a CLI with the same first few letters in option'''
     @hug.cli()
-    def test(abe1="Value", abe2="Value2"):
+    def test(abe1="Value", abe2="Value2", helper=None):
         return (abe1, abe2)
 
     assert test() == ('Value', 'Value2')
