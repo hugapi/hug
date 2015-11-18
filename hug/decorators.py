@@ -543,7 +543,8 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
                     kwargs['type'] = annotation
                     kwargs['help'] = annotation.__doc__
                     kwargs.update(getattr(annotation, 'cli_behaviour', {}))
-            if kwargs.get('type', None) == bool and kwargs['default'] == False:
+            if ((kwargs.get('type', None) == bool or kwargs.get('action', None) == 'store_true') and
+                    kwargs['default'] == False):
                 kwargs['action'] = 'store_true'
                 kwargs.pop('type', None)
             if option == karg_method:
