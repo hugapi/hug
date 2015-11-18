@@ -648,7 +648,7 @@ def test_cli_with_hug_types():
         return types or ['nothing_here']
 
     assert hug.test.cli(all_the) == ['nothing_here']
-    assert hug.test.cli(all_the, types=('one', 'two', 'three')) ==  ('one', 'two', 'three')
+    assert hug.test.cli(all_the, types=('one', 'two', 'three')) ==  ['one', 'two', 'three']
 
 
 def test_cli_with_conflicting_short_options():
