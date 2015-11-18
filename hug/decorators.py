@@ -502,7 +502,7 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
             required = required[1:]
             accepted_parameters = accepted_parameters[1:]
 
-        used_options = set()
+        used_options = {'h', 'help'}
         parser = argparse.ArgumentParser(description=doc or api_function.__doc__)
         if version:
             parser.add_argument('-v', '--version', action='version',
