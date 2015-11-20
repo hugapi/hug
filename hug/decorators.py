@@ -576,7 +576,7 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
                 result = output_transform(result)
             if hasattr(result, 'read'):
                 result = result.read().decode('utf8')
-            if cli_interface.output is not None:
+            if cli_interface.output is not None and result is not None:
                 cli_interface.output(result)
             else:
                 print(result)

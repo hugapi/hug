@@ -93,3 +93,6 @@ Changelog
 - Enabled `hug.types.multiple` to be exposed as nargs `*`
 - Fixed a bug that caused a CLI argument when adding an argument starting with `help`
 - Fixed a bug that caused CLI arguments that used `hug.types.multiple` to be parsed as nested lists
+
+### 1.9.4
+- Improved cli output, to output nothing if None is returned
