@@ -785,3 +785,12 @@ def test_cli_with_exception():
         return 'Hi!'
 
     assert hug.test.cli(test) != 'Hi!'
+
+
+def test_cli_with_empty_return():
+    '''Test to ensure that if you return None no data will be added to sys.stdout'''
+    @hug.cli()
+    def test_empty_return():
+        pass
+
+    assert not hug.test.cli(test_empty_return)
