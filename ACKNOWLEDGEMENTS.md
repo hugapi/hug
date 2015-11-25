@@ -5,7 +5,7 @@ Original Creator & Maintainer
 Notable Bug Reporters
 ===================
 - Michael Buckner (@michaelbuckner)
-- @cy70sin3
+- Carl Neuhaus (@carlneuhaus)
 
 Code Contributors
 ===================
