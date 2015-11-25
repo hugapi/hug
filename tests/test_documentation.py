@@ -88,13 +88,19 @@ def test_basic_documentation():
         """V1 Docs"""
         return 'V1'
 
+    @hug.get()
+    def unversioned():
+        return 'Hello'
+
     versioned_doc = hug.documentation.generate(api)
     assert 'versions' in versioned_doc
     assert 1 in versioned_doc['versions']
+    assert '/unversioned' in versioned_doc['versions'][1]
 
     specific_version_doc  = hug.documentation.generate(api, api_version=1)
     assert not 'versions' in specific_version_doc
     assert '/echo' in specific_version_doc
+    assert '/unversioned' in specific_version_doc
 
     handler = hug.run.documentation_404(api)
     response = StartResponseMock()
