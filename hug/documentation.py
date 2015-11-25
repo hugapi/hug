@@ -37,8 +37,8 @@ def generate(module, base_url="", api_version=None):
         documentation['versions'][version] = OrderedDict()
 
     for url, methods in module.__hug__.routes.items():
-        for method, versions in methods.items():
-            for version, handler in versions.items():
+        for method, method_versions in methods.items():
+            for version, handler in method_versions.items():
                 if version == None:
                     applies_to = versions
                 else:
