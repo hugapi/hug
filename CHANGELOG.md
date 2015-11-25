@@ -98,4 +98,4 @@ Changelog
 - Improved cli output, to output nothing if None is returned
 
 ### 1.9.6
-- Fixed a bug (issue #112) that caused non-versioned endpoints not to show up, when versioned endpoints are present
+- Fixed a bug (issue #112) that caused non-versioned endpoints not to show up in auto-generated documentation, when versioned endpoints are present
