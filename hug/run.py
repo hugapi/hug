@@ -116,6 +116,7 @@ def version_router(request, response, api_version=None, versions={}, sink=None, 
 def server(module, default_sink=documentation_404):
     '''Returns a WSGI compatible API server for the given Hug API module'''
     api = falcon.API(middleware=module.__hug__.middleware)
+    sink = None
     if module.__hug__.not_found_handlers:
         if len(module.__hug__.not_found_handlers) == 1 and None in module.__hug__.not_found_handlers:
             sink = module.__hug__.not_found_handlers[None]
@@ -162,7 +163,7 @@ def terminal():
     api = None
     server_arguments = {}
     if parsed.no_documentation:
-        server_arguments['sink'] = None
+        server_arguments['default_sink'] = None
     if file_name and module:
         print("Error: can not define both a file and module source for Hug API.")
     if file_name:
