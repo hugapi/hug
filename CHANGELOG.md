@@ -99,3 +99,6 @@ Changelog
 
 ### 1.9.6
 - Fixed a bug (issue #112) that caused non-versioned endpoints not to show up in auto-generated documentation, when versioned endpoints are present
+
+### 1.9.7
+- Fixed a bug (issue #115) that caused the command line argument for not auto generating documentation `-nd` to fail

@@ -6,6 +6,7 @@ Notable Bug Reporters
 ===================
 - Michael Buckner (@michaelbuckner)
 - Carl Neuhaus (@carlneuhaus)
+- Eirik Rye (@eirikrye)
 
 Code Contributors
 ===================
