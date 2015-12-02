@@ -105,3 +105,6 @@ Changelog
 
 ### 1.9.8
 - Hug's json serializer will now automatically convert returned (non-list) iterables into json lists
+
+### 1.9.9
+- Hug's json serializer will now automatically convert decimal.Decimal objects during serialization
