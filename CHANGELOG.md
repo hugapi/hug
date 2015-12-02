@@ -102,3 +102,6 @@ Changelog
 
 ### 1.9.7
 - Fixed a bug (issue #115) that caused the command line argument for not auto generating documentation `-nd` to fail
+
+### 1.9.8
+- Hug's json serializer will now automatically convert returned (non-list) iterables into json lists

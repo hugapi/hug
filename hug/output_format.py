@@ -47,8 +47,9 @@ def _json_converter(item):
             return item.decode('utf8')
         except UnicodeDecodeError:
             return base64.b64encode(item)
-    elif isinstance(item, set):
+    elif hasattr(item, '__iter__'):
         return list(item)
+
     raise TypeError("Type not serializable")
 
 

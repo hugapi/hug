@@ -66,6 +66,9 @@ def test_json():
     data = set((1, 2, 3, 3))
     assert hug.input_format.json(BytesIO(hug.output_format.json(data))) == [1, 2, 3]
 
+    data = (number for number in range(1, 4))
+    assert hug.input_format.json(BytesIO(hug.output_format.json(data))) == [1, 2, 3]
+
     with open('README.md', 'rb') as json_file:
         assert hasattr(hug.output_format.json(json_file), 'read')
 
