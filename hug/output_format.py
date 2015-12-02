@@ -23,6 +23,7 @@ import base64
 import json as json_converter
 import mimetypes
 import os
+from decimal import Decimal
 from datetime import date, datetime
 from io import BytesIO
 
@@ -49,6 +50,8 @@ def _json_converter(item):
             return base64.b64encode(item)
     elif hasattr(item, '__iter__'):
         return list(item)
+    elif isinstance(item, Decimal):
+        return str(item)
 
     raise TypeError("Type not serializable")
 

@@ -22,6 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 from io import BytesIO
 from collections import namedtuple
 from datetime import datetime
+from decimal import Decimal
 
 import pytest
 
@@ -68,6 +69,9 @@ def test_json():
 
     data = (number for number in range(1, 4))
     assert hug.input_format.json(BytesIO(hug.output_format.json(data))) == [1, 2, 3]
+
+    data = [Decimal(1.5), Decimal("155.23"), Decimal("1234.25")]
+    assert hug.input_format.json(BytesIO(hug.output_format.json(data))) == ["1.5", "155.23", "1234.25"]
 
     with open('README.md', 'rb') as json_file:
         assert hasattr(hug.output_format.json(json_file), 'read')
