@@ -30,7 +30,7 @@ import hug
 
 
 def test_number():
-    '''Tests that Hugs number type correctly converts and validates input'''
+    '''Tests that Hug's number type correctly converts and validates input'''
     assert hug.types.number('1') == 1
     assert hug.types.number(1) == 1
     with pytest.raises(ValueError):
@@ -38,23 +38,43 @@ def test_number():
 
 
 def test_range():
-    '''Tests that Hugs range type successfully handles ranges of numbers'''
+    '''Tests that Hug's range type successfully handles ranges of numbers'''
     assert hug.types.in_range(1, 10)('1') == 1
     assert hug.types.in_range(1, 10)(1) == 1
     with pytest.raises(ValueError):
         hug.types.in_range(1, 10)('bacon')
     with pytest.raises(ValueError):
         hug.types.in_range(1, 10)('15')
+    with pytest.raises(ValueError):
+        hug.types.in_range(1, 10)(-34)
+
+
+def test_less_than():
+    '''Tests that Hug's less than type successfully limits the values passed in'''
+    assert hug.types.less_than(10)('1') == 1
+    assert hug.types.less_than(10)(1) == 1
+    assert hug.types.less_than(10)(-10) == -10
+    with pytest.raises(ValueError):
+        assert hug.types.less_than(10)(10)
+
+
+def test_greater_than():
+    '''Tests that Hug's greater than type succefully limis the values passed in'''
+    assert hug.types.greater_than(10)('11') == 11
+    assert hug.types.greater_than(10)(11) == 11
+    assert hug.types.greater_than(10)(1000) == 1000
+    with pytest.raises(ValueError):
+        assert hug.types.greater_than(10)(9)
 
 
 def test_multiple():
-    '''Tests that Hugs multile type correctly forces values to come back as lists, but not lists of lists'''
+    '''Tests that Hug's multile type correctly forces values to come back as lists, but not lists of lists'''
     assert hug.types.multiple('value') == ['value']
     assert hug.types.multiple(['value1', 'value2']) == ['value1', 'value2']
 
 
 def test_comma_separated_list():
-    '''Tests that Hugs comma separated type correctly converts into a Python list'''
+    '''Tests that Hug's comma separated type correctly converts into a Python list'''
     assert hug.types.comma_separated_list('value') == ['value']
     assert hug.types.comma_separated_list('value1,value2') == ['value1', 'value2']
 
@@ -116,7 +136,7 @@ def test_smart_boolean():
 
 
 def test_text():
-    '''Tests that Hugs text validator correctly handles basic values'''
+    '''Tests that Hug's text validator correctly handles basic values'''
     assert hug.types.text('1') == '1'
     assert hug.types.text(1) == '1'
     assert hug.types.text('text') == 'text'
