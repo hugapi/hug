@@ -108,3 +108,4 @@ Changelog
 
 ### 1.9.9
 - Hug's json serializer will now automatically convert decimal.Decimal objects during serialization
+- Added a `range` type to allow easily limiting numbers to specific ranges
