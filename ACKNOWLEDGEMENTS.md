@@ -14,6 +14,7 @@ Code Contributors
 - Kostas Dizas (@kostasdizas)
 - Ali-Akber Saifee (@alisaifee)
 - @arpesenti
+- Eirik Rye (@eirikrye)
 
 Documenters
 ===================

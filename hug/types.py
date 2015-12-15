@@ -142,3 +142,42 @@ def multi(*types):
         raise ValueError(doc_string)
     multi_type.__doc__ = doc_string
     return multi_type
+
+
+def in_range(lower, upper, convert=number):
+    '''Accepts a number within a lower and upper bound of acceptable values'''
+    def check_in_range(value):
+        value = convert(value)
+        if value < lower:
+            raise ValueError("'{0}' is less than the lower limit {1}".format(value, lower))
+        if value >= upper:
+            raise ValueError("'{0}' reaches the limit of {1}".format(value, upper))
+        return value
+
+    check_in_range.__doc__ = ("{0} that is greater or equal to {1} and less than {2}".format(
+                              convert.__doc__, lower, upper))
+    return check_in_range
+
+
+def less_than(limit, convert=number):
+    '''Accepts a value up to the specified limit'''
+    def check_less_than(value):
+        value = convert(value)
+        if not value < limit:
+            raise ValueError("'{0}' must be less than {1}".format(value, limit))
+        return value
+
+    check_less_than.__doc__ = "{0} that is less than {1}".format(convert.__doc__, limit)
+    return check_less_than
+
+
+def greater_than(minimum, convert=number):
+    '''Accepts a value above a given minimum'''
+    def check_greater_than(value):
+        value = convert(value)
+        if not value > minimum:
+            raise ValueError("'{0}' must be greater than {1}".format(value, minimum))
+        return value
+
+    check_greater_than.__doc__ = "{0} that is greater than {1}".format(convert.__doc__, minimum)
+    return check_greater_than
