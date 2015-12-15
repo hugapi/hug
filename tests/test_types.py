@@ -37,6 +37,16 @@ def test_number():
         hug.types.number('bacon')
 
 
+def test_range():
+    '''Tests that Hugs range type successfully handles ranges of numbers'''
+    assert hug.types.in_range(1, 10)('1') == 1
+    assert hug.types.in_range(1, 10)(1) == 1
+    with pytest.raises(ValueError):
+        hug.types.in_range(1, 10)('bacon')
+    with pytest.raises(ValueError):
+        hug.types.in_range(1, 10)('15')
+
+
 def test_multiple():
     '''Tests that Hugs multile type correctly forces values to come back as lists, but not lists of lists'''
     assert hug.types.multiple('value') == ['value']
