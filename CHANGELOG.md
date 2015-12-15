@@ -107,5 +107,5 @@ Changelog
 - Hug's json serializer will now automatically convert returned (non-list) iterables into json lists
 
 ### 1.9.9
-- Hug's json serializer will now automatically convert decimal.Decimal objects during serialization
-- Added a `in_range` type to allow easily limiting numbers to specific ranges
+- Hug's json serializer will now automatically convert decimal.Decimal objects during serializationkw
+- Added `in_range`, `greater_than`, and `less_than` types to allow easily limiting values entered into an API
