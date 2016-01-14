@@ -46,7 +46,7 @@ AUTO_INCLUDE = {'request', 'response'}
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
     __slots__ = ('module', 'versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned',
-                 '_middleware', '_not_found_handlers')
+                 '_middleware', '_not_found_handlers', '_startup_handlers')
 
     def __init__(self, module):
         self.module = module
@@ -106,6 +106,9 @@ class HugAPI(object):
         for middleware in (module.__hug__.middleware or ()):
             self.add_middleware(middleware)
 
+        for startup_handler in (module.__hug__.startup_handlers or ()):
+            self.add_startup_handler(startup_handler)
+
         for input_format, input_format_handler in getattr(module.__hug__, '_input_format', {}).items():
             if not input_format in getattr(self, '_input_format', {}):
                 self.set_input_format(input_format, input_format_handler)
@@ -120,6 +123,17 @@ class HugAPI(object):
             self._not_found_handlers = {}
 
         self.not_found_handlers[version] = handler
+
+    @property
+    def startup_handlers(self):
+        return getattr(self, '_startup_handlers', ())
+
+    def add_startup_handler(self, handler):
+        '''Adds a startup handler to the hug api'''
+        if not self.startup_handlers:
+            self._startup_handlers = []
+
+        self.startup_handlers.append(handler)
 
     def serve(self, port=8000, no_documentation=False):
         '''Runs the basic hug development server against this API'''
@@ -171,6 +185,14 @@ def directive(apply_globally=True):
         directive_method.directive = True
         return directive_method
     return decorator
+
+
+def startup():
+    '''Runs the provided function on startup, passing in an instance of the api'''
+    def startup_wrapper(startup_function):
+        _api_module(startup_function.__module__).__hug__.add_startup_handler(startup_function)
+        return startup_function
+    return startup_wrapper
 
 
 def request_middleware():

@@ -117,6 +117,8 @@ def server(module, default_sink=documentation_404):
     '''Returns a WSGI compatible API server for the given Hug API module'''
     api = falcon.API(middleware=module.__hug__.middleware)
     sink = None
+    for startup_handler in module.__hug__.startup_handlers:
+        startup_handler(module.__hug__)
     if module.__hug__.not_found_handlers:
         if len(module.__hug__.not_found_handlers) == 1 and None in module.__hug__.not_found_handlers:
             sink = module.__hug__.not_found_handlers[None]

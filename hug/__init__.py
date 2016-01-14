@@ -34,7 +34,8 @@ from hug import (authentication, directives, documentation, exceptions, format,
 from hug._version import current
 from hug.decorators import (call, cli, connect, default_input_format, default_output_format,
                             delete, directive, extend_api, get, head, not_found, options,
-                            patch, post, put, request_middleware, response_middleware, trace)
+                            patch, post, put, request_middleware, response_middleware, trace,
+                            startup)
 
 from hug import defaults  # isort:skip - must be imported last for defaults to have access to all modules
 
@@ -42,4 +43,4 @@ __version__ = current
 __all__ = ['__version__', 'authentication', 'call', 'cli', 'connect', 'default_input_format', 'default_output_format',
            'defaults', 'delete', 'directive', 'directives', 'documentation', 'exceptions', 'extend_api', 'format',
            'get', 'head', 'input_format', 'middleware', 'not_found', 'options', 'output_format', 'patch', 'post', 'put',
-           'request_middleware', 'response_middleware', 'run', 'terminal', 'test', 'trace', 'types']
+           'request_middleware', 'response_middleware', 'run', 'terminal', 'test', 'trace', 'types', 'startup']
