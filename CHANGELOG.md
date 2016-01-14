@@ -109,3 +109,7 @@ Changelog
 ### 1.9.9
 - Hug's json serializer will now automatically convert decimal.Decimal objects during serializationkw
 - Added `in_range`, `greater_than`, and `less_than` types to allow easily limiting values entered into an API
+
+### 2.0.0
+- Adds support for running arbitrary python functions at runtime via an `@hug.startup` decorator
+
