@@ -47,3 +47,8 @@ def output_formatter_global(data):
 @hug.request_middleware()
 def handle_request(request, response):
     return
+
+
+@hug.startup()
+def on_startup(api):
+    return

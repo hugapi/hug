@@ -794,3 +794,12 @@ def test_cli_with_empty_return():
         pass
 
     assert not hug.test.cli(test_empty_return)
+
+
+def test_startup():
+    '''Test to ensure hug startup decorators work as expected'''
+    @hug.startup()
+    def happens_on_startup(api):
+        pass
+
+    assert happens_on_startup in api.__hug__.startup_handlers
