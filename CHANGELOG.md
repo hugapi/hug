@@ -112,4 +112,4 @@ Changelog
 
 ### 2.0.0
 - Adds support for running arbitrary python functions at runtime via an `@hug.startup` decorator
-
+- Now correctly identifies and handles custom encodings
