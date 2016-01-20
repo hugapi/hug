@@ -42,6 +42,7 @@ from hug.format import underscore
 from hug.run import INTRO, server
 
 AUTO_INCLUDE = {'request', 'response'}
+RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
 
 
 class HugAPI(object):
@@ -333,14 +334,13 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
 
         input_parameters = kwargs
         input_parameters.update(request.params)
-        re_charset = re.compile("charset=(?P<charset>[^;]+)")
         if parse_body and request.content_length is not None:
             body = request.stream
             content_type = request.content_type
             encoding = None
-            if ";" in content_type:
+            if content_type and ";" in content_type:
                 content_type, rest = content_type.split(";", 1)
-                charset = re_charset.search(rest).groupdict()
+                charset = RE_CHARSET.search(rest).groupdict()
                 encoding = charset.get('charset', encoding).strip()
 
             body_formatting_handler = body and module.__hug__.input_format(content_type)
