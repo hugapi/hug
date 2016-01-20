@@ -25,15 +25,15 @@ from hug.format import content_type, underscore
 
 
 @content_type('text/plain')
-def text(body):
+def text(body, encoding='utf-8'):
     '''Takes plain text data'''
-    return body.read().decode('utf8')
+    return body.read().decode(encoding)
 
 
 @content_type('application/json')
-def json(body):
+def json(body, encoding='utf-8'):
     '''Takes JSON formatted data, converting it into native Python objects'''
-    return json_converter.loads(text(body))
+    return json_converter.loads(text(body, encoding=encoding))
 
 
 def _underscore_dict(dictionary):
