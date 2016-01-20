@@ -530,6 +530,17 @@ def test_input_format():
     api.__hug__.set_input_format('application/json', old_format)
 
 
+def test_content_type_with_parameter():
+    '''Test a Content-Type with parameter as `application/json charset=UTF-8`
+    as described in https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7'''
+    @hug.get()
+    def demo(body):
+        return body
+
+    assert hug.test.get(api, 'demo', body={}, headers={'Content-Type': 'application/json'}).data == {}
+    assert hug.test.get(api, 'demo', body={}, headers={'Content-Type': 'application/json; charset=UTF-8'}).data == {}
+
+
 def test_middleware():
     '''Test to ensure the basic concept of a middleware works as expected'''
     @hug.request_middleware()

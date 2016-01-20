@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import argparse
 import os
+import re
 import sys
 from collections import OrderedDict, namedtuple
 from functools import partial, wraps
@@ -332,11 +333,22 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
 
         input_parameters = kwargs
         input_parameters.update(request.params)
+        re_charset = re.compile("charset=(?P<charset>[^;]+)")
         if parse_body and request.content_length is not None:
             body = request.stream
-            body_formatting_handler = body and module.__hug__.input_format(request.content_type)
+            content_type = request.content_type
+            encoding = None
+            if ";" in content_type:
+                content_type, rest = content_type.split(";", 1)
+                charset = re_charset.search(rest).groupdict()
+                encoding = charset.get('charset', encoding).strip()
+
+            body_formatting_handler = body and module.__hug__.input_format(content_type)
             if body_formatting_handler:
-                body = body_formatting_handler(body)
+                if encoding is not None:
+                    body = body_formatting_handler(body, encoding)
+                else:
+                    body = body_formatting_handler(body)
             if 'body' in accepted_parameters:
                 input_parameters['body'] = body
             if isinstance(body, dict):
