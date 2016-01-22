@@ -73,6 +73,13 @@ def test_multiple():
     assert hug.types.multiple(['value1', 'value2']) == ['value1', 'value2']
 
 
+def test_delimited_list():
+    '''Test to ensure Hug's custom delimited list type function works as expected'''
+    assert hug.types.delimited_list(',')('value1,value2') == ['value1', 'value2']
+    assert hug.types.delimited_list(',')(['value1', 'value2']) == ['value1', 'value2']
+    assert hug.types.delimited_list('|-|')('value1|-|value2|-|value3,value4') == ['value1', 'value2', 'value3,value4']
+
+
 def test_comma_separated_list():
     '''Tests that Hug's comma separated type correctly converts into a Python list'''
     assert hug.types.comma_separated_list('value') == ['value']
