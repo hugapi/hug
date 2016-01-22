@@ -475,7 +475,107 @@ def not_found(output=None, versions=None, parse_body=False, transform=None, requ
     return decorator
 
 
-def call(urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(), versions=None,
+class APIRoute(object):
+    __slots__ = ('urls', 'accept', 'parameters', 'defaults', 'output', 'examples', 'versions', 'parse_body',
+                 'transform', 'requires')
+
+    def __init__(urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
+                 versions=None, parse_body=True, transform=None, requires=()):
+        self.urls = urls
+        self.accept = accept
+        self.parameters = parameters
+        self.defaults = defaults
+        self.output = output
+        self.examples = examples
+        self.versions = versions
+        self.parse_body = parse_body
+        self.transform = transform
+        self.requires = requires
+
+    def __call__():
+        return _call(self.urls, self.accept, self.parameters, self.defaults, self.output, self.examples, self.versions,
+                     self.parse_body, self.transform, self.requires)
+
+    def transform(self, function):
+        '''Sets the function that should be used to transform the returned Python structure into something
+           serializable by specified output format
+        '''
+        self.transform = function
+
+    def urls(self, urls):
+        '''Sets the URLs that will map to this API call'''
+        self.urls = urls
+
+    def accept(self, accept):
+        '''Sets a list of HTTP methods this router should accept'''
+        self.accept = accept
+
+    def get(self):
+        '''Sets the acceptable HTTP method to a GET'''
+        self.accept = 'GET'
+
+    def delete(self):
+        '''Sets the acceptable HTTP method to DELETE'''
+        self.accept = 'DELETE'
+
+    def post(self):
+        '''Sets the acceptable HTTP method to POST'''
+        self.accept = 'POST'
+
+    def put(self):
+        '''Sets the acceptable HTTP method to PUT'''
+        self.accept = 'PUT'
+
+    def trace(self):
+        '''Sets the acceptable HTTP method to TRACE'''
+        self.accept = 'TRACE'
+
+    def patch(self):
+        '''Sets the acceptable HTTP method to PATCH'''
+        self.accept = 'PATCH'
+
+    def options(self):
+        '''Sets the acceptable HTTP method to OPTIONS'''
+        self.accept = 'OPTIONS'
+
+    def head(self):
+        '''Sets the acceptable HTTP method to HEAD'''
+        self.accept = 'HEAD'
+
+    def connect(self):
+        '''Sets the acceptable HTTP method to CONNECT'''
+        self.accept = 'CONNECT'
+
+    def parameters(self, parameters):
+        '''Sets the custom parameters that will be used instead of those found introspecting the decorated function'''
+        self.parameters = parameters
+
+    def defaults(self, defaults):
+        '''Sets the custom defaults that will be used for custom parameters'''
+        self.defaults = defaults
+
+    def output(self, formatter):
+        '''Sets the output formatter that should be used to render this route'''
+        self.output = formatter
+
+    def examples(self, examples):
+        '''Sets the examples that the route should use'''
+        self.examples = examples
+
+    def versions(self, supported):
+        '''Sets the versions that this route should be compatiable with'''
+        self.versions = supported
+
+    def parse_body(self, automatic=True):
+        '''Tells hug to automatically parse the input body if it matches a registered input format'''
+        self.parse_body = automatic
+
+    def requires(self, requirements):
+        '''Adds additional requirements to the specified route'''
+        self.requirements = tuple(self.requirements or ()) + requirements
+
+
+def _call(urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(), versions=None,
          parse_body=True, transform=None, requires=()):
     '''Defines the base Hug API creating decorator, which exposes normal python methods as HTTP APIs'''
     urls = (urls, ) if isinstance(urls, str) else urls
