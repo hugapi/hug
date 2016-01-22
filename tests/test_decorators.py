@@ -537,8 +537,8 @@ def test_content_type_with_parameter():
     def demo(body):
         return body
 
-    assert hug.test.get(api, 'demo', body={}, headers={'Content-Type': 'application/json'}).data == {}
-    assert hug.test.get(api, 'demo', body={}, headers={'Content-Type': 'application/json; charset=UTF-8'}).data == {}
+    assert hug.test.get(api, 'demo', body={}, headers={'content-type': 'application/json'}).data == {}
+    assert hug.test.get(api, 'demo', body={}, headers={'content-type': 'application/json; charset=UTF-8'}).data == {}
 
 
 def test_middleware():

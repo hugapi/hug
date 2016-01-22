@@ -40,7 +40,7 @@ def call(method, api_module, url, body='', headers=None, **params):
     if not isinstance(body, str):
         body = output_format.json(body)
         headers = {} if headers is None else headers
-        headers['content-type'] = 'application/json'
+        headers.setdefault('content-type', 'application/json')
 
     result = api(create_environ(path=url, method=method, headers=headers, query_string=urlencode(params), body=body),
                  response)
