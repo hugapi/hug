@@ -111,6 +111,7 @@ Changelog
 - Added `in_range`, `greater_than`, and `less_than` types to allow easily limiting values entered into an API
 
 ### 2.0.0
+- Adds the concept of chain-able routing decorators
 - Adds support for running arbitrary python functions at runtime via an `@hug.startup` decorator
 - Adds support for smarter handling of html output types
 - Added extended support for delimited fields, enabling use of custom delimiters
