@@ -42,6 +42,12 @@ def test_html():
     with open('README.md', 'rb') as html_file:
         assert hasattr(hug.output_format.html(html_file), 'read')
 
+    class FakeHTMLWithRender():
+        def render(self):
+            return 'test'
+
+    assert hug.output_format.html(FakeHTMLWithRender()) == b'test'
+
 
 def test_json():
     '''Ensure that it's possible to output a Hug API method as JSON'''
