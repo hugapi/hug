@@ -67,9 +67,15 @@ def multiple(value):
 multiple.cli_behaviour = {'action': 'append', 'type':text}
 
 
-def comma_separated_list(value):
-    '''Multiple values, separated by a comma, or already in list form'''
-    return value if type(value) in (list, tuple) else value.split(",")
+def delimited_list(using=","):
+    '''Defines a list type that is formed by delimiting a list with a certain character or set of characters'''
+    def delimite(value):
+        return value if type(value) in (list, tuple) else value.split(using)
+
+    delimite.__doc__ = '''Multiple values, separated by "{0}"'''.format(using)
+    return delimite
+
+comma_separated_list = delimited_list()
 
 
 def smart_boolean(input_value):
