@@ -81,6 +81,8 @@ def html(content):
     '''HTML (Hypertext Markup Language)'''
     if hasattr(content, 'read'):
         return content
+    elif hasattr(content, 'render'):
+        return content.render().encode('utf8')
 
     return str(content).encode('utf8')
 
