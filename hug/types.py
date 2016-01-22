@@ -68,8 +68,8 @@ multiple.cli_behaviour = {'action': 'append', 'type':text}
 
 
 def comma_separated_list(value):
-    '''Multiple values, separated by a comma'''
-    return value.split(",")
+    '''Multiple values, separated by a comma, or already in list form'''
+    return value if type(value) in (list, tuple) else value.split(",")
 
 
 def smart_boolean(input_value):

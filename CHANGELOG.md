@@ -113,4 +113,5 @@ Changelog
 ### 2.0.0
 - Adds support for running arbitrary python functions at runtime via an `@hug.startup` decorator
 - Adds support for smarter handling of html output types
+- Added extended support for delimited fields, enabling use of custom delimiters
 - Now correctly identifies and handles custom encodings
