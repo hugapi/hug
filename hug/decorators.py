@@ -493,8 +493,7 @@ class APIRoute(object):
         self.requires = requires
 
     def __call__():
-        return _call(self.urls, self.accept, self.parameters, self.defaults, self.output, self.examples, self.versions,
-                     self.parse_body, self.transform, self.requires)
+        return _call(**self.__dict__)
 
     def transform(self, function):
         '''Sets the function that should be used to transform the returned Python structure into something
