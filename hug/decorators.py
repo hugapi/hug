@@ -476,8 +476,6 @@ def not_found(output=None, versions=None, parse_body=False, transform=None, requ
 
 
 class APIRoute(object):
-    __slots__ = ('urls', 'accept', 'parameters', 'defaults', 'output', 'examples', 'versions', 'parse_body',
-                 'transform', 'requires')
 
     def __init__(urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
                  versions=None, parse_body=True, transform=None, requires=()):
@@ -493,85 +491,90 @@ class APIRoute(object):
         self.requires = requires
 
     def __call__():
-        return _call(**self.__dict__)
+        return _call(**vars(self))
 
-    def transform(self, function):
+    def where(self, **overrides):
+        route_data = vars(self).copy()
+        route_data.update(overrides)
+        return self.__class__(**route_data)
+
+    def transform(self, function, **overrides):
         '''Sets the function that should be used to transform the returned Python structure into something
            serializable by specified output format
         '''
-        self.transform = function
+        return self.where(transform=function, **overrides)
 
-    def urls(self, urls):
+    def urls(self, urls, **overrides):
         '''Sets the URLs that will map to this API call'''
-        self.urls = urls
+        return self.where(urls=urls, **overrides)
 
-    def accept(self, accept):
+    def accept(self, accept, **overrides):
         '''Sets a list of HTTP methods this router should accept'''
-        self.accept = accept
+        return self.where(accept=accept, **overrides)
 
-    def get(self):
+    def get(self, **overrides):
         '''Sets the acceptable HTTP method to a GET'''
-        self.accept = 'GET'
+        return self.where(accept='GET', **overrides)
 
-    def delete(self):
+    def delete(self, **overrides):
         '''Sets the acceptable HTTP method to DELETE'''
-        self.accept = 'DELETE'
+        return self.where(accept='DELETE', **overrides)
 
-    def post(self):
+    def post(self, **overrides):
         '''Sets the acceptable HTTP method to POST'''
-        self.accept = 'POST'
+        return self.where(accept='POST', **overrides)
 
-    def put(self):
+    def put(self, **overrides):
         '''Sets the acceptable HTTP method to PUT'''
-        self.accept = 'PUT'
+        return self.where(accept='PUT', **overrides)
 
-    def trace(self):
+    def trace(self, **overrides):
         '''Sets the acceptable HTTP method to TRACE'''
-        self.accept = 'TRACE'
+        return self.where(accept='TRACE', **overrides)
 
-    def patch(self):
+    def patch(self, **overrides):
         '''Sets the acceptable HTTP method to PATCH'''
-        self.accept = 'PATCH'
+        return self.where(accept='PATCH', **overrides)
 
-    def options(self):
+    def options(self, **overrides):
         '''Sets the acceptable HTTP method to OPTIONS'''
-        self.accept = 'OPTIONS'
+        return self.where(accept='OPTIONS', **overrides)
 
-    def head(self):
+    def head(self, **overrides):
         '''Sets the acceptable HTTP method to HEAD'''
-        self.accept = 'HEAD'
+        return self.where(accept='HEAD', **overrides)
 
-    def connect(self):
+    def connect(self, **overrides):
         '''Sets the acceptable HTTP method to CONNECT'''
-        self.accept = 'CONNECT'
+        return self.where(accept='CONNECT', **overrides)
 
-    def parameters(self, parameters):
+    def parameters(self, parameters, **overrides):
         '''Sets the custom parameters that will be used instead of those found introspecting the decorated function'''
-        self.parameters = parameters
+        return self.where(parameters=parameters, **overrides)
 
-    def defaults(self, defaults):
+    def defaults(self, defaults, **overrides):
         '''Sets the custom defaults that will be used for custom parameters'''
-        self.defaults = defaults
+        return self.where(defaults=defaults, **overrides)
 
-    def output(self, formatter):
+    def output(self, formatter, **overrides):
         '''Sets the output formatter that should be used to render this route'''
-        self.output = formatter
+        return self.where(output=formatter, **overrides)
 
-    def examples(self, examples):
+    def examples(self, examples, **overrides):
         '''Sets the examples that the route should use'''
-        self.examples = examples
+        return self.where(examples=examples, **overrides)
 
-    def versions(self, supported):
+    def versions(self, supported, **overrides):
         '''Sets the versions that this route should be compatiable with'''
-        self.versions = supported
+        return self.where(versions=supported, **overrides)
 
-    def parse_body(self, automatic=True):
+    def parse_body(self, automatic=True, **overrides):
         '''Tells hug to automatically parse the input body if it matches a registered input format'''
-        self.parse_body = automatic
+        return self.where(parse_body=automatic, **overrides)
 
-    def requires(self, requirements):
+    def requires(self, requirements, **overrides):
         '''Adds additional requirements to the specified route'''
-        self.requirements = tuple(self.requirements or ()) + requirements
+        return self.where(requirements=tuple(getattr(self, 'requirements', ())) + tuple(requirements), **overrides)
 
 
 def _call(urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(), versions=None,
