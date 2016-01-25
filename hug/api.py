@@ -135,6 +135,7 @@ class HugAPI(object):
 
 
 def from_module(module_name):
+    '''Returns a Hug API instance from a given module_name'''
     module = sys.modules[module_name]
     if not '__hug__' in module.__dict__:
         def api_auto_instantiate(*kargs, **kwargs):
@@ -148,4 +149,5 @@ def from_module(module_name):
 
 
 def from_function(function):
+    '''Returns a Hug API instance from a given function'''
     return from_module(function.__module__)

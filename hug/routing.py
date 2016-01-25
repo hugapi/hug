@@ -39,6 +39,7 @@ RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
 
 
 class Router(object):
+    '''The base chainable router object'''
     __slots__ = ('route', )
 
     def __init__(self, transform=None, output=None):
@@ -62,12 +63,25 @@ class Router(object):
 
 
 class CLIRouter(Router):
+    '''The CLIRouter provides a chainable router that can be used to route a CLI command to a Python function'''
 
     def __init__(self, name=None, version=None, doc=None, transform=None, output=None):
         super().__init__(transform=transform, output=output)
         self.route['name'] = name
         self.route['version'] = version
         self.route['doc'] = doc
+
+    def name(self, name, **overrides):
+        '''Sets the name for the CLI interface'''
+        return self.where(name=name, **overrides)
+
+    def version(self, version, **overrides):
+        '''Sets the version for the CLI interface'''
+        return self.where(version=version, **overrides)
+
+    def doc(self, documentation, **overrides):
+        '''Sets the documentation for the CLI interface'''
+        return self.where(doc=documentation, **overrides)
 
     def __call__(self, api_function):
         '''Enables exposing a Hug compatible function as a Command Line Interface'''
@@ -201,6 +215,7 @@ class CLIRouter(Router):
 
 
 class HTTPRouter(Router):
+    '''The HTTPRouter provides the base concept of a router from an HTTPRequest to a Python function'''
 
     def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
                  defaults={}, status=None):
@@ -222,11 +237,19 @@ class HTTPRouter(Router):
 
     def requires(self, requirements, **overrides):
         '''Adds additional requirements to the specified route'''
-        return self.where(requirements=tuple(self.route.get('requirements', ())) + tuple(requirements), **overrides)
+        return self.where(requires=tuple(self.route.get('requires', ())) + tuple(requirements), **overrides)
 
     def set_status(self, status, **overrides):
         '''Sets the status that will be returned by default'''
         return self.where(status=status, **overrides)
+
+    def parameters(self, parameters, **overrides):
+        '''Sets the custom parameters that will be used instead of those found introspecting the decorated function'''
+        return self.where(parameters=parameters, **overrides)
+
+    def defaults(self, defaults, **overrides):
+        '''Sets the custom defaults that will be used for custom parameters'''
+        return self.where(defaults=defaults, **overrides)
 
     def _marshmallow_schema(self, marshmallow):
         '''Dynamically generates a hug style type handler from a Marshmallow style schema'''
@@ -452,12 +475,12 @@ class HTTPRouter(Router):
 
 
 class NotFoundRouter(HTTPRouter):
-    '''Stores the information necessary to expose API calls within this module externally'''
+    '''Provides a chainable router that can be used to route 404'd request to a Python function'''
 
     def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
-                 defaults={}):
+                 defaults={}, status=falcon.HTTP_NOT_FOUND):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
-                         requires=requires, parameters=parameters, defaults=defaults, status=falcon.HTTP_NOT_FOUND)
+                         requires=requires, parameters=parameters, defaults=defaults, status=status)
 
     def __call__(self, api_function):
         api = hug.api.from_function(api_function)
@@ -468,14 +491,15 @@ class NotFoundRouter(HTTPRouter):
         return callable_method
 
 
-class URLRoute(HTTPRouter):
+class URLRouter(HTTPRouter):
+    '''Provides a chainable router that can be used to route a URL to a Python function'''
 
     def __init__(self, urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
-                 versions=None, parse_body=True, transform=None, requires=()):
+                 versions=None, parse_body=True, transform=None, requires=(), status=None):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
-                         requires=requires, parameters=parameters, defaults=defaults)
+                         requires=requires, parameters=parameters, defaults=defaults, status=status)
         self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
-        self.route['accept'] = accept
+        self.route['accept'] = (accept, ) if isinstance(accept, str) else accept
         self.route['examples'] = (examples, ) if isinstance(examples, str) else examples
 
     def __call__(self, api_function):
@@ -539,14 +563,6 @@ class URLRoute(HTTPRouter):
     def connect(self, **overrides):
         '''Sets the acceptable HTTP method to CONNECT'''
         return self.where(accept='CONNECT', **overrides)
-
-    def parameters(self, parameters, **overrides):
-        '''Sets the custom parameters that will be used instead of those found introspecting the decorated function'''
-        return self.where(parameters=parameters, **overrides)
-
-    def defaults(self, defaults, **overrides):
-        '''Sets the custom defaults that will be used for custom parameters'''
-        return self.where(defaults=defaults, **overrides)
 
     def examples(self, examples, **overrides):
         '''Sets the examples that the route should use'''
