@@ -19,10 +19,10 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from io import BytesIO
-import sys
 import json
+import sys
 from functools import partial
+from io import BytesIO
 from unittest import mock
 from urllib.parse import urlencode
 
@@ -96,4 +96,3 @@ def cli(method, *kargs, **arguments):
     method.cli.output = old_output
     sys.argv = old_sys_argv
     return to_return and to_return[0] or None
-
