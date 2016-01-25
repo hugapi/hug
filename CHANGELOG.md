@@ -117,6 +117,7 @@ Changelog
 - Adds a logging middleware to simplify the process of logging all requests with hug
 - Adds a `middleware_class` class decorator, to enable quickly registering middleware classes
 - Adds `smart_redirection` allowing API functions to return other endpoints
+- Adds support for class based handlers
 - Added extended support for delimited fields, enabling use of custom delimiters
 - Now correctly identifies and handles custom encodings
 - Improved integration with Falcon so that primary elements (like status codes) can be imported directly from hug
