@@ -475,9 +475,40 @@ def not_found(output=None, versions=None, parse_body=False, transform=None, requ
     return decorator
 
 
+def _call(urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(), versions=None,
+         parse_body=True, transform=None, requires=()):
+    '''Defines the base Hug API creating decorator, which exposes normal python methods as HTTP APIs'''
+    urls = (urls, ) if isinstance(urls, str) else urls
+    examples = (examples, ) if isinstance(examples, str) else examples
+    versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
+    requires = (requires, ) if not isinstance(requires, (tuple, list)) else requires
+
+    def decorator(api_function):
+        module = _api_module(api_function.__module__)
+        (interface, callable_method) = _create_interface(module, api_function, output=output,
+                                                         parameters=parameters, defaults=defaults,
+                                                         versions=versions, parse_body=parse_body, transform=transform,
+                                                         requires=requires)
+
+        use_examples = examples
+        if not interface.required and not use_examples:
+            use_examples = (True, )
+        for url in urls or ("/{0}".format(api_function.__name__), ):
+            handlers = module.__hug__.routes.setdefault(url, {})
+            for method in accept:
+                version_mapping = handlers.setdefault(method.upper(), {})
+                for version in versions:
+                    version_mapping[version] = interface
+                    module.__hug__.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
+
+        interface.examples = use_examples
+        return callable_method
+    return decorator
+
+
 class APIRoute(object):
 
-    def __init__(urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
+    def __init__(self, urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
                  versions=None, parse_body=True, transform=None, requires=()):
         self.urls = urls
         self.accept = accept
@@ -490,8 +521,8 @@ class APIRoute(object):
         self.transform = transform
         self.requires = requires
 
-    def __call__():
-        return _call(**vars(self))
+    def __call__(self, function):
+        return _call(**vars(self))(function)
 
     def where(self, **overrides):
         route_data = vars(self).copy()
@@ -576,36 +607,7 @@ class APIRoute(object):
         '''Adds additional requirements to the specified route'''
         return self.where(requirements=tuple(getattr(self, 'requirements', ())) + tuple(requirements), **overrides)
 
-
-def _call(urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(), versions=None,
-         parse_body=True, transform=None, requires=()):
-    '''Defines the base Hug API creating decorator, which exposes normal python methods as HTTP APIs'''
-    urls = (urls, ) if isinstance(urls, str) else urls
-    examples = (examples, ) if isinstance(examples, str) else examples
-    versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
-    requires = (requires, ) if not isinstance(requires, (tuple, list)) else requires
-
-    def decorator(api_function):
-        module = _api_module(api_function.__module__)
-        (interface, callable_method) = _create_interface(module, api_function, output=output,
-                                                         parameters=parameters, defaults=defaults,
-                                                         versions=versions, parse_body=parse_body, transform=transform,
-                                                         requires=requires)
-
-        use_examples = examples
-        if not interface.required and not use_examples:
-            use_examples = (True, )
-        for url in urls or ("/{0}".format(api_function.__name__), ):
-            handlers = module.__hug__.routes.setdefault(url, {})
-            for method in accept:
-                version_mapping = handlers.setdefault(method.upper(), {})
-                for version in versions:
-                    version_mapping[version] = interface
-                    module.__hug__.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
-
-        interface.examples = use_examples
-        return callable_method
-    return decorator
+call = APIRoute
 
 
 def cli(name=None, version=None, doc=None, transform=None, output=None):
