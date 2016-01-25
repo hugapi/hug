@@ -1,6 +1,6 @@
-"""hug/middleware.py.
+"""hug/middleware.py
 
-Defines middleware classes for various purposes.
+A collection of useful middlewares to automate common hug functionality
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -17,11 +17,11 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-
 import uuid
+import logging
 
 
-class SessionMiddleware:
+class SessionMiddleware(object):
     '''Simple middleware that injects a session dictionary into the context of a request. It sets a session cookie
     and stores/restores data via a coupled store object.
 
@@ -33,6 +33,8 @@ class SessionMiddleware:
     The name of the context key can be set via the 'context_name' argument.
     The cookie arguments are the same as for falcons set_cookie() function, just prefixed with 'cookie_'.
     '''
+    __slots__ = ('store', 'context_name', 'cookie_name', 'cookie_expires', 'cookie_max_age', 'cookie_domain',
+                 'cookie_path', 'cookie_secure', 'cookie_http_only')
     def __init__(self, store, context_name='session', cookie_name='sid', cookie_expires=None, cookie_max_age=None,
                  cookie_domain=None, cookie_path=None, cookie_secure=True, cookie_http_only=True):
         self.store = store
@@ -51,7 +53,7 @@ class SessionMiddleware:
 
     def process_request(self, request, response):
         '''Get session ID from cookie, load corresponding session data from coupled store and inject session data into
-        the request context.
+            the request context.
         '''
         sid = request.cookies.get(self.cookie_name, None)
         data = {}
@@ -70,3 +72,19 @@ class SessionMiddleware:
         response.set_cookie(self.cookie_name, sid, expires=self.cookie_expires, max_age=self.cookie_max_age,
                             domain=self.cookie_domain, path=self.cookie_path, secure=self.cookie_secure,
                             http_only=self.cookie_http_only)
+
+
+class LogMiddleware(object):
+    '''A middleware that logs all incoming requests and outgoing responses that make their way through the API'''
+    __slots__ = ('logger', )
+
+    def __init__(self, logger=None):
+        self.logger = logger if logger is not None else logging.getLogger('hug')
+
+    def process_request(self, request, response):
+        '''Logs the basic endpoint requested'''
+        self.logger.info('Requested: {0} {1} {2}'.format(request.method, request.relative_uri, request.content_type))
+
+    def process_response(self, request, response, resource):
+        '''Logs the basic data returned by the API'''
+        self.logger.info('Responded: {0} {1} {2}'.format(response.status, request.relative_uri, response.content_type))

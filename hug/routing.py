@@ -85,7 +85,7 @@ class CLIRouter(Router):
 
     def __call__(self, api_function):
         '''Enables exposing a Hug compatible function as a Command Line Interface'''
-        api = hug.api.from_function(api_function)
+        api = hug.api.from_object(api_function)
 
         takes_kargs = bool(api_function.__code__.co_flags & 0x04)
         if takes_kargs:
@@ -483,7 +483,7 @@ class NotFoundRouter(HTTPRouter):
                          requires=requires, parameters=parameters, defaults=defaults, status=status)
 
     def __call__(self, api_function):
-        api = hug.api.from_function(api_function)
+        api = hug.api.from_object(api_function)
         (interface, callable_method) = self._create_interface(api, api_function)
         for version in self.route['versions']:
             api.set_not_found_handler(interface, version)
@@ -503,7 +503,7 @@ class URLRouter(HTTPRouter):
         self.route['examples'] = (examples, ) if isinstance(examples, str) else examples
 
     def __call__(self, api_function):
-        api = hug.api.from_function(api_function)
+        api = hug.api.from_object(api_function)
         (interface, callable_method) = self._create_interface(api, api_function)
 
         use_examples = self.route['examples']
