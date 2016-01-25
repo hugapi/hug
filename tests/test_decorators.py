@@ -98,6 +98,30 @@ def test_single_parameter():
     assert 'required' in hug.test.get(api, '/echo').data['errors']['text'].lower()
 
 
+def test_smart_redirect_routing():
+    '''Test to ensure you can easily redirect to another method without an actual redirect'''
+    @hug.get()
+    def implementation_1():
+        return 1
+
+    @hug.get()
+    def implementation_2():
+        return 2
+
+    @hug.get()
+    def smart_route(implementation:int):
+        if implementation == 1:
+            return implementation_1
+        elif implementation == 2:
+            return implementation_2
+        else:
+            return "NOT IMPLEMENTED"
+
+    assert hug.test.get(api, 'smart_route', implementation=1).data == 1
+    assert hug.test.get(api, 'smart_route', implementation=2).data == 2
+    assert hug.test.get(api, 'smart_route', implementation=3).data == "NOT IMPLEMENTED"
+
+
 def test_custom_url():
     '''Test to ensure that it's possible to have a route that differs from the function name'''
     @hug.call('/custom_route')

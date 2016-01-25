@@ -408,6 +408,10 @@ class HTTPRouter(Router):
                 input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
 
             to_return = api_function(**input_parameters)
+            if hasattr(to_return, 'interface'):
+                to_return.interface(request, response, api_version=None, **kwargs)
+                return
+
             if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
                 if transform_args:
                     extra_kwargs = {}
