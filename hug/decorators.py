@@ -256,204 +256,7 @@ def _marshmallow_schema(marshmallow):
 def _create_interface(module, api_function, parameters=None, defaults={}, output=None, versions=None,
                       parse_body=True, set_status=False, transform=None, requires=()):
     '''Creates the request handling interface method for the given API function'''
-    if not parameters:
-        accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
-        defaults = {}
-        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
-            defaults[accepted_parameters[-(index + 1)]] = default
 
-        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
-    else:
-        accepted_parameters = tuple(parameters)
-        required = tuple([p for p in accepted_parameters if p not in defaults])
-
-    takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
-    function_output = output or module.__hug__.output_format
-    function_output_args = (AUTO_INCLUDE.intersection(function_output.__code__.co_varnames) if
-                            hasattr(function_output, '__code__') else ())
-    default_kwargs = {}
-    directives = module.__hug__.directives()
-    use_directives = set(accepted_parameters).intersection(directives.keys())
-    if transform is None and not isinstance(api_function.__annotations__.get('return', None), (str, type(None))):
-        transform = api_function.__annotations__['return']
-
-    if hasattr(transform, 'dump'):
-        transform = transform.dump
-        output_type = transform
-    else:
-        output_type = transform or api_function.__annotations__.get('return', None)
-
-    if transform and hasattr(transform, '__code__'):
-        transform_args = AUTO_INCLUDE.intersection(transform.__code__.co_varnames)
-
-    is_method = False
-    if 'method' in api_function.__class__.__name__:
-        is_method = True
-        required = required[1:]
-
-    input_transformations = {}
-    named_directives = {directive_name: directives[directive_name] for directive_name in use_directives}
-    for name, transformer in api_function.__annotations__.items():
-        if isinstance(transformer, str):
-            continue
-        elif hasattr(transformer, 'directive'):
-            named_directives[name] = transformer
-            continue
-
-        if hasattr(transformer, 'load'):
-            transformer = _marshmallow_schema(transformer)
-        elif hasattr(transformer, 'deserialize'):
-            transformer = transformer.deserialize
-
-        input_transformations[name] = transformer
-
-    def interface(request, response, api_version=None, **kwargs):
-        if set_status:
-            response.status = set_status
-
-        if function_output_args:
-            function_output_kwargs = {}
-            if 'response' in function_output_args:
-                function_output_kwargs['response'] = response
-            if 'request' in function_output_args:
-                function_output_kwargs['request'] = request
-        else:
-            function_output_kwargs = default_kwargs
-
-        api_version = int(api_version) if api_version is not None else api_version
-        if callable(function_output.content_type):
-            response.content_type = function_output.content_type(request=request, response=response)
-        else:
-            response.content_type = function_output.content_type
-        for requirement in requires:
-            conclusion = requirement(response=response, request=request, module=module, api_version=api_version)
-            if conclusion is not True:
-                if conclusion:
-                    response.data = function_output(conclusion, **function_output_kwargs)
-                return
-
-        input_parameters = kwargs
-        input_parameters.update(request.params)
-        if parse_body and request.content_length is not None:
-            body = request.stream
-            content_type = request.content_type
-            encoding = None
-            if content_type and ";" in content_type:
-                content_type, rest = content_type.split(";", 1)
-                charset = RE_CHARSET.search(rest).groupdict()
-                encoding = charset.get('charset', encoding).strip()
-
-            body_formatting_handler = body and module.__hug__.input_format(content_type)
-            if body_formatting_handler:
-                if encoding is not None:
-                    body = body_formatting_handler(body, encoding)
-                else:
-                    body = body_formatting_handler(body)
-            if 'body' in accepted_parameters:
-                input_parameters['body'] = body
-            if isinstance(body, dict):
-                input_parameters.update(body)
-        elif 'body' in accepted_parameters:
-            input_parameters['body'] = None
-
-        errors = {}
-        for key, type_handler in input_transformations.items():
-            try:
-                if key in input_parameters:
-                    input_parameters[key] = type_handler(input_parameters[key])
-            except InvalidTypeData as error:
-                errors[key] = error.reasons or str(error.message)
-            except Exception as error:
-                if hasattr(error, 'args') and error.args:
-                    errors[key] = error.args[0]
-                else:
-                    errors[key] = str(error)
-
-        if 'request' in accepted_parameters:
-            input_parameters['request'] = request
-        if 'response' in accepted_parameters:
-            input_parameters['response'] = response
-        if 'api_version' in accepted_parameters:
-            input_parameters['api_version'] = api_version
-        for parameter, directive in named_directives.items():
-            arguments = (defaults[parameter], ) if parameter in defaults else ()
-            input_parameters[parameter] = directive(*arguments, response=response, request=request,  module=module,
-                                                    api_version=api_version)
-        for require in required:
-            if not require in input_parameters:
-                errors[require] = "Required parameter not supplied"
-        if errors:
-            response.data = function_output({"errors": errors}, **function_output_kwargs)
-            response.status = HTTP_BAD_REQUEST
-            return
-
-        if not takes_kwargs:
-            input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
-
-        to_return = api_function(**input_parameters)
-        if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
-            if transform_args:
-                extra_kwargs = {}
-                if 'response' in transform_args:
-                    extra_kwargs['response'] = response
-                if 'request' in transform_args:
-                    extra_kwargs['request'] = request
-                to_return = transform(to_return, **extra_kwargs)
-            else:
-                to_return = transform(to_return)
-
-        to_return = function_output(to_return, **function_output_kwargs)
-        if hasattr(to_return, 'read'):
-            size = None
-            if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
-                size = os.path.getsize(to_return.name)
-            if request.range and size:
-                start, end = request.range
-                if end < 0:
-                    end = size + end
-                end = min(end, size)
-                length = end - start + 1
-                to_return.seek(start)
-                response.data = to_return.read(length)
-                response.status = falcon.HTTP_206
-                response.content_range = (start, end, size)
-                to_return.close()
-            else:
-                response.stream = to_return
-                if size:
-                    response.stream_len = size
-        else:
-            response.data = to_return
-
-    if versions:
-        module.__hug__.versions.update(versions)
-
-    callable_method = api_function
-    if named_directives and not getattr(api_function, 'without_directives', None):
-        @wraps(api_function)
-        def callable_method(*args, **kwargs):
-            for parameter, directive in named_directives.items():
-                if parameter in kwargs:
-                    continue
-                arguments = (defaults[parameter], ) if parameter in defaults else ()
-                kwargs[parameter] = directive(*arguments, module=module,
-                                    api_version=max(versions, key=lambda version: version or -1) if versions else None)
-            return api_function(*args, **kwargs)
-        callable_method.interface = interface
-        callable_method.without_directives = api_function
-
-    if is_method:
-        api_function.__dict__['interface'] = interface
-    else:
-        api_function.interface = interface
-    interface.api_function = api_function
-    interface.output_format = function_output
-    interface.defaults = defaults
-    interface.accepted_parameters = accepted_parameters
-    interface.content_type = function_output.content_type
-    interface.required = required
-    interface.output_type = output_type if isinstance(output_type, (str, type(None))) else output_type.__doc__
-    return (interface, callable_method)
 
 
 class Router(object):
@@ -621,11 +424,15 @@ cli = CLIRouter
 
 class HTTPRouter(Router):
 
-    def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=()):
+    def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
+                 defaults={}, status=None):
         super().__init__(output=output, transform=transform)
         self.versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
         self.parse_body = parse_body
         self.requires = (requires, ) if not isinstance(requires, (tuple, list)) else requires
+        self.parameters = parameters
+        self.defaults = defaults
+        self.status = status
 
     def versions(self, supported, **overrides):
         '''Sets the versions that this route should be compatiable with'''
@@ -639,17 +446,230 @@ class HTTPRouter(Router):
         '''Adds additional requirements to the specified route'''
         return self.where(requirements=tuple(getattr(self, 'requirements', ())) + tuple(requirements), **overrides)
 
+    def set_status(self, status, **overrides):
+        '''Sets the status that will be returned by default'''
+        return self.where(status=status, **overrides)
+
+    def _create_interface(self, module, api_function):
+        defaults = self.defaults
+        if not self.parameters:
+            accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+            defaults = {}
+            for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+                defaults[accepted_parameters[-(index + 1)]] = default
+
+            required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+        else:
+            accepted_parameters = tuple(self.parameters)
+            required = tuple([parameter for parameter in accepted_parameters if parameter not in self.defaults])
+
+
+        takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
+        function_output = self.output or module.__hug__.output_format
+        function_output_args = (AUTO_INCLUDE.intersection(function_output.__code__.co_varnames) if
+                                hasattr(function_output, '__code__') else ())
+        default_kwargs = {}
+        directives = module.__hug__.directives()
+        use_directives = set(accepted_parameters).intersection(directives.keys())
+        transform = self.transform
+        if transform is None and not isinstance(api_function.__annotations__.get('return', None),
+                                                     (str, type(None))):
+            transform = api_function.__annotations__['return']
+
+        if hasattr(transform, 'dump'):
+            transform = transform.dump
+            output_type = transform
+        else:
+            output_type = transform or api_function.__annotations__.get('return', None)
+
+        if transform and hasattr(transform, '__code__'):
+            transform_args = AUTO_INCLUDE.intersection(transform.__code__.co_varnames)
+
+        is_method = False
+        if 'method' in api_function.__class__.__name__:
+            is_method = True
+            required = required[1:]
+
+        input_transformations = {}
+        named_directives = {directive_name: directives[directive_name] for directive_name in use_directives}
+        for name, transformer in api_function.__annotations__.items():
+            if isinstance(transformer, str):
+                continue
+            elif hasattr(transformer, 'directive'):
+                named_directives[name] = transformer
+                continue
+
+            if hasattr(transformer, 'load'):
+                transformer = _marshmallow_schema(transformer)
+            elif hasattr(transformer, 'deserialize'):
+                transformer = transformer.deserialize
+
+            input_transformations[name] = transformer
+
+        parse_body = self.parse_body
+        requires = self.requires
+        set_status = self.status
+        def interface(request, response, api_version=None, **kwargs):
+            if set_status:
+                response.status = set_status
+
+            if function_output_args:
+                function_output_kwargs = {}
+                if 'response' in function_output_args:
+                    function_output_kwargs['response'] = response
+                if 'request' in function_output_args:
+                    function_output_kwargs['request'] = request
+            else:
+                function_output_kwargs = default_kwargs
+
+            api_version = int(api_version) if api_version is not None else api_version
+            if callable(function_output.content_type):
+                response.content_type = function_output.content_type(request=request, response=response)
+            else:
+                response.content_type = function_output.content_type
+            for requirement in requires:
+                conclusion = requirement(response=response, request=request, module=module, api_version=api_version)
+                if conclusion is not True:
+                    if conclusion:
+                        response.data = function_output(conclusion, **function_output_kwargs)
+                    return
+
+            input_parameters = kwargs
+            input_parameters.update(request.params)
+            if parse_body and request.content_length is not None:
+                body = request.stream
+                content_type = request.content_type
+                encoding = None
+                if content_type and ";" in content_type:
+                    content_type, rest = content_type.split(";", 1)
+                    charset = RE_CHARSET.search(rest).groupdict()
+                    encoding = charset.get('charset', encoding).strip()
+
+                body_formatting_handler = body and module.__hug__.input_format(content_type)
+                if body_formatting_handler:
+                    if encoding is not None:
+                        body = body_formatting_handler(body, encoding)
+                    else:
+                        body = body_formatting_handler(body)
+                if 'body' in accepted_parameters:
+                    input_parameters['body'] = body
+                if isinstance(body, dict):
+                    input_parameters.update(body)
+            elif 'body' in accepted_parameters:
+                input_parameters['body'] = None
+
+            errors = {}
+            for key, type_handler in input_transformations.items():
+                try:
+                    if key in input_parameters:
+                        input_parameters[key] = type_handler(input_parameters[key])
+                except InvalidTypeData as error:
+                    errors[key] = error.reasons or str(error.message)
+                except Exception as error:
+                    if hasattr(error, 'args') and error.args:
+                        errors[key] = error.args[0]
+                    else:
+                        errors[key] = str(error)
+
+            if 'request' in accepted_parameters:
+                input_parameters['request'] = request
+            if 'response' in accepted_parameters:
+                input_parameters['response'] = response
+            if 'api_version' in accepted_parameters:
+                input_parameters['api_version'] = api_version
+            for parameter, directive in named_directives.items():
+                arguments = (defaults[parameter], ) if parameter in defaults else ()
+                input_parameters[parameter] = directive(*arguments, response=response, request=request,  module=module,
+                                                        api_version=api_version)
+            for require in required:
+                if not require in input_parameters:
+                    errors[require] = "Required parameter not supplied"
+            if errors:
+                response.data = function_output({"errors": errors}, **function_output_kwargs)
+                response.status = HTTP_BAD_REQUEST
+                return
+
+            if not takes_kwargs:
+                input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
+
+            to_return = api_function(**input_parameters)
+            if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
+                if transform_args:
+                    extra_kwargs = {}
+                    if 'response' in transform_args:
+                        extra_kwargs['response'] = response
+                    if 'request' in transform_args:
+                        extra_kwargs['request'] = request
+                    to_return = transform(to_return, **extra_kwargs)
+                else:
+                    to_return = transform(to_return)
+
+            to_return = function_output(to_return, **function_output_kwargs)
+            if hasattr(to_return, 'read'):
+                size = None
+                if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
+                    size = os.path.getsize(to_return.name)
+                if request.range and size:
+                    start, end = request.range
+                    if end < 0:
+                        end = size + end
+                    end = min(end, size)
+                    length = end - start + 1
+                    to_return.seek(start)
+                    response.data = to_return.read(length)
+                    response.status = falcon.HTTP_206
+                    response.content_range = (start, end, size)
+                    to_return.close()
+                else:
+                    response.stream = to_return
+                    if size:
+                        response.stream_len = size
+            else:
+                response.data = to_return
+
+        if self.versions:
+            module.__hug__.versions.update(self.versions)
+
+        callable_method = api_function
+        if named_directives and not getattr(api_function, 'without_directives', None):
+            @wraps(api_function)
+            def callable_method(*args, **kwargs):
+                for parameter, directive in named_directives.items():
+                    if parameter in kwargs:
+                        continue
+                    arguments = (defaults[parameter], ) if parameter in defaults else ()
+                    kwargs[parameter] = directive(*arguments, module=module,
+                                        api_version=max(self.versions, key=lambda version: version or -1)
+                                        if self.versions else None)
+                return api_function(*args, **kwargs)
+            callable_method.interface = interface
+            callable_method.without_directives = api_function
+
+        if is_method:
+            api_function.__dict__['interface'] = interface
+        else:
+            api_function.interface = interface
+        interface.api_function = api_function
+        interface.output_format = function_output
+        interface.defaults = defaults
+        interface.accepted_parameters = accepted_parameters
+        interface.content_type = function_output.content_type
+        interface.required = required
+        interface.output_type = output_type if isinstance(output_type, (str, type(None))) else output_type.__doc__
+        return (interface, callable_method)
+
 
 class NotFoundRouter(HTTPRouter):
     '''Stores the information necessary to expose API calls within this module externally'''
 
+    def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
+                 defaults={}):
+        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
+                         requires=requires, parameters=parameters, defaults=defaults, status=falcon.HTTP_NOT_FOUND)
+
     def __call__(self, api_function):
         module = _api_module(api_function.__module__)
-        (interface, callable_method) = _create_interface(module, api_function, output=self.output,
-                                                         versions=self.versions, parse_body=self.parse_body,
-                                                         set_status=falcon.HTTP_NOT_FOUND, transform=self.transform,
-                                                         requires=self.requires)
-
+        (interface, callable_method) = self._create_interface(module, api_function)
         for version in self.versions:
             module.__hug__.set_not_found_handler(interface, version)
 
@@ -663,19 +683,14 @@ class URLRoute(HTTPRouter):
     def __init__(self, urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
                  versions=None, parse_body=True, transform=None, requires=()):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
-                         requires=requires)
+                         requires=requires, parameters=parameters, defaults=defaults)
         self.urls = (urls, ) if isinstance(urls, str) else urls
         self.accept = accept
-        self.parameters = parameters
-        self.defaults = defaults
         self.examples = (examples, ) if isinstance(examples, str) else examples
 
     def __call__(self, api_function):
         module = _api_module(api_function.__module__)
-        (interface, callable_method) = _create_interface(module, api_function, output=self.output,
-                                                         parameters=self.parameters, defaults=self.defaults,
-                                                         versions=self.versions, parse_body=self.parse_body,
-                                                         transform=self.transform, requires=self.requires)
+        (interface, callable_method) = self._create_interface(module, api_function)
 
         use_examples = self.examples
         if not interface.required and not use_examples:
