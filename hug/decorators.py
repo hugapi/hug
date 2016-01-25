@@ -32,6 +32,7 @@ from falcon import HTTP_METHODS
 import hug.api
 import hug.defaults
 import hug.output_format
+from hug.class_based import classy
 from hug.format import underscore
 from hug.routing import CLIRouter as cli
 from hug.routing import NotFoundRouter as not_found

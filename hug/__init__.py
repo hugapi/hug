@@ -34,8 +34,8 @@ from falcon import *
 from hug import (authentication, directives, documentation, exceptions, format,
                  input_format, middleware, output_format, redirect, run, test, types)
 from hug._version import current
-from hug.decorators import (call, cli, connect, default_input_format, default_output_format, delete,
-                            directive, extend_api, get, head, middleware_class, not_found, options,
+from hug.decorators import (call, classy, cli, connect, default_input_format, default_output_format,
+                            delete, directive, extend_api, get, head, middleware_class, not_found, options,
                             patch, post, put, request_middleware, response_middleware, startup, trace)
 
 from hug import defaults  # isort:skip - must be imported last for defaults to have access to all modules
