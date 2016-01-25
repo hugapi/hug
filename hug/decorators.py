@@ -253,12 +253,6 @@ def _marshmallow_schema(marshmallow):
     return marshmallow_type
 
 
-def _create_interface(module, api_function, parameters=None, defaults={}, output=None, versions=None,
-                      parse_body=True, set_status=False, transform=None, requires=()):
-    '''Creates the request handling interface method for the given API function'''
-
-
-
 class Router(object):
 
     def __init__(self, transform=None, output=None):
