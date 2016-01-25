@@ -111,6 +111,10 @@ class TestHTTPRouter(TestRouter):
         '''Test to ensure the default status can be changed on the fly'''
         assert self.route.set_status(500).route['status'] == 500
 
+    def test_on_invalid(self):
+        '''Test to ensure on_invalid handler can be changed on the fly'''
+        assert self.route.on_invalid(str).route['on_invalid'] == str
+
 
 class TestNotFoundRouter(TestHTTPRouter):
     '''Collection of tests to ensure the NotFoundRouter object works as expected'''

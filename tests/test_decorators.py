@@ -98,6 +98,23 @@ def test_single_parameter():
     assert 'required' in hug.test.get(api, '/echo').data['errors']['text'].lower()
 
 
+def test_on_invalid_transformer():
+    '''Test to ensure it is possible to transform data when data is invalid'''
+    @hug.call(on_invalid=lambda data: 'error')
+    def echo(text):
+        return text
+    assert hug.test.get(api, '/echo').data == 'error'
+
+
+    def handle_error(data, request, response):
+        return 'errored'
+
+    @hug.call(on_invalid=handle_error)
+    def echo(text):
+        return text
+    assert hug.test.get(api, '/echo').data == 'errored'
+
+
 def test_smart_redirect_routing():
     '''Test to ensure you can easily redirect to another method without an actual redirect'''
     @hug.get()
