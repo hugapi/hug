@@ -253,9 +253,11 @@ class HTTPRouter(Router):
         return self.where(defaults=defaults, **overrides)
 
     def on_invalid(self, function, **overrides):
-        '''Sets a function to use to transform data on validation errors'''
+        '''Sets a function to use to transform data on validation errors
+            Defaults to the transform function if one is set
+            To ensure no special handling occurs for invalid data set to `False`
+        '''
         return self.where(on_invalid=function, **overrides)
-
 
     def _marshmallow_schema(self, marshmallow):
         '''Dynamically generates a hug style type handler from a Marshmallow style schema'''
@@ -308,9 +310,13 @@ class HTTPRouter(Router):
             transform_args = AUTO_INCLUDE.intersection(transform.__code__.co_varnames)
 
         on_invalid = self.route['on_invalid']
-        on_invalid_args = ()
-        if on_invalid and hasattr(on_invalid, '__code__'):
-            on_invalid_args = AUTO_INCLUDE.intersection(on_invalid.__code__.co_varnames)
+        if on_invalid is None and transform:
+            on_invalid = transform
+            on_invalid_args = transform_args
+        else:
+            on_invalid_args = ()
+            if on_invalid and hasattr(on_invalid, '__code__'):
+                on_invalid_args = AUTO_INCLUDE.intersection(on_invalid.__code__.co_varnames)
 
         is_method = False
         if 'method' in api_function.__class__.__name__:
