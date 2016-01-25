@@ -254,10 +254,10 @@ def _marshmallow_schema(marshmallow):
 
 
 class Router(object):
+    __slots__ = ('route', )
 
     def __init__(self, transform=None, output=None):
-        self.transform = transform
-        self.output = output
+        self.route = {'transform': transform, 'output': output}
 
     def output(self, formatter, **overrides):
         '''Sets the output formatter that should be used to render this route'''
@@ -271,7 +271,7 @@ class Router(object):
 
     def where(self, **overrides):
         '''Creates a new route, based on the current route, with the specified overrided values'''
-        route_data = vars(self).copy()
+        route_data = self.route.copy()
         route_data.update(overrides)
         return self.__class__(**route_data)
 
@@ -280,9 +280,9 @@ class CLIRouter(Router):
 
     def __init__(self, name=None, version=None, doc=None, transform=None, output=None):
         super().__init__(transform=transform, output=output)
-        self.name = name
-        self.version = version
-        self.doc = doc
+        self.route['name'] = name
+        self.route['version'] = version
+        self.route['doc'] = doc
 
     def __call__(self, api_function):
         '''Enables exposing a Hug compatible function as a Command Line Interface'''
@@ -307,7 +307,7 @@ class CLIRouter(Router):
 
         directives = module.__hug__.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
-        output_transform = self.transform or api_function.__annotations__.get('return', None)
+        output_transform = self.route['transform'] or api_function.__annotations__.get('return', None)
 
         is_method = False
         if 'method' in api_function.__class__.__name__:
@@ -316,10 +316,11 @@ class CLIRouter(Router):
             accepted_parameters = accepted_parameters[1:]
 
         used_options = {'h', 'help'}
-        parser = argparse.ArgumentParser(description=self.doc or api_function.__doc__)
-        if self.version:
+        parser = argparse.ArgumentParser(description=self.route['doc'] or api_function.__doc__)
+        if self.route['version']:
             parser.add_argument('-v', '--version', action='version',
-                                version="{0} {1}".format(self.name or api_function.__name__, self.version))
+                                version="{0} {1}".format(self.route['name'] or api_function.__name__,
+                                                         self.route['version']))
             used_options.update(('v', 'version'))
 
         annotations = api_function.__annotations__
@@ -409,7 +410,7 @@ class CLIRouter(Router):
             callable_method.__dict__['cli'] = cli_interface
         else:
             callable_method.cli = cli_interface
-        cli_interface.output = self.output
+        cli_interface.output = self.route['output']
         cli_interface.karg_method = karg_method
         return callable_method
 
@@ -421,12 +422,12 @@ class HTTPRouter(Router):
     def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
                  defaults={}, status=None):
         super().__init__(output=output, transform=transform)
-        self.versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
-        self.parse_body = parse_body
-        self.requires = (requires, ) if not isinstance(requires, (tuple, list)) else requires
-        self.parameters = parameters
-        self.defaults = defaults
-        self.status = status
+        self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
+        self.route['parse_body'] = parse_body
+        self.route['requires'] = (requires, ) if not isinstance(requires, (tuple, list)) else requires
+        self.route['parameters'] = parameters
+        self.route['defaults'] = defaults
+        self.route['status'] = status
 
     def versions(self, supported, **overrides):
         '''Sets the versions that this route should be compatiable with'''
@@ -438,15 +439,15 @@ class HTTPRouter(Router):
 
     def requires(self, requirements, **overrides):
         '''Adds additional requirements to the specified route'''
-        return self.where(requirements=tuple(getattr(self, 'requirements', ())) + tuple(requirements), **overrides)
+        return self.where(requirements=tuple(self.route.get('requirements', ())) + tuple(requirements), **overrides)
 
     def set_status(self, status, **overrides):
         '''Sets the status that will be returned by default'''
         return self.where(status=status, **overrides)
 
     def _create_interface(self, module, api_function):
-        defaults = self.defaults
-        if not self.parameters:
+        defaults = self.route['defaults']
+        if not self.route['parameters']:
             accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
             defaults = {}
             for index, default in enumerate(reversed(api_function.__defaults__ or ())):
@@ -454,18 +455,19 @@ class HTTPRouter(Router):
 
             required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
         else:
-            accepted_parameters = tuple(self.parameters)
-            required = tuple([parameter for parameter in accepted_parameters if parameter not in self.defaults])
+            accepted_parameters = tuple(self.route['parameters'])
+            required = tuple([parameter for parameter in accepted_parameters if parameter not in
+                              self.route['defaults']])
 
 
         takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
-        function_output = self.output or module.__hug__.output_format
+        function_output = self.route['output'] or module.__hug__.output_format
         function_output_args = (AUTO_INCLUDE.intersection(function_output.__code__.co_varnames) if
                                 hasattr(function_output, '__code__') else ())
         default_kwargs = {}
         directives = module.__hug__.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
-        transform = self.transform
+        transform = self.route['transform']
         if transform is None and not isinstance(api_function.__annotations__.get('return', None),
                                                      (str, type(None))):
             transform = api_function.__annotations__['return']
@@ -500,9 +502,9 @@ class HTTPRouter(Router):
 
             input_transformations[name] = transformer
 
-        parse_body = self.parse_body
-        requires = self.requires
-        set_status = self.status
+        parse_body = self.route['parse_body']
+        requires = self.route['requires']
+        set_status = self.route['status']
         def interface(request, response, api_version=None, **kwargs):
             if set_status:
                 response.status = set_status
@@ -621,8 +623,8 @@ class HTTPRouter(Router):
             else:
                 response.data = to_return
 
-        if self.versions:
-            module.__hug__.versions.update(self.versions)
+        if self.route['versions']:
+            module.__hug__.versions.update(self.route['versions'])
 
         callable_method = api_function
         if named_directives and not getattr(api_function, 'without_directives', None):
@@ -633,8 +635,8 @@ class HTTPRouter(Router):
                         continue
                     arguments = (defaults[parameter], ) if parameter in defaults else ()
                     kwargs[parameter] = directive(*arguments, module=module,
-                                        api_version=max(self.versions, key=lambda version: version or -1)
-                                        if self.versions else None)
+                                        api_version=max(self.route['versions'], key=lambda version: version or -1)
+                                        if self.route['versions'] else None)
                 return api_function(*args, **kwargs)
             callable_method.interface = interface
             callable_method.without_directives = api_function
@@ -664,7 +666,7 @@ class NotFoundRouter(HTTPRouter):
     def __call__(self, api_function):
         module = _api_module(api_function.__module__)
         (interface, callable_method) = self._create_interface(module, api_function)
-        for version in self.versions:
+        for version in self.route['versions']:
             module.__hug__.set_not_found_handler(interface, version)
 
         return callable_method
@@ -678,22 +680,22 @@ class URLRoute(HTTPRouter):
                  versions=None, parse_body=True, transform=None, requires=()):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults)
-        self.urls = (urls, ) if isinstance(urls, str) else urls
-        self.accept = accept
-        self.examples = (examples, ) if isinstance(examples, str) else examples
+        self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
+        self.route['accept'] = accept
+        self.route['examples'] = (examples, ) if isinstance(examples, str) else examples
 
     def __call__(self, api_function):
         module = _api_module(api_function.__module__)
         (interface, callable_method) = self._create_interface(module, api_function)
 
-        use_examples = self.examples
+        use_examples = self.route['examples']
         if not interface.required and not use_examples:
             use_examples = (True, )
-        for url in self.urls or ("/{0}".format(api_function.__name__), ):
+        for url in self.route['urls'] or ("/{0}".format(api_function.__name__), ):
             handlers = module.__hug__.routes.setdefault(url, {})
-            for method in self.accept:
+            for method in self.route['accept']:
                 version_mapping = handlers.setdefault(method.upper(), {})
-                for version in self.versions:
+                for version in self.route['versions']:
                     version_mapping[version] = interface
                     module.__hug__.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
 
