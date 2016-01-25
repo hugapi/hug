@@ -36,7 +36,8 @@ from hug import (authentication, directives, documentation, exceptions, format,
 from hug._version import current
 from hug.decorators import (call, cli, connect, default_input_format, default_output_format,
                             delete, directive, extend_api, get, head, not_found, options, patch,
-                            post, put, request_middleware, response_middleware, startup, trace)
+                            post, put, request_middleware, response_middleware, startup, trace,
+                            middleware_class)
 
 from hug import defaults  # isort:skip - must be imported last for defaults to have access to all modules
 

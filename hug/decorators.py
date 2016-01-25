@@ -41,7 +41,7 @@ from hug.routing import URLRouter as call
 def default_output_format(content_type='application/json', apply_globally=False):
     '''A decorator that allows you to override the default output format for an API'''
     def decorator(formatter):
-        api = hug.api.from_function(formatter)
+        api = hug.api.from_object(formatter)
         formatter = hug.output_format.content_type(content_type)(formatter)
         if apply_globally:
             hug.defaults.output_format = formatter
@@ -54,7 +54,7 @@ def default_output_format(content_type='application/json', apply_globally=False)
 def default_input_format(content_type='application/json', apply_globally=False):
     '''A decorator that allows you to override the default output format for an API'''
     def decorator(formatter):
-        api = hug.api.from_function(formatter)
+        api = hug.api.from_object(formatter)
         formatter = hug.output_format.content_type(content_type)(formatter)
         if apply_globally:
             hug.defaults.input_format[content_type] = formatter
@@ -70,7 +70,7 @@ def directive(apply_globally=True):
         if apply_globally:
             hug.defaults.directives[underscore(directive_method.__name__)] = directive_method
         else:
-            api = hug.api.from_function(directive_method)
+            api = hug.api.from_object(directive_method)
             api.add_directive(directive_method)
         directive_method.directive = True
         return directive_method
@@ -80,7 +80,7 @@ def directive(apply_globally=True):
 def startup():
     '''Runs the provided function on startup, passing in an instance of the api'''
     def startup_wrapper(startup_function):
-        hug.api.from_function(startup_function).add_startup_handler(startup_function)
+        hug.api.from_object(startup_function).add_startup_handler(startup_function)
         return startup_function
     return startup_wrapper
 
@@ -88,7 +88,7 @@ def startup():
 def request_middleware():
     '''Registers a middleware function that will be called on every request'''
     def decorator(middleware_method):
-        api = hug.api.from_function(middleware_method)
+        api = hug.api.from_object(middleware_method)
         middleware_method.__self__ = middleware_method
         api.add_middleware(namedtuple('MiddlewareRouter', ('process_request', ))(middleware_method))
         return middleware_method
@@ -98,17 +98,25 @@ def request_middleware():
 def response_middleware():
     '''Registers a middleware function that will be called on every response'''
     def decorator(middleware_method):
-        api = hug.api.from_function(middleware_method)
+        api = hug.api.from_object(middleware_method)
         middleware_method.__self__ = middleware_method
         api.add_middleware(namedtuple('MiddlewareRouter', ('process_response', ))(middleware_method))
         return middleware_method
     return decorator
 
 
+def middleware_class():
+    '''Registers a middleware class'''
+    def decorator(middleware_class):
+        hug.api.from_object(middleware_class).add_middleware(middleware_class())
+        return middleware_class
+    return decorator
+
+
 def extend_api(route=""):
     '''Extends the current api, with handlers from an imported api. Optionally provide a route that prefixes access'''
     def decorator(extend_with):
-        api = hug.api.from_function(extend_with)
+        api = hug.api.from_object(extend_with)
         for extended_api in extend_with():
             api.extend(extended_api, route)
         return extend_with

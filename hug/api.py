@@ -148,6 +148,6 @@ def from_module(module_name):
     return module.__hug__
 
 
-def from_function(function):
-    '''Returns a Hug API instance from a given function'''
-    return from_module(function.__module__)
+def from_object(obj):
+    '''Returns a Hug API instance from a given object (function, class, instance)'''
+    return from_module(obj.__module__)

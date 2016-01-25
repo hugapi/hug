@@ -21,7 +21,7 @@ import sys
 import pytest
 
 import hug
-from hug.middleware import SessionMiddleware
+from hug.middleware import SessionMiddleware, LogMiddleware
 
 from falcon.request import SimpleCookie
 
@@ -29,7 +29,7 @@ api = sys.modules[__name__]
 
 
 def test_session_middleware():
-    class TestSessionStore:
+    class TestSessionStore(object):
         def __init__(self):
             self.sessions = {}
 
@@ -83,3 +83,22 @@ def test_session_middleware():
     assert response.data == 1
     assert 'foobarfoo' not in session_store.sessions
     assert cookies['test-sid'] != 'foobarfoo'
+
+
+def test_logging_middleware():
+    output = []
+    class Logger(object):
+        def info(self, content):
+            output.append(content)
+
+    @hug.middleware_class()
+    class CustomLogger(LogMiddleware):
+        def __init__(self, logger=Logger()):
+            super().__init__(logger=logger)
+
+    @hug.get()
+    def test(request):
+        return 'data'
+
+    hug.test.get(api, '/test')
+    assert output == ['Requested: GET /test None', 'Responded: 200 OK /test application/json']
