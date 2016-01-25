@@ -116,3 +116,4 @@ Changelog
 - Adds support for smarter handling of html output types
 - Added extended support for delimited fields, enabling use of custom delimiters
 - Now correctly identifies and handles custom encodings
+- Improved integration with Falcon so that primary elements (like status codes) can be imported directly from hug
