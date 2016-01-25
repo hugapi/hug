@@ -114,6 +114,8 @@ Changelog
 - Adds the concept of chain-able routing decorators
 - Adds support for running arbitrary python functions at runtime via an `@hug.startup` decorator
 - Adds support for smarter handling of html output types
+- Adds a logging middleware to simplify the process of logging all requests with hug
+- Adds a `middleware_class` class decorator, to enable quickly registering middleware classes
 - Added extended support for delimited fields, enabling use of custom delimiters
 - Now correctly identifies and handles custom encodings
 - Improved integration with Falcon so that primary elements (like status codes) can be imported directly from hug
