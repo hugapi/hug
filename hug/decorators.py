@@ -27,14 +27,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 from collections import namedtuple
 from functools import partial
 
+from falcon import HTTP_METHODS
+
+import hug.api
 import hug.defaults
 import hug.output_format
 from hug.format import underscore
-from hug.routing import URLRoute as call
-from hug.routing import NotFoundRouter as not_found
 from hug.routing import CLIRouter as cli
-from falcon import HTTP_METHODS
-import hug.api
+from hug.routing import NotFoundRouter as not_found
+from hug.routing import URLRoute as call
 
 
 def default_output_format(content_type='application/json', apply_globally=False):

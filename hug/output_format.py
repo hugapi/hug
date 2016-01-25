@@ -23,11 +23,12 @@ import base64
 import json as json_converter
 import mimetypes
 import os
-from decimal import Decimal
 from datetime import date, datetime
+from decimal import Decimal
 from io import BytesIO
 
 from falcon import HTTP_NOT_FOUND
+
 from hug.format import camelcase, content_type
 
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
