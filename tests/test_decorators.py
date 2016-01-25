@@ -117,7 +117,6 @@ def test_smart_redirect_routing():
         else:
             return "NOT IMPLEMENTED"
 
-
     assert hug.test.get(api, 'smart_route', implementation=1).data == 1
     assert hug.test.get(api, 'smart_route', implementation=2).data == 2
     assert hug.test.get(api, 'smart_route', implementation=3).data == "NOT IMPLEMENTED"
