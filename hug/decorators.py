@@ -456,78 +456,15 @@ def _create_interface(module, api_function, parameters=None, defaults={}, output
     return (interface, callable_method)
 
 
-def not_found(output=None, versions=None, parse_body=False, transform=None, requires=()):
-    '''A decorator to register a 404 handler'''
-    versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
-    requires = (requires, ) if not isinstance(requires, (tuple, list)) else requires
+class Router(object):
 
-    def decorator(api_function):
-        module = _api_module(api_function.__module__)
-        (interface, callable_method) = _create_interface(module, api_function, output=output,
-                                                         versions=versions, parse_body=parse_body,
-                                                         set_status=falcon.HTTP_NOT_FOUND, transform=transform,
-                                                         requires=requires)
-
-        for version in versions:
-            module.__hug__.set_not_found_handler(interface, version)
-
-        return callable_method
-    return decorator
-
-
-def _call(urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(), versions=None,
-         parse_body=True, transform=None, requires=()):
-    '''Defines the base Hug API creating decorator, which exposes normal python methods as HTTP APIs'''
-    urls = (urls, ) if isinstance(urls, str) else urls
-    examples = (examples, ) if isinstance(examples, str) else examples
-    versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
-    requires = (requires, ) if not isinstance(requires, (tuple, list)) else requires
-
-    def decorator(api_function):
-        module = _api_module(api_function.__module__)
-        (interface, callable_method) = _create_interface(module, api_function, output=output,
-                                                         parameters=parameters, defaults=defaults,
-                                                         versions=versions, parse_body=parse_body, transform=transform,
-                                                         requires=requires)
-
-        use_examples = examples
-        if not interface.required and not use_examples:
-            use_examples = (True, )
-        for url in urls or ("/{0}".format(api_function.__name__), ):
-            handlers = module.__hug__.routes.setdefault(url, {})
-            for method in accept:
-                version_mapping = handlers.setdefault(method.upper(), {})
-                for version in versions:
-                    version_mapping[version] = interface
-                    module.__hug__.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
-
-        interface.examples = use_examples
-        return callable_method
-    return decorator
-
-
-class APIRoute(object):
-
-    def __init__(self, urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
-                 versions=None, parse_body=True, transform=None, requires=()):
-        self.urls = urls
-        self.accept = accept
-        self.parameters = parameters
-        self.defaults = defaults
-        self.output = output
-        self.examples = examples
-        self.versions = versions
-        self.parse_body = parse_body
+    def __init__(self, transform=None, output=None):
         self.transform = transform
-        self.requires = requires
+        self.output = output
 
-    def __call__(self, function):
-        return _call(**vars(self))(function)
-
-    def where(self, **overrides):
-        route_data = vars(self).copy()
-        route_data.update(overrides)
-        return self.__class__(**route_data)
+    def output(self, formatter, **overrides):
+        '''Sets the output formatter that should be used to render this route'''
+        return self.where(output=formatter, **overrides)
 
     def transform(self, function, **overrides):
         '''Sets the function that should be used to transform the returned Python structure into something
@@ -535,84 +472,23 @@ class APIRoute(object):
         '''
         return self.where(transform=function, **overrides)
 
-    def urls(self, urls, **overrides):
-        '''Sets the URLs that will map to this API call'''
-        return self.where(urls=urls, **overrides)
-
-    def accept(self, accept, **overrides):
-        '''Sets a list of HTTP methods this router should accept'''
-        return self.where(accept=accept, **overrides)
-
-    def get(self, **overrides):
-        '''Sets the acceptable HTTP method to a GET'''
-        return self.where(accept='GET', **overrides)
-
-    def delete(self, **overrides):
-        '''Sets the acceptable HTTP method to DELETE'''
-        return self.where(accept='DELETE', **overrides)
-
-    def post(self, **overrides):
-        '''Sets the acceptable HTTP method to POST'''
-        return self.where(accept='POST', **overrides)
-
-    def put(self, **overrides):
-        '''Sets the acceptable HTTP method to PUT'''
-        return self.where(accept='PUT', **overrides)
-
-    def trace(self, **overrides):
-        '''Sets the acceptable HTTP method to TRACE'''
-        return self.where(accept='TRACE', **overrides)
-
-    def patch(self, **overrides):
-        '''Sets the acceptable HTTP method to PATCH'''
-        return self.where(accept='PATCH', **overrides)
-
-    def options(self, **overrides):
-        '''Sets the acceptable HTTP method to OPTIONS'''
-        return self.where(accept='OPTIONS', **overrides)
-
-    def head(self, **overrides):
-        '''Sets the acceptable HTTP method to HEAD'''
-        return self.where(accept='HEAD', **overrides)
-
-    def connect(self, **overrides):
-        '''Sets the acceptable HTTP method to CONNECT'''
-        return self.where(accept='CONNECT', **overrides)
-
-    def parameters(self, parameters, **overrides):
-        '''Sets the custom parameters that will be used instead of those found introspecting the decorated function'''
-        return self.where(parameters=parameters, **overrides)
-
-    def defaults(self, defaults, **overrides):
-        '''Sets the custom defaults that will be used for custom parameters'''
-        return self.where(defaults=defaults, **overrides)
-
-    def output(self, formatter, **overrides):
-        '''Sets the output formatter that should be used to render this route'''
-        return self.where(output=formatter, **overrides)
-
-    def examples(self, examples, **overrides):
-        '''Sets the examples that the route should use'''
-        return self.where(examples=examples, **overrides)
-
-    def versions(self, supported, **overrides):
-        '''Sets the versions that this route should be compatiable with'''
-        return self.where(versions=supported, **overrides)
-
-    def parse_body(self, automatic=True, **overrides):
-        '''Tells hug to automatically parse the input body if it matches a registered input format'''
-        return self.where(parse_body=automatic, **overrides)
-
-    def requires(self, requirements, **overrides):
-        '''Adds additional requirements to the specified route'''
-        return self.where(requirements=tuple(getattr(self, 'requirements', ())) + tuple(requirements), **overrides)
-
-call = APIRoute
+    def where(self, **overrides):
+        '''Creates a new route, based on the current route, with the specified overrided values'''
+        route_data = vars(self).copy()
+        route_data.update(overrides)
+        return self.__class__(**route_data)
 
 
-def cli(name=None, version=None, doc=None, transform=None, output=None):
-    '''Enables exposing a Hug compatible function as a Command Line Interface'''
-    def decorator(api_function):
+class CLIRouter(Router):
+
+    def __init__(self, name=None, version=None, doc=None, transform=None, output=None):
+        super().__init__(transform=transform, output=output)
+        self.name = name
+        self.version = version
+        self.doc = doc
+
+    def __call__(self, api_function):
+        '''Enables exposing a Hug compatible function as a Command Line Interface'''
         module = module = _api_module(api_function.__module__)
 
         takes_kargs = bool(api_function.__code__.co_flags & 0x04)
@@ -634,7 +510,7 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
 
         directives = module.__hug__.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
-        output_transform = transform or api_function.__annotations__.get('return', None)
+        output_transform = self.transform or api_function.__annotations__.get('return', None)
 
         is_method = False
         if 'method' in api_function.__class__.__name__:
@@ -643,10 +519,10 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
             accepted_parameters = accepted_parameters[1:]
 
         used_options = {'h', 'help'}
-        parser = argparse.ArgumentParser(description=doc or api_function.__doc__)
-        if version:
+        parser = argparse.ArgumentParser(description=self.doc or api_function.__doc__)
+        if self.version:
             parser.add_argument('-v', '--version', action='version',
-                                version="{0} {1}".format(name or api_function.__name__, version))
+                                version="{0} {1}".format(self.name or api_function.__name__, self.version))
             used_options.update(('v', 'version'))
 
         annotations = api_function.__annotations__
@@ -736,10 +612,142 @@ def cli(name=None, version=None, doc=None, transform=None, output=None):
             callable_method.__dict__['cli'] = cli_interface
         else:
             callable_method.cli = cli_interface
-        cli_interface.output = output
+        cli_interface.output = self.output
         cli_interface.karg_method = karg_method
         return callable_method
-    return decorator
+
+cli = CLIRouter
+
+
+class HTTPRouter(Router):
+
+    def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=()):
+        super().__init__(output=output, transform=transform)
+        self.versions = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
+        self.parse_body = parse_body
+        self.requires = (requires, ) if not isinstance(requires, (tuple, list)) else requires
+
+    def versions(self, supported, **overrides):
+        '''Sets the versions that this route should be compatiable with'''
+        return self.where(versions=supported, **overrides)
+
+    def parse_body(self, automatic=True, **overrides):
+        '''Tells hug to automatically parse the input body if it matches a registered input format'''
+        return self.where(parse_body=automatic, **overrides)
+
+    def requires(self, requirements, **overrides):
+        '''Adds additional requirements to the specified route'''
+        return self.where(requirements=tuple(getattr(self, 'requirements', ())) + tuple(requirements), **overrides)
+
+
+class NotFoundRouter(HTTPRouter):
+    '''Stores the information necessary to expose API calls within this module externally'''
+
+    def __call__(self, api_function):
+        module = _api_module(api_function.__module__)
+        (interface, callable_method) = _create_interface(module, api_function, output=self.output,
+                                                         versions=self.versions, parse_body=self.parse_body,
+                                                         set_status=falcon.HTTP_NOT_FOUND, transform=self.transform,
+                                                         requires=self.requires)
+
+        for version in self.versions:
+            module.__hug__.set_not_found_handler(interface, version)
+
+        return callable_method
+
+not_found = NotFoundRouter
+
+
+class URLRoute(HTTPRouter):
+
+    def __init__(self, urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
+                 versions=None, parse_body=True, transform=None, requires=()):
+        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
+                         requires=requires)
+        self.urls = (urls, ) if isinstance(urls, str) else urls
+        self.accept = accept
+        self.parameters = parameters
+        self.defaults = defaults
+        self.examples = (examples, ) if isinstance(examples, str) else examples
+
+    def __call__(self, api_function):
+        module = _api_module(api_function.__module__)
+        (interface, callable_method) = _create_interface(module, api_function, output=self.output,
+                                                         parameters=self.parameters, defaults=self.defaults,
+                                                         versions=self.versions, parse_body=self.parse_body,
+                                                         transform=self.transform, requires=self.requires)
+
+        use_examples = self.examples
+        if not interface.required and not use_examples:
+            use_examples = (True, )
+        for url in self.urls or ("/{0}".format(api_function.__name__), ):
+            handlers = module.__hug__.routes.setdefault(url, {})
+            for method in self.accept:
+                version_mapping = handlers.setdefault(method.upper(), {})
+                for version in self.versions:
+                    version_mapping[version] = interface
+                    module.__hug__.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
+
+        interface.examples = use_examples
+        return callable_method
+
+    def urls(self, urls, **overrides):
+        '''Sets the URLs that will map to this API call'''
+        return self.where(urls=urls, **overrides)
+
+    def accept(self, accept, **overrides):
+        '''Sets a list of HTTP methods this router should accept'''
+        return self.where(accept=accept, **overrides)
+
+    def get(self, **overrides):
+        '''Sets the acceptable HTTP method to a GET'''
+        return self.where(accept='GET', **overrides)
+
+    def delete(self, **overrides):
+        '''Sets the acceptable HTTP method to DELETE'''
+        return self.where(accept='DELETE', **overrides)
+
+    def post(self, **overrides):
+        '''Sets the acceptable HTTP method to POST'''
+        return self.where(accept='POST', **overrides)
+
+    def put(self, **overrides):
+        '''Sets the acceptable HTTP method to PUT'''
+        return self.where(accept='PUT', **overrides)
+
+    def trace(self, **overrides):
+        '''Sets the acceptable HTTP method to TRACE'''
+        return self.where(accept='TRACE', **overrides)
+
+    def patch(self, **overrides):
+        '''Sets the acceptable HTTP method to PATCH'''
+        return self.where(accept='PATCH', **overrides)
+
+    def options(self, **overrides):
+        '''Sets the acceptable HTTP method to OPTIONS'''
+        return self.where(accept='OPTIONS', **overrides)
+
+    def head(self, **overrides):
+        '''Sets the acceptable HTTP method to HEAD'''
+        return self.where(accept='HEAD', **overrides)
+
+    def connect(self, **overrides):
+        '''Sets the acceptable HTTP method to CONNECT'''
+        return self.where(accept='CONNECT', **overrides)
+
+    def parameters(self, parameters, **overrides):
+        '''Sets the custom parameters that will be used instead of those found introspecting the decorated function'''
+        return self.where(parameters=parameters, **overrides)
+
+    def defaults(self, defaults, **overrides):
+        '''Sets the custom defaults that will be used for custom parameters'''
+        return self.where(defaults=defaults, **overrides)
+
+    def examples(self, examples, **overrides):
+        '''Sets the examples that the route should use'''
+        return self.where(examples=examples, **overrides)
+
+call = URLRoute
 
 
 for method in HTTP_METHODS:
