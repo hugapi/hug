@@ -120,4 +120,4 @@ Changelog
 - Added extended support for delimited fields, enabling use of custom delimiters
 - Now correctly identifies and handles custom encodings
 - Improved integration with Falcon so that primary elements (like status codes) can be imported directly from hug
-- Added the ability to specify a transformer for errors per request handler
+- Added the ability to specify a transformer for validation errors per request handler, via `on_invalid` decorator argument
