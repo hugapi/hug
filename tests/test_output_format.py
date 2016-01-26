@@ -168,3 +168,7 @@ def test_on_content_type():
 
     request.content_type = 'text/plain'
     assert formatter('hi', request, response) == b'hi'
+
+    with pytest.raises(hug.HTTPNotAcceptable):
+        request.content_type = 'undefined; always'
+        formatter('hi', request, response)
