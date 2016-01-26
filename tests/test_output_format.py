@@ -153,3 +153,18 @@ def test_video():
             return 'test'
     assert hug.output_format.avi_video(FakeVideoWithSave()) == 'test'
 
+
+def test_on_content_type():
+    '''Ensure that it's possible to route the output type format by the requested content-type'''
+    formatter = hug.output_format.on_content_type({'application/json': hug.output_format.json,
+                                                   'text/plain': hug.output_format.text})
+    class FakeRequest(object):
+        content_type = 'application/json'
+
+    request = FakeRequest()
+    response = FakeRequest()
+    converted = hug.input_format.json(formatter(BytesIO(hug.output_format.json({'name': 'name'})), request, response))
+    assert converted == {'name': 'name'}
+
+    request.content_type = 'text/plain'
+    assert formatter('hi', request, response) == b'hi'
