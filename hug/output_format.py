@@ -27,6 +27,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from io import BytesIO
 
+import falcon
 from falcon import HTTP_NOT_FOUND
 
 from hug.format import camelcase, content_type

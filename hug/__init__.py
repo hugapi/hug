@@ -31,8 +31,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from falcon import *
 
-from hug import (authentication, directives, documentation, exceptions, format,
-                 input_format, middleware, output_format, redirect, run, test, types)
+from hug import (authentication, directives, documentation, exceptions, format, input_format,
+                 middleware, output_format, redirect, run, test, transform, types)
 from hug._version import current
 from hug.decorators import (call, classy, cli, connect, default_input_format, default_output_format,
                             delete, directive, extend_api, get, head, middleware_class, not_found, options,
