@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import hug
 from hug.routing import Router, CLIRouter, HTTPRouter, NotFoundRouter, URLRouter
 
 
@@ -169,6 +170,10 @@ class TestURLRouter(TestHTTPRouter):
     def test_connect(self):
         '''Test to ensure the HTTP METHOD can be set to just CONNECT on the fly'''
         assert self.route.connect().route['accept'] == ('CONNECT', )
+
+    def test_call(self):
+        '''Test to ensure the HTTP METHOD can be set to accept all on the fly'''
+        assert self.route.call().route['accept'] == hug.HTTP_METHODS
 
     def test_examples(self):
         '''Test to ensure examples can be modified on the fly'''
