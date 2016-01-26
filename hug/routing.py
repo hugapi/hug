@@ -600,6 +600,10 @@ class URLRouter(HTTPRouter):
         '''Sets the acceptable HTTP method to CONNECT'''
         return self.where(accept='CONNECT', **overrides)
 
+    def call(self, **overrides):
+        '''Sets the acceptable HTTP method to all known'''
+        return self.where(accept=HTTP_METHODS, **overrides)
+
     def examples(self, examples, **overrides):
         '''Sets the examples that the route should use'''
         return self.where(examples=examples, **overrides)
