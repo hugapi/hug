@@ -124,6 +124,8 @@ Changelog
 - Added support for running different transformations and outputting different content_types based on path suffix
 - Added support for automatically supporting a set of suffixes at the end of a URL
 - Added support for automatically adding headers based on route match
+- Added support for quickly adding cache header based on route match
+- Added support for quickly adding allow origin header based on route match
 - Now correctly identifies and handles custom encodings
 - Improved integration with Falcon so that primary elements (like status codes) can be imported directly from hug
 - Added the ability to specify a transformer for validation errors per request handler, via `on_invalid` decorator argument
