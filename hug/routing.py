@@ -558,7 +558,10 @@ class URLRouter(HTTPRouter):
         for base_url in self.route['urls'] or ("/{0}".format(api_function.__name__), ):
             expose = [base_url, ]
             for suffix in self.route['suffixes']:
-                expose.append(base_url + suffix)
+                if suffix.startswith('/'):
+                    expose.append(os.path.join(base_url, suffix.lstrip('/')))
+                else:
+                    expose.append(base_url + suffix)
             for prefix in self.route['prefixes']:
                 expose.append(prefix + base_url)
             for url in expose:
