@@ -38,3 +38,25 @@ def content_type(transformers, default=None):
 
         return transformer(data)
     return transform
+
+
+def suffix(transformers, default=None):
+    '''Returns a different transformer depending on the suffix at the end of the requested URL.
+       If none match and no default is given no transformation takes place.
+
+       should pass in a dict with the following format:
+
+            {'[suffix]': transformation_action,
+             ...
+            }
+    '''
+    def transform(data, request):
+        path = request.path
+        transformer = default
+        for suffix_test, suffix_transformer in transformers.items():
+            if path.endswith(suffix_test):
+                transformer = suffix_transformer
+                break
+
+        return transformer(data) if transformer else data
+    return transform
