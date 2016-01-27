@@ -122,6 +122,7 @@ Changelog
 - Added support for running different transformers based on content_type
 - Added support for outputting a different response output type based on the response content_type
 - Added support for running different transformations and outputting different content_types based on path suffix
+- Added support for automatically supporting a set of suffixes at the end of a URL
 - Now correctly identifies and handles custom encodings
 - Improved integration with Falcon so that primary elements (like status codes) can be imported directly from hug
 - Added the ability to specify a transformer for validation errors per request handler, via `on_invalid` decorator argument

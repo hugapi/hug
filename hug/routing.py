@@ -530,13 +530,16 @@ class URLRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route a URL to a Python function'''
 
     def __init__(self, urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
-                 versions=None, parse_body=True, transform=None, requires=(), status=None, on_invalid=None):
+                 versions=None, parse_body=True, transform=None, requires=(), status=None, on_invalid=None,
+                 suffixes=(), prefixes=()):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults, status=status,
                          on_invalid=on_invalid)
         self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
         self.route['accept'] = (accept, ) if isinstance(accept, str) else accept
         self.route['examples'] = (examples, ) if isinstance(examples, str) else examples
+        self.route['suffixes'] = (suffixes, ) if isinstance(suffixes, str) else suffixes
+        self.route['prefixes'] = (prefixes, ) if isinstance(prefixes, str) else prefixes
 
     def __call__(self, api_function):
         api = hug.api.from_object(api_function)
@@ -545,22 +548,29 @@ class URLRouter(HTTPRouter):
         use_examples = self.route['examples']
         if not interface.required and not use_examples:
             use_examples = (True, )
-        for url in self.route['urls'] or ("/{0}".format(api_function.__name__), ):
-            handlers = api.routes.setdefault(url, {})
-            for method in self.route['accept']:
-                version_mapping = handlers.setdefault(method.upper(), {})
-                for version in self.route['versions']:
-                    version_mapping[version] = interface
-                    api.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
+
+        for base_url in self.route['urls'] or ("/{0}".format(api_function.__name__), ):
+            expose = [base_url, ]
+            for suffix in self.route['suffixes']:
+                expose.append(base_url + suffix)
+            for prefix in self.route['prefixes']:
+                expose.append(prefix + base_url)
+            for url in expose:
+                handlers = api.routes.setdefault(url, {})
+                for method in self.route['accept']:
+                    version_mapping = handlers.setdefault(method.upper(), {})
+                    for version in self.route['versions']:
+                        version_mapping[version] = interface
+                        api.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
 
         interface.examples = use_examples
         return callable_method
 
-    def urls(self, urls, **overrides):
+    def urls(self, *urls, **overrides):
         '''Sets the URLs that will map to this API call'''
         return self.where(urls=urls, **overrides)
 
-    def accept(self, accept, **overrides):
+    def accept(self, *accept, **overrides):
         '''Sets a list of HTTP methods this router should accept'''
         return self.where(accept=accept, **overrides)
 
@@ -604,6 +614,14 @@ class URLRouter(HTTPRouter):
         '''Sets the acceptable HTTP method to all known'''
         return self.where(accept=HTTP_METHODS, **overrides)
 
-    def examples(self, examples, **overrides):
+    def examples(self, *examples, **overrides):
         '''Sets the examples that the route should use'''
         return self.where(examples=examples, **overrides)
+
+    def suffixes(self, *suffixes, **overrides):
+        '''Sets the suffixes supported by the route'''
+        return self.where(suffixes=suffixes, **overrides)
+
+    def prefixes(self, *prefixes, **overrides):
+        '''Sets the prefixes supported by the route'''
+        return self.where(prefixes=prefixes, **overrides)

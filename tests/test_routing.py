@@ -178,3 +178,11 @@ class TestURLRouter(TestHTTPRouter):
     def test_examples(self):
         '''Test to ensure examples can be modified on the fly'''
         assert self.route.examples('none').route['examples'] == ('none', )
+
+    def test_prefixes(self):
+        '''Test to ensure adding prefixes works as expected'''
+        assert self.route.prefixes('/js/').route['prefixes'] == ('/js/', )
+
+    def test_suffixes(self):
+        '''Test to ensure setting suffixes works as expected'''
+        assert self.route.suffixes('.js', '.xml').route['suffixes'] == ('.js', '.xml')

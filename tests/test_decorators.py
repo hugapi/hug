@@ -530,11 +530,13 @@ def test_output_format():
     def augmented(data):
         return hug.output_format.json(['Augmented', data])
 
-    @hug.get()
+    @hug.get(suffixes='.js', prefixes='/text')
     def hello():
         return "world"
 
     assert hug.test.get(api, 'hello').data == ['Augmented', 'world']
+    assert hug.test.get(api, 'hello.js').data == ['Augmented', 'world']
+    assert hug.test.get(api, 'text/hello').data == ['Augmented', 'world']
 
     @hug.default_output_format()
     def jsonify(data):
