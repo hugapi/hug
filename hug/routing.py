@@ -641,3 +641,18 @@ class URLRouter(HTTPRouter):
         response_headers = self.route.get('response_headers', {}).copy()
         response_headers.update(headers)
         return self.where(response_headers=response_headers, **overrides)
+
+    def cache(self, private=False, max_age=31536000, s_maxage=None, no_cache=False, no_store=False,
+              must_revalidate=False, **overrides):
+        '''Convience method for quickly adding cache header to route'''
+        parts = ('private' if private else 'public', 'max-age={0}'.format(max_age),
+                 's-maxage={0}'.format(s_maxage) if s_maxage is not None else None, no_cache and 'no-cache',
+                 no_store and 'no-store', must_revalidate and 'must-revalidate')
+        return self.add_response_headers({'cache-control': ', '.join(filter(bool, parts))}, **overrides)
+
+    def allow_origins(self, *origins, methods=None, **overrides):
+        '''Convience method for quickly allowing other resources to access this one'''
+        headers = {'Access-Control-Allow-Origin': ', '.join(origins) if origins else '*'}
+        if methods:
+            headers['Access-Control-Allow-Methods'] = ', '.join(methods)
+        return self.add_response_headers(headers, **overrides)
