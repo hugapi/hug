@@ -342,7 +342,11 @@ class HTTPRouter(Router):
         parse_body = self.route['parse_body']
         requires = self.route['requires']
         set_status = self.route['status']
+        response_headers = tuple(self.route.get('response_headers', {}).items())
         def interface(request, response, api_version=None, **kwargs):
+            for header_name, header_value in response_headers:
+                response.set_header(header_name, header_value)
+
             if set_status:
                 response.status = set_status
 
@@ -531,7 +535,7 @@ class URLRouter(HTTPRouter):
 
     def __init__(self, urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
                  versions=None, parse_body=True, transform=None, requires=(), status=None, on_invalid=None,
-                 suffixes=(), prefixes=()):
+                 suffixes=(), prefixes=(), response_headers=None):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults, status=status,
                          on_invalid=on_invalid)
@@ -540,6 +544,8 @@ class URLRouter(HTTPRouter):
         self.route['examples'] = (examples, ) if isinstance(examples, str) else examples
         self.route['suffixes'] = (suffixes, ) if isinstance(suffixes, str) else suffixes
         self.route['prefixes'] = (prefixes, ) if isinstance(prefixes, str) else prefixes
+        if response_headers:
+            self.route['response_headers'] = response_headers
 
     def __call__(self, api_function):
         api = hug.api.from_object(api_function)
@@ -625,3 +631,13 @@ class URLRouter(HTTPRouter):
     def prefixes(self, *prefixes, **overrides):
         '''Sets the prefixes supported by the route'''
         return self.where(prefixes=prefixes, **overrides)
+
+    def response_headers(self, headers, **overrides):
+        '''Sets the response headers automatically injected by the router'''
+        return self.where(response_headers=headers, **overrides)
+
+    def add_response_headers(self, headers, **overrides):
+        '''Adds the specified response headers while keeping existing ones in-tact'''
+        response_headers = self.route.get('response_headers', {}).copy()
+        response_headers.update(headers)
+        return self.where(response_headers=response_headers, **overrides)

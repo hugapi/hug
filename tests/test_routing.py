@@ -186,3 +186,11 @@ class TestURLRouter(TestHTTPRouter):
     def test_suffixes(self):
         '''Test to ensure setting suffixes works as expected'''
         assert self.route.suffixes('.js', '.xml').route['suffixes'] == ('.js', '.xml')
+
+    def test_response_headers(self):
+        assert self.route.response_headers({'one': 'two'}).route['response_headers'] == {'one': 'two'}
+
+    def test_add_response_headers(self):
+        route = self.route.response_headers({'one': 'two'})
+        assert route.route['response_headers'] == {'one': 'two'}
+        assert route.add_response_headers({'two': 'three'}).route['response_headers'] == {'one': 'two', 'two': 'three'}
