@@ -857,3 +857,14 @@ def test_startup():
         pass
 
     assert happens_on_startup in api.__hug__.startup_handlers
+
+
+def test_adding_headers():
+    '''Test to ensure it is possible to inject response headers based on only the URL route'''
+    @hug.get(response_headers={'name': 'Timothy'})
+    def endpoint():
+        return ''
+
+    result = hug.test.get(api, 'endpoint')
+    assert result.data == ''
+    assert result.headers_dict['name'] == 'Timothy'
