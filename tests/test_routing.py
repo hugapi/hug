@@ -188,9 +188,22 @@ class TestURLRouter(TestHTTPRouter):
         assert self.route.suffixes('.js', '.xml').route['suffixes'] == ('.js', '.xml')
 
     def test_response_headers(self):
+        '''Test to ensure it's possible to switch out response headers for URL routes on the fly'''
         assert self.route.response_headers({'one': 'two'}).route['response_headers'] == {'one': 'two'}
 
     def test_add_response_headers(self):
+        '''Test to ensure it's possible to add headers on the fly'''
         route = self.route.response_headers({'one': 'two'})
         assert route.route['response_headers'] == {'one': 'two'}
         assert route.add_response_headers({'two': 'three'}).route['response_headers'] == {'one': 'two', 'two': 'three'}
+
+    def test_cache(self):
+        '''Test to ensure it's easy to add a cache header on the fly'''
+        assert self.route.cache().route['response_headers']['cache-control'] == 'public, max-age=31536000'
+
+    def test_allow_origins(self):
+        '''Test to ensure it's easy to expose route to other resources'''
+        assert self.route.allow_origins().route['response_headers']['Access-Control-Allow-Origin'] == '*'
+        test_headers = self.route.allow_origins('google.com', methods=('GET', 'POST')).route['response_headers']
+        assert test_headers['Access-Control-Allow-Origin'] == 'google.com'
+        assert test_headers['Access-Control-Allow-Methods'] == 'GET, POST'
