@@ -18,6 +18,7 @@ Code Contributors
 - @arpesenti
 - Eirik Rye (@eirikrye)
 - Matteo Bertini (@naufraghi)
+- Trevor Scheitrum (@trevorscheitrum)
 
 Documenters
 ===================

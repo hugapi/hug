@@ -60,3 +60,25 @@ def suffix(transformers, default=None):
 
         return transformer(data) if transformer else data
     return transform
+
+
+def prefix(transformers, default=None):
+    '''Returns a different transformer depending on the prefix at the end of the requested URL.
+       If none match and no default is given no transformation takes place.
+
+       should pass in a dict with the following format:
+
+            {'[prefix]': transformation_action,
+             ...
+            }
+    '''
+    def transform(data, request):
+        path = request.path
+        transformer = default
+        for prefix_test, prefix_transformer in transformers.items():
+            if path.startswith(prefix_test):
+                transformer = prefix_transformer
+                break
+
+        return transformer(data) if transformer else data
+    return transform
