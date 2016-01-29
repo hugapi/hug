@@ -83,6 +83,8 @@ class HugAPI(object):
 
     def extend(self, module, route=""):
         '''Adds handlers from a different Hug API module to this one - to create a single API'''
+        self.versions.update(module.__hug__.versions)
+
         for item_route, handler in module.__hug__.routes.items():
             self.routes[route + item_route] = handler
 
