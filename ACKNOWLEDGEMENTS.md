@@ -11,6 +11,7 @@ Notable Bug Reporters
 
 Code Contributors
 ===================
+- Brandon Hoffman (@BrandonHoffman)
 - Fabian Kochem (@vortec)
 - Kostas Dizas (@kostasdizas)
 - Ali-Akber Saifee (@alisaifee)
