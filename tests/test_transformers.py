@@ -52,3 +52,19 @@ def test_suffix():
 
     request.path = 'hey.undefined'
     transformer({'data': 'value'}, request) == {'data': 'value'}
+
+
+def test_prefix():
+    '''Test to ensure transformer content based on the end prefix of the URL works as expected'''
+    transformer = hug.transform.prefix({'js/': int, 'txt/': str})
+    class FakeRequest(object):
+        path = 'js/hey'
+
+    request = FakeRequest()
+    assert transformer('1', request) == 1
+
+    request.path = 'txt/hey'
+    assert transformer(2, request) == '2'
+
+    request.path = 'hey.undefined'
+    transformer({'data': 'value'}, request) == {'data': 'value'}
