@@ -32,7 +32,7 @@ from hug.run import INTRO, server
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
     __slots__ = ('module', 'versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned',
-                 '_middleware', '_not_found_handlers', '_startup_handlers')
+                 '_middleware', '_not_found_handlers', '_startup_handlers', '_error_handlers')
 
     def __init__(self, module):
         self.module = module
@@ -122,6 +122,17 @@ class HugAPI(object):
             self._startup_handlers = []
 
         self.startup_handlers.append(handler)
+
+    @property
+    def error_handlers(self):
+        return getattr(self, '_error_handlers', ())
+
+    def add_error_handler(self, exception_type, error_handler):
+        '''Adds a error handler to the hug api'''
+        if not self.error_handlers:
+            self._error_handlers = []
+
+        self.error_handlers.append(error_handler)
 
     def serve(self, port=8000, no_documentation=False):
         '''Runs the basic hug development server against this API'''
