@@ -191,3 +191,22 @@ def test_suffix():
     with pytest.raises(hug.HTTPNotAcceptable):
         request.path = 'undefined.always'
         formatter('hi', request, response)
+        
+
+def test_prefix():
+    '''Ensure that it's possible to route the output type format by the prefix of the requested URL'''
+    formatter = hug.output_format.prefix({'js/': hug.output_format.json, 'html/': hug.output_format.text})
+    class FakeRequest(object):
+        path = 'js/endpoint'
+
+    request = FakeRequest()
+    response = FakeRequest()
+    converted = hug.input_format.json(formatter(BytesIO(hug.output_format.json({'name': 'name'})), request, response))
+    assert converted == {'name': 'name'}
+
+    request.path = 'html/endpoint'
+    assert formatter('hi', request, response) == b'hi'
+
+    with pytest.raises(hug.HTTPNotAcceptable):
+        request.path = 'undefined.always'
+        formatter('hi', request, response)

@@ -118,6 +118,7 @@ Changelog
 - Adds a `middleware_class` class decorator, to enable quickly registering middleware classes
 - Adds `smart_redirection` allowing API functions to return other endpoints
 - Adds support for class based handlers
+- Adds support for automatically handling exceptions
 - Added extended support for delimited fields, enabling use of custom delimiters
 - Added support for running different transformers based on content_type
 - Added support for outputting a different response output type based on the response content_type

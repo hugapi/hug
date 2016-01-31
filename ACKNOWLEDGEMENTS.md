@@ -11,12 +11,14 @@ Notable Bug Reporters
 
 Code Contributors
 ===================
+- Brandon Hoffman (@BrandonHoffman)
 - Fabian Kochem (@vortec)
 - Kostas Dizas (@kostasdizas)
 - Ali-Akber Saifee (@alisaifee)
 - @arpesenti
 - Eirik Rye (@eirikrye)
 - Matteo Bertini (@naufraghi)
+- Trevor Scheitrum (@trevorscheitrum)
 
 Documenters
 ===================

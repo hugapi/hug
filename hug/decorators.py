@@ -37,6 +37,7 @@ from hug.format import underscore
 from hug.routing import CLIRouter as cli
 from hug.routing import NotFoundRouter as not_found
 from hug.routing import URLRouter as call
+from hug.routing import ExceptionRouter as exception
 
 
 def default_output_format(content_type='application/json', apply_globally=False):

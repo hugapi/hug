@@ -224,3 +224,30 @@ def suffix(handlers, default=None, error='The requested suffix does not match an
                                                                                         handlers.values()))
     output_type.content_type = ', '.join(handlers.keys())
     return output_type
+
+
+def prefix(handlers, default=None, error='The requested prefix does not match any of those allowed'):
+    '''Returns a content in a different format based on the prefix placed at the end of the URL route
+       should pass in a dict with the following format:
+
+            {'[prefix]': action,
+             ...
+            }
+    '''
+    def output_type(data, request, response):
+        path = request.path
+        handler = default
+        for prefix_test, prefix_handler in handlers.items():
+            if path.startswith(prefix_test):
+                handler = prefix_handler
+                break
+
+        if not handler:
+            raise falcon.HTTPNotAcceptable(error)
+
+        response.content_type = handler.content_type
+        return handler(data)
+    output_type.__doc__ = 'Supports any of the following formats: {0}'.format(', '.join(function.__doc__ for function in
+                                                                                        handlers.values()))
+    output_type.content_type = ', '.join(handlers.keys())
+    return output_type
