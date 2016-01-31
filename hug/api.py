@@ -132,7 +132,7 @@ class HugAPI(object):
     def add_exception_handler(self, exception_type, error_handler, versions=(None, )):
         '''Adds a error handler to the hug api'''
         versions = (versions, ) if not isinstance(versions, (tuple, list)) else versions
-        if not self.exception_handlers:
+        if not hasattr(self, '_exception_handlers'):
             self._exception_handlers = {}
 
         for version in versions:

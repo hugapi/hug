@@ -348,7 +348,7 @@ class HTTPRouter(Router):
                 exception_types = ()
             else:
                 exception_types = api.exception_handlers(api_version)
-                exception_types = exception_types.keys() if exception_types else ()
+                exception_types = tuple(exception_types.keys()) if exception_types else ()
             try:
                 for header_name, header_value in response_headers:
                     response.set_header(header_name, header_value)
@@ -491,10 +491,10 @@ class HTTPRouter(Router):
                 if type(exception) in exception_types:
                     handler = api.exception_handlers(api_version)[type(exception)]
                 else:
-                    for exception_type, exception_handler in api.exception_handlers(api_version).items()[::-1]:
+                    for exception_type, exception_handler in tuple(api.exception_handlers(api_version).items())[::-1]:
                         if isinstance(exception, exception_type):
                             handler = exception_handler
-                handler(exception, request=request, response=response, **kwargs)
+                handler(request=request, response=response, exception=exception, **kwargs)
 
         if self.route['versions']:
             api.versions.update(self.route['versions'])
@@ -560,7 +560,7 @@ class ExceptionRouter(HTTPRouter):
         api = hug.api.from_object(api_function)
         (interface, callable_method) = self._create_interface(api, api_function, catch_exceptions=False)
         for version in self.route['versions']:
-            for exception in self.routes['exceptions']:
+            for exception in self.route['exceptions']:
                 api.add_exception_handler(exception, interface, version)
 
         return callable_method
