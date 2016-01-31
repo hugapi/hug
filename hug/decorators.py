@@ -39,6 +39,7 @@ from hug.routing import NotFoundRouter as not_found
 from hug.routing import SinkRouter as sink
 from hug.routing import StaticRouter as static
 from hug.routing import URLRouter as call
+from hug.routing import ExceptionRouter as exception
 
 
 def default_output_format(content_type='application/json', apply_globally=False):

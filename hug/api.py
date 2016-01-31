@@ -32,7 +32,7 @@ from hug.run import INTRO, server
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
     __slots__ = ('module', 'versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned',
-                 '_middleware', '_not_found_handlers', '_startup_handlers', 'sinks')
+                 '_middleware', '_not_found_handlers', '_startup_handlers', 'sinks', '_exception_handlers')
 
     def __init__(self, module):
         self.module = module
@@ -87,6 +87,8 @@ class HugAPI(object):
 
     def extend(self, module, route=""):
         '''Adds handlers from a different Hug API module to this one - to create a single API'''
+        self.versions.update(module.__hug__.versions)
+
         for item_route, handler in module.__hug__.routes.items():
             self.routes[route + item_route] = handler
 
@@ -127,6 +129,21 @@ class HugAPI(object):
             self._startup_handlers = []
 
         self.startup_handlers.append(handler)
+
+    def exception_handlers(self, version=None):
+        if not hasattr(self, '_exception_handlers'):
+            return None
+
+        return self._exception_handlers.get(version, self._exception_handlers.get(None, None))
+
+    def add_exception_handler(self, exception_type, error_handler, versions=(None, )):
+        '''Adds a error handler to the hug api'''
+        versions = (versions, ) if not isinstance(versions, (tuple, list)) else versions
+        if not hasattr(self, '_exception_handlers'):
+            self._exception_handlers = {}
+
+        for version in versions:
+            self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
 
     def serve(self, port=8000, no_documentation=False):
         '''Runs the basic hug development server against this API'''

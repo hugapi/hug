@@ -869,3 +869,25 @@ def test_adding_headers():
     result = hug.test.get(api, 'endpoint')
     assert result.data == ''
     assert result.headers_dict['name'] == 'Timothy'
+
+
+def test_exceptions():
+    '''Test to ensure hug's exception handling decorator works as expected'''
+    @hug.get()
+    def endpoint():
+        raise ValueError('hi')
+
+    with pytest.raises(ValueError):
+        hug.test.get(api, 'endpoint')
+
+    @hug.exception()
+    def handle_exception(exception):
+        return 'it worked'
+
+    assert hug.test.get(api, 'endpoint').data == 'it worked'
+
+    @hug.exception(ValueError)
+    def handle_exception(exception):
+        return 'more explicit handler also worked'
+
+    assert hug.test.get(api, 'endpoint').data == 'more explicit handler also worked'
