@@ -546,9 +546,12 @@ class NotFoundRouter(HTTPRouter):
 
         return callable_method
 
+
 class SinkRouter(HTTPRouter):
-    def __init__(self, urls=None, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
-                 defaults={}, status=None, on_invalid=None):
+    '''Provides a chainable router that can be used to route all routes pass a certain base URL (essentially route/*)'''
+
+    def __init__(self, urls=None, output=None, versions=None, parse_body=False, transform=None, requires=(),
+                 parameters=None, defaults={}, status=None, on_invalid=None):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults, status=status,
                          on_invalid=on_invalid)
@@ -561,30 +564,28 @@ class SinkRouter(HTTPRouter):
             api.add_sink(interface, base_url)
         return callable_method
 
+
 class StaticRouter(object):
+    '''Provides a chainable router that can be used to return static files automtically from a set of directories'''
+
     def __init__(self, urls=None):
-        self.route = {
-            'urls': (urls, ) if isinstance(urls, str) else urls
-        }
+        self.route = {'urls': (urls, ) if isinstance(urls, str) else urls}
 
     def _create_handler(self, base_url, directories):
         def static_handler(request, response):
             filename = request.relative_uri[len(base_url) + 1:]
             for directory in directories:
                 path = os.path.join(directory, filename)
-                
                 if os.path.isdir(path):
                     new_path = os.path.join(path, "index.html")
                     if os.path.exists(new_path) and os.path.isfile(new_path):
                         path = new_path
                 if os.path.exists(path) and os.path.isfile(path):
-                    filetype = mimetypes.guess_type(path, strict=True)[0]
-                    if not filetype:
-                        filetype = 'text/plain'
+                    filetype = mimetypes.guess_type(path, strict=True)[0] or 'text/plain'
                     response.content_type = filetype
                     response.data = open(path, 'rb').read()
                     return
-                
+
                 response.status = falcon.HTTP_NOT_FOUND
                 response.data = b"File does not exist"
         return static_handler

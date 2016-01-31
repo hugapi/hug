@@ -786,6 +786,26 @@ def test_cli_file_return():
     assert 'hug' in hug.test.cli(test)
 
 
+def test_static_file_support():
+    '''Test to ensure static file routing works as expected'''
+    @hug.static('/static')
+    def my_static_dirs():
+        return ('', )
+
+    assert 'hug' in hug.test.get(api, '/static/README.md').data
+    assert 'Index' in hug.test.get(api, '/static/tests/data').data
+    assert '404' in hug.test.get(api, '/static/NOT_IN_EXISTANCE.md').status
+
+
+def test_sink_support():
+    '''Test to ensure sink URL routers work as expected'''
+    @hug.sink('/all')
+    def my_sink(request):
+        return request.path.replace('/all', '')
+
+    assert hug.test.get(api, '/all/the/things').data == '/the/things'
+
+
 def test_cli_with_string_annotation():
     '''Test to ensure CLI's work correctly with string annotations'''
     @hug.cli()

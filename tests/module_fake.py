@@ -46,9 +46,16 @@ def output_formatter_global(data):
 
 @hug.request_middleware()
 def handle_request(request, response):
+    '''for testing'''
     return
 
 
 @hug.startup()
 def on_startup(api):
+    '''for testing'''
     return
+
+@hug.static()
+def static():
+    '''for testing'''
+    return ('', )
