@@ -271,7 +271,7 @@ class HTTPRouter(Router):
         marshmallow_type.__name__ = marshmallow.__class__.__name__
         return marshmallow_type
 
-    def _create_interface(self, api, api_function):
+    def _create_interface(self, api, api_function, catch_exceptions=True):
         module = api.module
         defaults = self.route['defaults']
         if not self.route['parameters']:
@@ -344,6 +344,11 @@ class HTTPRouter(Router):
         set_status = self.route['status']
         response_headers = tuple(self.route.get('response_headers', {}).items())
         def interface(request, response, api_version=None, **kwargs):
+            if not catch_exceptions:
+                exception_types = ()
+            else:
+                exception_types = api.exception_handlers(api_version)
+                exception_types = exception_types.keys() if exception_types else ()
             try:
                 for header_name, header_value in response_headers:
                     response.set_header(header_name, header_value)
@@ -481,12 +486,12 @@ class HTTPRouter(Router):
                             response.stream_len = size
                 else:
                     response.data = to_return
-            except tuple(api.exception_handlers.keys()) as exception:
+            except exception_types as exception:
                 handler = None
-                if type(exception) in api.exception_handlers.keys():
-                    handler = api.exception_handlers[type(exception)]
+                if type(exception) in exception_types:
+                    handler = api.exception_handlers(api_version)[type(exception)]
                 else:
-                    for exception_type, exception_handler in api.exception_handlers.items()[::-1]:
+                    for exception_type, exception_handler in api.exception_handlers(api_version).items()[::-1]:
                         if isinstance(exception, exception_type):
                             handler = exception_handler
                 handler(exception, request=request, response=response, **kwargs)
@@ -537,6 +542,26 @@ class NotFoundRouter(HTTPRouter):
         (interface, callable_method) = self._create_interface(api, api_function)
         for version in self.route['versions']:
             api.set_not_found_handler(interface, version)
+
+        return callable_method
+
+
+class ExceptionRouter(HTTPRouter):
+    '''Provides a chainable router that can be used to route exceptions thrown during request handling'''
+
+    def __init__(self, exceptions=(Exception, ), output=None, versions=None, parse_body=False, transform=None,
+                 requires=(), parameters=None, defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None):
+        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
+                         requires=requires, parameters=parameters, defaults=defaults, status=status,
+                         on_invalid=on_invalid)
+        self.route['exceptions'] = (exceptions, ) if not isinstance(exceptions, (list, tuple)) else exceptions
+
+    def __call__(self, api_function):
+        api = hug.api.from_object(api_function)
+        (interface, callable_method) = self._create_interface(api, api_function, catch_exceptions=False)
+        for version in self.route['versions']:
+            for exception in self.routes['exceptions']:
+                api.add_exception_handler(exception, interface, version)
 
         return callable_method
 

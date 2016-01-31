@@ -123,16 +123,20 @@ class HugAPI(object):
 
         self.startup_handlers.append(handler)
 
-    @property
-    def exception_handlers(self):
-        return getattr(self, '_exception_handlers', {})
+    def exception_handlers(self, version=None):
+        if not hasattr(self, '_exception_handlers'):
+            return None
 
-    def add_error_handler(self, exception_type, error_handler):
+        return self._exception_handlers.get(version, self._exception_handlers.get(None, None))
+
+    def add_exception_handler(self, exception_type, error_handler, versions=(None, )):
         '''Adds a error handler to the hug api'''
+        versions = (versions, ) if not isinstance(versions, (tuple, list)) else versions
         if not self.exception_handlers:
-            self._exception_handlers = OrderedDict()
+            self._exception_handlers = {}
 
-        self._exception_handlers[exception_type] = error_handler
+        for version in versions:
+            self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
 
     def serve(self, port=8000, no_documentation=False):
         '''Runs the basic hug development server against this API'''
