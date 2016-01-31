@@ -483,7 +483,7 @@ class HTTPRouter(Router):
                     response.data = to_return
             except tuple(api.exception_handlers.keys()) as exception:
                 handler = None
-                if type(exception) in api.exception_handlers:
+                if type(exception) in api.exception_handlers.keys():
                     handler = api.exception_handlers[type(exception)]
                 else:
                     for exception_type, exception_handler in api.exception_handlers.items()[::-1]:
