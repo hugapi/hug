@@ -32,12 +32,13 @@ from hug.run import INTRO, server
 class HugAPI(object):
     '''Stores the information necessary to expose API calls within this module externally'''
     __slots__ = ('module', 'versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned',
-                 '_middleware', '_not_found_handlers', '_startup_handlers', '_exception_handlers')
+                 '_middleware', '_not_found_handlers', '_startup_handlers', 'sinks', '_exception_handlers')
 
     def __init__(self, module):
         self.module = module
         self.versions = set()
         self.routes = OrderedDict()
+        self.sinks = OrderedDict()
         self.versioned = OrderedDict()
 
     @property
@@ -81,12 +82,18 @@ class HugAPI(object):
             self._middleware = []
         self.middleware.append(middleware)
 
+    def add_sink(self, sink, url):
+        self.sinks[url] = sink
+
     def extend(self, module, route=""):
         '''Adds handlers from a different Hug API module to this one - to create a single API'''
         self.versions.update(module.__hug__.versions)
 
         for item_route, handler in module.__hug__.routes.items():
             self.routes[route + item_route] = handler
+
+        for (url, sink) in module.__hug__.sinks.items():
+            self.add_sink(sink, url)
 
         for directive in getattr(module.__hug__, '_directives', {}).values():
             self.add_directive(directive)
