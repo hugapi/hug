@@ -109,3 +109,24 @@ Changelog
 ### 1.9.9
 - Hug's json serializer will now automatically convert decimal.Decimal objects during serializationkw
 - Added `in_range`, `greater_than`, and `less_than` types to allow easily limiting values entered into an API
+
+### 2.0.0
+- Adds the concept of chain-able routing decorators
+- Adds support for running arbitrary python functions at runtime via an `@hug.startup` decorator
+- Adds support for smarter handling of html output types
+- Adds a logging middleware to simplify the process of logging all requests with hug
+- Adds a `middleware_class` class decorator, to enable quickly registering middleware classes
+- Adds `smart_redirection` allowing API functions to return other endpoints
+- Adds support for class based handlers
+- Added extended support for delimited fields, enabling use of custom delimiters
+- Added support for running different transformers based on content_type
+- Added support for outputting a different response output type based on the response content_type
+- Added support for running different transformations and outputting different content_types based on path suffix
+- Added support for automatically supporting a set of suffixes at the end of a URL
+- Added support for automatically adding headers based on route match
+- Added support for quickly adding cache header based on route match
+- Added support for quickly adding allow origin header based on route match
+- Now correctly identifies and handles custom encodings
+- Improved integration with Falcon so that primary elements (like status codes) can be imported directly from hug
+- Added the ability to specify a transformer for validation errors per request handler, via `on_invalid` decorator argument
+- Changed transform functions to get ran on output of validation errors by default

@@ -42,6 +42,12 @@ def test_html():
     with open('README.md', 'rb') as html_file:
         assert hasattr(hug.output_format.html(html_file), 'read')
 
+    class FakeHTMLWithRender():
+        def render(self):
+            return 'test'
+
+    assert hug.output_format.html(FakeHTMLWithRender()) == b'test'
+
 
 def test_json():
     '''Ensure that it's possible to output a Hug API method as JSON'''
@@ -147,3 +153,41 @@ def test_video():
             return 'test'
     assert hug.output_format.avi_video(FakeVideoWithSave()) == 'test'
 
+
+def test_on_content_type():
+    '''Ensure that it's possible to route the output type format by the requested content-type'''
+    formatter = hug.output_format.on_content_type({'application/json': hug.output_format.json,
+                                                   'text/plain': hug.output_format.text})
+    class FakeRequest(object):
+        content_type = 'application/json'
+
+    request = FakeRequest()
+    response = FakeRequest()
+    converted = hug.input_format.json(formatter(BytesIO(hug.output_format.json({'name': 'name'})), request, response))
+    assert converted == {'name': 'name'}
+
+    request.content_type = 'text/plain'
+    assert formatter('hi', request, response) == b'hi'
+
+    with pytest.raises(hug.HTTPNotAcceptable):
+        request.content_type = 'undefined; always'
+        formatter('hi', request, response)
+
+
+def test_suffix():
+    '''Ensure that it's possible to route the output type format by the suffix of the requested URL'''
+    formatter = hug.output_format.suffix({'.js': hug.output_format.json, '.html': hug.output_format.text})
+    class FakeRequest(object):
+        path = 'endpoint.js'
+
+    request = FakeRequest()
+    response = FakeRequest()
+    converted = hug.input_format.json(formatter(BytesIO(hug.output_format.json({'name': 'name'})), request, response))
+    assert converted == {'name': 'name'}
+
+    request.path = 'endpoint.html'
+    assert formatter('hi', request, response) == b'hi'
+
+    with pytest.raises(hug.HTTPNotAcceptable):
+        request.path = 'undefined.always'
+        formatter('hi', request, response)

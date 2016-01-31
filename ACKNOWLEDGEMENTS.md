@@ -7,6 +7,7 @@ Notable Bug Reporters
 - Michael Buckner (@michaelbuckner)
 - Carl Neuhaus (@carlneuhaus)
 - Eirik Rye (@eirikrye)
+- Matteo Bertini (@naufraghi)
 
 Code Contributors
 ===================
@@ -15,6 +16,7 @@ Code Contributors
 - Ali-Akber Saifee (@alisaifee)
 - @arpesenti
 - Eirik Rye (@eirikrye)
+- Matteo Bertini (@naufraghi)
 
 Documenters
 ===================

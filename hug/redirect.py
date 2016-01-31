@@ -1,6 +1,6 @@
-"""hug/input_formats.py
+"""hug/redirect.py
 
-Defines the built-in Hug input_formatting handlers
+Implements convience redirect methods that raise a redirection exception when called
 
 Copyright (C) 2015  Timothy Edmund Crosley
 
@@ -19,36 +19,29 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import json as json_converter
-
-from hug.format import content_type, underscore
+import falcon
 
 
-@content_type('text/plain')
-def text(body, encoding='utf-8'):
-    '''Takes plain text data'''
-    return body.read().decode(encoding)
+def to(location, code=falcon.HTTP_302):
+    '''Redirects to the specified location using the provided http_code (defaults to HTTP_302 FOUND)'''
+    raise falcon.http_status.HTTPStatus(code, {'location': location})
 
 
-@content_type('application/json')
-def json(body, encoding='utf-8'):
-    '''Takes JSON formatted data, converting it into native Python objects'''
-    return json_converter.loads(text(body, encoding=encoding))
+def permanent(location):
+    '''Redirects to the specified location using HTTP 301 status code'''
+    to(location, falcon.HTTP_301)
 
 
-def _underscore_dict(dictionary):
-    new_dictionary = {}
-    for key, value in dictionary.items():
-        if isinstance(value, dict):
-            value = _underscore_dict(value)
-        if isinstance(key, str):
-            key = underscore(key)
-        new_dictionary[key] = value
-    return new_dictionary
+def found(location):
+    '''Redirects to the specified location using HTTP 302 status code'''
+    to(location, falcon.HTTP_302)
 
 
-def json_underscore(body):
-    '''Takes JSON formatted data, converting it into native Python objects, where the keys in any JSON dict are
-        transformed from camelcase to underscore
-    '''
-    return _underscore_dict(json(body))
+def see_other(location):
+    '''Redirects to the specified location using HTTP 303 status code'''
+    to(location, falcon.HTTP_303)
+
+
+def temporary(location):
+    '''Redirects to the specified location using HTTP 304 status code'''
+    to(location, falcon.HTTP_307)

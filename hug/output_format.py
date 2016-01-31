@@ -23,11 +23,13 @@ import base64
 import json as json_converter
 import mimetypes
 import os
-from decimal import Decimal
 from datetime import date, datetime
+from decimal import Decimal
 from io import BytesIO
 
+import falcon
 from falcon import HTTP_NOT_FOUND
+
 from hug.format import camelcase, content_type
 
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
@@ -81,6 +83,8 @@ def html(content):
     '''HTML (Hypertext Markup Language)'''
     if hasattr(content, 'read'):
         return content
+    elif hasattr(content, 'render'):
+        return content.render().encode('utf8')
 
     return str(content).encode('utf8')
 
@@ -171,3 +175,52 @@ def file(data, response):
 
     response.content_type = mimetypes.guess_type(name, None)[0]
     return data
+
+
+def on_content_type(handlers, default=None, error='The requested content type does not match any of those allowed'):
+    '''Returns a content in a different format based on the clients provided content type,
+       should pass in a dict with the following format:
+
+            {'[content-type]': action,
+             ...
+            }
+    '''
+    def output_type(data, request, response):
+        handler = handlers.get(request.content_type.split(';')[0], default)
+        if not handler:
+            raise falcon.HTTPNotAcceptable(error)
+
+        response.content_type = handler.content_type
+        return handler(data)
+    output_type.__doc__ = 'Supports any of the following formats: {0}'.format(', '.join(function.__doc__ for function in
+                                                                                        handlers.values()))
+    output_type.content_type = ', '.join(handlers.keys())
+    return output_type
+
+
+
+def suffix(handlers, default=None, error='The requested suffix does not match any of those allowed'):
+    '''Returns a content in a different format based on the suffix placed at the end of the URL route
+       should pass in a dict with the following format:
+
+            {'[suffix]': action,
+             ...
+            }
+    '''
+    def output_type(data, request, response):
+        path = request.path
+        handler = default
+        for suffix_test, suffix_handler in handlers.items():
+            if path.endswith(suffix_test):
+                handler = suffix_handler
+                break
+
+        if not handler:
+            raise falcon.HTTPNotAcceptable(error)
+
+        response.content_type = handler.content_type
+        return handler(data)
+    output_type.__doc__ = 'Supports any of the following formats: {0}'.format(', '.join(function.__doc__ for function in
+                                                                                        handlers.values()))
+    output_type.content_type = ', '.join(handlers.keys())
+    return output_type

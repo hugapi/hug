@@ -98,6 +98,47 @@ def test_single_parameter():
     assert 'required' in hug.test.get(api, '/echo').data['errors']['text'].lower()
 
 
+def test_on_invalid_transformer():
+    '''Test to ensure it is possible to transform data when data is invalid'''
+    @hug.call(on_invalid=lambda data: 'error')
+    def echo(text):
+        return text
+    assert hug.test.get(api, '/echo').data == 'error'
+
+
+    def handle_error(data, request, response):
+        return 'errored'
+
+    @hug.call(on_invalid=handle_error)
+    def echo(text):
+        return text
+    assert hug.test.get(api, '/echo').data == 'errored'
+
+
+def test_smart_redirect_routing():
+    '''Test to ensure you can easily redirect to another method without an actual redirect'''
+    @hug.get()
+    def implementation_1():
+        return 1
+
+    @hug.get()
+    def implementation_2():
+        return 2
+
+    @hug.get()
+    def smart_route(implementation:int):
+        if implementation == 1:
+            return implementation_1
+        elif implementation == 2:
+            return implementation_2
+        else:
+            return "NOT IMPLEMENTED"
+
+    assert hug.test.get(api, 'smart_route', implementation=1).data == 1
+    assert hug.test.get(api, 'smart_route', implementation=2).data == 2
+    assert hug.test.get(api, 'smart_route', implementation=3).data == "NOT IMPLEMENTED"
+
+
 def test_custom_url():
     '''Test to ensure that it's possible to have a route that differs from the function name'''
     @hug.call('/custom_route')
@@ -489,11 +530,14 @@ def test_output_format():
     def augmented(data):
         return hug.output_format.json(['Augmented', data])
 
-    @hug.get()
+    @hug.get(suffixes=('.js', '/js'), prefixes='/text')
     def hello():
         return "world"
 
     assert hug.test.get(api, 'hello').data == ['Augmented', 'world']
+    assert hug.test.get(api, 'hello.js').data == ['Augmented', 'world']
+    assert hug.test.get(api, 'hello/js').data == ['Augmented', 'world']
+    assert hug.test.get(api, 'text/hello').data == ['Augmented', 'world']
 
     @hug.default_output_format()
     def jsonify(data):
@@ -528,6 +572,17 @@ def test_input_format():
     assert not hug.test.get(api, 'hello').data
 
     api.__hug__.set_input_format('application/json', old_format)
+
+
+def test_content_type_with_parameter():
+    '''Test a Content-Type with parameter as `application/json charset=UTF-8`
+    as described in https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7'''
+    @hug.get()
+    def demo(body):
+        return body
+
+    assert hug.test.get(api, 'demo', body={}, headers={'content-type': 'application/json'}).data == {}
+    assert hug.test.get(api, 'demo', body={}, headers={'content-type': 'application/json; charset=UTF-8'}).data == {}
 
 
 def test_middleware():
@@ -794,3 +849,23 @@ def test_cli_with_empty_return():
         pass
 
     assert not hug.test.cli(test_empty_return)
+
+
+def test_startup():
+    '''Test to ensure hug startup decorators work as expected'''
+    @hug.startup()
+    def happens_on_startup(api):
+        pass
+
+    assert happens_on_startup in api.__hug__.startup_handlers
+
+
+def test_adding_headers():
+    '''Test to ensure it is possible to inject response headers based on only the URL route'''
+    @hug.get(response_headers={'name': 'Timothy'})
+    def endpoint():
+        return ''
+
+    result = hug.test.get(api, 'endpoint')
+    assert result.data == ''
+    assert result.headers_dict['name'] == 'Timothy'
