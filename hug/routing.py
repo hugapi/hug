@@ -344,141 +344,152 @@ class HTTPRouter(Router):
         set_status = self.route['status']
         response_headers = tuple(self.route.get('response_headers', {}).items())
         def interface(request, response, api_version=None, **kwargs):
-            for header_name, header_value in response_headers:
-                response.set_header(header_name, header_value)
+            try:
+                for header_name, header_value in response_headers:
+                    response.set_header(header_name, header_value)
 
-            if set_status:
-                response.status = set_status
+                if set_status:
+                    response.status = set_status
 
-            if function_output_args:
-                function_output_kwargs = {}
-                if 'response' in function_output_args:
-                    function_output_kwargs['response'] = response
-                if 'request' in function_output_args:
-                    function_output_kwargs['request'] = request
-            else:
-                function_output_kwargs = default_kwargs
+                if function_output_args:
+                    function_output_kwargs = {}
+                    if 'response' in function_output_args:
+                        function_output_kwargs['response'] = response
+                    if 'request' in function_output_args:
+                        function_output_kwargs['request'] = request
+                else:
+                    function_output_kwargs = default_kwargs
 
-            api_version = int(api_version) if api_version is not None else api_version
-            if callable(function_output.content_type):
-                response.content_type = function_output.content_type(request=request, response=response)
-            else:
-                response.content_type = function_output.content_type
-            for requirement in requires:
-                conclusion = requirement(response=response, request=request, module=module, api_version=api_version)
-                if conclusion is not True:
-                    if conclusion:
-                        response.data = function_output(conclusion, **function_output_kwargs)
+                api_version = int(api_version) if api_version is not None else api_version
+                if callable(function_output.content_type):
+                    response.content_type = function_output.content_type(request=request, response=response)
+                else:
+                    response.content_type = function_output.content_type
+                for requirement in requires:
+                    conclusion = requirement(response=response, request=request, module=module, api_version=api_version)
+                    if conclusion is not True:
+                        if conclusion:
+                            response.data = function_output(conclusion, **function_output_kwargs)
+                        return
+
+                input_parameters = kwargs
+                input_parameters.update(request.params)
+                if parse_body and request.content_length is not None:
+                    body = request.stream
+                    content_type = request.content_type
+                    encoding = None
+                    if content_type and ";" in content_type:
+                        content_type, rest = content_type.split(";", 1)
+                        charset = RE_CHARSET.search(rest).groupdict()
+                        encoding = charset.get('charset', encoding).strip()
+
+                    body_formatting_handler = body and api.input_format(content_type)
+                    if body_formatting_handler:
+                        if encoding is not None:
+                            body = body_formatting_handler(body, encoding)
+                        else:
+                            body = body_formatting_handler(body)
+                    if 'body' in accepted_parameters:
+                        input_parameters['body'] = body
+                    if isinstance(body, dict):
+                        input_parameters.update(body)
+                elif 'body' in accepted_parameters:
+                    input_parameters['body'] = None
+
+                errors = {}
+                for key, type_handler in input_transformations.items():
+                    try:
+                        if key in input_parameters:
+                            input_parameters[key] = type_handler(input_parameters[key])
+                    except InvalidTypeData as error:
+                        errors[key] = error.reasons or str(error.message)
+                    except Exception as error:
+                        if hasattr(error, 'args') and error.args:
+                            errors[key] = error.args[0]
+                        else:
+                            errors[key] = str(error)
+
+                if 'request' in accepted_parameters:
+                    input_parameters['request'] = request
+                if 'response' in accepted_parameters:
+                    input_parameters['response'] = response
+                if 'api_version' in accepted_parameters:
+                    input_parameters['api_version'] = api_version
+                for parameter, directive in named_directives.items():
+                    arguments = (defaults[parameter], ) if parameter in defaults else ()
+                    input_parameters[parameter] = directive(*arguments, response=response, request=request,
+                                                            module=module, api_version=api_version)
+                for require in required:
+                    if not require in input_parameters:
+                        errors[require] = "Required parameter not supplied"
+                if errors:
+                    data = {'errors': errors}
+                    if on_invalid:
+                        if on_invalid_args:
+                            extra_kwargs = {}
+                            if 'response' in on_invalid_args:
+                                extra_kwargs['response'] = response
+                            if 'request' in on_invalid_args:
+                                extra_kwargs['request'] = request
+                            data = on_invalid(data, **extra_kwargs)
+                        else:
+                            data = on_invalid(data)
+
+                    response.status = HTTP_BAD_REQUEST
+                    response.data = function_output(data, **function_output_kwargs)
                     return
 
-            input_parameters = kwargs
-            input_parameters.update(request.params)
-            if parse_body and request.content_length is not None:
-                body = request.stream
-                content_type = request.content_type
-                encoding = None
-                if content_type and ";" in content_type:
-                    content_type, rest = content_type.split(";", 1)
-                    charset = RE_CHARSET.search(rest).groupdict()
-                    encoding = charset.get('charset', encoding).strip()
+                if not takes_kwargs:
+                    input_parameters = {key: value for key, value in input_parameters.items() if
+                                        key in accepted_parameters}
 
-                body_formatting_handler = body and api.input_format(content_type)
-                if body_formatting_handler:
-                    if encoding is not None:
-                        body = body_formatting_handler(body, encoding)
-                    else:
-                        body = body_formatting_handler(body)
-                if 'body' in accepted_parameters:
-                    input_parameters['body'] = body
-                if isinstance(body, dict):
-                    input_parameters.update(body)
-            elif 'body' in accepted_parameters:
-                input_parameters['body'] = None
+                to_return = api_function(**input_parameters)
+                if hasattr(to_return, 'interface'):
+                    to_return.interface(request, response, api_version=None, **kwargs)
+                    return
 
-            errors = {}
-            for key, type_handler in input_transformations.items():
-                try:
-                    if key in input_parameters:
-                        input_parameters[key] = type_handler(input_parameters[key])
-                except InvalidTypeData as error:
-                    errors[key] = error.reasons or str(error.message)
-                except Exception as error:
-                    if hasattr(error, 'args') and error.args:
-                        errors[key] = error.args[0]
-                    else:
-                        errors[key] = str(error)
-
-            if 'request' in accepted_parameters:
-                input_parameters['request'] = request
-            if 'response' in accepted_parameters:
-                input_parameters['response'] = response
-            if 'api_version' in accepted_parameters:
-                input_parameters['api_version'] = api_version
-            for parameter, directive in named_directives.items():
-                arguments = (defaults[parameter], ) if parameter in defaults else ()
-                input_parameters[parameter] = directive(*arguments, response=response, request=request,  module=module,
-                                                        api_version=api_version)
-            for require in required:
-                if not require in input_parameters:
-                    errors[require] = "Required parameter not supplied"
-            if errors:
-                data = {'errors': errors}
-                if on_invalid:
-                    if on_invalid_args:
+                if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
+                    if transform_args:
                         extra_kwargs = {}
-                        if 'response' in on_invalid_args:
+                        if 'response' in transform_args:
                             extra_kwargs['response'] = response
-                        if 'request' in on_invalid_args:
+                        if 'request' in transform_args:
                             extra_kwargs['request'] = request
-                        data = on_invalid(data, **extra_kwargs)
+                        to_return = transform(to_return, **extra_kwargs)
                     else:
-                        data = on_invalid(data)
+                        to_return = transform(to_return)
 
-                response.status = HTTP_BAD_REQUEST
-                response.data = function_output(data, **function_output_kwargs)
-                return
-
-            if not takes_kwargs:
-                input_parameters = {key: value for key, value in input_parameters.items() if key in accepted_parameters}
-
-            to_return = api_function(**input_parameters)
-            if hasattr(to_return, 'interface'):
-                to_return.interface(request, response, api_version=None, **kwargs)
-                return
-
-            if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
-                if transform_args:
-                    extra_kwargs = {}
-                    if 'response' in transform_args:
-                        extra_kwargs['response'] = response
-                    if 'request' in transform_args:
-                        extra_kwargs['request'] = request
-                    to_return = transform(to_return, **extra_kwargs)
+                to_return = function_output(to_return, **function_output_kwargs)
+                if hasattr(to_return, 'read'):
+                    size = None
+                    if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
+                        size = os.path.getsize(to_return.name)
+                    if request.range and size:
+                        start, end = request.range
+                        if end < 0:
+                            end = size + end
+                        end = min(end, size)
+                        length = end - start + 1
+                        to_return.seek(start)
+                        response.data = to_return.read(length)
+                        response.status = falcon.HTTP_206
+                        response.content_range = (start, end, size)
+                        to_return.close()
+                    else:
+                        response.stream = to_return
+                        if size:
+                            response.stream_len = size
                 else:
-                    to_return = transform(to_return)
-
-            to_return = function_output(to_return, **function_output_kwargs)
-            if hasattr(to_return, 'read'):
-                size = None
-                if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
-                    size = os.path.getsize(to_return.name)
-                if request.range and size:
-                    start, end = request.range
-                    if end < 0:
-                        end = size + end
-                    end = min(end, size)
-                    length = end - start + 1
-                    to_return.seek(start)
-                    response.data = to_return.read(length)
-                    response.status = falcon.HTTP_206
-                    response.content_range = (start, end, size)
-                    to_return.close()
+                    response.data = to_return
+            except tuple(api.exception_handlers.keys()) as exception:
+                handler = None
+                if type(exception) in api.exception_handlers:
+                    handler = api.exception_handlers[type(exception)]
                 else:
-                    response.stream = to_return
-                    if size:
-                        response.stream_len = size
-            else:
-                response.data = to_return
+                    for exception_type, exception_handler in api.exception_handlers.items()[::-1]:
+                        if isinstance(exception, exception_type):
+                            handler = exception_handler
+                handler(exception, request=request, response=response, **kwargs)
 
         if self.route['versions']:
             api.versions.update(self.route['versions'])
