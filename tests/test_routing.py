@@ -20,7 +20,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import hug
-from hug.routing import Router, CLIRouter, HTTPRouter, NotFoundRouter, URLRouter
+from hug.routing import Router, CLIRouter, HTTPRouter, NotFoundRouter, URLRouter, StaticRouter, SinkRouter
 
 
 class TestRouter(object):
@@ -116,6 +116,19 @@ class TestHTTPRouter(TestRouter):
         '''Test to ensure on_invalid handler can be changed on the fly'''
         assert self.route.on_invalid(str).route['on_invalid'] == str
 
+
+class TestStaticRouter(object):
+    route = StaticRouter("/here")
+    route2 = StaticRouter(("/here", "/there"))
+
+    def test_init(self):
+        '''Test to ensure the route instanciates as expected'''
+        assert self.route.route['urls'] == ("/here", )
+        assert self.route2.route['urls'] == ("/here", "/there")
+
+class TestSinkRouter(TestHTTPRouter):
+    route = SinkRouter(output='output', versions=(1, ), parse_body=False, transform='transform',
+                       requires=('love', ), parameters=('one', ), defaults={'one': 'value'})
 
 class TestNotFoundRouter(TestHTTPRouter):
     '''Collection of tests to ensure the NotFoundRouter object works as expected'''

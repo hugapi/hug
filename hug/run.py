@@ -128,8 +128,13 @@ def server(module, default_sink=documentation_404):
                            versions=module.__hug__.not_found_handlers, sink=default_sink)
     elif default_sink:
         sink = default_sink(module)
+
     if sink:
         api.add_sink(sink)
+
+    for url, extra_sink in module.__hug__.sinks.items():
+        api.add_sink(extra_sink, url)
+   
     for url, methods in module.__hug__.routes.items():
         router = {}
         for method, versions in methods.items():

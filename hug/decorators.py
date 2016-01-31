@@ -36,6 +36,8 @@ from hug.class_based import classy
 from hug.format import underscore
 from hug.routing import CLIRouter as cli
 from hug.routing import NotFoundRouter as not_found
+from hug.routing import SinkRouter as sink
+from hug.routing import StaticRouter as static
 from hug.routing import URLRouter as call
 
 
@@ -122,7 +124,6 @@ def extend_api(route=""):
             api.extend(extended_api, route)
         return extend_with
     return decorator
-
 
 for method in HTTP_METHODS:
     method_handler = partial(call, accept=(method, ))

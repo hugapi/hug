@@ -22,6 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import argparse
 import os
+import mimetypes
 import re
 from collections import OrderedDict, namedtuple
 from functools import wraps
@@ -528,6 +529,56 @@ class NotFoundRouter(HTTPRouter):
             api.set_not_found_handler(interface, version)
 
         return callable_method
+
+class SinkRouter(HTTPRouter):
+    def __init__(self, urls=None, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
+                 defaults={}, status=None, on_invalid=None):
+        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
+                         requires=requires, parameters=parameters, defaults=defaults, status=status,
+                         on_invalid=on_invalid)
+        self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
+
+    def __call__(self, api_function):
+        api = hug.api.from_object(api_function)
+        (interface, callable_method) = self._create_interface(api, api_function)
+        for base_url in self.route['urls'] or ("/{0}".format(api_function.__name__), ):
+            api.add_sink(interface, base_url)
+        return callable_method
+
+class StaticRouter(object):
+    def __init__(self, urls=None):
+        self.route = {
+            'urls': (urls, ) if isinstance(urls, str) else urls
+        }
+
+    def _create_handler(self, base_url, directories):
+        def static_handler(request, response):
+            filename = request.relative_uri[len(base_url) + 1:]
+            for directory in directories:
+                path = os.path.join(directory, filename)
+                if os.path.exists(path) and os.path.isfile(path):
+                    filetype = mimetypes.guess_type(path, strict=True)[0]
+                    if not filetype:
+                        filetype = 'text/plain'
+                    response.content_type = filetype
+                    response.data = open(path, 'rb').read()
+                    return
+                response.status = falcon.HTTP_NOT_FOUND
+                response.data = b"File does not exist"
+        return static_handler
+
+    def __call__(self, api_function):
+        directories = []
+        for directory in api_function():
+            path = os.path.abspath(
+                directory
+            )
+            directories.append(path)
+
+        api = hug.api.from_object(api_function)
+        for base_url in self.route['urls'] or ("/{0}".format(api_function.__name__), ):
+            api.add_sink(self._create_handler(base_url, directories), base_url)
+        return api_function
 
 
 class URLRouter(HTTPRouter):
