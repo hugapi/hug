@@ -21,8 +21,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import argparse
-import os
 import mimetypes
+import os
 import re
 from collections import OrderedDict, namedtuple
 from functools import wraps
