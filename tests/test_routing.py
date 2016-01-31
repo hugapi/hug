@@ -20,7 +20,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import hug
-from hug.routing import Router, CLIRouter, HTTPRouter, NotFoundRouter, URLRouter
+from hug.routing import Router, CLIRouter, HTTPRouter, NotFoundRouter, URLRouter, ExceptionRouter
 
 
 class TestRouter(object):
@@ -121,6 +121,12 @@ class TestNotFoundRouter(TestHTTPRouter):
     '''Collection of tests to ensure the NotFoundRouter object works as expected'''
     route = NotFoundRouter(output='output', versions=(1, ), parse_body=False, transform='transform',
                            requires=('love', ), parameters=('one', ), defaults={'one': 'value'})
+
+
+class TestExceptionRouter(TestHTTPRouter):
+    '''Collection of tests to ensure the ExceptionRouter object works as expected'''
+    route = ExceptionRouter(Exception, output='output', versions=(1, ), parse_body=False, transform='transform',
+                            requires=('love', ), parameters=('one', ), defaults={'one': 'value'})
 
 
 class TestURLRouter(TestHTTPRouter):
