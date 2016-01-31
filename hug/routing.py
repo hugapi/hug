@@ -572,6 +572,11 @@ class StaticRouter(object):
             filename = request.relative_uri[len(base_url) + 1:]
             for directory in directories:
                 path = os.path.join(directory, filename)
+                
+                if os.path.isdir(path):
+                    new_path = os.path.join(path, "index.html")
+                    if os.path.exists(new_path) and os.path.isfile(new_path):
+                        path = new_path
                 if os.path.exists(path) and os.path.isfile(path):
                     filetype = mimetypes.guess_type(path, strict=True)[0]
                     if not filetype:
@@ -579,6 +584,7 @@ class StaticRouter(object):
                     response.content_type = filetype
                     response.data = open(path, 'rb').read()
                     return
+                
                 response.status = falcon.HTTP_NOT_FOUND
                 response.data = b"File does not exist"
         return static_handler
