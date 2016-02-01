@@ -19,7 +19,6 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import sys
 from base64 import b64encode
 
 import falcon
@@ -27,7 +26,7 @@ import pytest
 
 import hug
 
-api = sys.modules[__name__]
+api = hug.API(__name__)
 
 
 def test_basic_auth():
