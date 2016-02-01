@@ -121,6 +121,20 @@ def test_on_invalid_format():
 
     assert isinstance(hug.test.get(api, '/echo').data, dict)
 
+    def smart_output_type(response, request):
+        if response and request:
+            return 'application/json'
+
+    @hug.format.content_type(smart_output_type)
+    def output_formatter(data, request, response):
+        return hug.output_format.json((data, request and True, response and True))
+
+    @hug.get(output_invalid=output_formatter, output=hug.output_format.file)
+    def echo(text):
+        return text
+
+    assert isinstance(hug.test.get(api, '/echo').data, (list, tuple))
+
 
 def test_smart_redirect_routing():
     '''Test to ensure you can easily redirect to another method without an actual redirect'''
