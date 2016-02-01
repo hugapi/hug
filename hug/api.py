@@ -29,7 +29,24 @@ import hug.output_format
 from hug.run import INTRO, server
 
 
-class HugAPI(object):
+class ModuleSingleton(type):
+    '''Defines the module level __hug__ singleton'''
+
+    def __call__(cls, module_name, *args, **kwargs):
+        module = sys.modules[module_name]
+        if not '__hug__' in module.__dict__:
+            def api_auto_instantiate(*kargs, **kwargs):
+                if not hasattr(module, '__hug_serving__'):
+                    module.__hug_wsgi__ = server(module)
+                    module.__hug_serving__ = True
+                return module.__hug_wsgi__(*kargs, **kwargs)
+
+            module.__hug__ = super().__call__(module, *args, **kwargs)
+            module.__hug_wsgi__ = api_auto_instantiate
+        return module.__hug__
+
+
+class API(object, metaclass=ModuleSingleton):
     '''Stores the information necessary to expose API calls within this module externally'''
     __slots__ = ('module', 'versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned',
                  '_middleware', '_not_found_handlers', '_startup_handlers', 'sinks', '_exception_handlers')
@@ -158,20 +175,6 @@ class HugAPI(object):
         httpd.serve_forever()
 
 
-def from_module(module_name):
-    '''Returns a Hug API instance from a given module_name'''
-    module = sys.modules[module_name]
-    if not '__hug__' in module.__dict__:
-        def api_auto_instantiate(*kargs, **kwargs):
-            if not hasattr(module, '__hug_serving__'):
-                module.__hug_wsgi__ = server(module)
-                module.__hug_serving__ = True
-            return module.__hug_wsgi__(*kargs, **kwargs)
-        module.__hug__ = HugAPI(module)
-        module.__hug_wsgi__ = api_auto_instantiate
-    return module.__hug__
-
-
 def from_object(obj):
     '''Returns a Hug API instance from a given object (function, class, instance)'''
-    return from_module(obj.__module__)
+    return API(obj.__module__)
