@@ -164,7 +164,13 @@ class API(object, metaclass=ModuleSingleton):
             self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
 
     def documentation(self, base_url='', api_version=None):
-        return documentation.for_module(self.module, base_url=base_url, api_version=api_version)
+        '''Generates and returns documentation for this API endpoint'''
+        return documentation.for_module(self.module, base_url=base_url, api_version=api_version,
+                                        handler_documentation=self.handler_documentation)
+
+    def handler_documentation(self, handler, version=None, doc=None, base_url="", url="", **kwargs):
+        '''Generates and returns documentation for a single provided handler, used by API.documentation'''
+        return documentation.for_handler(handler, version=version, doc=doc, base_url=base_url, url=url, **kwargs)
 
     def serve(self, port=8000, no_documentation=False):
         '''Runs the basic hug development server against this API'''

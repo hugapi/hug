@@ -62,7 +62,7 @@ def for_handler(handler, version=None, doc=None, base_url="", url=""):
     return doc
 
 
-def for_module(module, base_url="", api_version=None):
+def for_module(module, base_url="", api_version=None, handler_documentation=for_handler):
     '''Generates documentation based on a Hug API module, base_url, and api_version (if applicable)'''
     documentation = OrderedDict()
     overview = module.__doc__
@@ -86,7 +86,8 @@ def for_module(module, base_url="", api_version=None):
                         continue
 
                     doc = documentation['versions'][version].setdefault(url, OrderedDict())
-                    doc[method] = for_handler(handler, version, doc=doc.get(method, None), base_url=base_url, url=url)
+                    doc[method] = handler_documentation(handler, version, doc=doc.get(method, None), base_url=base_url,
+                                                        url=url)
 
     if len(documentation['versions']) == 1:
         documentation.update(tuple(documentation['versions'].values())[0])
