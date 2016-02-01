@@ -24,10 +24,12 @@ from collections import OrderedDict
 from itertools import chain
 from wsgiref.simple_server import make_server
 
+import falcon
+
 import hug.defaults
 import hug.output_format
-from hug.run import INTRO, server
 from hug import documentation
+from hug.run import INTRO, server
 
 
 class ModuleSingleton(type):
@@ -50,7 +52,8 @@ class ModuleSingleton(type):
 class API(object, metaclass=ModuleSingleton):
     '''Stores the information necessary to expose API calls within this module externally'''
     __slots__ = ('module', 'versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned',
-                 '_middleware', '_not_found_handlers', '_startup_handlers', 'sinks', '_exception_handlers')
+                 '_middleware', '_not_found_handlers', '_startup_handlers', 'sinks', '_exception_handlers',
+                 '_not_found')
 
     def __init__(self, module):
         self.module = module
@@ -66,6 +69,13 @@ class API(object, metaclass=ModuleSingleton):
     @output_format.setter
     def output_format(self, formatter):
         self._output_format = formatter
+
+    @property
+    def not_found(self):
+        '''Returns the active not found handler'''
+        handler = getattr(self, '_not_found', self.base_404)
+        handler.interface = True
+        return handler
 
     def input_format(self, content_type):
         '''Returns the set input_format handler for the given content_type'''
@@ -183,6 +193,11 @@ class API(object, metaclass=ModuleSingleton):
         httpd = make_server('', port, api)
         print("Serving on port {0}...".format(port))
         httpd.serve_forever()
+
+    @staticmethod
+    def base_404(request, response, *kargs, **kwargs):
+        '''Defines the base 404 handler'''
+        response.status = falcon.HTTP_NOT_FOUND
 
 
 def from_object(obj):
