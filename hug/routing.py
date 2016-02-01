@@ -576,8 +576,8 @@ class StaticRouter(object):
     def __init__(self, urls=None):
         self.route = {'urls': (urls, ) if isinstance(urls, str) else urls}
 
-    def _create_handler(self, base_url, directories):
-        def static_handler(request, response):
+    def _create_handler(self, api, base_url, directories):
+        def static_handler(request, response, *kargs, **kwargs):
             filename = request.relative_uri[len(base_url) + 1:]
             for directory in directories:
                 path = os.path.join(directory, filename)
@@ -591,8 +591,7 @@ class StaticRouter(object):
                     response.data = open(path, 'rb').read()
                     return
 
-                response.status = falcon.HTTP_NOT_FOUND
-                response.data = b"File does not exist"
+                api.not_found(request, response, *kargs, **kwargs)
         return static_handler
 
     def __call__(self, api_function):
@@ -605,7 +604,7 @@ class StaticRouter(object):
 
         api = hug.api.from_object(api_function)
         for base_url in self.route['urls'] or ("/{0}".format(api_function.__name__), ):
-            api.add_sink(self._create_handler(base_url, directories), base_url)
+            api.add_sink(self._create_handler(api, base_url, directories), base_url)
         return api_function
 
 
