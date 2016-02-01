@@ -113,6 +113,15 @@ def test_on_invalid_transformer():
     assert hug.test.get(api, '/echo').data == 'errored'
 
 
+def test_on_invalid_format():
+    '''Test to ensure it's possible to change the format based on a validation error'''
+    @hug.get(output_invalid=hug.output_format.json, output=hug.output_format.file)
+    def echo(text):
+        return text
+
+    assert isinstance(hug.test.get(api, '/echo').data, dict)
+
+
 def test_smart_redirect_routing():
     '''Test to ensure you can easily redirect to another method without an actual redirect'''
     @hug.get()
