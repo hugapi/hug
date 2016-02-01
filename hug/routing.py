@@ -219,7 +219,7 @@ class HTTPRouter(Router):
     '''The HTTPRouter provides the base concept of a router from an HTTPRequest to a Python function'''
 
     def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
-                 defaults={}, status=None, on_invalid=None):
+                 defaults={}, status=None, on_invalid=None, output_invalid=None):
         super().__init__(output=output, transform=transform)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
         self.route['parse_body'] = parse_body
@@ -228,6 +228,7 @@ class HTTPRouter(Router):
         self.route['defaults'] = defaults
         self.route['status'] = status
         self.route['on_invalid'] = on_invalid
+        self.route['output_invalid'] = output_invalid
 
     def versions(self, supported, **overrides):
         '''Sets the versions that this route should be compatiable with'''
@@ -259,6 +260,12 @@ class HTTPRouter(Router):
             To ensure no special handling occurs for invalid data set to `False`
         '''
         return self.where(on_invalid=function, **overrides)
+
+    def output_invalid(self, output_handler, **overrides):
+        '''Sets an output handler to be used when handler validation fails
+            Defaults to the output formatter set globally for the route
+        '''
+        return self.where(output_invalid=output_handler, **overrides)
 
     def _marshmallow_schema(self, marshmallow):
         '''Dynamically generates a hug style type handler from a Marshmallow style schema'''
@@ -292,6 +299,13 @@ class HTTPRouter(Router):
         function_output = self.route['output'] or api.output_format
         function_output_args = (AUTO_INCLUDE.intersection(function_output.__code__.co_varnames) if
                                 hasattr(function_output, '__code__') else ())
+        if self.route['output_invalid']:
+            function_invalid_output = self.route['output_invalid']
+            function_invalid_output_args = (AUTO_INCLUDE.intersection(function_invalid_output.__code__.co_varnames) if
+                                            hasattr(function_invalid_output, '__code__') else ())
+        else:
+            function_invalid_output = False
+
         default_kwargs = {}
         directives = api.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
@@ -442,7 +456,24 @@ class HTTPRouter(Router):
                             data = on_invalid(data)
 
                     response.status = HTTP_BAD_REQUEST
-                    response.data = function_output(data, **function_output_kwargs)
+                    if function_invalid_output:
+                        if callable(function_invalid_output.content_type):
+                            response.content_type = function_invalid_output.content_type(request=request,
+                                                                                         response=response)
+                        else:
+                            response.content_type = function_invalid_output.content_type
+                        if function_invalid_output_args:
+                            function_invalid_output_kwargs = {}
+                            if 'response' in function_invalid_output_args:
+                                function_invalid_output_kwargs['response'] = response
+                            if 'request' in function_invalid_output_args:
+                                function_invalid_output_kwargs['request'] = request
+                        else:
+                            function_invalid_output_kwargs = default_kwargs
+
+                        response.data = function_invalid_output(data, **function_invalid_output_kwargs)
+                    else:
+                        response.data = function_output(data, **function_output_kwargs)
                     return
 
                 if not takes_kwargs:
@@ -533,10 +564,10 @@ class NotFoundRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route 404'd request to a Python function'''
 
     def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
-                 defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None):
+                 defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None, output_invalid=None):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid)
+                         on_invalid=on_invalid, output_invalid=output_invalid)
 
     def __call__(self, api_function):
         api = hug.api.from_object(api_function)
@@ -551,10 +582,10 @@ class SinkRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route all routes pass a certain base URL (essentially route/*)'''
 
     def __init__(self, urls=None, output=None, versions=None, parse_body=False, transform=None, requires=(),
-                 parameters=None, defaults={}, status=None, on_invalid=None):
+                 parameters=None, defaults={}, status=None, on_invalid=None, output_invalid=None):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid)
+                         on_invalid=on_invalid, output_invalid=output_invalid)
         self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
 
     def __call__(self, api_function):
@@ -608,10 +639,11 @@ class ExceptionRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route exceptions thrown during request handling'''
 
     def __init__(self, exceptions=(Exception, ), output=None, versions=None, parse_body=False, transform=None,
-                 requires=(), parameters=None, defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None):
+                 requires=(), parameters=None, defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None,
+                 output_invalid=None):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid)
+                         on_invalid=on_invalid, output_invalid=output_invalid)
         self.route['exceptions'] = (exceptions, ) if not isinstance(exceptions, (list, tuple)) else exceptions
 
     def __call__(self, api_function):
@@ -629,10 +661,10 @@ class URLRouter(HTTPRouter):
 
     def __init__(self, urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
                  versions=None, parse_body=True, transform=None, requires=(), status=None, on_invalid=None,
-                 suffixes=(), prefixes=(), response_headers=None):
+                 suffixes=(), prefixes=(), response_headers=None, output_invalid=None):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid)
+                         on_invalid=on_invalid, output_invalid=output_invalid)
         self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
         self.route['accept'] = (accept, ) if isinstance(accept, str) else accept
         self.route['examples'] = (examples, ) if isinstance(examples, str) else examples
