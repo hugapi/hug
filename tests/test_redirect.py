@@ -57,3 +57,9 @@ def test_temporary():
     with pytest.raises(falcon.http_status.HTTPStatus) as redirect:
         hug.redirect.temporary('/')
     assert '307' in redirect.value.status
+
+
+def test_not_found():
+    with pytest.raises(falcon.HTTPNotFound) as redirect:
+        hug.redirect.not_found()
+    assert '404' in redirect.value.status

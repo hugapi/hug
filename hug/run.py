@@ -86,6 +86,9 @@ def determine_version(request, api_version=None, api=None):
     return next(iter(request_version or (None, )))
 
 
+
+
+
 def documentation_404(api):
     '''Returns a smart 404 page that contains documentation for the written API'''
     def handle_404(request, response, *kargs, **kwargs):
@@ -103,33 +106,33 @@ def documentation_404(api):
     return handle_404
 
 
-def version_router(request, response, api_version=None, versions={}, sink=None, api=None, **kwargs):
+def version_router(request, response, api_version=None, versions={}, not_found=None, api=None, **kwargs):
     '''Intelligently routes a request to the correct handler based on the version being requested'''
     request_version = determine_version(request, api_version, api)
     if request_version:
         request_version = int(request_version)
-    versions.get(request_version, versions.get(None, sink))(request, response, api_version=api_version,
-                                                                        **kwargs)
+    versions.get(request_version, versions.get(None, not_found))(request, response, api_version=api_version, **kwargs)
 
 
-def server(hug_api, default_sink=documentation_404):
+def server(hug_api, default_not_found=documentation_404):
     '''Returns a WSGI compatible API server for the given Hug API module'''
     api = falcon.API(middleware=hug_api.middleware)
 
-    sink = None
+    not_found_handler = None
     for startup_handler in hug_api.startup_handlers:
         startup_handler(hug_api)
     if hug_api.not_found_handlers:
         if len(hug_api.not_found_handlers) == 1 and None in hug_api.not_found_handlers:
-            sink = hug_api.not_found_handlers[None]
+            not_found_handler = hug_api.not_found_handlers[None]
         else:
-            sink = partial(version_router, api=hug_api, api_version=False,
-                           versions=hug_api.not_found_handlers, sink=default_sink)
-    elif default_sink:
-        sink = default_sink(hug_api)
+            not_found_handler = partial(version_router, api=hug_api, api_version=False,
+                                        versions=hug_api.not_found_handlers, not_found=default_not_found)
+    elif default_not_found:
+        not_found_handler = default_not_found(hug_api)
 
-    if sink:
-        api.add_sink(sink)
+    if not_found_handler:
+        api.add_sink(not_found_handler)
+        hug_api._not_found = not_found_handler
 
     for url, extra_sink in hug_api.sinks.items():
         api.add_sink(extra_sink, url)
@@ -141,7 +144,8 @@ def server(hug_api, default_sink=documentation_404):
             if len(versions) == 1 and None in versions.keys():
                 router[method_function] = versions[None]
             else:
-                router[method_function] = partial(version_router, versions=versions, sink=sink, api=hug_api)
+                router[method_function] = partial(version_router, versions=versions, not_found=not_found_handler,
+                                                  api=hug_api)
 
         router = namedtuple('Router', router.keys())(**router)
         api.add_route(url, router)
@@ -170,7 +174,7 @@ def terminal():
     api = None
     server_arguments = {}
     if parsed.no_documentation:
-        server_arguments['default_sink'] = None
+        server_arguments['default_not_found'] = None
     if file_name and module:
         print("Error: can not define both a file and module source for Hug API.")
     if file_name:
