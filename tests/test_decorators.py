@@ -889,6 +889,30 @@ def test_adding_headers():
     assert result.headers_dict['name'] == 'Timothy'
 
 
+def test_on_demand_404():
+    '''Test to ensure it's possible to route to a 404 response on demand'''
+    @hug.get()
+    def my_endpoint(hug_api):
+        return hug_api.not_found
+
+    assert '404' in hug.test.get(api, 'my_endpoint').status
+
+
+    @hug.get()
+    def my_endpoint(hug_api):
+        raise hug.HTTPNotFound()
+
+    assert '404' in hug.test.get(api, 'my_endpoint').status
+
+    @hug.get()
+    def my_endpoint(hug_api):
+        '''Test to ensure base 404 handler works as expected'''
+        del hug_api._not_found
+        return hug_api.not_found
+
+    assert '404' in hug.test.get(api, 'my_endpoint').status
+
+
 def test_exceptions():
     '''Test to ensure hug's exception handling decorator works as expected'''
     @hug.get()
