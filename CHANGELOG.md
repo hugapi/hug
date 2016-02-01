@@ -129,6 +129,7 @@ Changelog
 - Added support for automatically adding headers based on route match
 - Added support for quickly adding cache header based on route match
 - Added support for quickly adding allow origin header based on route match
+- Added support for quickly re-routing to defined 404 handler
 - Documentation generation was moved to API instances to enable easier customization
 - Now correctly identifies and handles custom encodings
 - Improved integration with Falcon so that primary elements (like status codes) can be imported directly from hug
