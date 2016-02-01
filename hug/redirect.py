@@ -45,3 +45,8 @@ def see_other(location):
 def temporary(location):
     '''Redirects to the specified location using HTTP 304 status code'''
     to(location, falcon.HTTP_307)
+
+
+def not_found():
+    '''Redirects request handling to the not found render'''
+    raise falcon.HTTPNotFound()

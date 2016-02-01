@@ -451,7 +451,10 @@ class HTTPRouter(Router):
 
                 to_return = api_function(**input_parameters)
                 if hasattr(to_return, 'interface'):
-                    to_return.interface(request, response, api_version=None, **kwargs)
+                    if to_return.interface is True:
+                        to_return(request, response, api_version=None, **kwargs)
+                    else:
+                        to_return.interface(request, response, api_version=None, **kwargs)
                     return
 
                 if transform and not (isinstance(transform, type) and isinstance(to_return, transform)):
@@ -487,6 +490,8 @@ class HTTPRouter(Router):
                             response.stream_len = size
                 else:
                     response.data = to_return
+            except falcon.HTTPNotFound:
+                return api.not_found(request, response, **kwargs)
             except exception_types as exception:
                 handler = None
                 if type(exception) in exception_types:
