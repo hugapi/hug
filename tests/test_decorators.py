@@ -19,15 +19,13 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import sys
-
 import falcon
 import pytest
 from falcon.testing import StartResponseMock, create_environ
 
 import hug
 
-api = sys.modules[__name__]
+api = hug.API(__name__)
 
 
 def test_basic_call():
@@ -524,7 +522,7 @@ def test_smart_outputter():
 
 def test_output_format():
     '''Test to ensure it's possible to quickly change the default hug output format'''
-    old_formatter = api.__hug__.output_format
+    old_formatter = api.output_format
 
     @hug.default_output_format()
     def augmented(data):
@@ -544,20 +542,20 @@ def test_output_format():
         return hug.output_format.json(data)
 
 
-    api.__hug__.output_format = hug.output_format.text
+    api.output_format = hug.output_format.text
 
     @hug.get()
     def my_method():
         return {'Should': 'work'}
 
     assert hug.test.get(api, 'my_method').data == "{'Should': 'work'}"
-    api.__hug__.output_format = old_formatter
+    api.output_format = old_formatter
 
 
 def test_input_format():
     '''Test to ensure it's possible to quickly change the default hug output format'''
-    old_format = api.__hug__.input_format('application/json')
-    api.__hug__.set_input_format('application/json', lambda a: {'no': 'relation'})
+    old_format = api.input_format('application/json')
+    api.set_input_format('application/json', lambda a: {'no': 'relation'})
 
     @hug.get()
     def hello(body):
@@ -571,7 +569,7 @@ def test_input_format():
 
     assert not hug.test.get(api, 'hello').data
 
-    api.__hug__.set_input_format('application/json', old_format)
+    api.set_input_format('application/json', old_format)
 
 
 def test_content_type_with_parameter():
@@ -877,7 +875,7 @@ def test_startup():
     def happens_on_startup(api):
         pass
 
-    assert happens_on_startup in api.__hug__.startup_handlers
+    assert happens_on_startup in api.startup_handlers
 
 
 def test_adding_headers():

@@ -33,9 +33,9 @@ from hug import output_format
 from hug.run import server
 
 
-def call(method, api_module, url, body='', headers=None, **params):
-    '''Simulates a round-trip call against the given api_module / url'''
-    api = server(api_module)
+def call(method, api, url, body='', headers=None, **params):
+    '''Simulates a round-trip call against the given API / URL'''
+    api = server(api)
     response = StartResponseMock()
     if not isinstance(body, str):
         body = output_format.json(body)
@@ -63,7 +63,7 @@ def call(method, api_module, url, body='', headers=None, **params):
 
 for method in HTTP_METHODS:
     tester = partial(call, method)
-    tester.__doc__ = '''Simulates a round-trip HTTP {0} against the given api_module / url'''.format(method.upper())
+    tester.__doc__ = '''Simulates a round-trip HTTP {0} against the given API / URL'''.format(method.upper())
     globals()[method.lower()] = tester
 
 

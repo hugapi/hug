@@ -19,10 +19,9 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import sys
 import hug
 
-api = sys.modules[__name__]
+api = hug.API(__name__)
 
 
 def test_simple_class_based_view():

@@ -19,13 +19,11 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import sys
-
 import pytest
 
 import hug
 
-api = sys.modules[__name__]
+api = hug.API(__name__)
 
 
 def test_timer():
@@ -55,14 +53,14 @@ def test_module():
     def module_tester(hug_module):
         return hug_module.__name__
 
-    assert hug.test.get(api, 'module_tester').data == api.__name__
+    assert hug.test.get(api, 'module_tester').data == api.module.__name__
 
 
 def test_api():
     '''Ensure the api correctly gets passed onto a hug API function based on a directive'''
     @hug.get()
     def api_tester(hug_api):
-        return hug_api == api.__hug__
+        return hug_api == api
 
     assert hug.test.get(api, 'api_tester').data is True
 

@@ -20,14 +20,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import json
-import sys
 
 from falcon import Request
 from falcon.testing import StartResponseMock, create_environ
 
 import hug
 
-api = sys.modules[__name__]
+api = hug.API(__name__)
 
 
 def test_basic_documentation():
@@ -57,7 +56,7 @@ def test_basic_documentation():
         '''Annotations defined with strings should be documentation only'''
         pass
 
-    documentation = hug.documentation.generate(api)
+    documentation = api.documentation()
     assert 'test_documentation' in documentation['overview']
 
     assert '/hello_world' in documentation
@@ -92,12 +91,12 @@ def test_basic_documentation():
     def unversioned():
         return 'Hello'
 
-    versioned_doc = hug.documentation.generate(api)
+    versioned_doc = api.documentation()
     assert 'versions' in versioned_doc
     assert 1 in versioned_doc['versions']
     assert '/unversioned' in versioned_doc['versions'][1]
 
-    specific_version_doc  = hug.documentation.generate(api, api_version=1)
+    specific_version_doc  = api.documentation(api_version=1)
     assert not 'versions' in specific_version_doc
     assert '/echo' in specific_version_doc
     assert '/unversioned' in specific_version_doc
