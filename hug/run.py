@@ -171,24 +171,23 @@ def terminal():
 
     parsed = parser.parse_args()
     file_name, module = parsed.file_name, parsed.module
-    api = None
+    api_module = None
     server_arguments = {}
     if parsed.no_documentation:
         server_arguments['default_not_found'] = None
     if file_name and module:
         print("Error: can not define both a file and module source for Hug API.")
+        sys.exit(1)
     if file_name:
         sys.path.append(os.path.dirname(os.path.abspath(file_name)))
-        api = server(importlib.machinery.SourceFileLoader(file_name.split(".")[0], file_name).load_module(),
-                     **server_arguments)
+        api_module = importlib.machinery.SourceFileLoader(file_name.split(".")[0], file_name).load_module()
     elif module:
-        api = server(importlib.import_module(module), **server_arguments)
-    else:
+        api_module = importlib.import_module(module)
+    if not api_module or not hasattr(api_module, '__hug__'):
         print("Error: must define a file name or module that contains a Hug API.")
-    if not api:
         sys.exit(1)
 
     print(INTRO)
-    httpd = make_server('', parsed.port, api)
+    httpd = make_server('', parsed.port, server(api_module.__hug__, **server_arguments))
     print("Serving on port {0}...".format(parsed.port))
     httpd.serve_forever()
