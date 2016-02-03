@@ -40,12 +40,18 @@ IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'p
 
 VIDEO_TYPES = (('flv', 'video/x-flv'), ('mp4', 'video/mp4'), ('m3u8', 'application/x-mpegURL'), ('ts', 'video/MP2T'),
                ('3gp', 'video/3gpp'), ('mov', 'video/quicktime'), ('avi', 'video/x-msvideo'), ('wmv', 'video/x-ms-wmv'))
+json_converters = {}
 
 
 def _json_converter(item):
     if hasattr(item, '__native_types__'):
         return item.__native_types__()
-    elif isinstance(item, (date, datetime)):
+
+    for kind, transformer in json_converters.items():
+        if isinstance(item, kind):
+            return transformer(item)
+
+    if isinstance(item, (date, datetime)):
         return item.isoformat()
     elif isinstance(item, bytes):
         try:
@@ -58,6 +64,17 @@ def _json_converter(item):
         return str(item)
 
     raise TypeError("Type not serializable")
+
+
+def json_convert(*kinds):
+    '''Registers the wrapped method as a JSON converter for the provided types.
+       NOTE: custom converters are always globally applied
+    '''
+    def register_json_converter(function):
+        for kind in kinds:
+            json_converters[kind] = function
+        return function
+    return register_json_converter
 
 
 @content_type('application/json')
