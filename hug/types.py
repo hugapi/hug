@@ -150,6 +150,48 @@ def multi(*types):
     return multi_type
 
 
+def length(lower, upper, convert=text):
+    '''Accepts a a value that is withing a specific length limit'''
+    def check_length(value):
+        value = convert(value)
+        length = len(value)
+        if length < lower:
+            raise ValueError("'{0}' is shorter than the lower limit of {1}".format(value, lower))
+        if length >= upper:
+            raise ValueError("'{0}' is longer then the allowed limit of {1}".format(value, upper))
+        return value
+
+    check_length.__doc__ = ("{0} that has a length longer or equal to {1} and less then {2}".format(
+                            convert.__doc__, lower, upper))
+    return check_length
+
+
+def shorter_than(limit, convert=text):
+    '''Accepts a text value shorter than the specified length limit'''
+    def check_shorter_than(value):
+        value = convert(value)
+        length = len(value)
+        if not length < limit:
+            raise ValueError("'{0}' is longer then the allowed limit of {1}".format(value, limit))
+        return value
+
+    check_shorter_than.__doc__ = "{0} with a length of no more than {1}".format(convert.__doc__, limit)
+    return check_shorter_than
+
+
+def longer_than(limit, convert=text):
+    '''Accepts a text value longer than the specified minimum'''
+    def check_longer_than(value):
+        value = convert(value)
+        length = len(value)
+        if not length > limit:
+            raise ValueError("'{0}' must be longer than {1}".format(value, limit))
+        return value
+
+    check_longer_than.__doc__ = "{0} with a length longer than {1}".format(convert.__doc__, limit)
+    return check_longer_than
+
+
 def in_range(lower, upper, convert=number):
     '''Accepts a number within a lower and upper bound of acceptable values'''
     def check_in_range(value):

@@ -149,6 +149,36 @@ def test_text():
     assert hug.types.text('text') == 'text'
 
 
+def test_length():
+    '''Tests that Hug's length type successfully handles a length range'''
+    assert hug.types.length(1, 10)('bacon') == 'bacon'
+    assert hug.types.length(1, 10)(42) == '42'
+    with pytest.raises(ValueError):
+        hug.types.length(1, 10)('bacon is the greatest food known to man')
+    with pytest.raises(ValueError):
+        hug.types.length(1, 10)('')
+    with pytest.raises(ValueError):
+        hug.types.length(1, 10)('bacon is th')
+
+
+def test_shorter_than():
+    '''Tests that Hug's shorter than type successfully limits the values passed in'''
+    assert hug.types.shorter_than(10)('hi there') == 'hi there'
+    assert hug.types.shorter_than(10)(1) == '1'
+    assert hug.types.shorter_than(10)('') == ''
+    with pytest.raises(ValueError):
+        assert hug.types.shorter_than(10)('there is quite a bit of text here, in fact way more than allowed')
+
+
+def test_longer_than():
+    '''Tests that Hug's greater than type succefully limis the values passed in'''
+    assert hug.types.longer_than(10)('quite a bit of text here should be') == 'quite a bit of text here should be'
+    assert hug.types.longer_than(10)(12345678910) == '12345678910'
+    assert hug.types.longer_than(10)(100123456789100) == '100123456789100'
+    with pytest.raises(ValueError):
+        assert hug.types.longer_than(10)('short')
+
+
 def test_inline_dictionary():
     '''Tests that inline dictionary values are correctly handled'''
     assert hug.types.inline_dictionary('1:2') == {'1': '2'}
