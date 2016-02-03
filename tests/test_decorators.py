@@ -956,3 +956,20 @@ def test_exceptions():
         return 'more explicit handler also worked'
 
     assert hug.test.get(api, 'endpoint').data == 'more explicit handler also worked'
+
+
+def test_validate():
+    '''Test to ensure hug's secondary validation mechanism works as expected'''
+    def contains_either(request, fields):
+        if not 'one' in fields and not 'two' in fields:
+            return {'one': 'must be defined', 'two': 'must be defined'}
+
+    @hug.get(validate=contains_either)
+    def my_endpoint(one=None, two=None):
+        return True
+
+
+    assert hug.test.get(api, 'my_endpoint', one=True).data == True
+    assert hug.test.get(api, 'my_endpoint', two=True).data == True
+    assert hug.test.get(api, 'my_endpoint').status
+    assert hug.test.get(api, 'my_endpoint').data == {'errors': {'one': 'must be defined', 'two': 'must be defined'}}
