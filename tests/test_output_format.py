@@ -104,21 +104,21 @@ def test_json_camelcase():
 
 def test_image():
     '''Ensure that it's possible to output images with hug'''
-    assert hasattr(hug.output_format.png_image('logo.png'), 'read')
+    assert hasattr(hug.output_format.png_image('logo.png', hug.Response()), 'read')
     with open('logo.png', 'rb') as image_file:
-        assert hasattr(hug.output_format.png_image(image_file), 'read')
+        assert hasattr(hug.output_format.png_image(image_file, hug.Response()), 'read')
 
-    assert hug.output_format.png_image('Not Existent') == None
+    assert hug.output_format.png_image('Not Existent', hug.Response()) == None
 
     class FakeImageWithSave():
         def save(self, to, format):
             to.write(b'test')
-    assert hasattr(hug.output_format.png_image(FakeImageWithSave()), 'read')
+    assert hasattr(hug.output_format.png_image(FakeImageWithSave(), hug.Response()), 'read')
 
     class FakeImageWithSave():
         def render(self):
             return 'test'
-    assert hug.output_format.svg_xml_image(FakeImageWithSave()) == 'test'
+    assert hug.output_format.svg_xml_image(FakeImageWithSave(), hug.Response()) == 'test'
 
 
 def test_file():
@@ -137,21 +137,36 @@ def test_file():
 
 def test_video():
     '''Ensure that it's possible to output videos with hug'''
-    assert hasattr(hug.output_format.mp4_video('example.gif'), 'read')
+    assert hasattr(hug.output_format.mp4_video('example.gif', hug.Response()), 'read')
     with open('example.gif', 'rb') as image_file:
-        assert hasattr(hug.output_format.mp4_video(image_file), 'read')
+        assert hasattr(hug.output_format.mp4_video(image_file, hug.Response()), 'read')
 
-    assert hug.output_format.mp4_video('Not Existent') == None
+    assert hug.output_format.mp4_video('Not Existent', hug.Response()) == None
 
     class FakeVideoWithSave():
         def save(self, to, format):
             to.write(b'test')
-    assert hasattr(hug.output_format.mp4_video(FakeVideoWithSave()), 'read')
+    assert hasattr(hug.output_format.mp4_video(FakeVideoWithSave(), hug.Response()), 'read')
 
     class FakeVideoWithSave():
         def render(self):
             return 'test'
-    assert hug.output_format.avi_video(FakeVideoWithSave()) == 'test'
+    assert hug.output_format.avi_video(FakeVideoWithSave(), hug.Response()) == 'test'
+
+
+def test_on_valid():
+    '''Test to ensure formats that use on_valid content types gracefully handle error dictionaries'''
+    error_dict = {'errors': {'so': 'many'}}
+    expected = hug.output_format.json(error_dict)
+
+    assert hug.output_format.mp4_video(error_dict, hug.Response()) == expected
+    assert hug.output_format.png_image(error_dict, hug.Response()) == expected
+
+    @hug.output_format.on_valid('image', hug.output_format.file)
+    def my_output_format(data):
+        raise ValueError('This should never be called')
+
+    assert my_output_format(error_dict, hug.Response())
 
 
 def test_on_content_type():
@@ -191,7 +206,7 @@ def test_suffix():
     with pytest.raises(hug.HTTPNotAcceptable):
         request.path = 'undefined.always'
         formatter('hi', request, response)
-        
+
 
 def test_prefix():
     '''Ensure that it's possible to route the output type format by the prefix of the requested URL'''

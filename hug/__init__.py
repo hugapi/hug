@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 from falcon import *
 
 from hug import (authentication, directives, documentation, exceptions, format, input_format,
-                 middleware, output_format, redirect, run, test, transform, types)
+                 introspect, middleware, output_format, redirect, run, test, transform, types)
 from hug._version import current
 from hug.api import API
 from hug.decorators import (call, classy, cli, connect, default_input_format, default_output_format, delete,
