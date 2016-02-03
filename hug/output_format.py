@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from hug import introspect
 import base64
 import json as json_converter
 import mimetypes
@@ -26,6 +27,7 @@ import os
 from datetime import date, datetime
 from decimal import Decimal
 from io import BytesIO
+from functools import wraps
 
 import falcon
 from falcon import HTTP_NOT_FOUND
@@ -67,6 +69,24 @@ def json(content, **kwargs):
     if isinstance(content, tuple) and getattr(content, '_fields', None):
         content = {field: getattr(content, field) for field in content._fields}
     return json_converter.dumps(content, default=_json_converter, **kwargs).encode('utf8')
+
+
+def on_valid(valid_content_type, on_invalid=json):
+    '''Renders as the specified content type only if no errors are found in the provided data object'''
+    invalid_kwargs = introspect.generate_accepted_kwargs(on_invalid, 'request', 'response')
+    def wrapper(function):
+        valid_kwargs = introspect.generate_accepted_kwargs(function, 'request', 'response')
+        @content_type(valid_content_type)
+        @wraps(function)
+        def output_content(content, response, **kwargs):
+            kwargs['response'] = response
+            if type(content) == dict and 'errors' in content:
+                response.content_type = on_invalid.content_type
+                return on_invalid(content, **invalid_kwargs(kwargs))
+
+            return function(content, **valid_kwargs(kwargs))
+        return output_content
+    return wrapper
 
 
 @content_type('text/plain')
@@ -115,12 +135,13 @@ def pretty_json(content):
 
 def image(image_format, doc=None):
     '''Dynamically creates an image type handler for the specified image type'''
-    @content_type('image/{0}'.format(image_format))
+    @on_valid('image/{0}'.format(image_format))
     def image_handler(data):
         if hasattr(data, 'read'):
             return data
         elif hasattr(data, 'save'):
             output = BytesIO()
+
             data.save(output, format=image_format.upper())
             output.seek(0)
             return output
@@ -139,7 +160,7 @@ for image_type in IMAGE_TYPES:
 
 def video(video_type, video_mime, doc=None):
     '''Dynamically creates a video type handler for the specified video type'''
-    @content_type(video_mime)
+    @on_valid(video_mime)
     def video_handler(data):
         if hasattr(data, 'read'):
             return data
@@ -161,7 +182,7 @@ for (video_type, video_mime) in VIDEO_TYPES:
     globals()['{0}_video'.format(video_type)] = video(video_type, video_mime)
 
 
-@content_type('file/dynamic')
+@on_valid('file/dynamic')
 def file(data, response):
     '''A dynamically retrieved file'''
     if hasattr(data, 'read'):
