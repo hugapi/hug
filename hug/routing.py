@@ -219,7 +219,7 @@ class HTTPRouter(Router):
     '''The HTTPRouter provides the base concept of a router from an HTTPRequest to a Python function'''
 
     def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
-                 defaults={}, status=None, on_invalid=None, output_invalid=None):
+                 defaults={}, status=None, on_invalid=None, output_invalid=None, validate=None):
         super().__init__(output=output, transform=transform)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
         self.route['parse_body'] = parse_body
@@ -229,6 +229,7 @@ class HTTPRouter(Router):
         self.route['status'] = status
         self.route['on_invalid'] = on_invalid
         self.route['output_invalid'] = output_invalid
+        self.route['validate'] = validate
 
     def versions(self, supported, **overrides):
         '''Sets the versions that this route should be compatiable with'''
@@ -266,6 +267,10 @@ class HTTPRouter(Router):
             Defaults to the output formatter set globally for the route
         '''
         return self.where(output_invalid=output_handler, **overrides)
+
+    def validate(self, validation_function, **overrides):
+        '''Sets the secondary validation fucntion to use for this handler'''
+        return self.where(validate=validation_function, **overrides)
 
     def _marshmallow_schema(self, marshmallow):
         '''Dynamically generates a hug style type handler from a Marshmallow style schema'''
@@ -349,6 +354,7 @@ class HTTPRouter(Router):
         parse_body = self.route['parse_body']
         requires = self.route['requires']
         set_status = self.route['status']
+        validate = self.route['validate']
         response_headers = tuple(self.route.get('response_headers', {}).items())
         def interface(request, response, api_version=None, **kwargs):
             if not catch_exceptions:
@@ -434,6 +440,8 @@ class HTTPRouter(Router):
                 for require in required:
                     if not require in input_parameters:
                         errors[require] = "Required parameter not supplied"
+                if not errors and validate:
+                    errors = validate(request, input_parameters)
                 if errors:
                     data = {'errors': errors}
                     if on_invalid:
@@ -561,10 +569,10 @@ class NotFoundRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route 404'd request to a Python function'''
 
     def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
-                 defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None, output_invalid=None):
+                 defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None, output_invalid=None, validate=None):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid)
+                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate)
 
     def __call__(self, api_function):
         api = hug.api.from_object(api_function)
@@ -579,10 +587,10 @@ class SinkRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route all routes pass a certain base URL (essentially route/*)'''
 
     def __init__(self, urls=None, output=None, versions=None, parse_body=False, transform=None, requires=(),
-                 parameters=None, defaults={}, status=None, on_invalid=None, output_invalid=None):
+                 parameters=None, defaults={}, status=None, on_invalid=None, output_invalid=None, validate=None):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid)
+                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate)
         self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
 
     def __call__(self, api_function):
@@ -636,10 +644,10 @@ class ExceptionRouter(HTTPRouter):
 
     def __init__(self, exceptions=(Exception, ), output=None, versions=None, parse_body=False, transform=None,
                  requires=(), parameters=None, defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None,
-                 output_invalid=None):
+                 output_invalid=None, validate=None):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid)
+                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate)
         self.route['exceptions'] = (exceptions, ) if not isinstance(exceptions, (list, tuple)) else exceptions
 
     def __call__(self, api_function):
@@ -657,10 +665,10 @@ class URLRouter(HTTPRouter):
 
     def __init__(self, urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
                  versions=None, parse_body=True, transform=None, requires=(), status=None, on_invalid=None,
-                 suffixes=(), prefixes=(), response_headers=None, output_invalid=None):
+                 suffixes=(), prefixes=(), response_headers=None, output_invalid=None, validate=None):
         super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
                          requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid)
+                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate)
         self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
         self.route['accept'] = (accept, ) if isinstance(accept, str) else accept
         self.route['examples'] = (examples, ) if isinstance(examples, str) else examples
