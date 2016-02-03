@@ -192,6 +192,15 @@ def longer_than(limit, convert=text):
     return check_longer_than
 
 
+def cut_off(limit, convert=text):
+    '''Cuts off the provided value at the specified index'''
+    def truncate(value):
+        return convert(value)[:limit]
+
+    truncate.__doc__ = "'{0}' with anything over the length of {1} being ignored".format(convert.__doc__, limit)
+    return truncate
+
+
 def in_range(lower, upper, convert=number):
     '''Accepts a number within a lower and upper bound of acceptable values'''
     def check_in_range(value):

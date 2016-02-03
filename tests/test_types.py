@@ -1,6 +1,6 @@
 """tests/test_types.py.
 
-Tests the type validators included with Hug
+Tests the type validators included with hug
 
 Copyright (C) 2015 Timothy Edmund Crosley
 
@@ -30,7 +30,7 @@ import hug
 
 
 def test_number():
-    '''Tests that Hug's number type correctly converts and validates input'''
+    '''Tests that hug's number type correctly converts and validates input'''
     assert hug.types.number('1') == 1
     assert hug.types.number(1) == 1
     with pytest.raises(ValueError):
@@ -38,7 +38,7 @@ def test_number():
 
 
 def test_range():
-    '''Tests that Hug's range type successfully handles ranges of numbers'''
+    '''Tests that hug's range type successfully handles ranges of numbers'''
     assert hug.types.in_range(1, 10)('1') == 1
     assert hug.types.in_range(1, 10)(1) == 1
     with pytest.raises(ValueError):
@@ -50,7 +50,7 @@ def test_range():
 
 
 def test_less_than():
-    '''Tests that Hug's less than type successfully limits the values passed in'''
+    '''Tests that hug's less than type successfully limits the values passed in'''
     assert hug.types.less_than(10)('1') == 1
     assert hug.types.less_than(10)(1) == 1
     assert hug.types.less_than(10)(-10) == -10
@@ -59,7 +59,7 @@ def test_less_than():
 
 
 def test_greater_than():
-    '''Tests that Hug's greater than type succefully limis the values passed in'''
+    '''Tests that hug's greater than type succefully limis the values passed in'''
     assert hug.types.greater_than(10)('11') == 11
     assert hug.types.greater_than(10)(11) == 11
     assert hug.types.greater_than(10)(1000) == 1000
@@ -68,20 +68,20 @@ def test_greater_than():
 
 
 def test_multiple():
-    '''Tests that Hug's multile type correctly forces values to come back as lists, but not lists of lists'''
+    '''Tests that hug's multile type correctly forces values to come back as lists, but not lists of lists'''
     assert hug.types.multiple('value') == ['value']
     assert hug.types.multiple(['value1', 'value2']) == ['value1', 'value2']
 
 
 def test_delimited_list():
-    '''Test to ensure Hug's custom delimited list type function works as expected'''
+    '''Test to ensure hug's custom delimited list type function works as expected'''
     assert hug.types.delimited_list(',')('value1,value2') == ['value1', 'value2']
     assert hug.types.delimited_list(',')(['value1', 'value2']) == ['value1', 'value2']
     assert hug.types.delimited_list('|-|')('value1|-|value2|-|value3,value4') == ['value1', 'value2', 'value3,value4']
 
 
 def test_comma_separated_list():
-    '''Tests that Hug's comma separated type correctly converts into a Python list'''
+    '''Tests that hug's comma separated type correctly converts into a Python list'''
     assert hug.types.comma_separated_list('value') == ['value']
     assert hug.types.comma_separated_list('value1,value2') == ['value1', 'value2']
 
@@ -143,14 +143,14 @@ def test_smart_boolean():
 
 
 def test_text():
-    '''Tests that Hug's text validator correctly handles basic values'''
+    '''Tests that hug's text validator correctly handles basic values'''
     assert hug.types.text('1') == '1'
     assert hug.types.text(1) == '1'
     assert hug.types.text('text') == 'text'
 
 
 def test_length():
-    '''Tests that Hug's length type successfully handles a length range'''
+    '''Tests that hug's length type successfully handles a length range'''
     assert hug.types.length(1, 10)('bacon') == 'bacon'
     assert hug.types.length(1, 10)(42) == '42'
     with pytest.raises(ValueError):
@@ -162,7 +162,7 @@ def test_length():
 
 
 def test_shorter_than():
-    '''Tests that Hug's shorter than type successfully limits the values passed in'''
+    '''Tests that hug's shorter than type successfully limits the values passed in'''
     assert hug.types.shorter_than(10)('hi there') == 'hi there'
     assert hug.types.shorter_than(10)(1) == '1'
     assert hug.types.shorter_than(10)('') == ''
@@ -171,12 +171,19 @@ def test_shorter_than():
 
 
 def test_longer_than():
-    '''Tests that Hug's greater than type succefully limis the values passed in'''
+    '''Tests that hug's greater than type succefully limis the values passed in'''
     assert hug.types.longer_than(10)('quite a bit of text here should be') == 'quite a bit of text here should be'
     assert hug.types.longer_than(10)(12345678910) == '12345678910'
     assert hug.types.longer_than(10)(100123456789100) == '100123456789100'
     with pytest.raises(ValueError):
         assert hug.types.longer_than(10)('short')
+
+
+def test_cut_off():
+    '''Test to ensure that hug's cut_off type works as expected'''
+    assert hug.types.cut_off(10)('text') == 'text'
+    assert hug.types.cut_off(10)(10) == '10'
+    assert hug.types.cut_off(10)('some really long text') == 'some reall'
 
 
 def test_inline_dictionary():
@@ -188,7 +195,7 @@ def test_inline_dictionary():
 
 
 def test_one_of():
-    '''Tests that Hug allows limiting a value to one of a list of values'''
+    '''Tests that hug allows limiting a value to one of a list of values'''
     assert hug.types.one_of(('bacon', 'sausage', 'pancakes'))('bacon') == 'bacon'
     assert hug.types.one_of(['bacon', 'sausage', 'pancakes'])('sausage') == 'sausage'
     assert hug.types.one_of({'bacon', 'sausage', 'pancakes'})('pancakes') == 'pancakes'
