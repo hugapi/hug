@@ -154,6 +154,15 @@ def test_video():
     assert hug.output_format.avi_video(FakeVideoWithSave(), hug.Response()) == 'test'
 
 
+def test_on_valid():
+    '''Test to ensure formats that use on_valid content types gracefully handle error dictionaries'''
+    error_dict = {'errors': {'so': 'many'}}
+    expected = hug.output_format.json(error_dict)
+
+    assert hug.output_format.mp4_video(error_dict, hug.Response()) == expected
+    assert hug.output_format.png_image(error_dict, hug.Response()) == expected
+
+
 def test_on_content_type():
     '''Ensure that it's possible to route the output type format by the requested content-type'''
     formatter = hug.output_format.on_content_type({'application/json': hug.output_format.json,
