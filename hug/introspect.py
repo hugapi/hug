@@ -42,7 +42,7 @@ def takes_arguments(function, *named_arguments):
 
 def takes_all_arguments(function, *named_arguments):
     '''Returns True if all supplied arguments are found in the function'''
-    return bool(takes_arguments(*named_arguments) == set(named_arguments))
+    return bool(takes_arguments(function, *named_arguments) == set(named_arguments))
 
 
 def generate_accepted_kwargs(function, *named_arguments):
@@ -54,10 +54,10 @@ def generate_accepted_kwargs(function, *named_arguments):
         function_takes_arguments = []
     else:
         function_takes_kwargs = False
-        function_takes_arguments = takes_arguments(function, 'request', 'response')
+        function_takes_arguments = takes_arguments(function, *named_arguments)
 
     def accepted_kwargs(kwargs):
-        if function_takes_arguments:
+        if function_takes_kwargs:
             return kwargs
         elif function_takes_arguments:
             return {key: value for key, value in kwargs.items() if key in function_takes_arguments}
