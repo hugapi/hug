@@ -27,19 +27,40 @@ def arguments(function):
 
 def takes_kwargs(function):
     '''Returns True if the supplied function takes keyword arguments'''
-    return bool(api_function.__code__.co_flags & 0x08)
+    return bool(function.__code__.co_flags & 0x08)
 
 
 def takes_kargs(function):
     '''Returns True if the supplied functions takes extra non-keyword arguments'''
-    return bool(api_function.__code__.co_flags & 0x04)
+    return bool(function.__code__.co_flags & 0x04)
 
 
 def takes_arguments(function, *named_arguments):
     '''Returns the arguments that a function takes from a list of requested arguments'''
-    return set(named_arguments).intersection(arguments(function)
+    return set(named_arguments).intersection(arguments(function))
 
 
 def takes_all_arguments(function, *named_arguments):
     '''Returns True if all supplied arguments are found in the function'''
     return bool(takes_arguments(*named_arguments) == set(named_arguments))
+
+
+def generate_accepted_kwargs(function, *named_arguments):
+    '''Dynamically creates a function that when called with dictionary of arguments will produce a kwarg that's
+       compatible with the supplied function
+    '''
+    if hasattr(function, '__code__') and takes_kwargs(function):
+        function_takes_kwargs = True
+        function_takes_arguments = []
+    else:
+        function_takes_kwargs = False
+        function_takes_arguments = takes_arguments(function, 'request', 'response')
+
+    def accepted_kwargs(kwargs):
+        if function_takes_arguments:
+            return kwargs
+        elif function_takes_arguments:
+            return {key: value for key, value in kwargs.items() if key in function_takes_arguments}
+        else:
+            return {}
+    return accepted_kwargs

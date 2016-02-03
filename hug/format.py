@@ -26,7 +26,7 @@ UNDERSCORE = (re.compile('(.)([A-Z][a-z]+)'), re.compile('([a-z0-9])([A-Z])'))
 
 
 def content_type(content_type):
-    '''Attaches an explicit HTML content type to a Hug formatting function'''
+    '''Attaches the supplied content_type to a Hug formatting function'''
     def decorator(method):
         method.content_type = content_type
         return method
