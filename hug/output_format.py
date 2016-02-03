@@ -19,19 +19,19 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from hug import introspect
 import base64
 import json as json_converter
 import mimetypes
 import os
 from datetime import date, datetime
 from decimal import Decimal
-from io import BytesIO
 from functools import wraps
+from io import BytesIO
 
 import falcon
 from falcon import HTTP_NOT_FOUND
 
+from hug import introspect
 from hug.format import camelcase, content_type
 
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',

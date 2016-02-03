@@ -33,6 +33,7 @@ from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 import hug.api
 import hug.defaults
 import hug.output_format
+from hug import introspect
 from hug.exceptions import InvalidTypeData
 
 AUTO_INCLUDE = {'request', 'response'}
@@ -88,14 +89,13 @@ class CLIRouter(Router):
         '''Enables exposing a Hug compatible function as a Command Line Interface'''
         api = hug.api.from_object(api_function)
 
-        takes_kargs = bool(api_function.__code__.co_flags & 0x04)
-        if takes_kargs:
-            accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount + 1]
+        if introspect.takes_kargs(api_function):
+            accepted_parameters = introspect.arguments(api_function, 1)
             karg_method = accepted_parameters[-1]
             nargs_set = True
         else:
             karg_method = None
-            accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+            accepted_parameters = introspect.arguments(api_function)
             nargs_set = False
 
         defaults = {}
@@ -283,7 +283,7 @@ class HTTPRouter(Router):
         module = api.module
         defaults = self.route['defaults']
         if not self.route['parameters']:
-            accepted_parameters = api_function.__code__.co_varnames[:api_function.__code__.co_argcount]
+            accepted_parameters = introspect.arguments(api_function)
             defaults = {}
             for index, default in enumerate(reversed(api_function.__defaults__ or ())):
                 defaults[accepted_parameters[-(index + 1)]] = default
@@ -295,14 +295,12 @@ class HTTPRouter(Router):
                               self.route['defaults']])
 
 
-        takes_kwargs = bool(api_function.__code__.co_flags & 0x08)
+        takes_kwargs = introspect.takes_kargs(api_function)
         function_output = self.route['output'] or api.output_format
-        function_output_args = (AUTO_INCLUDE.intersection(function_output.__code__.co_varnames) if
-                                hasattr(function_output, '__code__') else ())
+        function_output_args = introspect.takes_arguments(function_output, *AUTO_INCLUDE)
         if self.route['output_invalid']:
             function_invalid_output = self.route['output_invalid']
-            function_invalid_output_args = (AUTO_INCLUDE.intersection(function_invalid_output.__code__.co_varnames) if
-                                            hasattr(function_invalid_output, '__code__') else ())
+            function_invalid_output_args = introspect.takes_arguments(function_invalid_output, *AUTO_INCLUDE)
         else:
             function_invalid_output = False
 
@@ -310,8 +308,7 @@ class HTTPRouter(Router):
         directives = api.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
         transform = self.route['transform']
-        if transform is None and not isinstance(api_function.__annotations__.get('return', None),
-                                                     (str, type(None))):
+        if transform is None and not isinstance(api_function.__annotations__.get('return', None), (str, type(None))):
             transform = api_function.__annotations__['return']
 
         if hasattr(transform, 'dump'):
@@ -320,18 +317,13 @@ class HTTPRouter(Router):
         else:
             output_type = transform or api_function.__annotations__.get('return', None)
 
-        transform_args = ()
-        if transform and hasattr(transform, '__code__'):
-            transform_args = AUTO_INCLUDE.intersection(transform.__code__.co_varnames)
-
+        transform_args = introspect.takes_arguments(transform, *AUTO_INCLUDE)
         on_invalid = self.route['on_invalid']
         if on_invalid is None and transform:
             on_invalid = transform
             on_invalid_args = transform_args
         else:
-            on_invalid_args = ()
-            if on_invalid and hasattr(on_invalid, '__code__'):
-                on_invalid_args = AUTO_INCLUDE.intersection(on_invalid.__code__.co_varnames)
+            on_invalid_args = introspect.takes_arguments(on_invalid, *AUTO_INCLUDE)
 
         is_method = False
         if 'method' in api_function.__class__.__name__:

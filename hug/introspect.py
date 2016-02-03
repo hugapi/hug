@@ -20,9 +20,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 
-def arguments(function):
+def arguments(function, extra_arguments=0):
     '''Returns the name of all arguments a function takes'''
-    return function.__code__.co_varnames[:function.__code__.co_argcount] if hasattr(function, '__code__') else ()
+    if not hasattr(function, '__code__'):
+        return ()
+
+    return function.__code__.co_varnames[:function.__code__.co_argcount + extra_arguments]
 
 
 def takes_kwargs(function):
