@@ -121,6 +121,10 @@ class TestHTTPRouter(TestRouter):
         '''Test to ensure output_invalid handler can be changed on the fly'''
         assert self.route.output_invalid(hug.output_format.json).route['output_invalid'] == hug.output_format.json
 
+    def test_validate(self):
+        '''Test to ensure overriding the secondary validation method works as expected'''
+        assert self.route.validate(str).route['validate'] == str
+
 
 class TestStaticRouter(object):
     route = StaticRouter("/here")
