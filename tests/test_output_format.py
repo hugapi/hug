@@ -84,6 +84,15 @@ def test_json():
 
     assert hug.input_format.json(BytesIO(hug.output_format.json(b'\x9c'))) == 'nA=='
 
+    class MyCrazyObject(object):
+        pass
+
+    @hug.output_format.json_convert(MyCrazyObject)
+    def convert(instance):
+        return 'Like anyone could convert this'
+
+    assert hug.input_format.json(BytesIO(hug.output_format.json(MyCrazyObject()))) == 'Like anyone could convert this'
+
 
 def test_pretty_json():
     '''Ensure that it's possible to output a Hug API method as prettified and indented JSON'''
