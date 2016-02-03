@@ -162,6 +162,12 @@ def test_on_valid():
     assert hug.output_format.mp4_video(error_dict, hug.Response()) == expected
     assert hug.output_format.png_image(error_dict, hug.Response()) == expected
 
+    @hug.output_format.on_valid('image', hug.output_format.file)
+    def my_output_format(data):
+        raise ValueError('This should never be called')
+
+    assert my_output_format(error_dict, hug.Response())
+
 
 def test_on_content_type():
     '''Ensure that it's possible to route the output type format by the requested content-type'''
