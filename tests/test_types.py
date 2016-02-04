@@ -19,8 +19,8 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import urllib
 import json
+import urllib
 from datetime import datetime
 from decimal import Decimal
 

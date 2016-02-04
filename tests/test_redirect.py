@@ -21,6 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import falcon
 import pytest
+
 import hug.redirect
 
 

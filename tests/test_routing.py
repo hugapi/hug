@@ -20,8 +20,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import hug
+from hug.routing import (APIRouter, CLIRouter, ExceptionRouter, HTTPRouter,
+                         NotFoundRouter, Router, SinkRouter, StaticRouter, URLRouter)
 
-from hug.routing import Router, CLIRouter, HTTPRouter, NotFoundRouter, URLRouter, StaticRouter, SinkRouter, ExceptionRouter
+api = hug.API(__name__)
 
 
 class TestRouter(object):
@@ -134,17 +136,22 @@ class TestHTTPRouter(TestRouter):
 
 
 class TestStaticRouter(object):
+    '''Test to ensure that the static router sets up routes correctly'''
     route = StaticRouter("/here")
-    route2 = StaticRouter(("/here", "/there"))
+    route2 = StaticRouter(("/here", "/there"), 'api')
 
     def test_init(self):
         '''Test to ensure the route instanciates as expected'''
         assert self.route.route['urls'] == ("/here", )
         assert self.route2.route['urls'] == ("/here", "/there")
+        assert self.route2.route['api'] == 'api'
+
 
 class TestSinkRouter(TestHTTPRouter):
+    '''Collection of tests to ensure that the SinkRouter works as expected'''
     route = SinkRouter(output='output', versions=(1, ), parse_body=False, transform='transform',
                        requires=('love', ), parameters=('one', ), defaults={'one': 'value'})
+
 
 class TestNotFoundRouter(TestHTTPRouter):
     '''Collection of tests to ensure the NotFoundRouter object works as expected'''
@@ -242,3 +249,32 @@ class TestURLRouter(TestHTTPRouter):
         test_headers = self.route.allow_origins('google.com', methods=('GET', 'POST')).route['response_headers']
         assert test_headers['Access-Control-Allow-Origin'] == 'google.com'
         assert test_headers['Access-Control-Allow-Methods'] == 'GET, POST'
+
+
+class TestAPIRouter(object):
+    '''Test to ensure the API router enables easily reusing all other routing types while routing to an API'''
+    router = APIRouter(__name__)
+
+    def test_route_url(self):
+        '''Test to ensure you can dynamically create a URL route attached to a hug API'''
+        assert self.router.urls('/hi/').route == URLRouter('/hi/', api=api).route
+
+    def test_not_found(self):
+        '''Test to ensure you can dynamically create a Not Found route attached to a hug API'''
+        assert self.router.not_found().route == NotFoundRouter(api=api).route
+
+    def test_static(self):
+        '''Test to ensure you can dynamically create a static route attached to a hug API'''
+        assert self.router.static().route == StaticRouter(api=api).route
+
+    def test_sink(self):
+        '''Test to ensure you can dynamically create a sink route attached to a hug API'''
+        assert self.router.sink().route == SinkRouter(api=api).route
+
+    def test_exceptions(self):
+        '''Test to ensure you can dynamically create an Exception route attached to a hug API'''
+        assert self.router.exceptions().route == ExceptionRouter(api=api).route
+
+    def test_cli(self):
+        '''Test to ensure you can dynamically create a CLI route attached to a hug API'''
+        assert self.router.cli().route == CLIRouter(api=api).route
