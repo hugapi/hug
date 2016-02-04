@@ -20,20 +20,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import hug
+from hug.routing import URLRouter, NotFoundRouter, StaticRouter, SinkRouter, ExceptionRouter, CLIRouter
 
 api = hug.API(__name__)
 
 
 def test_simple_class_based_view():
     '''Test creating class based routers'''
-    @hug.classy.urls('/endpoint', requires=())
+    @hug.object.urls('/endpoint', requires=())
     class MyClass(object):
 
-        @hug.classy.get()
+        @hug.object.get()
         def my_method(self):
             return 'hi there!'
 
-        @hug.classy.post()
+        @hug.object.post()
         def my_method_two(self):
             return 'bye'
 
@@ -43,7 +44,7 @@ def test_simple_class_based_view():
 
 def test_simple_class_based_method_view():
     '''Test creating class based routers using method mappings'''
-    @hug.classy.auto_http_methods()
+    @hug.object.http_methods()
     class EndPoint(object):
 
         def get(self):
@@ -58,13 +59,13 @@ def test_simple_class_based_method_view():
 
 def test_routing_class_based_method_view_with_sub_routing():
     '''Test creating class based routers using method mappings, then overriding url on sub method'''
-    @hug.classy.auto_http_methods()
+    @hug.object.http_methods()
     class EndPoint(object):
 
         def get(self):
             return 'hi there!'
 
-        @hug.classy.urls('/home/')
+        @hug.object.urls('/home/')
         def post(self):
             return 'bye'
 
@@ -76,14 +77,47 @@ def test_routing_instance():
     '''Test to ensure its possible to route a class after it is instanciated'''
     class EndPoint(object):
 
-        @hug.classy
+        @hug.object
         def one(self):
             return 'one'
 
-        @hug.classy
+        @hug.object
         def two(self):
             return 2
 
-    hug.classy.get()(EndPoint())
+    hug.object.get()(EndPoint())
     assert hug.test.get(api, 'one').data == 'one'
     assert hug.test.get(api, 'two').data == 2
+
+
+class TestAPIRouter(object):
+    '''Test to ensure the API router enables easily reusing all other routing types while routing to an API'''
+    router = hug.route.API(__name__)
+
+    def test_route_url(self):
+        '''Test to ensure you can dynamically create a URL route attached to a hug API'''
+        assert self.router.urls('/hi/').route == URLRouter('/hi/', api=api).route
+
+    def test_not_found(self):
+        '''Test to ensure you can dynamically create a Not Found route attached to a hug API'''
+        assert self.router.not_found().route == NotFoundRouter(api=api).route
+
+    def test_static(self):
+        '''Test to ensure you can dynamically create a static route attached to a hug API'''
+        assert self.router.static().route == StaticRouter(api=api).route
+
+    def test_sink(self):
+        '''Test to ensure you can dynamically create a sink route attached to a hug API'''
+        assert self.router.sink().route == SinkRouter(api=api).route
+
+    def test_exceptions(self):
+        '''Test to ensure you can dynamically create an Exception route attached to a hug API'''
+        assert self.router.exceptions().route == ExceptionRouter(api=api).route
+
+    def test_cli(self):
+        '''Test to ensure you can dynamically create a CLI route attached to a hug API'''
+        assert self.router.cli().route == CLIRouter(api=api).route
+
+    def test_object(self):
+        '''Test to ensure it's possible to route objects through a specified API instance'''
+        assert self.router.object().route == hug.route.Object(api=api).route

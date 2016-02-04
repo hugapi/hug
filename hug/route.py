@@ -1,6 +1,6 @@
-"""hug/class_based.py
+"""hug/route.py
 
-Implements support for class based routing / handlers
+Defines user usable routers
 
 Copyright (C) 2015  Timothy Edmund Crosley
 
@@ -23,13 +23,22 @@ from __future__ import absolute_import
 
 from types import FunctionType, MethodType
 
+from functools import partial
+
 from falcon import HTTP_METHODS
 
-from hug.routing import URLRouter
+from hug.routing import URLRouter, NotFoundRouter, StaticRouter, SinkRouter, ExceptionRouter, CLIRouter
+from hug.routing import CLIRouter as cli
+from hug.routing import ExceptionRouter as exception
+from hug.routing import NotFoundRouter as not_found
+from hug.routing import SinkRouter as sink
+from hug.routing import StaticRouter as static
+from hug.routing import URLRouter as call
+import hug.api
 
 
-class ClassBased(URLRouter):
-    '''Defines a class based router'''
+class Object(URLRouter):
+    '''Defines a router for classes and objects'''
 
     def __init__(self, **route):
         if 'requires' in route:
@@ -57,7 +66,7 @@ class ClassBased(URLRouter):
 
         return method_or_class
 
-    def auto_http_methods(self, urls=None, **route_data):
+    def http_methods(self, urls=None, **route_data):
         '''Creates routes from a class, where the class method names should line up to HTTP METHOD types'''
         def decorator(class_definition):
             instance = class_definition
@@ -77,4 +86,58 @@ class ClassBased(URLRouter):
             return class_definition
         return decorator
 
-classy = ClassBased()
+
+class API(object):
+    '''Provides a convient way to route functions to a single API independant of where they live'''
+    __slots__ = ('api', )
+
+    def __init__(self, api):
+        if type(api) == str:
+            api = hug.api.API(api)
+        self.api = api
+
+    def urls(self, *kargs, **kwargs):
+        '''Starts the process of building a new URL route linked to this API instance'''
+        kwargs['api'] = self.api
+        return URLRouter(*kargs, **kwargs)
+
+    def not_found(self, *kargs, **kwargs):
+        '''Defines the handler that should handle not found requests against this API'''
+        kwargs['api'] = self.api
+        return NotFoundRouter(*kargs, **kwargs)
+
+    def static(self, *kargs, **kwargs):
+        '''Define the routes to static files the API should expose'''
+        kwargs['api'] = self.api
+        return StaticRouter(*kargs, **kwargs)
+
+    def sink(self, *kargs, **kwargs):
+        '''Define URL prefixes/handler matches where everything under the URL prefix should be handled'''
+        kwargs['api'] = self.api
+        return SinkRouter(*kargs, **kwargs)
+
+    def exceptions(self, *kargs, **kwargs):
+        '''Defines how this API should handle the provided exceptions'''
+        kwargs['api'] = self.api
+        return ExceptionRouter(*kargs, **kwargs)
+
+    def cli(self, *kargs, **kwargs):
+        '''Defines a CLI function that should be routed by this API'''
+        kwargs['api'] = self.api
+        return CLIRouter(*kargs, **kwargs)
+
+    def object(self, *kargs, **kwargs):
+        '''Registers a class based router to this API'''
+        kwargs['api'] = self.api
+        return Object(*kargs, **kwargs)
+
+
+for method in HTTP_METHODS:
+    method_handler = partial(call, accept=(method, ))
+    method_handler.__doc__ = "Exposes a Python method externally as an HTTP {0} method".format(method.upper())
+    globals()[method.lower()] = method_handler
+
+get_post = partial(call, accept=('GET', 'POST'))
+get_post.__doc__ = "Exposes a Python method externally under both the HTTP POST and GET methods"
+
+object = Object()
