@@ -126,7 +126,11 @@ def extend_api(route=""):
         return extend_with
     return decorator
 
+
 for method in HTTP_METHODS:
     method_handler = partial(call, accept=(method, ))
     method_handler.__doc__ = "Exposes a Python method externally as an HTTP {0} method".format(method.upper())
     globals()[method.lower()] = method_handler
+
+get_post = partial(call, accept=('GET', 'POST'))
+get_post.__doc__ = "Exposes a Python method externally under both the HTTP POST and GET methods"
