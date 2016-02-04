@@ -25,21 +25,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 from collections import namedtuple
-from functools import partial
 
 from falcon import HTTP_METHODS
 
 import hug.api
 import hug.defaults
 import hug.output_format
-from hug.class_based import classy
 from hug.format import underscore
-from hug.routing import CLIRouter as cli
-from hug.routing import ExceptionRouter as exception
-from hug.routing import NotFoundRouter as not_found
-from hug.routing import SinkRouter as sink
-from hug.routing import StaticRouter as static
-from hug.routing import URLRouter as call
 
 
 def default_output_format(content_type='application/json', apply_globally=False):
@@ -125,12 +117,3 @@ def extend_api(route=""):
             api.extend(extended_api, route)
         return extend_with
     return decorator
-
-
-for method in HTTP_METHODS:
-    method_handler = partial(call, accept=(method, ))
-    method_handler.__doc__ = "Exposes a Python method externally as an HTTP {0} method".format(method.upper())
-    globals()[method.lower()] = method_handler
-
-get_post = partial(call, accept=('GET', 'POST'))
-get_post.__doc__ = "Exposes a Python method externally under both the HTTP POST and GET methods"
