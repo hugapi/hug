@@ -132,6 +132,8 @@ Changelog
 - Added support for quickly re-routing to defined 404 handler
 - Added support for length based types (`length`, `shorter_than`, and `longer_than`)
 - Added support for easily extending hugs JSON outputter with support for custom types
+- Added support for a custom final pass validation function
+- Added support for defining routes separate from handlers
 - Updated all default output formats to gracefully handle error dictionaries
 - Documentation generation was moved to API instances to enable easier customization
 - Now correctly identifies and handles custom encodings

@@ -44,8 +44,14 @@ class Router(object):
     '''The base chainable router object'''
     __slots__ = ('route', )
 
-    def __init__(self, transform=None, output=None):
-        self.route = {'transform': transform, 'output': output}
+    def __init__(self, transform=None, output=None, api=None):
+        self.route = {}
+        if transform is not None:
+            self.route['transform'] = transform
+        if output:
+            self.route['output'] = output
+        if api:
+            self.route['api'] = api
 
     def output(self, formatter, **overrides):
         '''Sets the output formatter that should be used to render this route'''
@@ -57,6 +63,10 @@ class Router(object):
         '''
         return self.where(transform=function, **overrides)
 
+    def api(self, api, **overrides):
+        '''Sets the API that should contain this route'''
+        return self.where(api=api, **overrides)
+
     def where(self, **overrides):
         '''Creates a new route, based on the current route, with the specified overrided values'''
         route_data = self.route.copy()
@@ -66,12 +76,16 @@ class Router(object):
 
 class CLIRouter(Router):
     '''The CLIRouter provides a chainable router that can be used to route a CLI command to a Python function'''
+    __slots__ = ()
 
-    def __init__(self, name=None, version=None, doc=None, transform=None, output=None):
-        super().__init__(transform=transform, output=output)
-        self.route['name'] = name
-        self.route['version'] = version
-        self.route['doc'] = doc
+    def __init__(self, name=None, version=None, doc=None, **kwargs):
+        super().__init__(**kwargs)
+        if name is not None:
+            self.route['name'] = name
+        if version:
+            self.route['version'] = version
+        if doc:
+            self.route['doc'] = doc
 
     def name(self, name, **overrides):
         '''Sets the name for the CLI interface'''
@@ -87,7 +101,7 @@ class CLIRouter(Router):
 
     def __call__(self, api_function):
         '''Enables exposing a Hug compatible function as a Command Line Interface'''
-        api = hug.api.from_object(api_function)
+        api = self.route.get('api', hug.api.from_object(api_function))
 
         if introspect.takes_kargs(api_function):
             accepted_parameters = introspect.arguments(api_function, 1)
@@ -107,7 +121,7 @@ class CLIRouter(Router):
 
         directives = api.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
-        output_transform = self.route['transform'] or api_function.__annotations__.get('return', None)
+        output_transform = self.route.get('transform', api_function.__annotations__.get('return', None))
 
         is_method = False
         if 'method' in api_function.__class__.__name__:
@@ -116,8 +130,8 @@ class CLIRouter(Router):
             accepted_parameters = accepted_parameters[1:]
 
         used_options = {'h', 'help'}
-        parser = argparse.ArgumentParser(description=self.route['doc'] or api_function.__doc__)
-        if self.route['version']:
+        parser = argparse.ArgumentParser(description=self.route.get('doc', api_function.__doc__))
+        if 'version' in self.route:
             parser.add_argument('-v', '--version', action='version',
                                 version="{0} {1}".format(self.route['name'] or api_function.__name__,
                                                          self.route['version']))
@@ -210,26 +224,35 @@ class CLIRouter(Router):
             callable_method.__dict__['cli'] = cli_interface
         else:
             callable_method.cli = cli_interface
-        cli_interface.output = self.route['output']
+        cli_interface.output = self.route.get('output', None)
         cli_interface.karg_method = karg_method
         return callable_method
 
 
 class HTTPRouter(Router):
     '''The HTTPRouter provides the base concept of a router from an HTTPRequest to a Python function'''
+    __slots__ = ()
 
-    def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
-                 defaults={}, status=None, on_invalid=None, output_invalid=None, validate=None):
-        super().__init__(output=output, transform=transform)
+    def __init__(self, versions=None, parse_body=False, requires=(), parameters=None, defaults={}, status=None,
+                 on_invalid=None, output_invalid=None, validate=None, **kwargs):
+        super().__init__(**kwargs)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
-        self.route['parse_body'] = parse_body
-        self.route['requires'] = (requires, ) if not isinstance(requires, (tuple, list)) else requires
-        self.route['parameters'] = parameters
-        self.route['defaults'] = defaults
-        self.route['status'] = status
-        self.route['on_invalid'] = on_invalid
-        self.route['output_invalid'] = output_invalid
-        self.route['validate'] = validate
+        if parse_body:
+            self.route['parse_body'] = parse_body
+        if requires:
+            self.route['requires'] = (requires, ) if not isinstance(requires, (tuple, list)) else requires
+        if parameters:
+            self.route['parameters'] = parameters
+        if defaults:
+            self.route['defaults'] = defaults
+        if status:
+            self.route['status'] = status
+        if on_invalid:
+            self.route['on_invalid'] = on_invalid
+        if output_invalid:
+            self.route['output_invalid'] = output_invalid
+        if validate:
+            self.route['validate'] = validate
 
     def versions(self, supported, **overrides):
         '''Sets the versions that this route should be compatiable with'''
@@ -286,8 +309,7 @@ class HTTPRouter(Router):
 
     def _create_interface(self, api, api_function, catch_exceptions=True):
         module = api.module
-        defaults = self.route['defaults']
-        if not self.route['parameters']:
+        if not 'parameters' in self.route:
             accepted_parameters = introspect.arguments(api_function)
             defaults = {}
             for index, default in enumerate(reversed(api_function.__defaults__ or ())):
@@ -295,15 +317,15 @@ class HTTPRouter(Router):
 
             required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
         else:
+            defaults = self.route.get('defaults', {})
             accepted_parameters = tuple(self.route['parameters'])
-            required = tuple([parameter for parameter in accepted_parameters if parameter not in
-                              self.route['defaults']])
+            required = tuple([parameter for parameter in accepted_parameters if parameter not in defaults])
 
 
         takes_kwargs = introspect.takes_kargs(api_function)
-        function_output = self.route['output'] or api.output_format
+        function_output = self.route.get('output', api.output_format)
         function_output_args = introspect.takes_arguments(function_output, *AUTO_INCLUDE)
-        if self.route['output_invalid']:
+        if 'output_invalid' in self.route:
             function_invalid_output = self.route['output_invalid']
             function_invalid_output_args = introspect.takes_arguments(function_invalid_output, *AUTO_INCLUDE)
         else:
@@ -312,7 +334,7 @@ class HTTPRouter(Router):
         default_kwargs = {}
         directives = api.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
-        transform = self.route['transform']
+        transform = self.route.get('transform', None)
         if transform is None and not isinstance(api_function.__annotations__.get('return', None), (str, type(None))):
             transform = api_function.__annotations__['return']
 
@@ -323,12 +345,13 @@ class HTTPRouter(Router):
             output_type = transform or api_function.__annotations__.get('return', None)
 
         transform_args = introspect.takes_arguments(transform, *AUTO_INCLUDE)
-        on_invalid = self.route['on_invalid']
-        if on_invalid is None and transform:
-            on_invalid = transform
-            on_invalid_args = transform_args
-        else:
+
+        if 'on_invalid' in self.route:
+            on_invalid = self.route['on_invalid']
             on_invalid_args = introspect.takes_arguments(on_invalid, *AUTO_INCLUDE)
+        else:
+            on_invalid = transform or None
+            on_invalid_args = transform_args or None
 
         is_method = False
         if 'method' in api_function.__class__.__name__:
@@ -351,10 +374,10 @@ class HTTPRouter(Router):
 
             input_transformations[name] = transformer
 
-        parse_body = self.route['parse_body']
-        requires = self.route['requires']
-        set_status = self.route['status']
-        validate = self.route['validate']
+        parse_body = 'parse_body' in self.route
+        requires = self.route.get('requires', ())
+        set_status = self.route.get('status', False)
+        validate = self.route.get('validate', False)
         response_headers = tuple(self.route.get('response_headers', {}).items())
         def interface(request, response, api_version=None, **kwargs):
             if not catch_exceptions:
@@ -567,15 +590,13 @@ class HTTPRouter(Router):
 
 class NotFoundRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route 404'd request to a Python function'''
+    __slots__ = ()
 
-    def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
-                 defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None, output_invalid=None, validate=None):
-        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
-                         requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate)
+    def __init__(self, output=None, versions=None, status=falcon.HTTP_NOT_FOUND, **kwargs):
+        super().__init__(output=output, versions=versions, status=status, **kwargs)
 
     def __call__(self, api_function):
-        api = hug.api.from_object(api_function)
+        api = self.route.get('api', hug.api.from_object(api_function))
         (interface, callable_method) = self._create_interface(api, api_function)
         for version in self.route['versions']:
             api.set_not_found_handler(interface, version)
@@ -585,27 +606,31 @@ class NotFoundRouter(HTTPRouter):
 
 class SinkRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route all routes pass a certain base URL (essentially route/*)'''
+    __slots__ = ()
 
-    def __init__(self, urls=None, output=None, versions=None, parse_body=False, transform=None, requires=(),
-                 parameters=None, defaults={}, status=None, on_invalid=None, output_invalid=None, validate=None):
-        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
-                         requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate)
-        self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
+    def __init__(self, urls=None, output=None, **kwargs):
+        super().__init__(output=output, **kwargs)
+        if urls:
+            self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
 
     def __call__(self, api_function):
         api = hug.api.from_object(api_function)
         (interface, callable_method) = self._create_interface(api, api_function)
-        for base_url in self.route['urls'] or ("/{0}".format(api_function.__name__), ):
+        for base_url in self.route.get('urls', ("/{0}".format(api_function.__name__), )):
             api.add_sink(interface, base_url)
         return callable_method
 
 
 class StaticRouter(object):
     '''Provides a chainable router that can be used to return static files automtically from a set of directories'''
+    __slots__ = ('route', )
 
-    def __init__(self, urls=None):
-        self.route = {'urls': (urls, ) if isinstance(urls, str) else urls}
+    def __init__(self, urls=None, api=None):
+        self.route = {}
+        if urls:
+            self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
+        if api:
+            self.route['api'] = api
 
     def _create_handler(self, api, base_url, directories):
         def static_handler(request, response, *kargs, **kwargs):
@@ -633,21 +658,18 @@ class StaticRouter(object):
             )
             directories.append(path)
 
-        api = hug.api.from_object(api_function)
-        for base_url in self.route['urls'] or ("/{0}".format(api_function.__name__), ):
+        api = self.route.get('api', hug.api.from_object(api_function))
+        for base_url in self.route.get('urls', ("/{0}".format(api_function.__name__), )):
             api.add_sink(self._create_handler(api, base_url, directories), base_url)
         return api_function
 
 
 class ExceptionRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route exceptions thrown during request handling'''
+    __slots__ = ()
 
-    def __init__(self, exceptions=(Exception, ), output=None, versions=None, parse_body=False, transform=None,
-                 requires=(), parameters=None, defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None,
-                 output_invalid=None, validate=None):
-        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
-                         requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate)
+    def __init__(self, exceptions=(Exception, ), output=None, **kwargs):
+        super().__init__(output=output, **kwargs)
         self.route['exceptions'] = (exceptions, ) if not isinstance(exceptions, (list, tuple)) else exceptions
 
     def __call__(self, api_function):
@@ -662,18 +684,21 @@ class ExceptionRouter(HTTPRouter):
 
 class URLRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route a URL to a Python function'''
+    __slots__ = ()
 
-    def __init__(self, urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
-                 versions=None, parse_body=True, transform=None, requires=(), status=None, on_invalid=None,
-                 suffixes=(), prefixes=(), response_headers=None, output_invalid=None, validate=None):
-        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
-                         requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate)
-        self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
-        self.route['accept'] = (accept, ) if isinstance(accept, str) else accept
-        self.route['examples'] = (examples, ) if isinstance(examples, str) else examples
-        self.route['suffixes'] = (suffixes, ) if isinstance(suffixes, str) else suffixes
-        self.route['prefixes'] = (prefixes, ) if isinstance(prefixes, str) else prefixes
+    def __init__(self, urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None,
+                 suffixes=(), prefixes=(), response_headers=None, parse_body=True, **kwargs):
+        super().__init__(output=output, versions=versions, parse_body=parse_body, **kwargs)
+        if urls is not None:
+            self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
+        if accept:
+            self.route['accept'] = (accept, ) if isinstance(accept, str) else accept
+        if examples:
+            self.route['examples'] = (examples, ) if isinstance(examples, str) else examples
+        if suffixes:
+            self.route['suffixes'] = (suffixes, ) if isinstance(suffixes, str) else suffixes
+        if prefixes:
+            self.route['prefixes'] = (prefixes, ) if isinstance(prefixes, str) else prefixes
         if response_headers:
             self.route['response_headers'] = response_headers
 
@@ -681,22 +706,22 @@ class URLRouter(HTTPRouter):
         api = hug.api.from_object(api_function)
         (interface, callable_method) = self._create_interface(api, api_function)
 
-        use_examples = self.route['examples']
+        use_examples = self.route.get('examples', ())
         if not interface.required and not use_examples:
             use_examples = (True, )
 
-        for base_url in self.route['urls'] or ("/{0}".format(api_function.__name__), ):
+        for base_url in self.route.get('urls', ("/{0}".format(api_function.__name__), )):
             expose = [base_url, ]
-            for suffix in self.route['suffixes']:
+            for suffix in self.route.get('suffixes', ()):
                 if suffix.startswith('/'):
                     expose.append(os.path.join(base_url, suffix.lstrip('/')))
                 else:
                     expose.append(base_url + suffix)
-            for prefix in self.route['prefixes']:
+            for prefix in self.route.get('prefixes', ()):
                 expose.append(prefix + base_url)
             for url in expose:
                 handlers = api.routes.setdefault(url, {})
-                for method in self.route['accept']:
+                for method in self.route.get('accept', ()):
                     version_mapping = handlers.setdefault(method.upper(), {})
                     for version in self.route['versions']:
                         version_mapping[version] = interface
@@ -789,3 +814,43 @@ class URLRouter(HTTPRouter):
         if methods:
             headers['Access-Control-Allow-Methods'] = ', '.join(methods)
         return self.add_response_headers(headers, **overrides)
+
+
+class APIRouter(object):
+    '''Provides a convient way to route functions to a single API independant of where they live'''
+    __slots__ = ('api', )
+
+    def __init__(self, api):
+        if type(api) == str:
+            api = hug.API(api)
+        self.api = api
+
+    def urls(self, *kargs, **kwargs):
+        '''Starts the process of building a new URL route linked to this API instance'''
+        kwargs['api'] = self.api
+        return URLRouter(*kargs, **kwargs)
+
+    def not_found(self, *kargs, **kwargs):
+        '''Defines the handler that should handle not found requests against this API'''
+        kwargs['api'] = self.api
+        return NotFoundRouter(*kargs, **kwargs)
+
+    def static(self, *kargs, **kwargs):
+        '''Define the routes to static files the API should expose'''
+        kwargs['api'] = self.api
+        return StaticRouter(*kargs, **kwargs)
+
+    def sink(self, *kargs, **kwargs):
+        '''Define URL prefixes/handler matches where everything under the URL prefix should be handled'''
+        kwargs['api'] = self.api
+        return SinkRouter(*kargs, **kwargs)
+
+    def exceptions(self, *kargs, **kwargs):
+        '''Defines how this API should handle the provided exceptions'''
+        kwargs['api'] = self.api
+        return ExceptionRouter(*kargs, **kwargs)
+
+    def cli(self, *kargs, **kwargs):
+        '''Defines a CLI function that should be routed by this API'''
+        kwargs['api'] = self.api
+        return CLIRouter(*kargs, **kwargs)
