@@ -621,18 +621,15 @@ class SinkRouter(HTTPRouter):
         return callable_method
 
 
-class StaticRouter(object):
+class StaticRouter(SinkRouter):
     '''Provides a chainable router that can be used to return static files automtically from a set of directories'''
     __slots__ = ('route', )
 
-    def __init__(self, urls=None, api=None):
-        self.route = {}
-        if urls:
-            self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
-        if api:
-            self.route['api'] = api
+    def __init__(self, urls=None, output=hug.output_format.file, **kwargs):
+        super().__init__(urls=urls, output=output, **kwargs)
 
     def _create_handler(self, api, base_url, directories):
+        if
         def static_handler(request, response, *kargs, **kwargs):
             filename = request.relative_uri[len(base_url) + 1:]
             for directory in directories:
@@ -660,7 +657,19 @@ class StaticRouter(object):
 
         api = self.route.get('api', hug.api.from_object(api_function))
         for base_url in self.route.get('urls', ("/{0}".format(api_function.__name__), )):
-            api.add_sink(self._create_handler(api, base_url, directories), base_url)
+            def read_file(request):
+                filename = request.relative_uri[len(base_url) + 1:]
+                for directory in directories:
+                    path = os.path.join(directory, filename)
+                    if os.path.isdir(path):
+                        new_path = os.path.join(path, "index.html")
+                        if os.path.exists(new_path) and os.path.isfile(new_path):
+                            path = new_path
+                    if os.path.exists(path) and os.path.isfile(path):
+                        return path
+
+                hug.redirect.not_found()
+            api.add_sink(self._create_interface(api, read_file), base_url)
         return api_function
 
 
