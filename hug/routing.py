@@ -78,8 +78,8 @@ class CLIRouter(Router):
     '''The CLIRouter provides a chainable router that can be used to route a CLI command to a Python function'''
     __slots__ = ()
 
-    def __init__(self, name=None, version=None, doc=None, transform=None, output=None, **kwargs):
-        super().__init__(transform=transform, output=output, **kwargs)
+    def __init__(self, name=None, version=None, doc=None, **kwargs):
+        super().__init__(**kwargs)
         if name is not None:
             self.route['name'] = name
         if version:
@@ -233,9 +233,9 @@ class HTTPRouter(Router):
     '''The HTTPRouter provides the base concept of a router from an HTTPRequest to a Python function'''
     __slots__ = ()
 
-    def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
-                 defaults={}, status=None, on_invalid=None, output_invalid=None, validate=None, **kwargs):
-        super().__init__(output=output, transform=transform, **kwargs)
+    def __init__(self, versions=None, parse_body=False, requires=(), parameters=None, defaults={}, status=None,
+                 on_invalid=None, output_invalid=None, validate=None, **kwargs):
+        super().__init__(**kwargs)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
         if parse_body:
             self.route['parse_body'] = parse_body
@@ -592,12 +592,8 @@ class NotFoundRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route 404'd request to a Python function'''
     __slots__ = ()
 
-    def __init__(self, output=None, versions=None, parse_body=False, transform=None, requires=(), parameters=None,
-                 defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None, output_invalid=None, validate=None,
-                 **kwargs):
-        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
-                         requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate, **kwargs)
+    def __init__(self, output=None, versions=None, status=falcon.HTTP_NOT_FOUND, **kwargs):
+        super().__init__(output=output, versions=versions, status=status, **kwargs)
 
     def __call__(self, api_function):
         api = self.route.get('api', hug.api.from_object(api_function))
@@ -612,12 +608,8 @@ class SinkRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route all routes pass a certain base URL (essentially route/*)'''
     __slots__ = ()
 
-    def __init__(self, urls=None, output=None, versions=None, parse_body=False, transform=None, requires=(),
-                 parameters=None, defaults={}, status=None, on_invalid=None, output_invalid=None, validate=None,
-                 **kwargs):
-        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
-                         requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate, **kwargs)
+    def __init__(self, urls=None, output=None, **kwargs):
+        super().__init__(output=output, **kwargs)
         if urls:
             self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
 
@@ -672,12 +664,8 @@ class ExceptionRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route exceptions thrown during request handling'''
     __slots__ = ()
 
-    def __init__(self, exceptions=(Exception, ), output=None, versions=None, parse_body=False, transform=None,
-                 requires=(), parameters=None, defaults={}, status=falcon.HTTP_NOT_FOUND, on_invalid=None,
-                 output_invalid=None, validate=None, **kwargs):
-        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
-                         requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate, **kwargs)
+    def __init__(self, exceptions=(Exception, ), output=None, **kwargs):
+        super().__init__(output=output, **kwargs)
         self.route['exceptions'] = (exceptions, ) if not isinstance(exceptions, (list, tuple)) else exceptions
 
     def __call__(self, api_function):
@@ -694,12 +682,9 @@ class URLRouter(HTTPRouter):
     '''Provides a chainable router that can be used to route a URL to a Python function'''
     __slots__ = ()
 
-    def __init__(self, urls=None, accept=HTTP_METHODS, parameters=None, defaults={}, output=None, examples=(),
-                 versions=None, parse_body=True, transform=None, requires=(), status=None, on_invalid=None,
-                 suffixes=(), prefixes=(), response_headers=None, output_invalid=None, validate=None, **kwargs):
-        super().__init__(output=output, versions=versions, parse_body=parse_body, transform=transform,
-                         requires=requires, parameters=parameters, defaults=defaults, status=status,
-                         on_invalid=on_invalid, output_invalid=output_invalid, validate=validate, **kwargs)
+    def __init__(self, urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None,
+                 suffixes=(), prefixes=(), response_headers=None, parse_body=True, **kwargs):
+        super().__init__(output=output, versions=versions, parse_body=parse_body, **kwargs)
         if urls is not None:
             self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
         if accept:
