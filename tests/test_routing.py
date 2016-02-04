@@ -32,6 +32,7 @@ class TestRouter(object):
         '''Test to ensure the route instanciates as expected'''
         assert self.route.route['transform'] == 'transform'
         assert self.route.route['output'] == 'output'
+        assert not 'api' in self.route.route
 
     def test_output(self):
         '''Test to ensure modifying the output argument has the desired effect'''
@@ -45,6 +46,12 @@ class TestRouter(object):
         new_route = self.route.transform('transformed')
         assert new_route != self.route
         assert new_route.route['transform'] == 'transformed'
+
+    def test_api(self):
+        '''Test to ensure changing the API associated with the route works as expected'''
+        new_route = self.route.api('new')
+        assert new_route != self.route
+        assert new_route.route['api'] == 'new'
 
     def test_where(self):
         '''Test to ensure `where` can be used to replace all arguments on the fly'''
