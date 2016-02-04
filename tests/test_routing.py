@@ -95,7 +95,7 @@ class TestHTTPRouter(TestRouter):
     def test_parse_body(self):
         '''Test to ensure the parsing body flag be flipped on the fly'''
         assert self.route.parse_body().route['parse_body'] == True
-        assert self.route.parse_body(False).route['parse_body'] == False
+        assert not 'parse_body' in self.route.parse_body(False).route
 
     def test_requires(self):
         '''Test to ensure requirements can be added on the fly'''
