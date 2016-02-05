@@ -234,7 +234,7 @@ class HTTPRouter(Router):
     __slots__ = ()
 
     def __init__(self, versions=None, parse_body=False, requires=(), parameters=None, defaults={}, status=None,
-                 on_invalid=None, output_invalid=None, validate=None, **kwargs):
+                 on_invalid=None, output_invalid=None, validate=None, raise_on_invalid=False, **kwargs):
         super().__init__(**kwargs)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
         if parse_body:
@@ -253,6 +253,9 @@ class HTTPRouter(Router):
             self.route['output_invalid'] = output_invalid
         if validate:
             self.route['validate'] = validate
+        if raise_on_invalid:
+            self.route['raise_on_invalid'] = raise_on_invalid
+
 
     def versions(self, supported, **overrides):
         '''Sets the versions that this route should be compatiable with'''
@@ -294,6 +297,10 @@ class HTTPRouter(Router):
     def validate(self, validation_function, **overrides):
         '''Sets the secondary validation fucntion to use for this handler'''
         return self.where(validate=validation_function, **overrides)
+
+    def raise_on_invalid(self, setting=True, **overrides):
+        '''Sets the route to raise validation errors instead of catching them'''
+        return self.where(raise_on_invalid=setting, **overrides)
 
     def _marshmallow_schema(self, marshmallow):
         '''Dynamically generates a hug style type handler from a Marshmallow style schema'''
@@ -379,6 +386,7 @@ class HTTPRouter(Router):
         set_status = self.route.get('status', False)
         validate = self.route.get('validate', False)
         response_headers = tuple(self.route.get('response_headers', {}).items())
+        raise_on_invalid = self.route.get('raise_on_invalid', False)
         def interface(request, response, api_version=None, **kwargs):
             if not catch_exceptions:
                 exception_types = ()
@@ -439,16 +447,21 @@ class HTTPRouter(Router):
 
                 errors = {}
                 for key, type_handler in input_transformations.items():
-                    try:
+                    if raise_on_invalid:
                         if key in input_parameters:
                             input_parameters[key] = type_handler(input_parameters[key])
-                    except InvalidTypeData as error:
-                        errors[key] = error.reasons or str(error.message)
-                    except Exception as error:
-                        if hasattr(error, 'args') and error.args:
-                            errors[key] = error.args[0]
-                        else:
-                            errors[key] = str(error)
+                    else:
+                        try:
+                            if key in input_parameters:
+                                input_parameters[key] = type_handler(input_parameters[key])
+                        except InvalidTypeData as error:
+                            errors[key] = error.reasons or str(error.message)
+                        except Exception as error:
+                            if hasattr(error, 'args') and error.args:
+                                errors[key] = error.args[0]
+                            else:
+                                errors[key] = str(error)
+
 
                 if 'request' in accepted_parameters:
                     input_parameters['request'] = request
