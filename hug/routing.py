@@ -413,7 +413,7 @@ class HTTPRouter(Router):
                             response.data = function_output(conclusion, **function_output_kwargs)
                         return
 
-                input_parameters = kwargs
+                input_parameters = kwargs.copy()
                 input_parameters.update(request.params)
                 if parse_body and request.content_length is not None:
                     body = request.stream
@@ -621,34 +621,12 @@ class SinkRouter(HTTPRouter):
         return callable_method
 
 
-class StaticRouter(object):
+class StaticRouter(SinkRouter):
     '''Provides a chainable router that can be used to return static files automtically from a set of directories'''
     __slots__ = ('route', )
 
-    def __init__(self, urls=None, api=None):
-        self.route = {}
-        if urls:
-            self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
-        if api:
-            self.route['api'] = api
-
-    def _create_handler(self, api, base_url, directories):
-        def static_handler(request, response, *kargs, **kwargs):
-            filename = request.relative_uri[len(base_url) + 1:]
-            for directory in directories:
-                path = os.path.join(directory, filename)
-                if os.path.isdir(path):
-                    new_path = os.path.join(path, "index.html")
-                    if os.path.exists(new_path) and os.path.isfile(new_path):
-                        path = new_path
-                if os.path.exists(path) and os.path.isfile(path):
-                    filetype = mimetypes.guess_type(path, strict=True)[0] or 'text/plain'
-                    response.content_type = filetype
-                    response.data = open(path, 'rb').read()
-                    return
-
-                api.not_found(request, response, *kargs, **kwargs)
-        return static_handler
+    def __init__(self, urls=None, output=hug.output_format.file, **kwargs):
+        super().__init__(urls=urls, output=output, **kwargs)
 
     def __call__(self, api_function):
         directories = []
@@ -660,7 +638,19 @@ class StaticRouter(object):
 
         api = self.route.get('api', hug.api.from_object(api_function))
         for base_url in self.route.get('urls', ("/{0}".format(api_function.__name__), )):
-            api.add_sink(self._create_handler(api, base_url, directories), base_url)
+            def read_file(request):
+                filename = request.relative_uri[len(base_url) + 1:]
+                for directory in directories:
+                    path = os.path.join(directory, filename)
+                    if os.path.isdir(path):
+                        new_path = os.path.join(path, "index.html")
+                        if os.path.exists(new_path) and os.path.isfile(new_path):
+                            path = new_path
+                    if os.path.exists(path) and os.path.isfile(path):
+                        return path
+
+                hug.redirect.not_found()
+            api.add_sink(self._create_interface(api, read_file)[0], base_url)
         return api_function
 
 
@@ -814,43 +804,3 @@ class URLRouter(HTTPRouter):
         if methods:
             headers['Access-Control-Allow-Methods'] = ', '.join(methods)
         return self.add_response_headers(headers, **overrides)
-
-
-class APIRouter(object):
-    '''Provides a convient way to route functions to a single API independant of where they live'''
-    __slots__ = ('api', )
-
-    def __init__(self, api):
-        if type(api) == str:
-            api = hug.API(api)
-        self.api = api
-
-    def urls(self, *kargs, **kwargs):
-        '''Starts the process of building a new URL route linked to this API instance'''
-        kwargs['api'] = self.api
-        return URLRouter(*kargs, **kwargs)
-
-    def not_found(self, *kargs, **kwargs):
-        '''Defines the handler that should handle not found requests against this API'''
-        kwargs['api'] = self.api
-        return NotFoundRouter(*kargs, **kwargs)
-
-    def static(self, *kargs, **kwargs):
-        '''Define the routes to static files the API should expose'''
-        kwargs['api'] = self.api
-        return StaticRouter(*kargs, **kwargs)
-
-    def sink(self, *kargs, **kwargs):
-        '''Define URL prefixes/handler matches where everything under the URL prefix should be handled'''
-        kwargs['api'] = self.api
-        return SinkRouter(*kargs, **kwargs)
-
-    def exceptions(self, *kargs, **kwargs):
-        '''Defines how this API should handle the provided exceptions'''
-        kwargs['api'] = self.api
-        return ExceptionRouter(*kargs, **kwargs)
-
-    def cli(self, *kargs, **kwargs):
-        '''Defines a CLI function that should be routed by this API'''
-        kwargs['api'] = self.api
-        return CLIRouter(*kargs, **kwargs)
