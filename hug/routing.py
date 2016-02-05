@@ -413,7 +413,7 @@ class HTTPRouter(Router):
                             response.data = function_output(conclusion, **function_output_kwargs)
                         return
 
-                input_parameters = kwargs
+                input_parameters = kwargs.copy()
                 input_parameters.update(request.params)
                 if parse_body and request.content_length is not None:
                     body = request.stream
@@ -628,25 +628,6 @@ class StaticRouter(SinkRouter):
     def __init__(self, urls=None, output=hug.output_format.file, **kwargs):
         super().__init__(urls=urls, output=output, **kwargs)
 
-    def _create_handler(self, api, base_url, directories):
-        if
-        def static_handler(request, response, *kargs, **kwargs):
-            filename = request.relative_uri[len(base_url) + 1:]
-            for directory in directories:
-                path = os.path.join(directory, filename)
-                if os.path.isdir(path):
-                    new_path = os.path.join(path, "index.html")
-                    if os.path.exists(new_path) and os.path.isfile(new_path):
-                        path = new_path
-                if os.path.exists(path) and os.path.isfile(path):
-                    filetype = mimetypes.guess_type(path, strict=True)[0] or 'text/plain'
-                    response.content_type = filetype
-                    response.data = open(path, 'rb').read()
-                    return
-
-                api.not_found(request, response, *kargs, **kwargs)
-        return static_handler
-
     def __call__(self, api_function):
         directories = []
         for directory in api_function():
@@ -669,7 +650,7 @@ class StaticRouter(SinkRouter):
                         return path
 
                 hug.redirect.not_found()
-            api.add_sink(self._create_interface(api, read_file), base_url)
+            api.add_sink(self._create_interface(api, read_file)[0], base_url)
         return api_function
 
 
