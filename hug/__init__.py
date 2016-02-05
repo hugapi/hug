@@ -38,7 +38,7 @@ from hug.api import API
 from hug.decorators import (default_input_format, default_output_format, directive, extend_api, middleware_class,
                             request_middleware, response_middleware, startup)
 from hug.route import (call, object, cli, connect, delete, exception, get, head, not_found, options, patch, post, put,
-                       sink, static, trace, exception)
+                       sink, static, trace, exception, get_post)
 
 from hug import defaults  # isort:skip - must be imported last for defaults to have access to all modules
 
