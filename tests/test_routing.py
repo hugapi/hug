@@ -135,10 +135,10 @@ class TestHTTPRouter(TestRouter):
         assert self.route.validate(str).route['validate'] == str
 
 
-class TestStaticRouter(object):
+class TestStaticRouter(TestHTTPRouter):
     '''Test to ensure that the static router sets up routes correctly'''
-    route = StaticRouter("/here")
-    route2 = StaticRouter(("/here", "/there"), 'api')
+    route = StaticRouter("/here", requires=('love' ,))
+    route2 = StaticRouter(("/here", "/there"), api='api')
 
     def test_init(self):
         '''Test to ensure the route instanciates as expected'''
