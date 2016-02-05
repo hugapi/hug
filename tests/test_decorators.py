@@ -188,6 +188,18 @@ def test_parameters():
     assert 'Invalid' in nan_test['errors']['end']
 
 
+def test_raise_on_invalid():
+    '''Test to ensure hug correctly respects a request to allow validations errors to pass through as exceptions'''
+    @hug.get(raise_on_invalid=True)
+    def my_handler(argument_1:int):
+        return True
+
+    with pytest.raises(Exception):
+        hug.test.get(api, 'my_handler', argument_1='hi')
+
+    hug.test.get(api, 'my_handler', argument_1=1) == True
+
+
 def test_range_request():
     '''Test to ensure that requesting a range works as expected'''
     @hug.get(output=hug.output_format.png_image)

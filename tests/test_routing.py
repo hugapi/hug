@@ -134,6 +134,11 @@ class TestHTTPRouter(TestRouter):
         '''Test to ensure overriding the secondary validation method works as expected'''
         assert self.route.validate(str).route['validate'] == str
 
+    def test_raise_on_invalid(self):
+        '''Test to ensure it's possible to set a raise on invalid handler per route'''
+        assert not 'raise_on_invalid' in self.route.route
+        assert self.route.raise_on_invalid().route['raise_on_invalid']
+
 
 class TestStaticRouter(TestHTTPRouter):
     '''Test to ensure that the static router sets up routes correctly'''
