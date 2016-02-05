@@ -95,3 +95,8 @@ class CurrentAPI(object):
             function = partial(function, hug_current_api=self)
 
         return function
+
+@_built_in_directive
+def user(default=None, request=None, **kwargs):
+    '''Returns the current logged in user'''
+    return request.context.get('user')
