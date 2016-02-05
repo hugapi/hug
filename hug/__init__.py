@@ -31,14 +31,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from falcon import *
 
-from hug import (authentication, directives, documentation, exceptions, format, input_format,
-                 introspect, middleware, output_format, redirect, run, test, transform, types, validate, route)
+from hug import (authentication, directives, documentation, exceptions, format, input_format, introspect,
+                 middleware, output_format, redirect, route, run, test, transform, types, validate)
 from hug._version import current
 from hug.api import API
-from hug.decorators import (default_input_format, default_output_format, directive, extend_api, middleware_class,
-                            request_middleware, response_middleware, startup)
-from hug.route import (call, object, cli, connect, delete, exception, get, head, not_found, options, patch, post, put,
-                       sink, static, trace, exception, get_post)
+from hug.decorators import (default_input_format, default_output_format, directive, extend_api,
+                            middleware_class, request_middleware, response_middleware, startup)
+from hug.route import (call, cli, connect, delete, exception, get, get_post, head,
+                       not_found, object, options, patch, post, put, sink, static, trace)
 
 from hug import defaults  # isort:skip - must be imported last for defaults to have access to all modules
 

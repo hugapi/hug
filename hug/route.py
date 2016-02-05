@@ -21,23 +21,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
-from types import FunctionType, MethodType
-
 from functools import partial
+from types import FunctionType, MethodType
 
 from falcon import HTTP_METHODS
 
-from hug.routing import URLRouter, NotFoundRouter, StaticRouter, SinkRouter, ExceptionRouter, CLIRouter
+import hug.api
 from hug.routing import CLIRouter as cli
 from hug.routing import ExceptionRouter as exception
 from hug.routing import NotFoundRouter as not_found
 from hug.routing import SinkRouter as sink
 from hug.routing import StaticRouter as static
 from hug.routing import URLRouter as call
-import hug.api
 
 
-class Object(URLRouter):
+class Object(call):
     '''Defines a router for classes and objects'''
 
     def __init__(self, **route):
@@ -62,7 +60,7 @@ class Object(URLRouter):
             routes = getattr(argument, '_hug_routes', None)
             if routes:
                 for route in routes:
-                    URLRouter(**self.where(**route).route)(argument)
+                    call(**self.where(**route).route)(argument)
 
         return method_or_class
 
@@ -80,9 +78,9 @@ class Object(URLRouter):
                     routes = getattr(handler, '_hug_routes', None)
                     if routes:
                         for route in routes:
-                            URLRouter(**router.accept(method).where(**route).route)(handler)
+                            call(**router.accept(method).where(**route).route)(handler)
                     else:
-                        URLRouter(**router.accept(method).route)(handler)
+                        call(**router.accept(method).route)(handler)
             return class_definition
         return decorator
 
@@ -99,32 +97,32 @@ class API(object):
     def urls(self, *kargs, **kwargs):
         '''Starts the process of building a new URL route linked to this API instance'''
         kwargs['api'] = self.api
-        return URLRouter(*kargs, **kwargs)
+        return call(*kargs, **kwargs)
 
     def not_found(self, *kargs, **kwargs):
         '''Defines the handler that should handle not found requests against this API'''
         kwargs['api'] = self.api
-        return NotFoundRouter(*kargs, **kwargs)
+        return not_found(*kargs, **kwargs)
 
     def static(self, *kargs, **kwargs):
         '''Define the routes to static files the API should expose'''
         kwargs['api'] = self.api
-        return StaticRouter(*kargs, **kwargs)
+        return static(*kargs, **kwargs)
 
     def sink(self, *kargs, **kwargs):
         '''Define URL prefixes/handler matches where everything under the URL prefix should be handled'''
         kwargs['api'] = self.api
-        return SinkRouter(*kargs, **kwargs)
+        return sink(*kargs, **kwargs)
 
     def exceptions(self, *kargs, **kwargs):
         '''Defines how this API should handle the provided exceptions'''
         kwargs['api'] = self.api
-        return ExceptionRouter(*kargs, **kwargs)
+        return exception(*kargs, **kwargs)
 
     def cli(self, *kargs, **kwargs):
         '''Defines a CLI function that should be routed by this API'''
         kwargs['api'] = self.api
-        return CLIRouter(*kargs, **kwargs)
+        return cli(*kargs, **kwargs)
 
     def object(self, *kargs, **kwargs):
         '''Registers a class based router to this API'''
