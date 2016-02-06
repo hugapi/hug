@@ -17,10 +17,9 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import hug
 import pytest
 from falcon.request import SimpleCookie
-
-import hug
 from hug.middleware import LogMiddleware, SessionMiddleware
 
 api = hug.API(__name__)

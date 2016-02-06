@@ -22,15 +22,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 from base64 import b64encode
 
 import falcon
-import pytest
-
 import hug
+import pytest
 
 api = hug.API(__name__)
 
 
 def test_basic_auth():
-    '''Test to ensure hugs provide basic_auth handler works as expected'''
+    """Test to ensure hugs provde basic_auth handler works as expected"""
     @hug.get(requires=hug.authentication.basic(hug.authentication.verify('Tim', 'Custom password')))
     def hello_world():
         return 'Hello world!'
@@ -48,3 +47,19 @@ def test_basic_auth():
 
     token = b'Basic ' + b64encode('{0}:{1}'.format('Tim', 'Wrong password').encode('utf8'))
     assert '401' in hug.test.get(api, 'hello_world', headers={'Authorization': token}).status
+
+
+def test_api_key():
+    """Test the included api_key based header to ensure it works as expected to allow X-Api-Key based authentication"""
+    @hug.authentication.api_key
+    def api_key_authentication(api_key):
+        if api_key == 'Bacon':
+            return 'Timothy'
+
+    @hug.get(requires=api_key_authentication)
+    def hello_world():
+        return 'Hello world!'
+
+    assert hug.test.get(api, 'hello_world', headers={'X-Api-Key': 'Bacon'}).data == 'Hello world!'
+    assert '401' in hug.test.get(api, 'hello_world').status
+    assert '401' in hug.test.get(api, 'hello_world', headers={'X-Api-Key': 'Invalid'}).status
