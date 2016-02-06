@@ -159,12 +159,12 @@ Adding your own directives is straight forward:
 
 ```py
 @hug.directive()
-def multiply(default=1, **kwargs):
+def square(value=1, **kwargs):
     '''Returns passed in parameter multiplied by itself'''
-    return default * default
+    return value * value
 
 @hug.get()
-def tester(value: multiply=10):
+def tester(value: square=10):
     return value
 
 tester() == 100
@@ -174,9 +174,9 @@ For completeness, here is an example of accessing the directive via the magic na
 
 ```py
 @hug.directive()
-def multiply(default=1, **kwargs):
+def multiply(value=1, **kwargs):
     '''Returns passed in parameter multiplied by itself'''
-    return default * default
+    return value * value
 
 @hug.get()
 def tester(hug_multiply=10):
