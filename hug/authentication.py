@@ -80,14 +80,14 @@ def basic(request, response, verify_user, **kwargs):
     return False
 
 @authenticator
-def api_key(request, response, verify_user, header='X-Api-Key', **kwargs):
+def api_key(request, response, verify_user, **kwargs):
     """API Key Header Authentication
 
     The verify_user function passed in to ths authenticator shall receive an
     API key as input, and return a user object to store in the request context
     if the request was successful.
     """
-    api_key = request.get_header(header)
+    api_key = request.get_header('X-Api-Key')
 
     if api_key:
         user = verify_user(api_key)
