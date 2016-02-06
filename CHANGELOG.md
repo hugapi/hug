@@ -113,6 +113,8 @@ Changelog
 ### 2.0.0
 - Adds the concept of chain-able routing decorators
 - Adds built-in static file handling support via a `@hug.static` decorator (thanks @BrandonHoffman!)
+- Adds a directive to enable directly accessing the user object from any API call (thanks @ianthetechie)
+- Adds built-in support for 'X-Api-Key' header based authentication via `authentication.api_key`
 - Adds support for running arbitrary python functions at runtime via a `@hug.startup` decorator
 - Adds support for smarter handling of html output types
 - Adds support for explicit API creation / referencing using `hug.api(__name__)`
