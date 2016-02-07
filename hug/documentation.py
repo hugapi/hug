@@ -25,7 +25,7 @@ import hug.types
 
 
 def for_handler(handler, version=None, doc=None, base_url="", url=""):
-    '''Generates documentation for a single API handler function'''
+    """Generates documentation for a single API handler function"""
     if doc is None:
         doc = OrderedDict()
 
@@ -63,7 +63,7 @@ def for_handler(handler, version=None, doc=None, base_url="", url=""):
 
 
 def for_module(module, base_url="", api_version=None, handler_documentation=for_handler):
-    '''Generates documentation based on a Hug API module, base_url, and api_version (if applicable)'''
+    """Generates documentation based on a Hug API module, base_url, and api_version (if applicable)"""
     documentation = OrderedDict()
     overview = module.__doc__
     if overview:

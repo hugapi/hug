@@ -67,9 +67,10 @@ def _json_converter(item):
 
 
 def json_convert(*kinds):
-    '''Registers the wrapped method as a JSON converter for the provided types.
-       NOTE: custom converters are always globally applied
-    '''
+    """Registers the wrapped method as a JSON converter for the provided types.
+    
+    NOTE: custom converters are always globally applied
+    """
     def register_json_converter(function):
         for kind in kinds:
             json_converters[kind] = function
@@ -79,7 +80,7 @@ def json_convert(*kinds):
 
 @content_type('application/json')
 def json(content, **kwargs):
-    '''JSON (Javascript Serialized Object Notation)'''
+    """JSON (Javascript Serialized Object Notation)"""
     if hasattr(content, 'read'):
         return content
 
@@ -89,7 +90,7 @@ def json(content, **kwargs):
 
 
 def on_valid(valid_content_type, on_invalid=json):
-    '''Renders as the specified content type only if no errors are found in the provided data object'''
+    """Renders as the specified content type only if no errors are found in the provided data object"""
     invalid_kwargs = introspect.generate_accepted_kwargs(on_invalid, 'request', 'response')
     invalid_takes_response = introspect.takes_all_arguments(on_invalid, 'response')
     def wrapper(function):
@@ -113,7 +114,7 @@ def on_valid(valid_content_type, on_invalid=json):
 
 @content_type('text/plain')
 def text(content):
-    '''Free form UTF8 text'''
+    """Free form UTF-8 text"""
     if hasattr(content, 'read'):
         return content
 
@@ -122,7 +123,7 @@ def text(content):
 
 @content_type('text/html')
 def html(content):
-    '''HTML (Hypertext Markup Language)'''
+    """HTML (Hypertext Markup Language)"""
     if hasattr(content, 'read'):
         return content
     elif hasattr(content, 'render'):
@@ -145,18 +146,18 @@ def _camelcase(dictionary):
 
 @content_type('application/json')
 def json_camelcase(content):
-    '''JSON (Javascript Serialized Object Notation) with all keys camelCased'''
+    """JSON (Javascript Serialized Object Notation) with all keys camelCased"""
     return json(_camelcase(content))
 
 
 @content_type('application/json')
 def pretty_json(content):
-    '''JSON (Javascript Serialized Object Notion) pretty printed and indented'''
+    """JSON (Javascript Serialized Object Notion) pretty printed and indented"""
     return json(content, indent=4, separators=(',', ': '))
 
 
 def image(image_format, doc=None):
-    '''Dynamically creates an image type handler for the specified image type'''
+    """Dynamically creates an image type handler for the specified image type"""
     @on_valid('image/{0}'.format(image_format))
     def image_handler(data):
         if hasattr(data, 'read'):
@@ -181,7 +182,7 @@ for image_type in IMAGE_TYPES:
 
 
 def video(video_type, video_mime, doc=None):
-    '''Dynamically creates a video type handler for the specified video type'''
+    """Dynamically creates a video type handler for the specified video type"""
     @on_valid(video_mime)
     def video_handler(data):
         if hasattr(data, 'read'):
@@ -206,7 +207,7 @@ for (video_type, video_mime) in VIDEO_TYPES:
 
 @on_valid('file/dynamic')
 def file(data, response):
-    '''A dynamically retrieved file'''
+    """A dynamically retrieved file"""
     if hasattr(data, 'read'):
         name, data = getattr(data, 'name', ''), data
     elif os.path.isfile(data):
@@ -221,13 +222,13 @@ def file(data, response):
 
 
 def on_content_type(handlers, default=None, error='The requested content type does not match any of those allowed'):
-    '''Returns a content in a different format based on the clients provided content type,
+    """Returns a content in a different format based on the clients provided content type,
        should pass in a dict with the following format:
 
             {'[content-type]': action,
              ...
             }
-    '''
+    """
     def output_type(data, request, response):
         handler = handlers.get(request.content_type.split(';')[0], default)
         if not handler:
@@ -243,13 +244,13 @@ def on_content_type(handlers, default=None, error='The requested content type do
 
 
 def suffix(handlers, default=None, error='The requested suffix does not match any of those allowed'):
-    '''Returns a content in a different format based on the suffix placed at the end of the URL route
+    """Returns a content in a different format based on the suffix placed at the end of the URL route
        should pass in a dict with the following format:
 
             {'[suffix]': action,
              ...
             }
-    '''
+    """
     def output_type(data, request, response):
         path = request.path
         handler = default
@@ -270,13 +271,13 @@ def suffix(handlers, default=None, error='The requested suffix does not match an
 
 
 def prefix(handlers, default=None, error='The requested prefix does not match any of those allowed'):
-    '''Returns a content in a different format based on the prefix placed at the end of the URL route
+    """Returns a content in a different format based on the prefix placed at the end of the URL route
        should pass in a dict with the following format:
 
             {'[prefix]': action,
              ...
             }
-    '''
+    """
     def output_type(data, request, response):
         path = request.path
         handler = default

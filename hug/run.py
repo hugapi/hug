@@ -60,7 +60,7 @@ INTRO = """
 
 
 def determine_version(request, api_version=None, api=None):
-    '''Determines the appropriate version given the set api_version, the request header, and URL query params'''
+    """Determines the appropriate version given the set api_version, the request header, and URL query params"""
     if api_version is False and api:
         api_version = None
         for version in api.versions:
@@ -90,7 +90,7 @@ def determine_version(request, api_version=None, api=None):
 
 
 def documentation_404(api):
-    '''Returns a smart 404 page that contains documentation for the written API'''
+    """Returns a smart 404 page that contains documentation for the written API"""
     def handle_404(request, response, *kargs, **kwargs):
         base_url = request.url[:-1]
         if request.path and request.path != "/":
@@ -107,7 +107,7 @@ def documentation_404(api):
 
 
 def version_router(request, response, api_version=None, versions={}, not_found=None, api=None, **kwargs):
-    '''Intelligently routes a request to the correct handler based on the version being requested'''
+    """Intelligently routes a request to the correct handler based on the version being requested"""
     request_version = determine_version(request, api_version, api)
     if request_version:
         request_version = int(request_version)
@@ -115,7 +115,7 @@ def version_router(request, response, api_version=None, versions={}, not_found=N
 
 
 def server(hug_api, default_not_found=documentation_404):
-    '''Returns a WSGI compatible API server for the given Hug API module'''
+    """Returns a WSGI compatible API server for the given Hug API module"""
     api = falcon.API(middleware=hug_api.middleware)
 
     not_found_handler = None
@@ -161,7 +161,7 @@ def server(hug_api, default_not_found=documentation_404):
 
 
 def terminal():
-    '''Starts the terminal application'''
+    """Starts the terminal application"""
     parser = argparse.ArgumentParser(description='Hug API Development Server')
     parser.add_argument('-f', '--file', dest='file_name', help="A Python file that contains a Hug API")
     parser.add_argument('-m', '--module', dest='module', help="A Python module that contains a Hug API")

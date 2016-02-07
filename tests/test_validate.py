@@ -25,7 +25,7 @@ TEST_SCHEMA = {'first': 'Timothy', 'place': 'Seattle'}
 
 
 def test_all():
-    '''Test to ensure hug's all validation function works as expected to combine validators'''
+    """Test to ensure hug's all validation function works as expected to combine validators"""
     assert not hug.validate.all(hug.validate.contains_one_of('first', 'year'),
                                 hug.validate.contains_one_of('last', 'place'))(None, TEST_SCHEMA)
     assert hug.validate.all(hug.validate.contains_one_of('last', 'year'),
@@ -33,7 +33,7 @@ def test_all():
 
 
 def test_any():
-    '''Test to ensure hug's any validation function works as expected to combine validators'''
+    """Test to ensure hug's any validation function works as expected to combine validators"""
     assert not hug.validate.any(hug.validate.contains_one_of('last', 'year'),
                                 hug.validate.contains_one_of('first', 'place'))(None, TEST_SCHEMA)
     assert hug.validate.any(hug.validate.contains_one_of('last', 'year'),
@@ -41,6 +41,6 @@ def test_any():
 
 
 def test_contains_one_of():
-    '''Test to ensure hug's contains_one_of validation function works as expected to ensure presence of a field'''
+    """Test to ensure hug's contains_one_of validation function works as expected to ensure presence of a field"""
     assert hug.validate.contains_one_of('no', 'way')(None, TEST_SCHEMA)
     assert not hug.validate.contains_one_of('last', 'place')(None, TEST_SCHEMA)

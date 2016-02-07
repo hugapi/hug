@@ -3,7 +3,7 @@ import hug
 
 @hug.get()
 def hello_world():
-    return "Hello world!"
+    return 'Hello world!'
 
 
 @hug.not_found()

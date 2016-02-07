@@ -30,7 +30,7 @@ api = hug.API(__name__)
 
 
 def test_basic_auth():
-    '''Test to ensure hugs provide basic_auth handler works as expected'''
+    """Test to ensure hug provides basic_auth handler works as expected"""
     @hug.get(requires=hug.authentication.basic(hug.authentication.verify('Tim', 'Custom password')))
     def hello_world():
         return 'Hello world!'
@@ -48,3 +48,25 @@ def test_basic_auth():
 
     token = b'Basic ' + b64encode('{0}:{1}'.format('Tim', 'Wrong password').encode('utf8'))
     assert '401' in hug.test.get(api, 'hello_world', headers={'Authorization': token}).status
+
+def test_api_key_auth():
+    """Test to ensure that the hug API key authentication handler works as expected"""
+    magic_key = '5F00832B-DE24-4CAF-9638-C10D1C642C6C'
+    
+    def api_key_verify(api_key):
+        if api_key == magic_key:
+            return magic_key
+        else:
+            return None
+
+    @hug.get(requires=hug.authentication.api_key(api_key_verify))
+    def hello_world():
+        return 'Hello world!'
+
+    # Test invalid/missing authentication header/key
+    assert '401' in hug.test.get(api, 'hello_world').status
+    assert '401' in hug.test.get(api, 'hello_world', headers={'X-Api-Key': 'Invalid Key'}).status
+    assert '401' in hug.test.get(api, 'hello_world', headers={'X-Some-Other-Header': magic_key}).status
+
+    # Test with the correct header and key
+    assert hug.test.get(api, 'hello_world', headers={'X-Api-Key': magic_key}).data == 'Hello world!'

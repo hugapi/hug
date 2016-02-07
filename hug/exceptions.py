@@ -22,12 +22,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 class InvalidTypeData(Exception):
-    '''Should be raised when data passed in doesn't match a types expectations'''
+    """Should be raised when data passed in doesn't match a types expectations"""
     def __init__(self, message, reasons=None):
         self.message = message
         self.reasons = reasons
 
 
 class SessionNotFound(Exception):
-    '''Should be raised when a session ID has not been found inside a session store'''
+    """Should be raised when a session ID has not been found inside a session store"""
     pass
