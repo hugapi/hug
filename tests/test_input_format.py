@@ -25,18 +25,18 @@ import hug
 
 
 def test_text():
-    '''Ensure that plain text input format works as intended'''
+    """Ensure that plain text input format works as intended"""
     test_data = BytesIO(b'{"a": "b"}')
     assert hug.input_format.text(test_data) == '{"a": "b"}'
 
 
 def test_json():
-    '''Ensure that the json input format works as intended'''
+    """Ensure that the json input format works as intended"""
     test_data = BytesIO(b'{"a": "b"}')
     assert hug.input_format.json(test_data) == {'a': 'b'}
 
 
 def test_json_underscore():
-    '''Ensure that camelCase keys can be converted into under_score for easier use within Python'''
+    """Ensure that camelCase keys can be converted into under_score for easier use within Python"""
     test_data = BytesIO(b'{"CamelCase": {"becauseWeCan": "ValueExempt"}}')
     assert hug.input_format.json_underscore(test_data) == {'camel_case': {'because_we_can': 'ValueExempt'}}

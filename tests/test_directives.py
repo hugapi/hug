@@ -104,6 +104,18 @@ def test_current_api():
     with pytest.raises(AttributeError):
         hug.test.get(api, 'v3/version_call_tester').data
 
+def test_user():
+    """Ensure that it's possible to get the current authenticated user based on a directive"""
+    user = 'test_user'
+    password = 'super_secret'
+    
+    @hug.get(requires=hug.authentication.basic(hug.authentication.verify(user, password)))
+    def authenticated_hello(hug_user):
+        return hug_user
+
+    token = b64encode('{0}:{1}'.format(user, password).encode('utf8')).decode('utf8')
+    assert hug.test.get(api, 'authenticated_hello', headers={'Authorization': 'Basic {0}'.format(token)}).data == user
+
 
 def test_named_directives():
     """Ensure that it's possible to attach directives to named parameters"""

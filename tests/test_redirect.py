@@ -25,35 +25,35 @@ import pytest
 
 
 def test_to():
-    '''Test that the base redirect to function works as expected'''
+    """Test that the base redirect to function works as expected"""
     with pytest.raises(falcon.http_status.HTTPStatus) as redirect:
         hug.redirect.to('/')
     assert '302' in redirect.value.status
 
 
 def test_permanent():
-    '''Test to ensure function causes a redirect with HTTP 301 status code'''
+    """Test to ensure function causes a redirect with HTTP 301 status code"""
     with pytest.raises(falcon.http_status.HTTPStatus) as redirect:
         hug.redirect.permanent('/')
     assert '301' in redirect.value.status
 
 
 def test_found():
-    '''Test to ensure function causes a redirect with HTTP 302 status code'''
+    """Test to ensure function causes a redirect with HTTP 302 status code"""
     with pytest.raises(falcon.http_status.HTTPStatus) as redirect:
         hug.redirect.found('/')
     assert '302' in redirect.value.status
 
 
 def test_see_other():
-    '''Test to ensure function causes a redirect with HTTP 303 status code'''
+    """Test to ensure function causes a redirect with HTTP 303 status code"""
     with pytest.raises(falcon.http_status.HTTPStatus) as redirect:
         hug.redirect.see_other('/')
     assert '303' in redirect.value.status
 
 
 def test_temporary():
-    '''Test to ensure function causes a redirect with HTTP 307 status code'''
+    """Test to ensure function causes a redirect with HTTP 307 status code"""
     with pytest.raises(falcon.http_status.HTTPStatus) as redirect:
         hug.redirect.temporary('/')
     assert '307' in redirect.value.status

@@ -23,30 +23,30 @@ import falcon
 
 
 def to(location, code=falcon.HTTP_302):
-    '''Redirects to the specified location using the provided http_code (defaults to HTTP_302 FOUND)'''
+    """Redirects to the specified location using the provided http_code (defaults to HTTP_302 FOUND)"""
     raise falcon.http_status.HTTPStatus(code, {'location': location})
 
 
 def permanent(location):
-    '''Redirects to the specified location using HTTP 301 status code'''
+    """Redirects to the specified location using HTTP 301 status code"""
     to(location, falcon.HTTP_301)
 
 
 def found(location):
-    '''Redirects to the specified location using HTTP 302 status code'''
+    """Redirects to the specified location using HTTP 302 status code"""
     to(location, falcon.HTTP_302)
 
 
 def see_other(location):
-    '''Redirects to the specified location using HTTP 303 status code'''
+    """Redirects to the specified location using HTTP 303 status code"""
     to(location, falcon.HTTP_303)
 
 
 def temporary(location):
-    '''Redirects to the specified location using HTTP 304 status code'''
+    """Redirects to the specified location using HTTP 304 status code"""
     to(location, falcon.HTTP_307)
 
 
 def not_found():
-    '''Redirects request handling to the not found render'''
+    """Redirects request handling to the not found render"""
     raise falcon.HTTPNotFound()

@@ -29,30 +29,30 @@ api = hug.API(__name__)
 
 
 def test_basic_documentation():
-    '''Ensure creating and then documenting APIs with Hug works as intuitively as expected'''
+    """Ensure creating and then documenting APIs with Hug works as intuitively as expected"""
     @hug.get()
     def hello_world():
-        '''Returns hello world'''
+        """Returns hello world"""
         return "Hello World!"
 
     @hug.post()
     def echo(text):
-        '''Returns back whatever data it is given in the text parameter'''
+        """Returns back whatever data it is given in the text parameter"""
         return text
 
     @hug.post('/happy_birthday', examples="name=HUG&age=1")
     def birthday(name, age:hug.types.number=1):
-        '''Says happy birthday to a user'''
+        """Says happy birthday to a user"""
         return "Happy {age} Birthday {name}!".format(**locals())
 
     @hug.post()
     def noop(request, response):
-        '''Performs no action'''
+        """Performs no action"""
         pass
 
     @hug.get()
     def string_docs(data:'Takes data') -> 'Returns data':
-        '''Annotations defined with strings should be documentation only'''
+        """Annotations defined with strings should be documentation only"""
         pass
 
     documentation = api.documentation()

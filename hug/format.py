@@ -26,7 +26,7 @@ UNDERSCORE = (re.compile('(.)([A-Z][a-z]+)'), re.compile('([a-z0-9])([A-Z])'))
 
 
 def content_type(content_type):
-    '''Attaches the supplied content_type to a Hug formatting function'''
+    """Attaches the supplied content_type to a Hug formatting function"""
     def decorator(method):
         method.content_type = content_type
         return method
@@ -34,10 +34,10 @@ def content_type(content_type):
 
 
 def underscore(text):
-    '''Converts text that may be camelcased into an underscored format'''
+    """Converts text that may be camelcased into an underscored format"""
     return UNDERSCORE[1].sub(r'\1_\2', UNDERSCORE[0].sub(r'\1_\2', text)).lower()
 
 
 def camelcase(text):
-    '''Converts text that may be underscored into a camelcase format'''
+    """Converts text that may be underscored into a camelcase format"""
     return text[0] + "".join(text.title().split('_'))[1:]

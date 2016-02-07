@@ -22,7 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 def all(*validators):
-    '''Validation only succeeds if all passed in validators return no errors'''
+    """Validation only succeeds if all passed in validators return no errors"""
     def validate_all(request, fields):
         for validator in validators:
             errors = validator(request, fields)
@@ -34,7 +34,7 @@ def all(*validators):
 
 
 def any(*validators):
-    '''If any of the specified validators pass the validation succeeds'''
+    """If any of the specified validators pass the validation succeeds"""
     def validate_any(request, fields):
         errors = {}
         for validator in validators:
@@ -49,7 +49,7 @@ def any(*validators):
 
 
 def contains_one_of(*fields):
-    '''Enables ensuring that one of multiple optional fields is set'''
+    """Enables ensuring that one of multiple optional fields is set"""
     message = 'Must contain any one of the following fields: {0}'.format(', '.join(fields))
     def check_contains(request, endpoint_fields):
         for field in fields:

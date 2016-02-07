@@ -25,13 +25,13 @@ api = hug.API(__name__)
 
 
 class TestAPI(object):
-    '''A collection of tests to ensure the hug API object interacts as expected'''
+    """A collection of tests to ensure the hug API object interacts as expected"""
 
     def test_singleton(self):
-        '''Test to ensure there can only be one hug API per module'''
+        """Test to ensure there can only be one hug API per module"""
         assert hug.API(__name__) == api
 
 
 def test_from_object():
-    '''Test to ensure it's possible to rechieve an API singleton from an arbitrary object'''
+    """Test to ensure it's possible to rechieve an API singleton from an arbitrary object"""
     assert hug.api.from_object(TestAPI) == api

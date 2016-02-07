@@ -22,7 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 def content_type(transformers, default=None):
-    '''Returns a different transformer depending on the content type passed in.
+    """Returns a different transformer depending on the content type passed in.
        If none match and no default is given no transformation takes place.
 
        should pass in a dict with the following format:
@@ -30,7 +30,7 @@ def content_type(transformers, default=None):
             {'[content-type]': transformation_action,
              ...
             }
-    '''
+    """
     def transform(data, request):
         transformer = transformers.get(request.content_type.split(';')[0], default)
         if not transformer:
@@ -41,7 +41,7 @@ def content_type(transformers, default=None):
 
 
 def suffix(transformers, default=None):
-    '''Returns a different transformer depending on the suffix at the end of the requested URL.
+    """Returns a different transformer depending on the suffix at the end of the requested URL.
        If none match and no default is given no transformation takes place.
 
        should pass in a dict with the following format:
@@ -49,7 +49,7 @@ def suffix(transformers, default=None):
             {'[suffix]': transformation_action,
              ...
             }
-    '''
+    """
     def transform(data, request):
         path = request.path
         transformer = default
@@ -63,7 +63,7 @@ def suffix(transformers, default=None):
 
 
 def prefix(transformers, default=None):
-    '''Returns a different transformer depending on the prefix at the end of the requested URL.
+    """Returns a different transformer depending on the prefix at the end of the requested URL.
        If none match and no default is given no transformation takes place.
 
        should pass in a dict with the following format:
@@ -71,7 +71,7 @@ def prefix(transformers, default=None):
             {'[prefix]': transformation_action,
              ...
             }
-    '''
+    """
     def transform(data, request):
         path = request.path
         transformer = default

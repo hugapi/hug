@@ -24,7 +24,7 @@ from json import loads as load_json
 
 
 def accept(formatter, doc=None, error_text=None, cli_behaviour=None, exception_handlers=None):
-    '''Allows quick wrapping any Python type converter for use with Hug type annotations'''
+    """Allows quick wrapping any Python type converter for use with Hug type annotations"""
     defined_exception_handlers = exception_handlers or {}
     if defined_exception_handlers or error_text:
         def hug_formatter(data):
@@ -62,24 +62,24 @@ boolean = accept(bool, 'Providing any value will set this to true',
 
 
 def multiple(value):
-    '''Multiple Values'''
+    """Multiple Values"""
     return value if isinstance(value, list) else [value]
 multiple.cli_behaviour = {'action': 'append', 'type':text}
 
 
 def delimited_list(using=","):
-    '''Defines a list type that is formed by delimiting a list with a certain character or set of characters'''
+    """Defines a list type that is formed by delimiting a list with a certain character or set of characters"""
     def delimite(value):
         return value if type(value) in (list, tuple) else value.split(using)
 
-    delimite.__doc__ = '''Multiple values, separated by "{0}"'''.format(using)
+    delimite.__doc__ = 'Multiple values, separated by "{0}"'.format(using)
     return delimite
 
 comma_separated_list = delimited_list()
 
 
 def smart_boolean(input_value):
-    '''Accepts a true or false value'''
+    """Accepts a true or false value"""
     if type(input_value) == bool or input_value in (None, 1, 0):
         return bool(input_value)
 
@@ -95,12 +95,12 @@ smart_boolean.cli_behaviour = {'action': 'store_true'}
 
 
 def inline_dictionary(input_value):
-    '''A single line dictionary, where items are separted by commas and key:value are separated by a pipe'''
+    """A single line dictionary, where items are separted by commas and key:value are separated by a pipe"""
     return {key.strip(): value.strip() for key, value in (item.split(":") for item in input_value.split("|"))}
 
 
 def one_of(values):
-    '''Ensures the value is within a set of acceptable values'''
+    """Ensures the value is within a set of acceptable values"""
     def matches(value):
         if not value in values:
             raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(values)))
@@ -112,7 +112,7 @@ def one_of(values):
 
 
 def mapping(value_map):
-    '''Ensures the value is one of an acceptable set of values mapping those values to a Python equivelent'''
+    """Ensures the value is one of an acceptable set of values mapping those values to a Python equivelent"""
     values = value_map.keys()
     def matches(value):
         if not value in value_map.keys():
@@ -125,7 +125,7 @@ def mapping(value_map):
 
 
 def json(value):
-    '''Accepts a JSON formatted data structure'''
+    """Accepts a JSON formatted data structure"""
     if type(value) in (str, bytes):
         try:
             return load_json(value)
@@ -136,7 +136,7 @@ def json(value):
 
 
 def multi(*types):
-    '''Enables accepting one of multiple type methods'''
+    """Enables accepting one of multiple type methods"""
     type_strings = (type_method.__doc__ for type_method in types)
     doc_string = 'Accepts any of the following value types:{0}\n'.format('\n  - '.join(type_strings))
     def multi_type(value):
@@ -151,7 +151,7 @@ def multi(*types):
 
 
 def length(lower, upper, convert=text):
-    '''Accepts a a value that is withing a specific length limit'''
+    """Accepts a a value that is withing a specific length limit"""
     def check_length(value):
         value = convert(value)
         length = len(value)
@@ -167,7 +167,7 @@ def length(lower, upper, convert=text):
 
 
 def shorter_than(limit, convert=text):
-    '''Accepts a text value shorter than the specified length limit'''
+    """Accepts a text value shorter than the specified length limit"""
     def check_shorter_than(value):
         value = convert(value)
         length = len(value)
@@ -180,7 +180,7 @@ def shorter_than(limit, convert=text):
 
 
 def longer_than(limit, convert=text):
-    '''Accepts a text value longer than the specified minimum'''
+    """Accepts a text value longer than the specified minimum"""
     def check_longer_than(value):
         value = convert(value)
         length = len(value)
@@ -193,7 +193,7 @@ def longer_than(limit, convert=text):
 
 
 def cut_off(limit, convert=text):
-    '''Cuts off the provided value at the specified index'''
+    """Cuts off the provided value at the specified index"""
     def truncate(value):
         return convert(value)[:limit]
 
@@ -202,7 +202,7 @@ def cut_off(limit, convert=text):
 
 
 def in_range(lower, upper, convert=number):
-    '''Accepts a number within a lower and upper bound of acceptable values'''
+    """Accepts a number within a lower and upper bound of acceptable values"""
     def check_in_range(value):
         value = convert(value)
         if value < lower:
@@ -217,7 +217,7 @@ def in_range(lower, upper, convert=number):
 
 
 def less_than(limit, convert=number):
-    '''Accepts a value up to the specified limit'''
+    """Accepts a value up to the specified limit"""
     def check_less_than(value):
         value = convert(value)
         if not value < limit:
@@ -229,7 +229,7 @@ def less_than(limit, convert=number):
 
 
 def greater_than(minimum, convert=number):
-    '''Accepts a value above a given minimum'''
+    """Accepts a value above a given minimum"""
     def check_greater_than(value):
         value = convert(value)
         if not value > minimum:

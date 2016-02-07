@@ -34,7 +34,7 @@ from hug.run import server
 
 
 def call(method, api, url, body='', headers=None, **params):
-    '''Simulates a round-trip call against the given API / URL'''
+    """Simulates a round-trip call against the given API / URL"""
     api = server(api)
     response = StartResponseMock()
     if not isinstance(body, str):
@@ -63,12 +63,12 @@ def call(method, api, url, body='', headers=None, **params):
 
 for method in HTTP_METHODS:
     tester = partial(call, method)
-    tester.__doc__ = '''Simulates a round-trip HTTP {0} against the given API / URL'''.format(method.upper())
+    tester.__doc__ = """Simulates a round-trip HTTP {0} against the given API / URL""".format(method.upper())
     globals()[method.lower()] = tester
 
 
 def cli(method, *kargs, **arguments):
-    '''Simulates testing a hug cli method from the command line'''
+    """Simulates testing a hug cli method from the command line"""
     collect_output = arguments.pop('collect_output', True)
 
     command_args = [method.__name__] + list(kargs)

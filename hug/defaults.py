@@ -22,7 +22,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 import hug
 
 output_format = hug.output_format.json
-input_format = {'application/json': hug.input_format.json, 'text/plain': hug.input_format.text,
-                'text/css': hug.input_format.text, 'text/html': hug.input_format.text}
-directives = {'timer': hug.directives.Timer, 'api': hug.directives.api, 'module': hug.directives.module,
-              'current_api': hug.directives.CurrentAPI, 'api_version': hug.directives.api_version}
+
+input_format = {
+    'application/json': hug.input_format.json,
+    'text/plain': hug.input_format.text,
+    'text/css': hug.input_format.text,
+    'text/html': hug.input_format.text
+}
+
+directives = {
+    'timer': hug.directives.Timer,
+    'api': hug.directives.api,
+    'module': hug.directives.module,
+    'current_api': hug.directives.CurrentAPI,
+    'api_version': hug.directives.api_version,
+    'user': hug.directives.user
+}

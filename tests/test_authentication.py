@@ -29,7 +29,7 @@ api = hug.API(__name__)
 
 
 def test_basic_auth():
-    """Test to ensure hugs provde basic_auth handler works as expected"""
+    """Test to ensure hug provides basic_auth handler works as expected"""
     @hug.get(requires=hug.authentication.basic(hug.authentication.verify('Tim', 'Custom password')))
     def hello_world():
         return 'Hello world!'
@@ -47,7 +47,6 @@ def test_basic_auth():
 
     token = b'Basic ' + b64encode('{0}:{1}'.format('Tim', 'Wrong password').encode('utf8'))
     assert '401' in hug.test.get(api, 'hello_world', headers={'Authorization': token}).status
-
 
 def test_api_key():
     """Test the included api_key based header to ensure it works as expected to allow X-Api-Key based authentication"""

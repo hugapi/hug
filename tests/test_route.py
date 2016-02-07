@@ -26,7 +26,7 @@ api = hug.API(__name__)
 
 
 def test_simple_class_based_view():
-    '''Test creating class based routers'''
+    """Test creating class based routers"""
     @hug.object.urls('/endpoint', requires=())
     class MyClass(object):
 
@@ -43,7 +43,7 @@ def test_simple_class_based_view():
 
 
 def test_simple_class_based_method_view():
-    '''Test creating class based routers using method mappings'''
+    """Test creating class based routers using method mappings"""
     @hug.object.http_methods()
     class EndPoint(object):
 
@@ -58,7 +58,7 @@ def test_simple_class_based_method_view():
 
 
 def test_routing_class_based_method_view_with_sub_routing():
-    '''Test creating class based routers using method mappings, then overriding url on sub method'''
+    """Test creating class based routers using method mappings, then overriding url on sub method"""
     @hug.object.http_methods()
     class EndPoint(object):
 
@@ -74,7 +74,7 @@ def test_routing_class_based_method_view_with_sub_routing():
 
 
 def test_routing_instance():
-    '''Test to ensure its possible to route a class after it is instanciated'''
+    """Test to ensure its possible to route a class after it is instanciated"""
     class EndPoint(object):
 
         @hug.object
@@ -91,33 +91,33 @@ def test_routing_instance():
 
 
 class TestAPIRouter(object):
-    '''Test to ensure the API router enables easily reusing all other routing types while routing to an API'''
+    """Test to ensure the API router enables easily reusing all other routing types while routing to an API"""
     router = hug.route.API(__name__)
 
     def test_route_url(self):
-        '''Test to ensure you can dynamically create a URL route attached to a hug API'''
+        """Test to ensure you can dynamically create a URL route attached to a hug API"""
         assert self.router.urls('/hi/').route == URLRouter('/hi/', api=api).route
 
     def test_not_found(self):
-        '''Test to ensure you can dynamically create a Not Found route attached to a hug API'''
+        """Test to ensure you can dynamically create a Not Found route attached to a hug API"""
         assert self.router.not_found().route == NotFoundRouter(api=api).route
 
     def test_static(self):
-        '''Test to ensure you can dynamically create a static route attached to a hug API'''
+        """Test to ensure you can dynamically create a static route attached to a hug API"""
         assert self.router.static().route == StaticRouter(api=api).route
 
     def test_sink(self):
-        '''Test to ensure you can dynamically create a sink route attached to a hug API'''
+        """Test to ensure you can dynamically create a sink route attached to a hug API"""
         assert self.router.sink().route == SinkRouter(api=api).route
 
     def test_exceptions(self):
-        '''Test to ensure you can dynamically create an Exception route attached to a hug API'''
+        """Test to ensure you can dynamically create an Exception route attached to a hug API"""
         assert self.router.exceptions().route == ExceptionRouter(api=api).route
 
     def test_cli(self):
-        '''Test to ensure you can dynamically create a CLI route attached to a hug API'''
+        """Test to ensure you can dynamically create a CLI route attached to a hug API"""
         assert self.router.cli().route == CLIRouter(api=api).route
 
     def test_object(self):
-        '''Test to ensure it's possible to route objects through a specified API instance'''
+        """Test to ensure it's possible to route objects through a specified API instance"""
         assert self.router.object().route == hug.route.Object(api=api).route

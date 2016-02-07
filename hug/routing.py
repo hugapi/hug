@@ -40,7 +40,7 @@ RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
 
 
 class Router(object):
-    '''The base chainable router object'''
+    """The base chainable router object"""
     __slots__ = ('route', )
 
     def __init__(self, transform=None, output=None, api=None):
@@ -53,28 +53,28 @@ class Router(object):
             self.route['api'] = api
 
     def output(self, formatter, **overrides):
-        '''Sets the output formatter that should be used to render this route'''
+        """Sets the output formatter that should be used to render this route"""
         return self.where(output=formatter, **overrides)
 
     def transform(self, function, **overrides):
-        '''Sets the function that should be used to transform the returned Python structure into something
+        """Sets the function that should be used to transform the returned Python structure into something
            serializable by specified output format
-        '''
+        """
         return self.where(transform=function, **overrides)
 
     def api(self, api, **overrides):
-        '''Sets the API that should contain this route'''
+        """Sets the API that should contain this route"""
         return self.where(api=api, **overrides)
 
     def where(self, **overrides):
-        '''Creates a new route, based on the current route, with the specified overrided values'''
+        """Creates a new route, based on the current route, with the specified overrided values"""
         route_data = self.route.copy()
         route_data.update(overrides)
         return self.__class__(**route_data)
 
 
 class CLIRouter(Router):
-    '''The CLIRouter provides a chainable router that can be used to route a CLI command to a Python function'''
+    """The CLIRouter provides a chainable router that can be used to route a CLI command to a Python function"""
     __slots__ = ()
 
     def __init__(self, name=None, version=None, doc=None, **kwargs):
@@ -87,19 +87,19 @@ class CLIRouter(Router):
             self.route['doc'] = doc
 
     def name(self, name, **overrides):
-        '''Sets the name for the CLI interface'''
+        """Sets the name for the CLI interface"""
         return self.where(name=name, **overrides)
 
     def version(self, version, **overrides):
-        '''Sets the version for the CLI interface'''
+        """Sets the version for the CLI interface"""
         return self.where(version=version, **overrides)
 
     def doc(self, documentation, **overrides):
-        '''Sets the documentation for the CLI interface'''
+        """Sets the documentation for the CLI interface"""
         return self.where(doc=documentation, **overrides)
 
     def __call__(self, api_function):
-        '''Enables exposing a Hug compatible function as a Command Line Interface'''
+        """Enables exposing a Hug compatible function as a Command Line Interface"""
         api = self.route.get('api', hug.api.from_object(api_function))
 
         if introspect.takes_kargs(api_function):
@@ -229,7 +229,7 @@ class CLIRouter(Router):
 
 
 class HTTPRouter(Router):
-    '''The HTTPRouter provides the base concept of a router from an HTTPRequest to a Python function'''
+    """The HTTPRouter provides the base concept of a router from an HTTPRequest to a Python function"""
     __slots__ = ()
 
     def __init__(self, versions=None, parse_body=False, requires=(), parameters=None, defaults={}, status=None,
@@ -257,52 +257,54 @@ class HTTPRouter(Router):
 
 
     def versions(self, supported, **overrides):
-        '''Sets the versions that this route should be compatiable with'''
+        """Sets the versions that this route should be compatiable with"""
         return self.where(versions=supported, **overrides)
 
     def parse_body(self, automatic=True, **overrides):
-        '''Tells hug to automatically parse the input body if it matches a registered input format'''
+        """Tells hug to automatically parse the input body if it matches a registered input format"""
         return self.where(parse_body=automatic, **overrides)
 
     def requires(self, requirements, **overrides):
-        '''Adds additional requirements to the specified route'''
+        """Adds additional requirements to the specified route"""
         return self.where(requires=tuple(self.route.get('requires', ())) + tuple(requirements), **overrides)
 
     def set_status(self, status, **overrides):
-        '''Sets the status that will be returned by default'''
+        """Sets the status that will be returned by default"""
         return self.where(status=status, **overrides)
 
     def parameters(self, parameters, **overrides):
-        '''Sets the custom parameters that will be used instead of those found introspecting the decorated function'''
+        """Sets the custom parameters that will be used instead of those found introspecting the decorated function"""
         return self.where(parameters=parameters, **overrides)
 
     def defaults(self, defaults, **overrides):
-        '''Sets the custom defaults that will be used for custom parameters'''
+        """Sets the custom defaults that will be used for custom parameters"""
         return self.where(defaults=defaults, **overrides)
 
     def on_invalid(self, function, **overrides):
-        '''Sets a function to use to transform data on validation errors
-            Defaults to the transform function if one is set
-            To ensure no special handling occurs for invalid data set to `False`
-        '''
+        """Sets a function to use to transform data on validation errors.
+
+        Defaults to the transform function if one is set to ensure no special
+        handling occurs for invalid data set to `False`.
+        """
         return self.where(on_invalid=function, **overrides)
 
     def output_invalid(self, output_handler, **overrides):
-        '''Sets an output handler to be used when handler validation fails
-            Defaults to the output formatter set globally for the route
-        '''
+        """Sets an output handler to be used when handler validation fails.
+        
+        Defaults to the output formatter set globally for the route.
+        """
         return self.where(output_invalid=output_handler, **overrides)
 
     def validate(self, validation_function, **overrides):
-        '''Sets the secondary validation fucntion to use for this handler'''
+        """Sets the secondary validation fucntion to use for this handler"""
         return self.where(validate=validation_function, **overrides)
 
     def raise_on_invalid(self, setting=True, **overrides):
-        '''Sets the route to raise validation errors instead of catching them'''
+        """Sets the route to raise validation errors instead of catching them"""
         return self.where(raise_on_invalid=setting, **overrides)
 
     def _marshmallow_schema(self, marshmallow):
-        '''Dynamically generates a hug style type handler from a Marshmallow style schema'''
+        """Dynamically generates a hug style type handler from a Marshmallow style schema"""
         def marshmallow_type(input_data):
             result, errors = marshmallow.loads(input_data) if isinstance(input_data, str) else marshmallow.load(input_data)
             if errors:
@@ -601,7 +603,7 @@ class HTTPRouter(Router):
 
 
 class NotFoundRouter(HTTPRouter):
-    '''Provides a chainable router that can be used to route 404'd request to a Python function'''
+    """Provides a chainable router that can be used to route 404'd request to a Python function"""
     __slots__ = ()
 
     def __init__(self, output=None, versions=None, status=falcon.HTTP_NOT_FOUND, **kwargs):
@@ -617,7 +619,7 @@ class NotFoundRouter(HTTPRouter):
 
 
 class SinkRouter(HTTPRouter):
-    '''Provides a chainable router that can be used to route all routes pass a certain base URL (essentially route/*)'''
+    """Provides a chainable router that can be used to route all routes pass a certain base URL (essentially route/*)"""
     __slots__ = ()
 
     def __init__(self, urls=None, output=None, **kwargs):
@@ -634,7 +636,7 @@ class SinkRouter(HTTPRouter):
 
 
 class StaticRouter(SinkRouter):
-    '''Provides a chainable router that can be used to return static files automtically from a set of directories'''
+    """Provides a chainable router that can be used to return static files automtically from a set of directories"""
     __slots__ = ('route', )
 
     def __init__(self, urls=None, output=hug.output_format.file, **kwargs):
@@ -667,7 +669,7 @@ class StaticRouter(SinkRouter):
 
 
 class ExceptionRouter(HTTPRouter):
-    '''Provides a chainable router that can be used to route exceptions thrown during request handling'''
+    """Provides a chainable router that can be used to route exceptions thrown during request handling"""
     __slots__ = ()
 
     def __init__(self, exceptions=(Exception, ), output=None, **kwargs):
@@ -685,7 +687,7 @@ class ExceptionRouter(HTTPRouter):
 
 
 class URLRouter(HTTPRouter):
-    '''Provides a chainable router that can be used to route a URL to a Python function'''
+    """Provides a chainable router that can be used to route a URL to a Python function"""
     __slots__ = ()
 
     def __init__(self, urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None,
@@ -733,85 +735,85 @@ class URLRouter(HTTPRouter):
         return callable_method
 
     def urls(self, *urls, **overrides):
-        '''Sets the URLs that will map to this API call'''
+        """Sets the URLs that will map to this API call"""
         return self.where(urls=urls, **overrides)
 
     def accept(self, *accept, **overrides):
-        '''Sets a list of HTTP methods this router should accept'''
+        """Sets a list of HTTP methods this router should accept"""
         return self.where(accept=accept, **overrides)
 
     def get(self, **overrides):
-        '''Sets the acceptable HTTP method to a GET'''
+        """Sets the acceptable HTTP method to a GET"""
         return self.where(accept='GET', **overrides)
 
     def delete(self, **overrides):
-        '''Sets the acceptable HTTP method to DELETE'''
+        """Sets the acceptable HTTP method to DELETE"""
         return self.where(accept='DELETE', **overrides)
 
     def post(self, **overrides):
-        '''Sets the acceptable HTTP method to POST'''
+        """Sets the acceptable HTTP method to POST"""
         return self.where(accept='POST', **overrides)
 
     def put(self, **overrides):
-        '''Sets the acceptable HTTP method to PUT'''
+        """Sets the acceptable HTTP method to PUT"""
         return self.where(accept='PUT', **overrides)
 
     def trace(self, **overrides):
-        '''Sets the acceptable HTTP method to TRACE'''
+        """Sets the acceptable HTTP method to TRACE"""
         return self.where(accept='TRACE', **overrides)
 
     def patch(self, **overrides):
-        '''Sets the acceptable HTTP method to PATCH'''
+        """Sets the acceptable HTTP method to PATCH"""
         return self.where(accept='PATCH', **overrides)
 
     def options(self, **overrides):
-        '''Sets the acceptable HTTP method to OPTIONS'''
+        """Sets the acceptable HTTP method to OPTIONS"""
         return self.where(accept='OPTIONS', **overrides)
 
     def head(self, **overrides):
-        '''Sets the acceptable HTTP method to HEAD'''
+        """Sets the acceptable HTTP method to HEAD"""
         return self.where(accept='HEAD', **overrides)
 
     def connect(self, **overrides):
-        '''Sets the acceptable HTTP method to CONNECT'''
+        """Sets the acceptable HTTP method to CONNECT"""
         return self.where(accept='CONNECT', **overrides)
 
     def call(self, **overrides):
-        '''Sets the acceptable HTTP method to all known'''
+        """Sets the acceptable HTTP method to all known"""
         return self.where(accept=HTTP_METHODS, **overrides)
 
     def examples(self, *examples, **overrides):
-        '''Sets the examples that the route should use'''
+        """Sets the examples that the route should use"""
         return self.where(examples=examples, **overrides)
 
     def suffixes(self, *suffixes, **overrides):
-        '''Sets the suffixes supported by the route'''
+        """Sets the suffixes supported by the route"""
         return self.where(suffixes=suffixes, **overrides)
 
     def prefixes(self, *prefixes, **overrides):
-        '''Sets the prefixes supported by the route'''
+        """Sets the prefixes supported by the route"""
         return self.where(prefixes=prefixes, **overrides)
 
     def response_headers(self, headers, **overrides):
-        '''Sets the response headers automatically injected by the router'''
+        """Sets the response headers automatically injected by the router"""
         return self.where(response_headers=headers, **overrides)
 
     def add_response_headers(self, headers, **overrides):
-        '''Adds the specified response headers while keeping existing ones in-tact'''
+        """Adds the specified response headers while keeping existing ones in-tact"""
         response_headers = self.route.get('response_headers', {}).copy()
         response_headers.update(headers)
         return self.where(response_headers=response_headers, **overrides)
 
     def cache(self, private=False, max_age=31536000, s_maxage=None, no_cache=False, no_store=False,
               must_revalidate=False, **overrides):
-        '''Convience method for quickly adding cache header to route'''
+        """Convience method for quickly adding cache header to route"""
         parts = ('private' if private else 'public', 'max-age={0}'.format(max_age),
                  's-maxage={0}'.format(s_maxage) if s_maxage is not None else None, no_cache and 'no-cache',
                  no_store and 'no-store', must_revalidate and 'must-revalidate')
         return self.add_response_headers({'cache-control': ', '.join(filter(bool, parts))}, **overrides)
 
     def allow_origins(self, *origins, methods=None, **overrides):
-        '''Convience method for quickly allowing other resources to access this one'''
+        """Convience method for quickly allowing other resources to access this one"""
         headers = {'Access-Control-Allow-Origin': ', '.join(origins) if origins else '*'}
         if methods:
             headers['Access-Control-Allow-Methods'] = ', '.join(methods)
