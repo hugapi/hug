@@ -26,11 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from collections import namedtuple
 
-from falcon import HTTP_METHODS
-
 import hug.api
 import hug.defaults
 import hug.output_format
+from falcon import HTTP_METHODS
 from hug.format import underscore
 
 

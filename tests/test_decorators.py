@@ -20,10 +20,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import falcon
+import hug
 import pytest
 from falcon.testing import StartResponseMock, create_environ
-
-import hug
 
 api = hug.API(__name__)
 

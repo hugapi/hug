@@ -21,9 +21,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from base64 import b64encode
 
-import pytest
-
 import hug
+import pytest
 
 api = hug.API(__name__)
 
@@ -147,3 +146,19 @@ def test_per_api_directives():
         return hug_test
 
     assert hug.test.get(api, 'my_api_method').data == 'heyyy'
+
+
+def test_user():
+    """Test the user directives functionality, to ensure it will provide the set user object"""
+    @hug.get()
+    def try_user(user:hug.directives.user):
+        return user
+
+    assert hug.test.get(api, 'try_user').data == None
+
+    @hug.get(requires=hug.authentication.basic(hug.authentication.verify('Tim', 'Custom password')))
+    def try_user(user:hug.directives.user):
+        return user
+
+    token = b'Basic ' + b64encode('{0}:{1}'.format('Tim', 'Custom password').encode('utf8'))
+    assert hug.test.get(api, 'try_user', headers={'Authorization': token}).data == 'Tim'

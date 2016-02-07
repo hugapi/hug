@@ -79,6 +79,7 @@ def basic(request, response, verify_user, **kwargs):
                                    'Unable to determine user and password with provided encoding')
     return False
 
+
 @authenticator
 def api_key(request, response, verify_user, **kwargs):
     """API Key Header Authentication
@@ -98,6 +99,7 @@ def api_key(request, response, verify_user, **kwargs):
             return False
     else:
         return None
+
 
 def verify(user, password):
     """Returns a simple verification callback that simply verifies that the users and password match that provided"""

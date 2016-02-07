@@ -19,12 +19,14 @@ Code Contributors
 - Eirik Rye (@eirikrye)
 - Matteo Bertini (@naufraghi)
 - Trevor Scheitrum (@trevorscheitrum)
+- Ian Wagner (@ianthetechie)
 
 Documenters
 ===================
 - Timothy Cyrus (@tcyrus)
 - M.Yasoob Ullah Khalid (@yasoob)
 - Lionel Montrieux (@lmontrieux)
+- Ian Wagner (@ianthetechie)
 
 --------------------------------------------
 
