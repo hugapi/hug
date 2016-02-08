@@ -25,7 +25,7 @@ is perfectly suitable to simply prefix your extension with `hug_`. For example: 
 
 Building Recommendations
 =========
-Ideally, hug extensions should be built in the same manner as hug itself. This means 100% test coverage using pytest, decent performance, and built in optional compiling with Cython if it is available. None of this is strictly required, but will help give users of your extension faith that it wont slow things down or break their setup unexpectedly.
+Ideally, hug extensions should be built in the same manner as hug itself. This means 100% test coverage using pytest, decent performance, pep8 compliance, and built in optional compiling with Cython. None of this is strictly required, but will help give users of your extension faith that it wont slow things down or break their setup unexpectedly.
 
 Registering your extension
 =========
