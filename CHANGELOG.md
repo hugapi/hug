@@ -36,6 +36,7 @@ Changelog
 - Added the ability to specify a transformer for validation errors per request handler, via `on_invalid` decorator argument
 - Added the ability to specify an output format specific to validation errors per request handler, via `output_invalid` decorator argument
 - Changed transform functions to get ran on output of validation errors by default
+- Provides a mechnism to quickly change what stream is used by default to enable more easily working around uwsgi unnamed stream issue
 
 ### 1.9.9
 - Hug's json serializer will now automatically convert decimal.Decimal objects during serializationkw

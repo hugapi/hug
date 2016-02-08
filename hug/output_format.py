@@ -26,7 +26,7 @@ import os
 from datetime import date, datetime
 from decimal import Decimal
 from functools import wraps
-from io import BytesIO
+from hug import settings
 
 import falcon
 from falcon import HTTP_NOT_FOUND
@@ -162,7 +162,7 @@ def image(image_format, doc=None):
         if hasattr(data, 'read'):
             return data
         elif hasattr(data, 'save'):
-            output = BytesIO()
+            output = settings.STREAM()
             if introspect.takes_all_arguments(data.save, 'format') or introspect.takes_kwargs(data.save):
                 data.save(output, format=image_format.upper())
             else:
@@ -189,7 +189,7 @@ def video(video_type, video_mime, doc=None):
         if hasattr(data, 'read'):
             return data
         elif hasattr(data, 'save'):
-            output = BytesIO()
+            output = settings.STREAM()
             data.save(output, format=video_type.upper())
             output.seek(0)
             return output
