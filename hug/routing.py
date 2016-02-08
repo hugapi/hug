@@ -101,42 +101,43 @@ class CLIRouter(Router):
     def __call__(self, api_function):
         """Enables exposing a Hug compatible function as a Command Line Interface"""
         api = self.route.get('api', hug.api.from_object(api_function))
+        function_spec = getattr(api_function, 'original', api_function)
 
-        if introspect.takes_kargs(api_function):
-            accepted_parameters = introspect.arguments(api_function, 1)
+        if introspect.takes_kargs(function_spec):
+            accepted_parameters = introspect.arguments(function_spec, 1)
             karg_method = accepted_parameters[-1]
             nargs_set = True
         else:
             karg_method = None
-            accepted_parameters = introspect.arguments(api_function)
+            accepted_parameters = introspect.arguments(function_spec)
             nargs_set = False
 
         defaults = {}
-        for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+        for index, default in enumerate(reversed(function_spec.__defaults__ or ())):
             defaults[accepted_parameters[-(index + 1)]] = default
 
-        required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+        required = accepted_parameters[:-(len(function_spec.__defaults__ or ())) or None]
 
 
         directives = api.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
-        output_transform = self.route.get('transform', api_function.__annotations__.get('return', None))
+        output_transform = self.route.get('transform', function_spec.__annotations__.get('return', None))
 
         is_method = False
-        if 'method' in api_function.__class__.__name__:
+        if 'method' in function_spec.__class__.__name__:
             is_method = True
             required = required[1:]
             accepted_parameters = accepted_parameters[1:]
 
         used_options = {'h', 'help'}
-        parser = argparse.ArgumentParser(description=self.route.get('doc', api_function.__doc__))
+        parser = argparse.ArgumentParser(description=self.route.get('doc', function_spec.__doc__))
         if 'version' in self.route:
             parser.add_argument('-v', '--version', action='version',
-                                version="{0} {1}".format(self.route['name'] or api_function.__name__,
+                                version="{0} {1}".format(self.route['name'] or function_spec.__name__,
                                                          self.route['version']))
             used_options.update(('v', 'version'))
 
-        annotations = api_function.__annotations__
+        annotations = function_spec.__annotations__
         named_directives = {directive_name: directives[directive_name] for directive_name in use_directives}
         for option in accepted_parameters:
             if option in use_directives:
@@ -290,7 +291,7 @@ class HTTPRouter(Router):
 
     def output_invalid(self, output_handler, **overrides):
         """Sets an output handler to be used when handler validation fails.
-        
+
         Defaults to the output formatter set globally for the route.
         """
         return self.where(output_invalid=output_handler, **overrides)
@@ -317,20 +318,21 @@ class HTTPRouter(Router):
 
     def _create_interface(self, api, api_function, catch_exceptions=True):
         module = api.module
+        function_spec = getattr(api_function, 'original', api_function)
         if not 'parameters' in self.route:
-            accepted_parameters = introspect.arguments(api_function)
+            accepted_parameters = introspect.arguments(function_spec)
             defaults = {}
-            for index, default in enumerate(reversed(api_function.__defaults__ or ())):
+            for index, default in enumerate(reversed(function_spec.__defaults__ or ())):
                 defaults[accepted_parameters[-(index + 1)]] = default
 
-            required = accepted_parameters[:-(len(api_function.__defaults__ or ())) or None]
+            required = accepted_parameters[:-(len(function_spec.__defaults__ or ())) or None]
         else:
             defaults = self.route.get('defaults', {})
             accepted_parameters = tuple(self.route['parameters'])
             required = tuple([parameter for parameter in accepted_parameters if parameter not in defaults])
 
 
-        takes_kwargs = introspect.takes_kargs(api_function)
+        takes_kwargs = introspect.takes_kargs(function_spec)
         function_output = self.route.get('output', api.output_format)
         function_output_args = introspect.takes_arguments(function_output, *AUTO_INCLUDE)
         if 'output_invalid' in self.route:
@@ -343,14 +345,14 @@ class HTTPRouter(Router):
         directives = api.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
         transform = self.route.get('transform', None)
-        if transform is None and not isinstance(api_function.__annotations__.get('return', None), (str, type(None))):
-            transform = api_function.__annotations__['return']
+        if transform is None and not isinstance(function_spec.__annotations__.get('return', None), (str, type(None))):
+            transform = function_spec.__annotations__['return']
 
         if hasattr(transform, 'dump'):
             transform = transform.dump
             output_type = transform
         else:
-            output_type = transform or api_function.__annotations__.get('return', None)
+            output_type = transform or function_spec.__annotations__.get('return', None)
 
         transform_args = introspect.takes_arguments(transform, *AUTO_INCLUDE)
 
@@ -362,13 +364,13 @@ class HTTPRouter(Router):
             on_invalid_args = transform_args or None
 
         is_method = False
-        if 'method' in api_function.__class__.__name__:
+        if 'method' in function_spec.__class__.__name__:
             is_method = True
             required = required[1:]
 
         input_transformations = {}
         named_directives = {directive_name: directives[directive_name] for directive_name in use_directives}
-        for name, transformer in api_function.__annotations__.items():
+        for name, transformer in function_spec.__annotations__.items():
             if isinstance(transformer, str):
                 continue
             elif hasattr(transformer, 'directive'):

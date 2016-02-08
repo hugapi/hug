@@ -24,6 +24,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import functools
 from collections import namedtuple
 
 import hug.api
@@ -116,3 +117,16 @@ def extend_api(route=""):
             api.extend(extended_api, route)
         return extend_with
     return decorator
+
+
+def wraps(function):
+    """Enables building decorators around functions used for hug routes without chaninging their function signature"""
+    def wrap(decorator):
+        decorator = functools.wraps(function)(decorator)
+        if not hasattr(decorator, 'function'):
+            decorator.original = function
+        else:
+            decorator.original = function.original
+            delattr(function, 'original')
+        return decorator
+    return wrap
