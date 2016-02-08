@@ -12,7 +12,7 @@ Naming your extension
 =========
 All hug extensions should be prefixed with `hug_` for easy disscovery on PYPI. Additionally, there are a few more exact prefixes that can be optionally be added to help steer users to what your extensions accomplishes:
 
-- `hug_types_' should be used if your extensions is used primarily to add new types to hug (for example: hug_types_numpy).
+- `hug_types_` should be used if your extensions is used primarily to add new types to hug (for example: hug_types_numpy).
 - `hug_authentication_` if your extension is used primarily to add a new authentication type to hug (for example: hug_authentication_oath2)
 - `hug_output_format_` if your extension is used primarily to add a new output format to hug (for example: hug_output_format_svg)
 - `hug_input_format_` if your extension is used primarily to add a new input format to hug (for example: hug_input_format_html)
@@ -29,7 +29,7 @@ Ideally, hug extensions should be built in the same manner as hug itself. This m
 
 Registering your extension
 =========
-Once you have finished developing and testing your extension, you can help increase others ability to discover it by registering it. The first place an extension should be registered is on PYPI, just like any other Python Package. In addition to that you can add your extension to the list of extensions on hug's github wiki.
+Once you have finished developing and testing your extension, you can help increase others ability to discover it by registering it. The first place an extension should be registered is on PYPI, just like any other Python Package. In addition to that you can add your extension to the list of extensions on hug's github wiki: https://github.com/timothycrosley/hug/wiki/Hug-Extensions
 
 Thank you
 =========
