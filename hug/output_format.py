@@ -26,11 +26,10 @@ import os
 from datetime import date, datetime
 from decimal import Decimal
 from functools import wraps
-from hug import settings
 
 import falcon
 from falcon import HTTP_NOT_FOUND
-from hug import introspect
+from hug import introspect, settings
 from hug.format import camelcase, content_type
 
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
