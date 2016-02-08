@@ -894,6 +894,43 @@ def test_cli_with_exception():
     assert hug.test.cli(test) != 'Hi!'
 
 
+def test_wraps():
+    """Test to ensure you can safely apply decorators to hug endpoints by using @hug.wraps"""
+    def my_decorator(function):
+        @hug.wraps(function)
+        def decorated(*kargs, **kwargs):
+            kwargs['name'] = 'Timothy'
+            return function(*kargs, **kwargs)
+        return decorated
+
+    @hug.get()
+    @my_decorator
+    def what_is_my_name(hug_timer=None, name="Sam"):
+        return {'name': name, 'took': hug_timer}
+
+    result = hug.test.get(api, 'what_is_my_name').data
+    assert result['name'] == 'Timothy'
+    assert result['took']
+
+    def my_second_decorator(function):
+        @hug.wraps(function)
+        def decorated(*kargs, **kwargs):
+            kwargs['name'] = "Not telling"
+            return function(*kargs, **kwargs)
+        return decorated
+
+    @hug.get()
+    @my_decorator
+    @my_second_decorator
+    def what_is_my_name(hug_timer=None, name="Sam"):
+        return {'name': name, 'took': hug_timer}
+
+    result = hug.test.get(api, 'what_is_my_name').data
+    assert result['name'] == "Not telling"
+    assert result['took']
+
+
+
 def test_cli_with_empty_return():
     """Test to ensure that if you return None no data will be added to sys.stdout"""
     @hug.cli()
