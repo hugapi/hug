@@ -23,13 +23,16 @@ import base64
 import json as json_converter
 import mimetypes
 import os
+import tempfile
 from datetime import date, datetime
 from decimal import Decimal
 from functools import wraps
+from io import BytesIO
 
 import falcon
 from falcon import HTTP_NOT_FOUND
-from hug import introspect, settings
+
+from hug import introspect
 from hug.format import camelcase, content_type
 
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
@@ -39,6 +42,7 @@ IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'p
 VIDEO_TYPES = (('flv', 'video/x-flv'), ('mp4', 'video/mp4'), ('m3u8', 'application/x-mpegURL'), ('ts', 'video/MP2T'),
                ('3gp', 'video/3gpp'), ('mov', 'video/quicktime'), ('avi', 'video/x-msvideo'), ('wmv', 'video/x-ms-wmv'))
 json_converters = {}
+stream = tempfile.NamedTemporaryFile if 'UWSGI_ORIGINAL_PROC_NAME' in os.environ else BytesIO
 
 
 def _json_converter(item):
@@ -161,7 +165,7 @@ def image(image_format, doc=None):
         if hasattr(data, 'read'):
             return data
         elif hasattr(data, 'save'):
-            output = settings.STREAM()
+            output = stream()
             if introspect.takes_all_arguments(data.save, 'format') or introspect.takes_kwargs(data.save):
                 data.save(output, format=image_format.upper())
             else:
@@ -188,7 +192,7 @@ def video(video_type, video_mime, doc=None):
         if hasattr(data, 'read'):
             return data
         elif hasattr(data, 'save'):
-            output = settings.STREAM()
+            output = stream()
             data.save(output, format=video_type.upper())
             output.seek(0)
             return output

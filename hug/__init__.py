@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 from falcon import *
+
 from hug import (authentication, directives, documentation, exceptions, format, input_format, introspect,
                  middleware, output_format, redirect, route, run, test, transform, types, validate)
 from hug._version import current

@@ -24,8 +24,9 @@ from __future__ import absolute_import
 from functools import partial
 from types import FunctionType, MethodType
 
-import hug.api
 from falcon import HTTP_METHODS
+
+import hug.api
 from hug.routing import CLIRouter as cli
 from hug.routing import ExceptionRouter as exception
 from hug.routing import NotFoundRouter as not_found

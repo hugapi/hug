@@ -28,10 +28,11 @@ from collections import OrderedDict, namedtuple
 from functools import wraps
 
 import falcon
+from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
+
 import hug.api
 import hug.defaults
 import hug.output_format
-from falcon import HTTP_BAD_REQUEST, HTTP_METHODS
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 
