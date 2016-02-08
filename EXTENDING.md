@@ -20,7 +20,7 @@ All hug extensions should be prefixed with `hug_` for easy disscovery on PYPI. A
 - `hug_transform_` if your extension is used primarily to add a new hug transformer (for example: hug_transform_add_time)
 - `hug_middleware_` if your extension is used primarily to add a middleware to hug (for example: hug_middleware_redis_session)
 
-For any more complex or general use case that doesn't fit into these predefined use-cases or combines many of them, it
+For any more complex or general use case that doesn't fit into these predefined categories or combines many of them, it
 is perfectly suitable to simply prefix your extension with `hug_`. For example: hug_geo could combine hug types, hug input formats, and hug output formats making it a good use case for a simply prefixed extension.
 
 Building Recommendations
