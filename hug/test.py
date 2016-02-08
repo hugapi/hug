@@ -39,7 +39,7 @@ from types import ModuleType
 
 def call(method, api_or_module, url, body='', headers=None, **params):
     """Simulates a round-trip call against the given API / URL"""
-    if type(api_or_module) == ModuleType:
+    if type(api_or_module) in (ModuleType, str):
         api = server(API(api_or_module))
     else:
         api = server(api_or_module)
