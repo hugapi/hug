@@ -14,6 +14,7 @@ Changelog
 - Adds `smart_redirection` allowing API functions to return other endpoints
 - Adds support for class based handlers
 - Adds support for automatically handling exceptions
+- Adds support for automatically outputting images with `save` method that don't take a format.
 - Added extended support for delimited fields, enabling use of custom delimiters
 - Added support for running different transformers based on content_type
 - Added support for outputting a different response output type based on the response content_type
