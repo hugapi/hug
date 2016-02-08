@@ -123,10 +123,15 @@ def test_image():
             to.write(b'test')
     assert hasattr(hug.output_format.png_image(FakeImageWithSave(), hug.Response()), 'read')
 
-    class FakeImageWithSave():
+    class FakeImageWithRender():
         def render(self):
             return 'test'
-    assert hug.output_format.svg_xml_image(FakeImageWithSave(), hug.Response()) == 'test'
+    assert hug.output_format.svg_xml_image(FakeImageWithRender(), hug.Response()) == 'test'
+
+    class FakeImageWithSaveNoFormat():
+        def save(self, to):
+            to.write(b'test')
+    assert hasattr(hug.output_format.png_image(FakeImageWithSaveNoFormat(), hug.Response()), 'read')
 
 
 def test_file():

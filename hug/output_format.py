@@ -67,7 +67,7 @@ def _json_converter(item):
 
 def json_convert(*kinds):
     """Registers the wrapped method as a JSON converter for the provided types.
-    
+
     NOTE: custom converters are always globally applied
     """
     def register_json_converter(function):
@@ -163,8 +163,10 @@ def image(image_format, doc=None):
             return data
         elif hasattr(data, 'save'):
             output = BytesIO()
-
-            data.save(output, format=image_format.upper())
+            if introspect.takes_all_arguments(data.save, 'format') or introspect.takes_kwargs(data.save):
+                data.save(output, format=image_format.upper())
+            else:
+                data.save(output)
             output.seek(0)
             return output
         elif hasattr(data, 'render'):
