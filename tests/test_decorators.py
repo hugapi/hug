@@ -22,9 +22,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 import falcon
 import hug
 import pytest
+import sys
 from falcon.testing import StartResponseMock, create_environ
 
 api = hug.API(__name__)
+module = sys.modules[__name__]
 
 
 def test_basic_call():
@@ -37,6 +39,7 @@ def test_basic_call():
     assert hello_world.interface
 
     assert hug.test.get(api, '/hello_world').data == "Hello World!"
+    assert hug.test.get(module, '/hello_world').data == "Hello World!"
 
 
 def test_basic_call_on_method():

@@ -19,9 +19,12 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from __future__ import absolute_import
+
 import sys
 from collections import OrderedDict
 from itertools import chain
+from types import ModuleType
 from wsgiref.simple_server import make_server
 
 import falcon
@@ -35,8 +38,10 @@ from hug.run import INTRO, server
 class ModuleSingleton(type):
     """Defines the module level __hug__ singleton"""
 
-    def __call__(cls, module_name, *args, **kwargs):
-        module = sys.modules[module_name]
+    def __call__(cls, module, *args, **kwargs):
+        if not type(module) == ModuleType:
+            module = sys.modules[module]
+
         if not '__hug__' in module.__dict__:
             def api_auto_instantiate(*kargs, **kwargs):
                 if not hasattr(module, '__hug_serving__'):
