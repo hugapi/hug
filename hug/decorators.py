@@ -123,7 +123,7 @@ def wraps(function):
     """Enables building decorators around functions used for hug routes without chaninging their function signature"""
     def wrap(decorator):
         decorator = functools.wraps(function)(decorator)
-        if not hasattr(decorator, 'function'):
+        if not hasattr(function, 'original'):
             decorator.original = function
         else:
             decorator.original = function.original

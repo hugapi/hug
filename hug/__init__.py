@@ -35,7 +35,7 @@ from hug import (authentication, directives, documentation, exceptions, format, 
 from hug._version import current
 from hug.api import API
 from hug.decorators import (default_input_format, default_output_format, directive, extend_api,
-                            middleware_class, request_middleware, response_middleware, startup)
+                            middleware_class, request_middleware, response_middleware, startup, wraps)
 from hug.route import (call, cli, connect, delete, exception, get, get_post, head,
                        not_found, object, options, patch, post, put, sink, static, trace)
 
