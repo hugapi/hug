@@ -591,10 +591,7 @@ class HTTPRouter(Router):
             callable_method.interface = interface
             callable_method.without_directives = api_function
 
-        if is_method:
-            api_function.__dict__['interface'] = interface
-        else:
-            api_function.interface = interface
+        api_function.__dict__['interface'] = interface
         interface.api_function = api_function
         interface.output_format = function_output
         interface.defaults = defaults
