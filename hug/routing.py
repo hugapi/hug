@@ -35,6 +35,7 @@ import hug.defaults
 import hug.output_format
 from hug import introspect
 from hug.exceptions import InvalidTypeData
+from hug import _empty as empty
 
 AUTO_INCLUDE = {'request', 'response'}
 RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
@@ -342,7 +343,6 @@ class HTTPRouter(Router):
         else:
             function_invalid_output = False
 
-        default_kwargs = {}
         directives = api.directives()
         use_directives = set(accepted_parameters).intersection(directives.keys())
         transform = self.route.get('transform', None)
@@ -411,7 +411,7 @@ class HTTPRouter(Router):
                     if 'request' in function_output_args:
                         function_output_kwargs['request'] = request
                 else:
-                    function_output_kwargs = default_kwargs
+                    function_output_kwargs = empty.dict
 
                 api_version = int(api_version) if api_version is not None else api_version
                 if callable(function_output.content_type):
@@ -509,7 +509,7 @@ class HTTPRouter(Router):
                             if 'request' in function_invalid_output_args:
                                 function_invalid_output_kwargs['request'] = request
                         else:
-                            function_invalid_output_kwargs = default_kwargs
+                            function_invalid_output_kwargs = empty.dict
 
                         response.data = function_invalid_output(data, **function_invalid_output_kwargs)
                     else:
