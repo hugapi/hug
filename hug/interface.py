@@ -129,7 +129,8 @@ class Interface(object):
                 return function(*args, **kwargs)
             self.wrapped = callable_method
             self.wrapped.without_directives = self.function
-        self.function.__dict__['interface'] = self
+
+        self.wrapped.__dict__['interface'] = self
 
     def __call__(self, request, response, api_version=None, **kwargs):
         api_version = int(api_version) if api_version is not None else api_version
