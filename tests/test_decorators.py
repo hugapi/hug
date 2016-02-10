@@ -1011,7 +1011,7 @@ def test_exceptions():
 
 def test_validate():
     """Test to ensure hug's secondary validation mechanism works as expected"""
-    def contains_either(request, fields):
+    def contains_either(fields):
         if not 'one' in fields and not 'two' in fields:
             return {'one': 'must be defined', 'two': 'must be defined'}
 

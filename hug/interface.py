@@ -36,7 +36,7 @@ class Interface(object):
     __slots__ = ('api', 'spec', 'function', 'takes_kargs', 'takes_kwargs', 'defaults', 'parameters', 'required',
                  'outputs', 'params_for_outputs', 'invalid_outputs', 'params_for_invalid_outputs', 'directives',
                  'params_for_transform', 'on_invalid', 'params_for_on_invalid', 'parse_body', 'requires',
-                 'set_status', 'validate', 'response_headers', 'raise_on_invalid', 'catch_exceptions',
+                 'set_status', 'validate_function', 'response_headers', 'raise_on_invalid', 'catch_exceptions',
                  'transform', 'input_transformations', 'examples', 'output_doc', 'wrapped')
 
     def __init__(self, route, function, catch_exceptions=True):
@@ -108,7 +108,7 @@ class Interface(object):
         self.parse_body = 'parse_body' in route
         self.requires = route.get('requires', ())
         self.set_status = route.get('status', False)
-        self.validate = route.get('validate', False)
+        self.validate_function = route.get('validate', False)
         self.response_headers = tuple(route.get('response_headers', {}).items())
         self.raise_on_invalid = route.get('raise_on_invalid', False)
 
@@ -169,6 +169,31 @@ class Interface(object):
 
         return input_parameters
 
+    def validate(self, input_parameters):
+        errors = {}
+        for key, type_handler in self.input_transformations.items():
+            if self.raise_on_invalid:
+                if key in input_parameters:
+                    input_parameters[key] = type_handler(input_parameters[key])
+            else:
+                try:
+                    if key in input_parameters:
+                        input_parameters[key] = type_handler(input_parameters[key])
+                except InvalidTypeData as error:
+                    errors[key] = error.reasons or str(error.message)
+                except Exception as error:
+                    if hasattr(error, 'args') and error.args:
+                        errors[key] = error.args[0]
+                    else:
+                        errors[key] = str(error)
+
+        for require in self.required:
+            if not require in input_parameters:
+                errors[require] = "Required parameter not supplied"
+        if not errors and self.validate_function:
+            errors = self.validate_function(input_parameters)
+        return errors
+
     def __call__(self, request, response, api_version=None, **kwargs):
         api_version = int(api_version) if api_version is not None else api_version
         if not self.catch_exceptions:
@@ -206,28 +231,7 @@ class Interface(object):
 
             input_parameters = self.gather_parameters(request, response, api_version, **kwargs)
 
-            errors = {}
-            for key, type_handler in self.input_transformations.items():
-                if self.raise_on_invalid:
-                    if key in input_parameters:
-                        input_parameters[key] = type_handler(input_parameters[key])
-                else:
-                    try:
-                        if key in input_parameters:
-                            input_parameters[key] = type_handler(input_parameters[key])
-                    except InvalidTypeData as error:
-                        errors[key] = error.reasons or str(error.message)
-                    except Exception as error:
-                        if hasattr(error, 'args') and error.args:
-                            errors[key] = error.args[0]
-                        else:
-                            errors[key] = str(error)
-
-            for require in self.required:
-                if not require in input_parameters:
-                    errors[require] = "Required parameter not supplied"
-            if not errors and self.validate:
-                errors = self.validate(request, input_parameters)
+            errors = self.validate(input_parameters)
             if errors:
                 data = {'errors': errors}
                 if getattr(self, 'on_invalid', False):

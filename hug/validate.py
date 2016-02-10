@@ -23,9 +23,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 def all(*validators):
     """Validation only succeeds if all passed in validators return no errors"""
-    def validate_all(request, fields):
+    def validate_all(fields):
         for validator in validators:
-            errors = validator(request, fields)
+            errors = validator(fields)
             if errors:
                 return errors
 
@@ -35,10 +35,10 @@ def all(*validators):
 
 def any(*validators):
     """If any of the specified validators pass the validation succeeds"""
-    def validate_any(request, fields):
+    def validate_any(fields):
         errors = {}
         for validator in validators:
-            validation_errors = validator(request, fields)
+            validation_errors = validator(fields)
             if not validation_errors:
                 return
             errors.update(validation_errors)
@@ -51,7 +51,7 @@ def any(*validators):
 def contains_one_of(*fields):
     """Enables ensuring that one of multiple optional fields is set"""
     message = 'Must contain any one of the following fields: {0}'.format(', '.join(fields))
-    def check_contains(request, endpoint_fields):
+    def check_contains(endpoint_fields):
         for field in fields:
             if field in endpoint_fields:
                 return
