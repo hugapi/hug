@@ -132,6 +132,43 @@ class Interface(object):
 
         self.wrapped.__dict__['interface'] = self
 
+    def gather_parameters(self, request, response, api_version=None, **input_parameters):
+        input_parameters.update(request.params)
+        if self.parse_body and request.content_length is not None:
+            body = request.stream
+            content_type = request.content_type
+            encoding = None
+            if content_type and ";" in content_type:
+                content_type, rest = content_type.split(";", 1)
+                charset = RE_CHARSET.search(rest).groupdict()
+                encoding = charset.get('charset', encoding).strip()
+
+            body_formatting_handler = body and self.api.input_format(content_type)
+            if body_formatting_handler:
+                if encoding is not None:
+                    body = body_formatting_handler(body, encoding)
+                else:
+                    body = body_formatting_handler(body)
+            if 'body' in self.parameters:
+                input_parameters['body'] = body
+            if isinstance(body, dict):
+                input_parameters.update(body)
+        elif 'body' in self.parameters:
+            input_parameters['body'] = None
+
+        if 'request' in self.parameters:
+            input_parameters['request'] = request
+        if 'response' in self.parameters:
+            input_parameters['response'] = response
+        if 'api_version' in self.parameters:
+            input_parameters['api_version'] = api_version
+        for parameter, directive in self.directives.items():
+            arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
+            input_parameters[parameter] = directive(*arguments, response=response, request=request,
+                                                    module=self.api.module, api_version=api_version)
+
+        return input_parameters
+
     def __call__(self, request, response, api_version=None, **kwargs):
         api_version = int(api_version) if api_version is not None else api_version
         if not self.catch_exceptions:
@@ -167,29 +204,7 @@ class Interface(object):
                         response.data = self.outputs(conclusion, **params_for_outputs)
                     return
 
-            input_parameters = kwargs.copy()
-            input_parameters.update(request.params)
-            if self.parse_body and request.content_length is not None:
-                body = request.stream
-                content_type = request.content_type
-                encoding = None
-                if content_type and ";" in content_type:
-                    content_type, rest = content_type.split(";", 1)
-                    charset = RE_CHARSET.search(rest).groupdict()
-                    encoding = charset.get('charset', encoding).strip()
-
-                body_formatting_handler = body and self.api.input_format(content_type)
-                if body_formatting_handler:
-                    if encoding is not None:
-                        body = body_formatting_handler(body, encoding)
-                    else:
-                        body = body_formatting_handler(body)
-                if 'body' in self.parameters:
-                    input_parameters['body'] = body
-                if isinstance(body, dict):
-                    input_parameters.update(body)
-            elif 'body' in self.parameters:
-                input_parameters['body'] = None
+            input_parameters = self.gather_parameters(request, response, api_version, **kwargs)
 
             errors = {}
             for key, type_handler in self.input_transformations.items():
@@ -208,17 +223,6 @@ class Interface(object):
                         else:
                             errors[key] = str(error)
 
-
-            if 'request' in self.parameters:
-                input_parameters['request'] = request
-            if 'response' in self.parameters:
-                input_parameters['response'] = response
-            if 'api_version' in self.parameters:
-                input_parameters['api_version'] = api_version
-            for parameter, directive in self.directives.items():
-                arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
-                input_parameters[parameter] = directive(*arguments, response=response, request=request,
-                                                        module=self.api.module, api_version=api_version)
             for require in self.required:
                 if not require in input_parameters:
                     errors[require] = "Required parameter not supplied"
