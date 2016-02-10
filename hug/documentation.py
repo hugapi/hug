@@ -29,7 +29,7 @@ def for_handler(handler, version=None, doc=None, base_url="", url=""):
     if doc is None:
         doc = OrderedDict()
 
-    usage = handler.api_function.__doc__
+    usage = handler.function.__doc__
     if usage:
         doc['usage'] = usage
     for example in handler.examples:
@@ -39,18 +39,18 @@ def for_handler(handler, version=None, doc=None, base_url="", url=""):
         doc_examples = doc.setdefault('examples', [])
         if not example_text in doc_examples:
             doc_examples.append(example_text)
-    doc['outputs'] = OrderedDict(format=handler.output_format.__doc__,
-                                    content_type=handler.content_type)
-    if handler.output_type:
-        doc['outputs']['type'] = handler.output_type
+    doc['outputs'] = OrderedDict(format=handler.outputs.__doc__,
+                                 content_type=handler.outputs.content_type)
+    if getattr(handler, 'output_doc', ''):
+        doc['outputs']['type'] = handler.output_doc
 
-    parameters = [param for param in handler.accepted_parameters if not param in ('request', 'response', 'self')
+    parameters = [param for param in handler.parameters if not param in ('request', 'response', 'self')
                                                                     and not param.startswith('hug_')
                                                                     and not hasattr(param, 'directive')]
 
     if parameters:
         inputs = doc.setdefault('inputs', OrderedDict())
-        types = handler.api_function.__annotations__
+        types = handler.function.__annotations__
         for argument in parameters:
             kind = types.get(argument, hug.types.text)
             input_definition = inputs.setdefault(argument, OrderedDict())

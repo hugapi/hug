@@ -37,7 +37,7 @@ class Interface(object):
                  'outputs', 'params_for_outputs', 'invalid_outputs', 'params_for_invalid_outputs', 'directives',
                  'params_for_transform', 'on_invalid', 'params_for_on_invalid', 'parse_body', 'requires',
                  'set_status', 'validate', 'response_headers', 'raise_on_invalid', 'catch_exceptions',
-                 'transform', 'input_transformations', 'examples')
+                 'transform', 'input_transformations', 'examples', 'output_doc', 'wrapped')
 
     def __init__(self, route, function, catch_exceptions=True):
         self.api = route.get('api', hug.api.from_object(function))
@@ -72,18 +72,18 @@ class Interface(object):
             self.transform = self.spec.__annotations__['return']
 
         if hasattr(self.transform, 'dump'):
-            self.transform = transform.dump
-            self.output_doc = transform.__doc__
+            self.transform = self.transform.dump
+            self.output_doc = self.transform.__doc__
         elif self.transform or 'return' in self.spec.__annotations__:
-            self.output_doc = transform or self.spec.__annotations__['return']
+            self.output_doc = self.transform or self.spec.__annotations__['return']
 
         self.params_for_transform = introspect.takes_arguments(self.transform, *AUTO_INCLUDE)
 
         if 'on_invalid' in route:
             self.on_invalid = route['on_invalid']
-            self.params_for_on_invalid = introspect.takes_arguments(on_invalid, *AUTO_INCLUDE)
+            self.params_for_on_invalid = introspect.takes_arguments(self.on_invalid, *AUTO_INCLUDE)
         elif self.transform:
-            self.on_invalid = transform
+            self.on_invalid = self.transform
             self.params_for_on_invalid = self.params_for_transform
 
         defined_directives = self.api.directives()
@@ -95,7 +95,7 @@ class Interface(object):
             if isinstance(transformer, str):
                 continue
             elif hasattr(transformer, 'directive'):
-                self.directive[name] = transformer
+                self.directives[name] = transformer
                 continue
 
             if hasattr(transformer, 'load'):
@@ -115,22 +115,24 @@ class Interface(object):
         if route['versions']:
             self.api.versions.update(route['versions'])
 
+        self.wrapped = self.function
         if self.directives and not getattr(function, 'without_directives', None):
             @wraps(function)
             def callable_method(*args, **kwargs):
                 for parameter, directive in self.directives.items():
                     if parameter in kwargs:
                         continue
-                    arguments = (defaults[parameter], ) if parameter in defaults else ()
+                    arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
                     kwargs[parameter] = directive(*arguments, module=self.api.module,
                                         api_version=max(route['versions'], key=lambda version: version or -1)
                                         if route['versions'] else None)
                 return function(*args, **kwargs)
-            self.function = callable_method
+            self.wrapped = callable_method
+            self.wrapped.without_directives = self.function
         self.function.__dict__['interface'] = self
-        self.function.__dict__['without_directives'] = function
 
     def __call__(self, request, response, api_version=None, **kwargs):
+        api_version = int(api_version) if api_version is not None else api_version
         if not self.catch_exceptions:
             exception_types = ()
         else:
@@ -145,14 +147,13 @@ class Interface(object):
 
             if self.params_for_outputs:
                 params_for_outputs = {}
-                if 'response' in params_for_outputs:
+                if 'response' in self.params_for_outputs:
                     params_for_outputs['response'] = response
-                if 'request' in params_for_outputs:
+                if 'request' in self.params_for_outputs:
                     params_for_outputs['request'] = request
             else:
                 params_for_outputs = empty.dict
 
-            api_version = int(api_version) if api_version is not None else api_version
             if callable(self.outputs.content_type):
                 response.content_type = self.outputs.content_type(request=request, response=response)
             else:
@@ -214,7 +215,7 @@ class Interface(object):
             if 'api_version' in self.parameters:
                 input_parameters['api_version'] = api_version
             for parameter, directive in self.directives.items():
-                arguments = (defaults[parameter], ) if parameter in defaults else ()
+                arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
                 input_parameters[parameter] = directive(*arguments, response=response, request=request,
                                                         module=self.api.module, api_version=api_version)
             for require in self.required:
@@ -224,19 +225,19 @@ class Interface(object):
                 errors = self.validate(request, input_parameters)
             if errors:
                 data = {'errors': errors}
-                if self.on_invalid:
-                    if params_for_on_invalid:
+                if getattr(self, 'on_invalid', False):
+                    if self.params_for_on_invalid:
                         extra_kwargs = {}
-                        if 'response' in params_for_on_invalid:
+                        if 'response' in self.params_for_on_invalid:
                             extra_kwargs['response'] = response
-                        if 'request' in params_for_on_invalid:
+                        if 'request' in self.params_for_on_invalid:
                             extra_kwargs['request'] = request
                         data = self.on_invalid(data, **extra_kwargs)
                     else:
                         data = self.on_invalid(data)
 
                 response.status = HTTP_BAD_REQUEST
-                if self.invalid_outputs:
+                if getattr(self, 'invalid_outputs', False):
                     if callable(self.invalid_outputs.content_type):
                         response.content_type = self.invalid_outputs.content_type(request=request,
                                                                                         response=response)
@@ -260,7 +261,7 @@ class Interface(object):
                 input_parameters = {key: value for key, value in input_parameters.items() if
                                     key in self.parameters}
 
-            to_return = self.function.without_directives(**input_parameters)
+            to_return = self.function(**input_parameters)
             if hasattr(to_return, 'interface'):
                 if to_return.interface is True:
                     to_return(request, response, api_version=None, **kwargs)
@@ -313,6 +314,17 @@ class Interface(object):
                         handler = exception_handler
             handler(request=request, response=response, exception=exception, **kwargs)
 
+    def _marshmallow_schema(self, marshmallow):
+        """Dynamically generates a hug style type handler from a Marshmallow style schema"""
+        def marshmallow_type(input_data):
+            result, errors = marshmallow.loads(input_data) if isinstance(input_data, str) else marshmallow.load(input_data)
+            if errors:
+                raise InvalidTypeData('Invalid {0} passed in'.format(marshmallow.__class__.__name__), errors)
+            return result
+
+        marshmallow_type.__doc__ = marshmallow.__doc__
+        marshmallow_type.__name__ = marshmallow.__class__.__name__
+        return marshmallow_type
 
 
 

@@ -298,21 +298,9 @@ class HTTPRouter(Router):
         """Sets the route to raise validation errors instead of catching them"""
         return self.where(raise_on_invalid=setting, **overrides)
 
-    def _marshmallow_schema(self, marshmallow):
-        """Dynamically generates a hug style type handler from a Marshmallow style schema"""
-        def marshmallow_type(input_data):
-            result, errors = marshmallow.loads(input_data) if isinstance(input_data, str) else marshmallow.load(input_data)
-            if errors:
-                raise InvalidTypeData('Invalid {0} passed in'.format(marshmallow.__class__.__name__), errors)
-            return result
-
-        marshmallow_type.__doc__ = marshmallow.__doc__
-        marshmallow_type.__name__ = marshmallow.__class__.__name__
-        return marshmallow_type
-
     def _create_interface(self, api, api_function, catch_exceptions=True):
         interface = Interface(self.route, api_function, catch_exceptions)
-        return (interface, interface.function)
+        return (interface, interface.wrapped)
 
 
 class NotFoundRouter(HTTPRouter):
