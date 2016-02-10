@@ -22,6 +22,7 @@ Base System Requirements:
 - autoenv - https://github.com/kennethreitz/autoenv (optional)
 
 Once you have verified that you system matches the base requirements you can start get the project working by following these steps:
+
 1. Fork the project on GitHub (https://github.com/timothycrosley/hug/fork).
 2. Clone your fork to your local file system:
     `git clone https://github.com/$GITHUB_ACCOUNT/hug.git`
