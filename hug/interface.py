@@ -30,6 +30,7 @@ from falcon import HTTP_BAD_REQUEST
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 from hug import _empty as empty
+import hug.output_format
 
 
 class Interface(object):
@@ -148,6 +149,7 @@ class CLI(Interface):
 
     def __init__(self, route, function):
         super().__init__(route, function)
+        self.outputs = route.get('output', hug.output_format.text)
         self.wrapped.__dict__['cli'] = self
         nargs_set = self.takes_kargs
         if nargs_set:
@@ -213,7 +215,7 @@ class CLI(Interface):
         if data is not None:
             data = self.outputs(data)
             if data:
-                sys.stdout.buffer.write()
+                sys.stdout.buffer.write(data)
         return data
 
     def __call__(self):
@@ -342,6 +344,18 @@ class HTTP(Interface):
 
         return empty.dict
 
+    def _marshmallow_schema(self, marshmallow):
+        """Dynamically generates a hug style type handler from a Marshmallow style schema"""
+        def marshmallow_type(input_data):
+            result, errors = marshmallow.loads(input_data) if isinstance(input_data, str) else marshmallow.load(input_data)
+            if errors:
+                raise InvalidTypeData('Invalid {0} passed in'.format(marshmallow.__class__.__name__), errors)
+            return result
+
+        marshmallow_type.__doc__ = marshmallow.__doc__
+        marshmallow_type.__name__ = marshmallow.__class__.__name__
+        return marshmallow_type
+
     def __call__(self, request, response, api_version=None, **kwargs):
         api_version = int(api_version) if api_version is not None else api_version
         if not self.catch_exceptions:
@@ -423,18 +437,3 @@ class HTTP(Interface):
                     if isinstance(exception, exception_type):
                         handler = exception_handler
             handler(request=request, response=response, exception=exception, **kwargs)
-
-    def _marshmallow_schema(self, marshmallow):
-        """Dynamically generates a hug style type handler from a Marshmallow style schema"""
-        def marshmallow_type(input_data):
-            result, errors = marshmallow.loads(input_data) if isinstance(input_data, str) else marshmallow.load(input_data)
-            if errors:
-                raise InvalidTypeData('Invalid {0} passed in'.format(marshmallow.__class__.__name__), errors)
-            return result
-
-        marshmallow_type.__doc__ = marshmallow.__doc__
-        marshmallow_type.__name__ = marshmallow.__class__.__name__
-        return marshmallow_type
-
-
-
