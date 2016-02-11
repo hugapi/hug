@@ -21,37 +21,49 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from decimal import Decimal
 from json import loads as load_json
+from abc import ABCMeta, abstractmethod
 
+class constraint(object):
+    __metaclass__ = ABCMeta
+    
+    @abstractmethod
+    def validate(self, value):
+        pass
 
-def accept(formatter, doc=None, error_text=None, cli_behaviour=None, exception_handlers=None):
-    '''Allows quick wrapping any Python type converter for use with Hug type annotations'''
-    defined_exception_handlers = exception_handlers or {}
-    if defined_exception_handlers or error_text:
-        def hug_formatter(data):
+    def __call__(self, value):
+        return self.validate(value)
+    
+
+class accept(constraint):
+    def __init__(self, formatter, doc=None, error_text=None, cli_behaviour=None, exception_handlers=None):
+        self.formatter = formatter
+        self.__doc__ = doc or self.formatter.__doc__
+        self.error_text = error_text
+        self.exception_handlers = exception_handlers or {}
+
+        new_cli_behaviour = getattr(self.formatter, 'cli_behaviour', {})
+        if cli_behaviour:
+            new_cli_behaviour.update(cli_behaviour)
+
+        if new_cli_behaviour:
+            self.cli_behaviour = new_cli_behaviour
+
+    def validate(self, value):
+        if self.exception_handlers or self.error_text:
             try:
-                return formatter(data)
+                return self.formatter(value)
             except Exception as exception:
-                for take_exception, rewrite in defined_exception_handlers.items():
+                for take_exception, rewrite in self.exception_handlers.items():
                     if isinstance(exception, take_exception):
                         if isinstance(rewrite, str):
                             raise ValueError(rewrite)
                         else:
-                            raise rewrite(data)
-                if error_text:
-                    raise ValueError(error_text)
+                            raise rewrite(value)
+                if self.error_text:
+                    raise ValueError(self.error_text)
                 raise exception
-    else:
-        def hug_formatter(data):
-            return formatter(data)
-
-    new_cli_behaviour = getattr(formatter, 'cli_behaviour', {})
-    if cli_behaviour:
-        new_cli_behaviour.update(cli_behaviour)
-    if new_cli_behaviour:
-        hug_formatter.cli_behaviour = new_cli_behaviour
-    hug_formatter.__doc__ = doc or formatter.__doc__
-    return hug_formatter
-
+        else:
+            return self.formatter(value)
 
 number = accept(int, 'A whole number', 'Invalid whole number provided')
 float_number = accept(float, 'A float number', 'Invalid float number provided')
@@ -60,130 +72,138 @@ text = accept(str, 'Basic text / string value', 'Invalid text value provided')
 boolean = accept(bool, 'Providing any value will set this to true',
                  'Invalid boolean value provided', cli_behaviour={'action': 'store_true'})
 
-
-def multiple(value):
+class list_constraint(constraint):
     '''Multiple Values'''
-    return value if isinstance(value, list) else [value]
-multiple.cli_behaviour = {'action': 'append', 'type':text}
+    cli_behaviour = {'action': 'append', 'type':text}
+    def validate(self, value):
+        return value if isinstance(value, list) else [value]
 
+multiple = list_constraint()
+        
+class delimited_list(constraint):
+    def __init__(self, using=","):
+        self.using = using
+        self.__doc__ = '''Multiple values, separated by "{0}"'''.format(self.using)
 
-def delimited_list(using=","):
-    '''Defines a list type that is formed by delimiting a list with a certain character or set of characters'''
-    def delimite(value):
-        return value if type(value) in (list, tuple) else value.split(using)
+    def validate(self, value):
+        return value if type(value) in (list, tuple) else value.split(self.using)
 
-    delimite.__doc__ = '''Multiple values, separated by "{0}"'''.format(using)
-    return delimite
+comma_separated_list = delimited_list(using=",")
 
-comma_separated_list = delimited_list()
-
-
-def smart_boolean(input_value):
+class boolean_constraint(constraint):
     '''Accepts a true or false value'''
-    if type(input_value) == bool or input_value in (None, 1, 0):
-        return bool(input_value)
+    cli_behaviour = {'action': 'store_true'}
 
-    value = input_value.lower()
-    if value in ('true', 't', '1'):
-        return True
-    elif value in ('false', 'f', '0', ''):
-        return False
+    def validate(self, value):
+        if type(value) == bool or value in (None, 1, 0):
+            return bool(value)
 
-    raise KeyError('Invalid value passed in for true/false field')
+        value = value.lower()
+        if value in ('true', 't', '1'):
+            return True
+        elif value in ('false', 'f', '0', ''):
+            return False
 
-smart_boolean.cli_behaviour = {'action': 'store_true'}
+        raise KeyError('Invalid value passed in for true/false field')
 
+smart_boolean = boolean_constraint()
 
-def inline_dictionary(input_value):
+class dictionary_constraint(constraint):
     '''A single line dictionary, where items are separted by commas and key:value are separated by a pipe'''
-    return {key.strip(): value.strip() for key, value in (item.split(":") for item in input_value.split("|"))}
+    def validate(self, value):
+        return {key.strip(): value.strip() for key, value in (item.split(":") for item in value.split("|"))}
 
+inline_dictionary = dictionary_constraint()
 
-def one_of(values):
-    '''Ensures the value is within a set of acceptable values'''
-    def matches(value):
-        if not value in values:
-            raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(values)))
+class one_of(constraint):
+    def __init__(self, values):
+        self.values = values
+        self.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
+        self.cli_behaviour = {'choices': values}
+
+    def validate(self, value):
+        if not value in self.values:
+            raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(self.values)))
         return value
 
-    matches.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
-    matches.cli_behaviour = {'choices': values}
-    return matches
-
-
-def mapping(value_map):
+class mapping(constraint):
     '''Ensures the value is one of an acceptable set of values mapping those values to a Python equivelent'''
-    values = value_map.keys()
-    def matches(value):
-        if not value in value_map.keys():
-            raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(values)))
-        return value_map[value]
+    def __init__(self, value_map):
+        self.value_map = value_map
+        self.values = value_map.keys()
+        self.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(self.values))
+        self.cli_behaviour = {'choices': self.values}
 
-    matches.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
-    matches.cli_behaviour = {'choices': values}
-    return matches
+    def validate(self, value):
+        if not value in self.values:
+            raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(self.values)))
+        return self.value_map[value]
 
-
-def json(value):
+class json_constraint(constraint):
     '''Accepts a JSON formatted data structure'''
-    if type(value) in (str, bytes):
-        try:
-            return load_json(value)
-        except Exception:
-            raise ValueError('Incorrectly formatted JSON provided')
-    else:
-        return value
+    def validate(self, value):
+        if type(value) in (str, bytes):
+            try:
+                return load_json(value)
+            except Exception:
+                raise ValueError('Incorrectly formatted JSON provided')
+        else:
+            return value
 
+json = json_constraint()
 
-def multi(*types):
+class multi(constraint):
     '''Enables accepting one of multiple type methods'''
-    type_strings = (type_method.__doc__ for type_method in types)
-    doc_string = 'Accepts any of the following value types:{0}\n'.format('\n  - '.join(type_strings))
-    def multi_type(value):
-        for type_method in types:
+    def __init__(self, *types):
+       self.types = types
+       type_strings = (type_method.__doc__ for type_method in types)
+       self.__doc__ = 'Accepts any of the following value types:{0}\n'.format('\n  - '.join(type_strings))
+
+    def validate(self, value):
+        for type_method in self.types:
             try:
                 return type_method(value)
             except:
                 pass
-        raise ValueError(doc_string)
-    multi_type.__doc__ = doc_string
-    return multi_type
+        raise ValueError(self.__doc__)
 
+class in_range(constraint):
+    def __init__(self, lower, upper, convert=number):
+        self.lower = lower
+        self.upper = upper
+        self.convert = convert
+        self.__doc__ = ("{0} that is greater or equal to {1} and less than {2}".format(
+                        convert.__doc__, lower, upper))
 
-def in_range(lower, upper, convert=number):
-    '''Accepts a number within a lower and upper bound of acceptable values'''
-    def check_in_range(value):
-        value = convert(value)
-        if value < lower:
-            raise ValueError("'{0}' is less than the lower limit {1}".format(value, lower))
-        if value >= upper:
-            raise ValueError("'{0}' reaches the limit of {1}".format(value, upper))
+    def validate(self, value):
+        value = self.convert(value)
+        if value < self.lower:
+            raise ValueError("'{0}' is less than the lower limit {1}".format(value, self.lower))
+        if value >= self.upper:
+            raise ValueError("'{0}' reaches the limit of {1}".format(value, self.upper))
         return value
 
-    check_in_range.__doc__ = ("{0} that is greater or equal to {1} and less than {2}".format(
-                              convert.__doc__, lower, upper))
-    return check_in_range
+class less_than(constraint):
+    def __init__(self, limit, convert=number):
+        self.limit = limit
+        self.convert = convert
+        self.__doc__ = "{0} that is less than {1}".format(convert.__doc__, limit)
 
-
-def less_than(limit, convert=number):
-    '''Accepts a value up to the specified limit'''
-    def check_less_than(value):
-        value = convert(value)
-        if not value < limit:
-            raise ValueError("'{0}' must be less than {1}".format(value, limit))
+    def validate(self, value):
+        value = self.convert(value)
+        if not value < self.limit:
+            raise ValueError("'{0}' must be less than {1}".format(value, self.limit))
         return value
 
-    check_less_than.__doc__ = "{0} that is less than {1}".format(convert.__doc__, limit)
-    return check_less_than
+class greater_than(constraint):
+    def __init__(self, minimum, convert=number):
+        self.minimum = minimum
+        self.convert = convert
+        self.__doc__ = "{0} that is greater than {1}".format(convert.__doc__, minimum)
 
-
-def greater_than(minimum, convert=number):
-    '''Accepts a value above a given minimum'''
-    def check_greater_than(value):
-        value = convert(value)
-        if not value > minimum:
-            raise ValueError("'{0}' must be greater than {1}".format(value, minimum))
+    def validate(self, value):
+        value = self.convert(value)
+        if not value > self.minimum:
+            raise ValueError("'{0}' must be greater than {1}".format(value, self.minimum))
         return value
 
-    check_greater_than.__doc__ = "{0} that is greater than {1}".format(convert.__doc__, minimum)
-    return check_greater_than
