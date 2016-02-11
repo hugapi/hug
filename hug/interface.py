@@ -32,18 +32,19 @@ from hug import _empty as empty
 AUTO_INCLUDE = {'request', 'response'}
 RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
 
-class Interface(object):
-    __slots__ = ('api', 'spec', 'function', 'takes_kargs', 'takes_kwargs', 'defaults', 'parameters', 'required',
-                 'outputs', 'params_for_outputs', 'invalid_outputs', 'params_for_invalid_outputs', 'directives',
-                 'params_for_transform', 'on_invalid', 'params_for_on_invalid', 'parse_body', 'requires',
-                 'set_status', 'validate_function', 'response_headers', 'raise_on_invalid', 'catch_exceptions',
-                 'transform', 'input_transformations', 'examples', 'output_doc', 'wrapped')
 
-    def __init__(self, route, function, catch_exceptions=True):
+class Interface(object):
+    __slots__ = ('spec', 'function', 'takes_kargs', 'takes_kwargs', 'defaults', 'parameters', 'required',
+                 'outputs', 'invalid_outputs', 'directives', 'on_invalid', 'requires', 'validate_function',
+                 'raise_on_invalid', 'transform', 'input_transformations', 'examples', 'output_doc', 'wrapped')
+
+    def __init__(self, route, function):
         self.api = route.get('api', hug.api.from_object(function))
         self.spec =  getattr(function, 'original', function)
         self.function = function
-        self.catch_exceptions = catch_exceptions
+        self.requires = route.get('requires', ())
+        self.validate_function = route.get('validate', False)
+        self.raise_on_invalid = route.get('raise_on_invalid', False)
 
         self.takes_kargs = introspect.takes_kargs(self.spec)
         self.takes_kwargs = introspect.takes_kwargs(self.spec)
@@ -62,10 +63,10 @@ class Interface(object):
             self.required = self.required[1:]
 
         self.outputs = route.get('output', self.api.output_format)
-        self.params_for_outputs = introspect.takes_arguments(self.outputs, *AUTO_INCLUDE)
+
         if 'output_invalid' in route:
             self.invalid_outputs = route['output_invalid']
-            self.params_for_invalid_outputs = introspect.takes_arguments(self.invalid_outputs, *AUTO_INCLUDE)
+
 
         self.transform = route.get('transform', None)
         if self.transform is None and not isinstance(self.spec.__annotations__.get('return', None), (str, type(None))):
@@ -77,14 +78,10 @@ class Interface(object):
         elif self.transform or 'return' in self.spec.__annotations__:
             self.output_doc = self.transform or self.spec.__annotations__['return']
 
-        self.params_for_transform = introspect.takes_arguments(self.transform, *AUTO_INCLUDE)
-
         if 'on_invalid' in route:
             self.on_invalid = route['on_invalid']
-            self.params_for_on_invalid = introspect.takes_arguments(self.on_invalid, *AUTO_INCLUDE)
         elif self.transform:
             self.on_invalid = self.transform
-            self.params_for_on_invalid = self.params_for_transform
 
         defined_directives = self.api.directives()
         used_directives = set(self.parameters).intersection(defined_directives)
@@ -105,12 +102,29 @@ class Interface(object):
 
             self.input_transformations[name] = transformer
 
+
+class HTTP(Interface):
+    __slots__ = ('api', '_params_for_outputs', '_params_for_invalid_outputs', '_params_for_transform', 'on_invalid',
+                 '_params_for_on_invalid',  'set_status','response_headers', 'transform', 'input_transformations',
+                 'examples', 'output_doc', 'wrapped', 'catch_exceptions', 'parse_body')
+
+    def __init__(self, route, function, catch_exceptions=True):
+        super().__init__(route, function)
+        self.catch_exceptions = catch_exceptions
         self.parse_body = 'parse_body' in route
-        self.requires = route.get('requires', ())
         self.set_status = route.get('status', False)
-        self.validate_function = route.get('validate', False)
         self.response_headers = tuple(route.get('response_headers', {}).items())
-        self.raise_on_invalid = route.get('raise_on_invalid', False)
+
+        self._params_for_outputs = introspect.takes_arguments(self.outputs, *AUTO_INCLUDE)
+        if hasattr(self, 'invalid_outputs'):
+            self._params_for_invalid_outputs = introspect.takes_arguments(self.invalid_outputs, *AUTO_INCLUDE)
+
+        self._params_for_transform = introspect.takes_arguments(self.transform, *AUTO_INCLUDE)
+
+        if 'on_invalid' in route:
+            self._params_for_on_invalid = introspect.takes_arguments(self.on_invalid, *AUTO_INCLUDE)
+        elif self.transform:
+            self._params_for_on_invalid = self._params_for_transform
 
         if route['versions']:
             self.api.versions.update(route['versions'])
@@ -196,13 +210,8 @@ class Interface(object):
 
     def transform_data(self, data, request=None, response=None):
         if self.transform and not (isinstance(self.transform, type) and isinstance(data, self.transform)):
-            if self.params_for_transform:
-                extra_kwargs = {}
-                if 'response' in self.params_for_transform:
-                    extra_kwargs['response'] = response
-                if 'request' in self.params_for_transform:
-                    extra_kwargs['request'] = request
-                return self.transform(data, **extra_kwargs)
+            if self._params_for_transform:
+                return self.transform(data, **self._arguments(self._params_for_transform, request, response))
             else:
                 return self.transform(data)
         return data
@@ -249,7 +258,7 @@ class Interface(object):
             if self.set_status:
                 response.status = self.set_status
             response.content_type = self.content_type(request, response)
-            params_for_outputs = self._arguments(self.params_for_outputs, request, response)
+            params_for_outputs = self._arguments(self._params_for_outputs, request, response)
 
             lacks_requirement = self.check_requirements(request, response)
             if lacks_requirement:
@@ -261,12 +270,12 @@ class Interface(object):
             if errors:
                 data = {'errors': errors}
                 if getattr(self, 'on_invalid', False):
-                    data = self.on_invalid(data, **self._arguments(self.params_for_on_invalid, request, response))
+                    data = self.on_invalid(data, **self._arguments(self._params_for_on_invalid, request, response))
 
                 response.status = HTTP_BAD_REQUEST
                 if getattr(self, 'invalid_outputs', False):
                     response.content_type = self.invalid_content_type(request, response)
-                    response.data = self.invalid_outputs(data, **self._arguments(self.params_for_invalid_outputs,
+                    response.data = self.invalid_outputs(data, **self._arguments(self._params_for_invalid_outputs,
                                                                                  request, response))
                 else:
                     response.data = self.outputs(data, **params_for_outputs)

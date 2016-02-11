@@ -34,7 +34,8 @@ import hug.output_format
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 
-from hug.interface import Interface
+from hug.interface import HTTP
+
 
 class Router(object):
     """The base chainable router object"""
@@ -299,7 +300,7 @@ class HTTPRouter(Router):
         return self.where(raise_on_invalid=setting, **overrides)
 
     def _create_interface(self, api, api_function, catch_exceptions=True):
-        interface = Interface(self.route, api_function, catch_exceptions)
+        interface = HTTP(self.route, api_function, catch_exceptions)
         return (interface, interface.wrapped)
 
 
