@@ -127,8 +127,8 @@ class InlineDictionary(Type):
     """A single line dictionary, where items are separted by commas and key:value are separated by a pipe"""
     __slots__ = ()
 
-    def __call__(self, value):
-        return {key.strip(): value.strip() for key, value in (item.split(":") for item in value.split("|"))}
+    def __call__(self, string):
+        return {key.strip(): value.strip() for key, value in (item.split(":") for item in string.split("|"))}
 
 
 class OneOf(Type):
