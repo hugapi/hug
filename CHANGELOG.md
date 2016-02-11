@@ -38,6 +38,7 @@ Changelog
 - Changed transform functions to get ran on output of validation errors by default
 - Automatically works around a bug in uwsgi when returning byte streams
 - Refactored how interfaces are built to be more reasuable, and more easily introspected
+- Refactored how the built in annotation types are built to be more easily built upon
 
 ### 1.9.9
 - Hug's json serializer will now automatically convert decimal.Decimal objects during serializationkw
