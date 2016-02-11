@@ -2,4 +2,5 @@
 include = hug/*.py
 exclude_lines = def terminal
                 def serve
+                sys.stdout.buffer.write
 
