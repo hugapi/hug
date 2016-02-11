@@ -23,13 +23,16 @@ import base64
 import json as json_converter
 import mimetypes
 import os
+import tempfile
 from datetime import date, datetime
 from decimal import Decimal
+from functools import wraps
 from io import BytesIO
 
 import falcon
 from falcon import HTTP_NOT_FOUND
 
+from hug import introspect
 from hug.format import camelcase, content_type
 
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
@@ -38,12 +41,19 @@ IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'p
 
 VIDEO_TYPES = (('flv', 'video/x-flv'), ('mp4', 'video/mp4'), ('m3u8', 'application/x-mpegURL'), ('ts', 'video/MP2T'),
                ('3gp', 'video/3gpp'), ('mov', 'video/quicktime'), ('avi', 'video/x-msvideo'), ('wmv', 'video/x-ms-wmv'))
+json_converters = {}
+stream = tempfile.NamedTemporaryFile if 'UWSGI_ORIGINAL_PROC_NAME' in os.environ else BytesIO
 
 
 def _json_converter(item):
     if hasattr(item, '__native_types__'):
         return item.__native_types__()
-    elif isinstance(item, (date, datetime)):
+
+    for kind, transformer in json_converters.items():
+        if isinstance(item, kind):
+            return transformer(item)
+
+    if isinstance(item, (date, datetime)):
         return item.isoformat()
     elif isinstance(item, bytes):
         try:
@@ -58,9 +68,21 @@ def _json_converter(item):
     raise TypeError("Type not serializable")
 
 
+def json_convert(*kinds):
+    """Registers the wrapped method as a JSON converter for the provided types.
+
+    NOTE: custom converters are always globally applied
+    """
+    def register_json_converter(function):
+        for kind in kinds:
+            json_converters[kind] = function
+        return function
+    return register_json_converter
+
+
 @content_type('application/json')
 def json(content, **kwargs):
-    '''JSON (Javascript Serialized Object Notation)'''
+    """JSON (Javascript Serialized Object Notation)"""
     if hasattr(content, 'read'):
         return content
 
@@ -69,9 +91,32 @@ def json(content, **kwargs):
     return json_converter.dumps(content, default=_json_converter, **kwargs).encode('utf8')
 
 
+def on_valid(valid_content_type, on_invalid=json):
+    """Renders as the specified content type only if no errors are found in the provided data object"""
+    invalid_kwargs = introspect.generate_accepted_kwargs(on_invalid, 'request', 'response')
+    invalid_takes_response = introspect.takes_all_arguments(on_invalid, 'response')
+    def wrapper(function):
+        valid_kwargs = introspect.generate_accepted_kwargs(function, 'request', 'response')
+        valid_takes_response = introspect.takes_all_arguments(function, 'response')
+        @content_type(valid_content_type)
+        @wraps(function)
+        def output_content(content, response, **kwargs):
+            if type(content) == dict and 'errors' in content:
+                response.content_type = on_invalid.content_type
+                if invalid_takes_response:
+                    kwargs['response'] = response
+                return on_invalid(content, **invalid_kwargs(kwargs))
+
+            if valid_takes_response:
+                kwargs['response'] = response
+            return function(content, **valid_kwargs(kwargs))
+        return output_content
+    return wrapper
+
+
 @content_type('text/plain')
 def text(content):
-    '''Free form UTF8 text'''
+    """Free form UTF-8 text"""
     if hasattr(content, 'read'):
         return content
 
@@ -80,7 +125,7 @@ def text(content):
 
 @content_type('text/html')
 def html(content):
-    '''HTML (Hypertext Markup Language)'''
+    """HTML (Hypertext Markup Language)"""
     if hasattr(content, 'read'):
         return content
     elif hasattr(content, 'render'):
@@ -103,25 +148,28 @@ def _camelcase(dictionary):
 
 @content_type('application/json')
 def json_camelcase(content):
-    '''JSON (Javascript Serialized Object Notation) with all keys camelCased'''
+    """JSON (Javascript Serialized Object Notation) with all keys camelCased"""
     return json(_camelcase(content))
 
 
 @content_type('application/json')
 def pretty_json(content):
-    '''JSON (Javascript Serialized Object Notion) pretty printed and indented'''
+    """JSON (Javascript Serialized Object Notion) pretty printed and indented"""
     return json(content, indent=4, separators=(',', ': '))
 
 
 def image(image_format, doc=None):
-    '''Dynamically creates an image type handler for the specified image type'''
-    @content_type('image/{0}'.format(image_format))
+    """Dynamically creates an image type handler for the specified image type"""
+    @on_valid('image/{0}'.format(image_format))
     def image_handler(data):
         if hasattr(data, 'read'):
             return data
         elif hasattr(data, 'save'):
-            output = BytesIO()
-            data.save(output, format=image_format.upper())
+            output = stream()
+            if introspect.takes_all_arguments(data.save, 'format') or introspect.takes_kwargs(data.save):
+                data.save(output, format=image_format.upper())
+            else:
+                data.save(output)
             output.seek(0)
             return output
         elif hasattr(data, 'render'):
@@ -138,13 +186,13 @@ for image_type in IMAGE_TYPES:
 
 
 def video(video_type, video_mime, doc=None):
-    '''Dynamically creates a video type handler for the specified video type'''
-    @content_type(video_mime)
+    """Dynamically creates a video type handler for the specified video type"""
+    @on_valid(video_mime)
     def video_handler(data):
         if hasattr(data, 'read'):
             return data
         elif hasattr(data, 'save'):
-            output = BytesIO()
+            output = stream()
             data.save(output, format=video_type.upper())
             output.seek(0)
             return output
@@ -161,9 +209,9 @@ for (video_type, video_mime) in VIDEO_TYPES:
     globals()['{0}_video'.format(video_type)] = video(video_type, video_mime)
 
 
-@content_type('file/dynamic')
+@on_valid('file/dynamic')
 def file(data, response):
-    '''A dynamically retrieved file'''
+    """A dynamically retrieved file"""
     if hasattr(data, 'read'):
         name, data = getattr(data, 'name', ''), data
     elif os.path.isfile(data):
@@ -178,13 +226,13 @@ def file(data, response):
 
 
 def on_content_type(handlers, default=None, error='The requested content type does not match any of those allowed'):
-    '''Returns a content in a different format based on the clients provided content type,
+    """Returns a content in a different format based on the clients provided content type,
        should pass in a dict with the following format:
 
             {'[content-type]': action,
              ...
             }
-    '''
+    """
     def output_type(data, request, response):
         handler = handlers.get(request.content_type.split(';')[0], default)
         if not handler:
@@ -200,13 +248,13 @@ def on_content_type(handlers, default=None, error='The requested content type do
 
 
 def suffix(handlers, default=None, error='The requested suffix does not match any of those allowed'):
-    '''Returns a content in a different format based on the suffix placed at the end of the URL route
+    """Returns a content in a different format based on the suffix placed at the end of the URL route
        should pass in a dict with the following format:
 
             {'[suffix]': action,
              ...
             }
-    '''
+    """
     def output_type(data, request, response):
         path = request.path
         handler = default
@@ -227,13 +275,13 @@ def suffix(handlers, default=None, error='The requested suffix does not match an
 
 
 def prefix(handlers, default=None, error='The requested prefix does not match any of those allowed'):
-    '''Returns a content in a different format based on the prefix placed at the end of the URL route
+    """Returns a content in a different format based on the prefix placed at the end of the URL route
        should pass in a dict with the following format:
 
             {'[prefix]': action,
              ...
             }
-    '''
+    """
     def output_type(data, request, response):
         path = request.path
         handler = default

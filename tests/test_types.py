@@ -1,6 +1,6 @@
 """tests/test_types.py.
 
-Tests the type validators included with Hug
+Tests the type validators included with hug
 
 Copyright (C) 2015 Timothy Edmund Crosley
 
@@ -19,18 +19,17 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import urllib
 import json
+import urllib
 from datetime import datetime
 from decimal import Decimal
 
-import pytest
-
 import hug
+import pytest
 
 
 def test_number():
-    '''Tests that Hug's number type correctly converts and validates input'''
+    """Tests that hug's number type correctly converts and validates input"""
     assert hug.types.number('1') == 1
     assert hug.types.number(1) == 1
     with pytest.raises(ValueError):
@@ -38,7 +37,7 @@ def test_number():
 
 
 def test_range():
-    '''Tests that Hug's range type successfully handles ranges of numbers'''
+    """Tests that hug's range type successfully handles ranges of numbers"""
     assert hug.types.in_range(1, 10)('1') == 1
     assert hug.types.in_range(1, 10)(1) == 1
     with pytest.raises(ValueError):
@@ -50,7 +49,7 @@ def test_range():
 
 
 def test_less_than():
-    '''Tests that Hug's less than type successfully limits the values passed in'''
+    """Tests that hug's less than type successfully limits the values passed in"""
     assert hug.types.less_than(10)('1') == 1
     assert hug.types.less_than(10)(1) == 1
     assert hug.types.less_than(10)(-10) == -10
@@ -59,7 +58,7 @@ def test_less_than():
 
 
 def test_greater_than():
-    '''Tests that Hug's greater than type succefully limis the values passed in'''
+    """Tests that hug's greater than type succefully limis the values passed in"""
     assert hug.types.greater_than(10)('11') == 11
     assert hug.types.greater_than(10)(11) == 11
     assert hug.types.greater_than(10)(1000) == 1000
@@ -68,27 +67,27 @@ def test_greater_than():
 
 
 def test_multiple():
-    '''Tests that Hug's multile type correctly forces values to come back as lists, but not lists of lists'''
+    """Tests that hug's multile type correctly forces values to come back as lists, but not lists of lists"""
     assert hug.types.multiple('value') == ['value']
     assert hug.types.multiple(['value1', 'value2']) == ['value1', 'value2']
 
 
 def test_delimited_list():
-    '''Test to ensure Hug's custom delimited list type function works as expected'''
+    """Test to ensure hug's custom delimited list type function works as expected"""
     assert hug.types.delimited_list(',')('value1,value2') == ['value1', 'value2']
     assert hug.types.delimited_list(',')(['value1', 'value2']) == ['value1', 'value2']
     assert hug.types.delimited_list('|-|')('value1|-|value2|-|value3,value4') == ['value1', 'value2', 'value3,value4']
 
 
 def test_comma_separated_list():
-    '''Tests that Hug's comma separated type correctly converts into a Python list'''
+    """Tests that hug's comma separated type correctly converts into a Python list"""
     assert hug.types.comma_separated_list('value') == ['value']
     assert hug.types.comma_separated_list('value1,value2') == ['value1', 'value2']
 
 
 
 def test_float_number():
-    '''Tests to ensure the float type correctly allows floating point values'''
+    """Tests to ensure the float type correctly allows floating point values"""
     assert hug.types.float_number('1.1') == 1.1
     assert hug.types.float_number('1') == float(1)
     assert hug.types.float_number(1.1) == 1.1
@@ -97,7 +96,7 @@ def test_float_number():
 
 
 def test_decimal():
-    '''Tests to ensure the decimal type correctly allows decimal values'''
+    """Tests to ensure the decimal type correctly allows decimal values"""
     assert hug.types.decimal('1.1') == Decimal('1.1')
     assert hug.types.decimal('1') == Decimal('1')
     assert hug.types.decimal(1.1) == Decimal(1.1)
@@ -106,7 +105,7 @@ def test_decimal():
 
 
 def test_boolean():
-    '''Test to ensure the custom boolean type correctly supports boolean conversion'''
+    """Test to ensure the custom boolean type correctly supports boolean conversion"""
     assert hug.types.boolean('1') == True
     assert hug.types.boolean('T') == True
     assert hug.types.boolean('') == False
@@ -115,7 +114,7 @@ def test_boolean():
 
 
 def test_mapping():
-    '''Test to ensure the mapping type works as expected'''
+    """Test to ensure the mapping type works as expected"""
     mapping_type = hug.types.mapping({'n': None, 'l': [], 's': set()})
     assert mapping_type('n') == None
     assert mapping_type('l') == []
@@ -125,7 +124,7 @@ def test_mapping():
 
 
 def test_smart_boolean():
-    '''Test to ensure that the smart boolean type works as expected'''
+    """Test to ensure that the smart boolean type works as expected"""
     assert hug.types.smart_boolean('true') == True
     assert hug.types.smart_boolean('t') == True
     assert hug.types.smart_boolean('1') == True
@@ -143,14 +142,51 @@ def test_smart_boolean():
 
 
 def test_text():
-    '''Tests that Hug's text validator correctly handles basic values'''
+    """Tests that hug's text validator correctly handles basic values"""
     assert hug.types.text('1') == '1'
     assert hug.types.text(1) == '1'
     assert hug.types.text('text') == 'text'
 
 
+def test_length():
+    """Tests that hug's length type successfully handles a length range"""
+    assert hug.types.length(1, 10)('bacon') == 'bacon'
+    assert hug.types.length(1, 10)(42) == '42'
+    with pytest.raises(ValueError):
+        hug.types.length(1, 10)('bacon is the greatest food known to man')
+    with pytest.raises(ValueError):
+        hug.types.length(1, 10)('')
+    with pytest.raises(ValueError):
+        hug.types.length(1, 10)('bacon is th')
+
+
+def test_shorter_than():
+    """Tests that hug's shorter than type successfully limits the values passed in"""
+    assert hug.types.shorter_than(10)('hi there') == 'hi there'
+    assert hug.types.shorter_than(10)(1) == '1'
+    assert hug.types.shorter_than(10)('') == ''
+    with pytest.raises(ValueError):
+        assert hug.types.shorter_than(10)('there is quite a bit of text here, in fact way more than allowed')
+
+
+def test_longer_than():
+    """Tests that hug's greater than type succefully limis the values passed in"""
+    assert hug.types.longer_than(10)('quite a bit of text here should be') == 'quite a bit of text here should be'
+    assert hug.types.longer_than(10)(12345678910) == '12345678910'
+    assert hug.types.longer_than(10)(100123456789100) == '100123456789100'
+    with pytest.raises(ValueError):
+        assert hug.types.longer_than(10)('short')
+
+
+def test_cut_off():
+    """Test to ensure that hug's cut_off type works as expected"""
+    assert hug.types.cut_off(10)('text') == 'text'
+    assert hug.types.cut_off(10)(10) == '10'
+    assert hug.types.cut_off(10)('some really long text') == 'some reall'
+
+
 def test_inline_dictionary():
-    '''Tests that inline dictionary values are correctly handled'''
+    """Tests that inline dictionary values are correctly handled"""
     assert hug.types.inline_dictionary('1:2') == {'1': '2'}
     assert hug.types.inline_dictionary('1:2|3:4') == {'1': '2', '3': '4'}
     with pytest.raises(ValueError):
@@ -158,7 +194,7 @@ def test_inline_dictionary():
 
 
 def test_one_of():
-    '''Tests that Hug allows limiting a value to one of a list of values'''
+    """Tests that hug allows limiting a value to one of a list of values"""
     assert hug.types.one_of(('bacon', 'sausage', 'pancakes'))('bacon') == 'bacon'
     assert hug.types.one_of(['bacon', 'sausage', 'pancakes'])('sausage') == 'sausage'
     assert hug.types.one_of({'bacon', 'sausage', 'pancakes'})('pancakes') == 'pancakes'
@@ -167,7 +203,7 @@ def test_one_of():
 
 
 def test_accept():
-    '''Tests to ensure the accept type wrapper works as expected'''
+    """Tests to ensure the accept type wrapper works as expected"""
     custom_converter = lambda value: value + " converted"
     custom_type = hug.types.accept(custom_converter, 'A string Value')
     with pytest.raises(TypeError):
@@ -175,7 +211,7 @@ def test_accept():
 
 
 def test_accept_custom_exception_text():
-    '''Tests to ensure it's easy to custom the exception text using the accept wrapper'''
+    """Tests to ensure it's easy to custom the exception text using the accept wrapper"""
     custom_converter = lambda value: value + " converted"
     custom_type = hug.types.accept(custom_converter, 'A string Value', 'Error occurred')
     assert custom_type('bacon') == 'bacon converted'
@@ -184,7 +220,7 @@ def test_accept_custom_exception_text():
 
 
 def test_accept_custom_exception_handlers():
-    '''Tests to ensure it's easy to custom the exception text using the accept wrapper'''
+    """Tests to ensure it's easy to custom the exception text using the accept wrapper"""
     custom_converter = lambda value: (str(int(value)) if value else value) + " converted"
     custom_type = hug.types.accept(custom_converter, 'A string Value', exception_handlers={TypeError: '0 provided'})
     assert custom_type('1') == '1 converted'
@@ -199,13 +235,13 @@ def test_accept_custom_exception_handlers():
 
 
 def test_accept_custom_cli_behavior():
-    '''Tests to ensure it's easy to customize the cli behavior using the accept wrapper'''
+    """Tests to ensure it's easy to customize the cli behavior using the accept wrapper"""
     custom_type = hug.types.accept(hug.types.multiple, 'Multiple values', cli_behaviour={'type': list})
     assert custom_type.cli_behaviour == {'type': list, 'action': 'append'}
 
 
 def test_json():
-    '''Test to ensure that the json type correctly handles url encoded json, as well as direct json'''
+    """Test to ensure that the json type correctly handles url encoded json, as well as direct json"""
     assert hug.types.json({'this': 'works'}) == {'this': 'works'}
     assert hug.types.json(json.dumps({'this': 'works'})) == {'this': 'works'}
     with pytest.raises(ValueError):
@@ -213,7 +249,7 @@ def test_json():
 
 
 def test_multi():
-    '''Test to ensure that the multi type correctly handles a variety of value types'''
+    """Test to ensure that the multi type correctly handles a variety of value types"""
     multi_type = hug.types.multi(hug.types.json, hug.types.smart_boolean)
     assert multi_type({'this': 'works'}) == {'this': 'works'}
     assert multi_type(json.dumps({'this': 'works'})) == {'this': 'works'}

@@ -207,3 +207,56 @@ class greater_than(constraint):
             raise ValueError("'{0}' must be greater than {1}".format(value, self.minimum))
         return value
 
+class length(constraint):
+    def __init__(self, lower, upper, convert=text):
+        self.lower = lower
+        self.upper = upper
+        self.convert = convert
+        self.__doc__ = ("{0} that has a length longer or equal to {1} and less then {2}".format(
+                        convert.__doc__, lower, upper))
+
+    def validate(self, value):
+        value = self.convert(value)
+        length = len(value)
+        if length < self.lower:
+            raise ValueError("'{0}' is shorter than the lower limit of {1}".format(value, self.lower))
+        if length >= self.upper:
+            raise ValueError("'{0}' is longer then the allowed limit of {1}".format(value, self.upper))
+        return value
+
+class shorter_than(constraint):
+    """Accepts a text value shorter than the specified length limit"""
+    def __init__(self, limit, convert=text):
+        self.limit = limit
+        self.convert = convert
+        self.__doc__ = "{0} with a length of no more than {1}".format(convert.__doc__, limit)
+
+    def validate(self, value):
+        value = self.convert(value)
+        length = len(value)
+        if not length < self.limit:
+            raise ValueError("'{0}' is longer then the allowed limit of {1}".format(value, self.limit))
+        return value
+
+class longer_than(constraint):
+    def __init__(self, limit, convert=text):
+        self.limit = limit
+        self.convert = convert
+        self.__doc__ = "{0} with a length longer than {1}".format(convert.__doc__, limit)
+
+    def validate(self, value):
+        value = self.convert(value)
+        length = len(value)
+        if not length > self.limit:
+            raise ValueError("'{0}' must be longer than {1}".format(value, self.limit))
+        return value
+
+class cut_off(constraint):
+    """Cuts off the provided value at the specified index"""
+    def __init__(self, limit, convert=text):
+        self.limit = limit
+        self.convert = convert
+        self.__doc__ = "'{0}' with anything over the length of {1} being ignored".format(convert.__doc__, limit)
+
+    def validate(self, value):
+        return self.convert(value)[:self.limit]

@@ -24,24 +24,19 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import functools
 from collections import namedtuple
-from functools import partial
 
 from falcon import HTTP_METHODS
 
 import hug.api
 import hug.defaults
 import hug.output_format
-from hug.class_based import classy
 from hug.format import underscore
-from hug.routing import CLIRouter as cli
-from hug.routing import NotFoundRouter as not_found
-from hug.routing import URLRouter as call
-from hug.routing import ExceptionRouter as exception
 
 
 def default_output_format(content_type='application/json', apply_globally=False):
-    '''A decorator that allows you to override the default output format for an API'''
+    """A decorator that allows you to override the default output format for an API"""
     def decorator(formatter):
         api = hug.api.from_object(formatter)
         formatter = hug.output_format.content_type(content_type)(formatter)
@@ -54,7 +49,7 @@ def default_output_format(content_type='application/json', apply_globally=False)
 
 
 def default_input_format(content_type='application/json', apply_globally=False):
-    '''A decorator that allows you to override the default output format for an API'''
+    """A decorator that allows you to override the default output format for an API"""
     def decorator(formatter):
         api = hug.api.from_object(formatter)
         formatter = hug.output_format.content_type(content_type)(formatter)
@@ -67,7 +62,7 @@ def default_input_format(content_type='application/json', apply_globally=False):
 
 
 def directive(apply_globally=True):
-    '''A decorator that registers a single hug directive'''
+    """A decorator that registers a single hug directive"""
     def decorator(directive_method):
         if apply_globally:
             hug.defaults.directives[underscore(directive_method.__name__)] = directive_method
@@ -80,7 +75,7 @@ def directive(apply_globally=True):
 
 
 def startup():
-    '''Runs the provided function on startup, passing in an instance of the api'''
+    """Runs the provided function on startup, passing in an instance of the api"""
     def startup_wrapper(startup_function):
         hug.api.from_object(startup_function).add_startup_handler(startup_function)
         return startup_function
@@ -88,7 +83,7 @@ def startup():
 
 
 def request_middleware():
-    '''Registers a middleware function that will be called on every request'''
+    """Registers a middleware function that will be called on every request"""
     def decorator(middleware_method):
         api = hug.api.from_object(middleware_method)
         middleware_method.__self__ = middleware_method
@@ -98,7 +93,7 @@ def request_middleware():
 
 
 def response_middleware():
-    '''Registers a middleware function that will be called on every response'''
+    """Registers a middleware function that will be called on every response"""
     def decorator(middleware_method):
         api = hug.api.from_object(middleware_method)
         middleware_method.__self__ = middleware_method
@@ -108,7 +103,7 @@ def response_middleware():
 
 
 def middleware_class():
-    '''Registers a middleware class'''
+    """Registers a middleware class"""
     def decorator(middleware_class):
         hug.api.from_object(middleware_class).add_middleware(middleware_class())
         return middleware_class
@@ -116,7 +111,7 @@ def middleware_class():
 
 
 def extend_api(route=""):
-    '''Extends the current api, with handlers from an imported api. Optionally provide a route that prefixes access'''
+    """Extends the current api, with handlers from an imported api. Optionally provide a route that prefixes access"""
     def decorator(extend_with):
         api = hug.api.from_object(extend_with)
         for extended_api in extend_with():
@@ -125,7 +120,14 @@ def extend_api(route=""):
     return decorator
 
 
-for method in HTTP_METHODS:
-    method_handler = partial(call, accept=(method, ))
-    method_handler.__doc__ = "Exposes a Python method externally as an HTTP {0} method".format(method.upper())
-    globals()[method.lower()] = method_handler
+def wraps(function):
+    """Enables building decorators around functions used for hug routes without chaninging their function signature"""
+    def wrap(decorator):
+        decorator = functools.wraps(function)(decorator)
+        if not hasattr(function, 'original'):
+            decorator.original = function
+        else:
+            decorator.original = function.original
+            delattr(function, 'original')
+        return decorator
+    return wrap

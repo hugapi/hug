@@ -19,19 +19,18 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import sys
-
 import falcon
+import hug
 import pytest
+import sys
 from falcon.testing import StartResponseMock, create_environ
 
-import hug
-
-api = sys.modules[__name__]
+api = hug.API(__name__)
+module = sys.modules[__name__]
 
 
 def test_basic_call():
-    '''The most basic Happy-Path test for Hug APIs'''
+    """The most basic Happy-Path test for Hug APIs"""
     @hug.call()
     def hello_world():
         return "Hello World!"
@@ -40,10 +39,11 @@ def test_basic_call():
     assert hello_world.interface
 
     assert hug.test.get(api, '/hello_world').data == "Hello World!"
+    assert hug.test.get(module, '/hello_world').data == "Hello World!"
 
 
 def test_basic_call_on_method():
-    '''Test to ensure the most basic call still works if applied to a method'''
+    """Test to ensure the most basic call still works if applied to a method"""
     class API(object):
 
         @hug.call()
@@ -84,7 +84,7 @@ def test_basic_call_on_method():
 
 
 def test_single_parameter():
-    '''Test that an api with a single parameter interacts as desired'''
+    """Test that an api with a single parameter interacts as desired"""
     @hug.call()
     def echo(text):
         return text
@@ -99,7 +99,7 @@ def test_single_parameter():
 
 
 def test_on_invalid_transformer():
-    '''Test to ensure it is possible to transform data when data is invalid'''
+    """Test to ensure it is possible to transform data when data is invalid"""
     @hug.call(on_invalid=lambda data: 'error')
     def echo(text):
         return text
@@ -115,8 +115,31 @@ def test_on_invalid_transformer():
     assert hug.test.get(api, '/echo').data == 'errored'
 
 
+def test_on_invalid_format():
+    """Test to ensure it's possible to change the format based on a validation error"""
+    @hug.get(output_invalid=hug.output_format.json, output=hug.output_format.file)
+    def echo(text):
+        return text
+
+    assert isinstance(hug.test.get(api, '/echo').data, dict)
+
+    def smart_output_type(response, request):
+        if response and request:
+            return 'application/json'
+
+    @hug.format.content_type(smart_output_type)
+    def output_formatter(data, request, response):
+        return hug.output_format.json((data, request and True, response and True))
+
+    @hug.get(output_invalid=output_formatter, output=hug.output_format.file)
+    def echo(text):
+        return text
+
+    assert isinstance(hug.test.get(api, '/echo').data, (list, tuple))
+
+
 def test_smart_redirect_routing():
-    '''Test to ensure you can easily redirect to another method without an actual redirect'''
+    """Test to ensure you can easily redirect to another method without an actual redirect"""
     @hug.get()
     def implementation_1():
         return 1
@@ -140,7 +163,7 @@ def test_smart_redirect_routing():
 
 
 def test_custom_url():
-    '''Test to ensure that it's possible to have a route that differs from the function name'''
+    """Test to ensure that it's possible to have a route that differs from the function name"""
     @hug.call('/custom_route')
     def method_name():
         return 'works'
@@ -149,12 +172,12 @@ def test_custom_url():
 
 
 def test_api_auto_initiate():
-    '''Test to ensure that Hug automatically exposes a wsgi server method'''
+    """Test to ensure that Hug automatically exposes a wsgi server method"""
     assert isinstance(__hug_wsgi__(create_environ('/non_existant'), StartResponseMock()), (list, tuple))
 
 
 def test_parameters():
-    '''Tests to ensure that Hug can easily handle multiple parameters with multiple types'''
+    """Tests to ensure that Hug can easily handle multiple parameters with multiple types"""
     @hug.call()
     def multiple_parameter_types(start, middle:hug.types.text, end:hug.types.number=5, **kwargs):
         return 'success'
@@ -167,8 +190,20 @@ def test_parameters():
     assert 'Invalid' in nan_test['errors']['end']
 
 
+def test_raise_on_invalid():
+    """Test to ensure hug correctly respects a request to allow validations errors to pass through as exceptions"""
+    @hug.get(raise_on_invalid=True)
+    def my_handler(argument_1:int):
+        return True
+
+    with pytest.raises(Exception):
+        hug.test.get(api, 'my_handler', argument_1='hi')
+
+    hug.test.get(api, 'my_handler', argument_1=1) == True
+
+
 def test_range_request():
-    '''Test to ensure that requesting a range works as expected'''
+    """Test to ensure that requesting a range works as expected"""
     @hug.get(output=hug.output_format.png_image)
     def image():
         return 'logo.png'
@@ -177,7 +212,7 @@ def test_range_request():
     assert hug.test.get(api, 'image', headers={'range': 'bytes=0--1'})
 
 def test_parameters_override():
-    '''Test to ensure the parameters override is handled as expected'''
+    """Test to ensure the parameters override is handled as expected"""
     @hug.get(parameters=('parameter1', 'parameter2'))
     def test_call(**kwargs):
         return kwargs
@@ -187,7 +222,7 @@ def test_parameters_override():
 
 
 def test_parameter_injection():
-    '''Tests that hug correctly auto injects variables such as request and response'''
+    """Tests that hug correctly auto injects variables such as request and response"""
     @hug.call()
     def inject_request(request):
         return request and 'success'
@@ -210,7 +245,7 @@ def test_parameter_injection():
 
 
 def test_method_routing():
-    '''Test that all hugs HTTP routers correctly route methods to the correct handler'''
+    """Test that all hugs HTTP routers correctly route methods to the correct handler"""
     @hug.get()
     def method():
         return 'GET'
@@ -257,7 +292,7 @@ def test_method_routing():
 
 
 def test_not_found():
-    '''Test to ensure the not_found decorator correctly routes 404s to the correct handler'''
+    """Test to ensure the not_found decorator correctly routes 404s to the correct handler"""
     @hug.not_found()
     def not_found_handler():
         return "Not Found"
@@ -281,7 +316,7 @@ def test_not_found():
 
 
 def test_versioning():
-    '''Ensure that Hug correctly routes API functions based on version'''
+    """Ensure that Hug correctly routes API functions based on version"""
     @hug.get('/echo')
     def echo(text):
         return "Not Implemented"
@@ -313,7 +348,7 @@ def test_versioning():
 
 
 def test_multiple_version_injection():
-    '''Test to ensure that the version injected sticks when calling other functions within an API'''
+    """Test to ensure that the version injected sticks when calling other functions within an API"""
     @hug.get(versions=(1, 2, None))
     def my_api_function(hug_api_version):
         return hug_api_version
@@ -338,7 +373,7 @@ def test_multiple_version_injection():
 
 
 def test_json_auto_convert():
-    '''Test to ensure all types of data correctly auto convert into json'''
+    """Test to ensure all types of data correctly auto convert into json"""
     @hug.get('/test_json')
     def test_json(text):
         return text
@@ -356,7 +391,7 @@ def test_json_auto_convert():
 
 
 def test_error_handling():
-    '''Test to ensure Hug correctly handles Falcon errors that are thrown during processing'''
+    """Test to ensure Hug correctly handles Falcon errors that are thrown during processing"""
     @hug.get()
     def test_error():
         raise falcon.HTTPInternalServerError('Failed', 'For Science!')
@@ -367,7 +402,7 @@ def test_error_handling():
 
 
 def test_error_handling_builtin_exception():
-    '''Test to ensure built in exception types errors are handled as expected'''
+    """Test to ensure built in exception types errors are handled as expected"""
     def raise_error(value):
         raise KeyError('Invalid value')
 
@@ -381,7 +416,7 @@ def test_error_handling_builtin_exception():
 
 
 def test_error_handling_custom():
-    '''Test to ensure custom exceptions work as expected'''
+    """Test to ensure custom exceptions work as expected"""
     class Error(Exception):
 
         def __str__(self):
@@ -400,7 +435,7 @@ def test_error_handling_custom():
 
 
 def test_return_modifer():
-    '''Ensures you can modify the output of a HUG API using -> annotation'''
+    """Ensures you can modify the output of a HUG API using -> annotation"""
     @hug.get()
     def hello() -> lambda data: "Hello {0}!".format(data):
         return "world"
@@ -439,7 +474,7 @@ def test_return_modifer():
 
 
 def test_marshmallow_support():
-    '''Ensure that you can use Marshmallow style objects to control input and output validation and transformation'''
+    """Ensure that you can use Marshmallow style objects to control input and output validation and transformation"""
     class MarshmallowStyleObject(object):
         def dump(self, item):
             return 'Dump Success'
@@ -497,7 +532,7 @@ def test_marshmallow_support():
 
 
 def test_stream_return():
-    '''Test to ensure that its valid for a hug API endpoint to return a stream'''
+    """Test to ensure that its valid for a hug API endpoint to return a stream"""
     @hug.get(output=hug.output_format.text)
     def test():
         return open('README.md', 'rb')
@@ -506,7 +541,7 @@ def test_stream_return():
 
 
 def test_smart_outputter():
-    '''Test to ensure that the output formatter can accept request and response arguments'''
+    """Test to ensure that the output formatter can accept request and response arguments"""
     def smart_output_type(response, request):
         if response and request:
             return 'application/json'
@@ -523,8 +558,8 @@ def test_smart_outputter():
 
 
 def test_output_format():
-    '''Test to ensure it's possible to quickly change the default hug output format'''
-    old_formatter = api.__hug__.output_format
+    """Test to ensure it's possible to quickly change the default hug output format"""
+    old_formatter = api.output_format
 
     @hug.default_output_format()
     def augmented(data):
@@ -544,20 +579,20 @@ def test_output_format():
         return hug.output_format.json(data)
 
 
-    api.__hug__.output_format = hug.output_format.text
+    api.output_format = hug.output_format.text
 
     @hug.get()
     def my_method():
         return {'Should': 'work'}
 
     assert hug.test.get(api, 'my_method').data == "{'Should': 'work'}"
-    api.__hug__.output_format = old_formatter
+    api.output_format = old_formatter
 
 
 def test_input_format():
-    '''Test to ensure it's possible to quickly change the default hug output format'''
-    old_format = api.__hug__.input_format('application/json')
-    api.__hug__.set_input_format('application/json', lambda a: {'no': 'relation'})
+    """Test to ensure it's possible to quickly change the default hug output format"""
+    old_format = api.input_format('application/json')
+    api.set_input_format('application/json', lambda a: {'no': 'relation'})
 
     @hug.get()
     def hello(body):
@@ -571,12 +606,12 @@ def test_input_format():
 
     assert not hug.test.get(api, 'hello').data
 
-    api.__hug__.set_input_format('application/json', old_format)
+    api.set_input_format('application/json', old_format)
 
 
 def test_content_type_with_parameter():
-    '''Test a Content-Type with parameter as `application/json charset=UTF-8`
-    as described in https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7'''
+    """Test a Content-Type with parameter as `application/json charset=UTF-8`
+    as described in https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7"""
     @hug.get()
     def demo(body):
         return body
@@ -586,7 +621,7 @@ def test_content_type_with_parameter():
 
 
 def test_middleware():
-    '''Test to ensure the basic concept of a middleware works as expected'''
+    """Test to ensure the basic concept of a middleware works as expected"""
     @hug.request_middleware()
     def proccess_data(request, response):
         request.env['SERVER_NAME'] = 'Bacon'
@@ -605,7 +640,7 @@ def test_middleware():
 
 
 def test_requires():
-    '''Test to ensure only if requirements successfully keep calls from happening'''
+    """Test to ensure only if requirements successfully keep calls from happening"""
     def user_is_not_tim(request, response, **kwargs):
         if request.headers.get('USER', '') != 'Tim':
             return True
@@ -620,7 +655,7 @@ def test_requires():
 
 
 def test_extending_api():
-    '''Test to ensure it's possible to extend the current API from an external file'''
+    """Test to ensure it's possible to extend the current API from an external file"""
     @hug.extend_api('/fake')
     def extend_with():
         import tests.module_fake
@@ -630,7 +665,7 @@ def test_extending_api():
 
 
 def test_extending_api_simple():
-    '''Test to ensure it's possible to extend the current API from an external file with just one API endpoint'''
+    """Test to ensure it's possible to extend the current API from an external file with just one API endpoint"""
     @hug.extend_api('/fake_simple')
     def extend_with():
         import tests.module_fake_simple
@@ -640,7 +675,7 @@ def test_extending_api_simple():
 
 
 def test_cli():
-    '''Test to ensure the CLI wrapper works as intended'''
+    """Test to ensure the CLI wrapper works as intended"""
     @hug.cli('command', '1.0.0', output=str)
     def cli_command(name:str, value:int):
         return (name, value)
@@ -650,7 +685,7 @@ def test_cli():
 
 
 def test_cli_with_defaults():
-    '''Test to ensure CLIs work correctly with default values'''
+    """Test to ensure CLIs work correctly with default values"""
     @hug.cli()
     def happy(name:str, age:int, birthday:bool=False):
         if birthday:
@@ -665,7 +700,7 @@ def test_cli_with_defaults():
 
 
 def test_cli_with_hug_types():
-    '''Test to ensure CLIs work as expected when using hug types'''
+    """Test to ensure CLIs work as expected when using hug types"""
     @hug.cli()
     def happy(name:hug.types.text, age:hug.types.number, birthday:hug.types.boolean=False):
         if birthday:
@@ -714,7 +749,7 @@ def test_cli_with_hug_types():
 
 
 def test_cli_with_conflicting_short_options():
-    '''Test to ensure that it's possible to expose a CLI with the same first few letters in option'''
+    """Test to ensure that it's possible to expose a CLI with the same first few letters in option"""
     @hug.cli()
     def test(abe1="Value", abe2="Value2", helper=None):
         return (abe1, abe2)
@@ -726,7 +761,7 @@ def test_cli_with_conflicting_short_options():
 
 
 def test_cli_with_directives():
-    '''Test to ensure it's possible to use directives with hug CLIs'''
+    """Test to ensure it's possible to use directives with hug CLIs"""
     @hug.cli()
     def test(hug_timer):
         return float(hug_timer)
@@ -737,7 +772,7 @@ def test_cli_with_directives():
 
 
 def test_cli_with_named_directives():
-    '''Test to ensure you can pass named directives into the cli'''
+    """Test to ensure you can pass named directives into the cli"""
     @hug.cli()
     def test(timer:hug.directives.Timer):
         return float(timer)
@@ -748,7 +783,7 @@ def test_cli_with_named_directives():
 
 
 def test_cli_with_output_transform():
-    '''Test to ensure it's possible to use output transforms with hug CLIs'''
+    """Test to ensure it's possible to use output transforms with hug CLIs"""
     @hug.cli()
     def test() -> int:
         return '5'
@@ -766,7 +801,7 @@ def test_cli_with_output_transform():
 
 
 def test_cli_with_short_short_options():
-    '''Test to ensure that it's possible to expose a CLI with 2 very short and similar options'''
+    """Test to ensure that it's possible to expose a CLI with 2 very short and similar options"""
     @hug.cli()
     def test(a1="Value", a2="Value2"):
         return (a1, a2)
@@ -778,7 +813,7 @@ def test_cli_with_short_short_options():
 
 
 def test_cli_file_return():
-    '''Test to ensure that its possible to return a file stream from a CLI'''
+    """Test to ensure that its possible to return a file stream from a CLI"""
     @hug.cli()
     def test():
         return open('README.md', 'rb')
@@ -786,8 +821,28 @@ def test_cli_file_return():
     assert 'hug' in hug.test.cli(test)
 
 
+def test_static_file_support():
+    """Test to ensure static file routing works as expected"""
+    @hug.static('/static')
+    def my_static_dirs():
+        return ('', )
+
+    assert 'hug' in hug.test.get(api, '/static/README.md').data
+    assert 'Index' in hug.test.get(api, '/static/tests/data').data
+    assert '404' in hug.test.get(api, '/static/NOT_IN_EXISTANCE.md').status
+
+
+def test_sink_support():
+    """Test to ensure sink URL routers work as expected"""
+    @hug.sink('/all')
+    def my_sink(request):
+        return request.path.replace('/all', '')
+
+    assert hug.test.get(api, '/all/the/things').data == '/the/things'
+
+
 def test_cli_with_string_annotation():
-    '''Test to ensure CLI's work correctly with string annotations'''
+    """Test to ensure CLI's work correctly with string annotations"""
     @hug.cli()
     def test(value_1:'The first value', value_2:'The second value'=None):
         return True
@@ -796,7 +851,7 @@ def test_cli_with_string_annotation():
 
 
 def test_cli_with_kargs():
-    '''Test to ensure CLI's work correctly when taking kargs'''
+    """Test to ensure CLI's work correctly when taking kargs"""
     @hug.cli()
     def test(*values):
         return values
@@ -806,7 +861,7 @@ def test_cli_with_kargs():
 
 
 def test_cli_using_method():
-    '''Test to ensure that attaching a cli to a class method works as expected'''
+    """Test to ensure that attaching a cli to a class method works as expected"""
     class API(object):
 
         def __init__(self):
@@ -823,7 +878,7 @@ def test_cli_using_method():
 
 
 def test_cli_with_nested_variables():
-    '''Test to ensure that a cli containing multiple nested variables works correctly'''
+    """Test to ensure that a cli containing multiple nested variables works correctly"""
     @hug.cli()
     def test(value_1=None, value_2=None):
         value_3 = 'bacon'
@@ -833,7 +888,7 @@ def test_cli_with_nested_variables():
 
 
 def test_cli_with_exception():
-    '''Test to ensure that a cli with an exception is correctly handled'''
+    """Test to ensure that a cli with an exception is correctly handled"""
     @hug.cli()
     def test():
         raise ValueError()
@@ -842,8 +897,45 @@ def test_cli_with_exception():
     assert hug.test.cli(test) != 'Hi!'
 
 
+def test_wraps():
+    """Test to ensure you can safely apply decorators to hug endpoints by using @hug.wraps"""
+    def my_decorator(function):
+        @hug.wraps(function)
+        def decorated(*kargs, **kwargs):
+            kwargs['name'] = 'Timothy'
+            return function(*kargs, **kwargs)
+        return decorated
+
+    @hug.get()
+    @my_decorator
+    def what_is_my_name(hug_timer=None, name="Sam"):
+        return {'name': name, 'took': hug_timer}
+
+    result = hug.test.get(api, 'what_is_my_name').data
+    assert result['name'] == 'Timothy'
+    assert result['took']
+
+    def my_second_decorator(function):
+        @hug.wraps(function)
+        def decorated(*kargs, **kwargs):
+            kwargs['name'] = "Not telling"
+            return function(*kargs, **kwargs)
+        return decorated
+
+    @hug.get()
+    @my_decorator
+    @my_second_decorator
+    def what_is_my_name(hug_timer=None, name="Sam"):
+        return {'name': name, 'took': hug_timer}
+
+    result = hug.test.get(api, 'what_is_my_name').data
+    assert result['name'] == "Not telling"
+    assert result['took']
+
+
+
 def test_cli_with_empty_return():
-    '''Test to ensure that if you return None no data will be added to sys.stdout'''
+    """Test to ensure that if you return None no data will be added to sys.stdout"""
     @hug.cli()
     def test_empty_return():
         pass
@@ -852,16 +944,16 @@ def test_cli_with_empty_return():
 
 
 def test_startup():
-    '''Test to ensure hug startup decorators work as expected'''
+    """Test to ensure hug startup decorators work as expected"""
     @hug.startup()
     def happens_on_startup(api):
         pass
 
-    assert happens_on_startup in api.__hug__.startup_handlers
+    assert happens_on_startup in api.startup_handlers
 
 
 def test_adding_headers():
-    '''Test to ensure it is possible to inject response headers based on only the URL route'''
+    """Test to ensure it is possible to inject response headers based on only the URL route"""
     @hug.get(response_headers={'name': 'Timothy'})
     def endpoint():
         return ''
@@ -871,8 +963,32 @@ def test_adding_headers():
     assert result.headers_dict['name'] == 'Timothy'
 
 
+def test_on_demand_404():
+    """Test to ensure it's possible to route to a 404 response on demand"""
+    @hug.get()
+    def my_endpoint(hug_api):
+        return hug_api.not_found
+
+    assert '404' in hug.test.get(api, 'my_endpoint').status
+
+
+    @hug.get()
+    def my_endpoint(hug_api):
+        raise hug.HTTPNotFound()
+
+    assert '404' in hug.test.get(api, 'my_endpoint').status
+
+    @hug.get()
+    def my_endpoint(hug_api):
+        """Test to ensure base 404 handler works as expected"""
+        del hug_api._not_found
+        return hug_api.not_found
+
+    assert '404' in hug.test.get(api, 'my_endpoint').status
+
+
 def test_exceptions():
-    '''Test to ensure hug's exception handling decorator works as expected'''
+    """Test to ensure hug's exception handling decorator works as expected"""
     @hug.get()
     def endpoint():
         raise ValueError('hi')
@@ -891,3 +1007,20 @@ def test_exceptions():
         return 'more explicit handler also worked'
 
     assert hug.test.get(api, 'endpoint').data == 'more explicit handler also worked'
+
+
+def test_validate():
+    """Test to ensure hug's secondary validation mechanism works as expected"""
+    def contains_either(request, fields):
+        if not 'one' in fields and not 'two' in fields:
+            return {'one': 'must be defined', 'two': 'must be defined'}
+
+    @hug.get(validate=contains_either)
+    def my_endpoint(one=None, two=None):
+        return True
+
+
+    assert hug.test.get(api, 'my_endpoint', one=True).data == True
+    assert hug.test.get(api, 'my_endpoint', two=True).data == True
+    assert hug.test.get(api, 'my_endpoint').status
+    assert hug.test.get(api, 'my_endpoint').data == {'errors': {'one': 'must be defined', 'two': 'must be defined'}}

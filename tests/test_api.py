@@ -1,6 +1,6 @@
-"""tests/test_exceptions.py.
+"""tests/test_api.py.
 
-Tests to ensure custom exceptions work and are formatted as expected
+Tests to ensure the API object that stores the state of each individual hug endpoint works as expected
 
 Copyright (C) 2015 Timothy Edmund Crosley
 
@@ -20,28 +20,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import hug
-import pytest
+
+api = hug.API(__name__)
 
 
-def test_invalid_type_data():
-    try:
-        raise hug.exceptions.InvalidTypeData('not a good type')
-    except hug.exceptions.InvalidTypeData as exception:
-        error = exception
+class TestAPI(object):
+    """A collection of tests to ensure the hug API object interacts as expected"""
 
-    assert error.message == 'not a good type'
-    assert error.reasons is None
+    def test_singleton(self):
+        """Test to ensure there can only be one hug API per module"""
+        assert hug.API(__name__) == api
 
-    try:
-        raise hug.exceptions.InvalidTypeData('not a good type', [1, 2, 3])
-    except hug.exceptions.InvalidTypeData as exception:
-        error = exception
 
-    assert error.message == 'not a good type'
-    assert error.reasons == [1, 2, 3]
-
-    with pytest.raises(Exception):
-        try:
-            raise hug.exceptions.InvalidTypeData()
-        except hug.exceptions.InvalidTypeData as exception:
-            pass
+def test_from_object():
+    """Test to ensure it's possible to rechieve an API singleton from an arbitrary object"""
+    assert hug.api.from_object(TestAPI) == api

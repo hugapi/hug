@@ -143,7 +143,7 @@ def math(number_1:int, number_2:int): #The :int after both arguments is the Type
 Type annotations also feed into Hug's automatic documentation generation to let users of your API know what data to supply.
 
 
-**Directives** functions that get executed with the request / response data based on being requested as an argument in your api_function
+**Directives** functions that get executed with the request / response data based on being requested as an argument in your api_function.
 
 ```py
 @hug.get()
@@ -151,13 +151,32 @@ def test_time(hug_timer):
     return {'time_taken': float(hug_timer)}
 ```
 
-Directives are always prefixed with `hug_`. Adding your own directives is straight forward:
+Directives may be accessed via an argument with a `hug_` prefix, or by using Python 3 type annotations. The latter is the more modern approach, and is recommended. Directives declared in a module can be accessed by using their fully qualified name as the type annotation (ex: `module.directive_name`).
+
+Aside from the obvious input transformation use case, directives can be used to pipe data into your API functions, even if they are not present in the request query string, POST body, etc. For an example of how to use directives in this way, see the authentication example in the examples folder.
+
+Adding your own directives is straight forward:
 
 ```py
 @hug.directive()
-def multiply(default=1, **all_info):
+def square(value=1, **kwargs):
     '''Returns passed in parameter multiplied by itself'''
-    return default * default
+    return value * value
+
+@hug.get()
+def tester(value: square=10):
+    return value
+
+tester() == 100
+```
+
+For completeness, here is an example of accessing the directive via the magic name approach:
+
+```py
+@hug.directive()
+def multiply(value=1, **kwargs):
+    '''Returns passed in parameter multiplied by itself'''
+    return value * value
 
 @hug.get()
 def tester(hug_multiply=10):

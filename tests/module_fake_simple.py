@@ -4,5 +4,5 @@ import hug
 
 @hug.get()
 def made_up_hello():
-    '''for science!'''
+    """for science!"""
     return 'hello'

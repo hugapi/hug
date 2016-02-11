@@ -3,7 +3,7 @@ import hug
 
 @hug.get()
 def quick():
-    return "Serving!"
+    return 'Serving!'
 
 
 if __name__ == '__main__':

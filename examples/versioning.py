@@ -9,9 +9,9 @@ def echo(text):
 
 @hug.get('/echo', versions=range(2, 5))
 def echo(text):
-    return "Echo: {text}".format(**locals())
+    return 'Echo: {text}'.format(**locals())
 
 
 @hug.get('/unversioned')
 def hello():
-    return "Hello world!"
+    return 'Hello world!'

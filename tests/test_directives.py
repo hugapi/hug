@@ -19,17 +19,16 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import sys
-
-import pytest
+from base64 import b64encode
 
 import hug
+import pytest
 
-api = sys.modules[__name__]
+api = hug.API(__name__)
 
 
 def test_timer():
-    '''Tests that the timer directive outputs the correct format, and automatically attaches itself to an API'''
+    """Tests that the timer directive outputs the correct format, and automatically attaches itself to an API"""
     timer = hug.directives.Timer()
     assert isinstance(timer.start, float)
     assert isinstance(float(timer), float)
@@ -50,25 +49,25 @@ def test_timer():
 
 
 def test_module():
-    '''Test to ensure the module directive automatically includes the current API's module'''
+    """Test to ensure the module directive automatically includes the current API's module"""
     @hug.get()
     def module_tester(hug_module):
         return hug_module.__name__
 
-    assert hug.test.get(api, 'module_tester').data == api.__name__
+    assert hug.test.get(api, 'module_tester').data == api.module.__name__
 
 
 def test_api():
-    '''Ensure the api correctly gets passed onto a hug API function based on a directive'''
+    """Ensure the api correctly gets passed onto a hug API function based on a directive"""
     @hug.get()
     def api_tester(hug_api):
-        return hug_api == api.__hug__
+        return hug_api == api
 
     assert hug.test.get(api, 'api_tester').data is True
 
 
 def test_api_version():
-    '''Ensure that it's possible to get the current version of an API based on a directive'''
+    """Ensure that it's possible to get the current version of an API based on a directive"""
     @hug.get(versions=1)
     def version_tester(hug_api_version):
         return hug_api_version
@@ -77,7 +76,7 @@ def test_api_version():
 
 
 def test_current_api():
-    '''Ensure that it's possible to retrieve methods from the same version of the API'''
+    """Ensure that it's possible to retrieve methods from the same version of the API"""
     @hug.get(versions=1)
     def first_method():
         return "Success"
@@ -105,9 +104,21 @@ def test_current_api():
     with pytest.raises(AttributeError):
         hug.test.get(api, 'v3/version_call_tester').data
 
+def test_user():
+    """Ensure that it's possible to get the current authenticated user based on a directive"""
+    user = 'test_user'
+    password = 'super_secret'
+    
+    @hug.get(requires=hug.authentication.basic(hug.authentication.verify(user, password)))
+    def authenticated_hello(hug_user):
+        return hug_user
+
+    token = b64encode('{0}:{1}'.format(user, password).encode('utf8')).decode('utf8')
+    assert hug.test.get(api, 'authenticated_hello', headers={'Authorization': 'Basic {0}'.format(token)}).data == user
+
 
 def test_named_directives():
-    '''Ensure that it's possible to attach directives to named parameters'''
+    """Ensure that it's possible to attach directives to named parameters"""
     @hug.get()
     def test(time:hug.directives.Timer=3):
         return time
@@ -116,7 +127,7 @@ def test_named_directives():
 
 
 def test_named_directives_by_name():
-    '''Ensure that it's possible to attach directives to named parameters using only the name of the directive'''
+    """Ensure that it's possible to attach directives to named parameters using only the name of the directive"""
     @hug.get()
     def test(time:__hug__.directive('timer')=3):
         return time
@@ -125,7 +136,7 @@ def test_named_directives_by_name():
 
 
 def test_per_api_directives():
-    '''Test to ensure it's easy to define a directive within an API'''
+    """Test to ensure it's easy to define a directive within an API"""
     @hug.directive(apply_globally=False)
     def test(default=None, **kwargs):
         return default
@@ -135,3 +146,19 @@ def test_per_api_directives():
         return hug_test
 
     assert hug.test.get(api, 'my_api_method').data == 'heyyy'
+
+
+def test_user():
+    """Test the user directives functionality, to ensure it will provide the set user object"""
+    @hug.get()
+    def try_user(user:hug.directives.user):
+        return user
+
+    assert hug.test.get(api, 'try_user').data == None
+
+    @hug.get(requires=hug.authentication.basic(hug.authentication.verify('Tim', 'Custom password')))
+    def try_user(user:hug.directives.user):
+        return user
+
+    token = b'Basic ' + b64encode('{0}:{1}'.format('Tim', 'Custom password').encode('utf8'))
+    assert hug.test.get(api, 'try_user', headers={'Authorization': token}).data == 'Tim'

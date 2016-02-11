@@ -20,44 +20,42 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import json
-import sys
 
+import hug
 from falcon import Request
 from falcon.testing import StartResponseMock, create_environ
 
-import hug
-
-api = sys.modules[__name__]
+api = hug.API(__name__)
 
 
 def test_basic_documentation():
-    '''Ensure creating and then documenting APIs with Hug works as intuitively as expected'''
+    """Ensure creating and then documenting APIs with Hug works as intuitively as expected"""
     @hug.get()
     def hello_world():
-        '''Returns hello world'''
+        """Returns hello world"""
         return "Hello World!"
 
     @hug.post()
     def echo(text):
-        '''Returns back whatever data it is given in the text parameter'''
+        """Returns back whatever data it is given in the text parameter"""
         return text
 
     @hug.post('/happy_birthday', examples="name=HUG&age=1")
     def birthday(name, age:hug.types.number=1):
-        '''Says happy birthday to a user'''
+        """Says happy birthday to a user"""
         return "Happy {age} Birthday {name}!".format(**locals())
 
     @hug.post()
     def noop(request, response):
-        '''Performs no action'''
+        """Performs no action"""
         pass
 
     @hug.get()
     def string_docs(data:'Takes data') -> 'Returns data':
-        '''Annotations defined with strings should be documentation only'''
+        """Annotations defined with strings should be documentation only"""
         pass
 
-    documentation = hug.documentation.generate(api)
+    documentation = api.documentation()
     assert 'test_documentation' in documentation['overview']
 
     assert '/hello_world' in documentation
@@ -92,12 +90,12 @@ def test_basic_documentation():
     def unversioned():
         return 'Hello'
 
-    versioned_doc = hug.documentation.generate(api)
+    versioned_doc = api.documentation()
     assert 'versions' in versioned_doc
     assert 1 in versioned_doc['versions']
     assert '/unversioned' in versioned_doc['versions'][1]
 
-    specific_version_doc  = hug.documentation.generate(api, api_version=1)
+    specific_version_doc  = api.documentation(api_version=1)
     assert not 'versions' in specific_version_doc
     assert '/echo' in specific_version_doc
     assert '/unversioned' in specific_version_doc

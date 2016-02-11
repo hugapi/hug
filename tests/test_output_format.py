@@ -19,24 +19,23 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from io import BytesIO
 from collections import namedtuple
 from datetime import datetime
 from decimal import Decimal
-
-import pytest
+from io import BytesIO
 
 import hug
+import pytest
 
 
 def test_text():
-    '''Ensure that it's possible to output a Hug API method as text'''
+    """Ensure that it's possible to output a Hug API method as text"""
     hug.output_format.text("Hello World!") == "Hello World!"
     hug.output_format.text(str(1)) == "1"
 
 
 def test_html():
-    '''Ensure that it's possible to output a Hug API method as HTML'''
+    """Ensure that it's possible to output a Hug API method as HTML"""
     hug.output_format.html("<html>Hello World!</html>") == "<html>Hello World!</html>"
     hug.output_format.html(str(1)) == "1"
     with open('README.md', 'rb') as html_file:
@@ -50,7 +49,7 @@ def test_html():
 
 
 def test_json():
-    '''Ensure that it's possible to output a Hug API method as JSON'''
+    """Ensure that it's possible to output a Hug API method as JSON"""
     now = datetime.now()
     test_data = {'text': 'text', 'datetime': now, 'bytes': b'bytes'}
     output = hug.output_format.json(test_data).decode('utf8')
@@ -84,9 +83,18 @@ def test_json():
 
     assert hug.input_format.json(BytesIO(hug.output_format.json(b'\x9c'))) == 'nA=='
 
+    class MyCrazyObject(object):
+        pass
+
+    @hug.output_format.json_convert(MyCrazyObject)
+    def convert(instance):
+        return 'Like anyone could convert this'
+
+    assert hug.input_format.json(BytesIO(hug.output_format.json(MyCrazyObject()))) == 'Like anyone could convert this'
+
 
 def test_pretty_json():
-    '''Ensure that it's possible to output a Hug API method as prettified and indented JSON'''
+    """Ensure that it's possible to output a Hug API method as prettified and indented JSON"""
     test_data = {'text': 'text'}
     assert hug.output_format.pretty_json(test_data).decode('utf8') == ('{\n'
                                                                        '    "text": "text"\n'
@@ -94,7 +102,7 @@ def test_pretty_json():
 
 
 def test_json_camelcase():
-    '''Ensure that it's possible to output a Hug API method as camelCased JSON'''
+    """Ensure that it's possible to output a Hug API method as camelCased JSON"""
     test_data = {'under_score': {'values_can': 'Be Converted'}}
     output = hug.output_format.json_camelcase(test_data).decode('utf8')
     assert 'underScore' in output
@@ -103,26 +111,31 @@ def test_json_camelcase():
 
 
 def test_image():
-    '''Ensure that it's possible to output images with hug'''
-    assert hasattr(hug.output_format.png_image('logo.png'), 'read')
+    """Ensure that it's possible to output images with hug"""
+    assert hasattr(hug.output_format.png_image('logo.png', hug.Response()), 'read')
     with open('logo.png', 'rb') as image_file:
-        assert hasattr(hug.output_format.png_image(image_file), 'read')
+        assert hasattr(hug.output_format.png_image(image_file, hug.Response()), 'read')
 
-    assert hug.output_format.png_image('Not Existent') == None
+    assert hug.output_format.png_image('Not Existent', hug.Response()) == None
 
     class FakeImageWithSave():
         def save(self, to, format):
             to.write(b'test')
-    assert hasattr(hug.output_format.png_image(FakeImageWithSave()), 'read')
+    assert hasattr(hug.output_format.png_image(FakeImageWithSave(), hug.Response()), 'read')
 
-    class FakeImageWithSave():
+    class FakeImageWithRender():
         def render(self):
             return 'test'
-    assert hug.output_format.svg_xml_image(FakeImageWithSave()) == 'test'
+    assert hug.output_format.svg_xml_image(FakeImageWithRender(), hug.Response()) == 'test'
+
+    class FakeImageWithSaveNoFormat():
+        def save(self, to):
+            to.write(b'test')
+    assert hasattr(hug.output_format.png_image(FakeImageWithSaveNoFormat(), hug.Response()), 'read')
 
 
 def test_file():
-    '''Ensure that it's possible to easily output files'''
+    """Ensure that it's possible to easily output files"""
     class FakeResponse(object):
         pass
 
@@ -136,26 +149,41 @@ def test_file():
 
 
 def test_video():
-    '''Ensure that it's possible to output videos with hug'''
-    assert hasattr(hug.output_format.mp4_video('example.gif'), 'read')
+    """Ensure that it's possible to output videos with hug"""
+    assert hasattr(hug.output_format.mp4_video('example.gif', hug.Response()), 'read')
     with open('example.gif', 'rb') as image_file:
-        assert hasattr(hug.output_format.mp4_video(image_file), 'read')
+        assert hasattr(hug.output_format.mp4_video(image_file, hug.Response()), 'read')
 
-    assert hug.output_format.mp4_video('Not Existent') == None
+    assert hug.output_format.mp4_video('Not Existent', hug.Response()) == None
 
     class FakeVideoWithSave():
         def save(self, to, format):
             to.write(b'test')
-    assert hasattr(hug.output_format.mp4_video(FakeVideoWithSave()), 'read')
+    assert hasattr(hug.output_format.mp4_video(FakeVideoWithSave(), hug.Response()), 'read')
 
     class FakeVideoWithSave():
         def render(self):
             return 'test'
-    assert hug.output_format.avi_video(FakeVideoWithSave()) == 'test'
+    assert hug.output_format.avi_video(FakeVideoWithSave(), hug.Response()) == 'test'
+
+
+def test_on_valid():
+    """Test to ensure formats that use on_valid content types gracefully handle error dictionaries"""
+    error_dict = {'errors': {'so': 'many'}}
+    expected = hug.output_format.json(error_dict)
+
+    assert hug.output_format.mp4_video(error_dict, hug.Response()) == expected
+    assert hug.output_format.png_image(error_dict, hug.Response()) == expected
+
+    @hug.output_format.on_valid('image', hug.output_format.file)
+    def my_output_format(data):
+        raise ValueError('This should never be called')
+
+    assert my_output_format(error_dict, hug.Response())
 
 
 def test_on_content_type():
-    '''Ensure that it's possible to route the output type format by the requested content-type'''
+    """Ensure that it's possible to route the output type format by the requested content-type"""
     formatter = hug.output_format.on_content_type({'application/json': hug.output_format.json,
                                                    'text/plain': hug.output_format.text})
     class FakeRequest(object):
@@ -175,7 +203,7 @@ def test_on_content_type():
 
 
 def test_suffix():
-    '''Ensure that it's possible to route the output type format by the suffix of the requested URL'''
+    """Ensure that it's possible to route the output type format by the suffix of the requested URL"""
     formatter = hug.output_format.suffix({'.js': hug.output_format.json, '.html': hug.output_format.text})
     class FakeRequest(object):
         path = 'endpoint.js'
@@ -191,10 +219,10 @@ def test_suffix():
     with pytest.raises(hug.HTTPNotAcceptable):
         request.path = 'undefined.always'
         formatter('hi', request, response)
-        
+
 
 def test_prefix():
-    '''Ensure that it's possible to route the output type format by the prefix of the requested URL'''
+    """Ensure that it's possible to route the output type format by the prefix of the requested URL"""
     formatter = hug.output_format.prefix({'js/': hug.output_format.json, 'html/': hug.output_format.text})
     class FakeRequest(object):
         path = 'js/endpoint'

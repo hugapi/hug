@@ -59,11 +59,11 @@ INTRO = """
 """.format(current)
 
 
-def determine_version(request, api_version=None, module=None):
-    '''Determines the appropriate version given the set api_version, the request header, and URL query params'''
-    if api_version is False and module:
+def determine_version(request, api_version=None, api=None):
+    """Determines the appropriate version given the set api_version, the request header, and URL query params"""
+    if api_version is False and api:
         api_version = None
-        for version in module.__hug__.versions:
+        for version in api.versions:
             if version and "v{0}".format(version) in request.path:
                 api_version = version
                 break
@@ -86,74 +86,82 @@ def determine_version(request, api_version=None, module=None):
     return next(iter(request_version or (None, )))
 
 
-def documentation_404(module):
-    '''Returns a smart 404 page that contains documentation for the written API'''
+
+
+
+def documentation_404(api):
+    """Returns a smart 404 page that contains documentation for the written API"""
     def handle_404(request, response, *kargs, **kwargs):
         base_url = request.url[:-1]
         if request.path and request.path != "/":
             base_url = request.url.split(request.path)[0]
 
-
-
         to_return = OrderedDict()
         to_return['404'] = ("The API call you tried to make was not defined. "
                             "Here's a definition of the API to help you get going :)")
-        to_return['documentation'] = documentation.generate(module, base_url, determine_version(request, False, module))
+        to_return['documentation'] = api.documentation(base_url, determine_version(request, False, api))
         response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
         response.status = falcon.HTTP_NOT_FOUND
         response.content_type = 'application/json'
     return handle_404
 
 
-def version_router(request, response, api_version=None, versions={}, sink=None, module=None, **kwargs):
-    '''Intelligently routes a request to the correct handler based on the version being requested'''
-    request_version = determine_version(request, api_version, module)
+def version_router(request, response, api_version=None, versions={}, not_found=None, api=None, **kwargs):
+    """Intelligently routes a request to the correct handler based on the version being requested"""
+    request_version = determine_version(request, api_version, api)
     if request_version:
         request_version = int(request_version)
-    versions.get(request_version, versions.get(None, sink))(request, response, api_version=api_version,
-                                                                        **kwargs)
+    versions.get(request_version, versions.get(None, not_found))(request, response, api_version=api_version, **kwargs)
 
 
-def server(module, default_sink=documentation_404):
-    '''Returns a WSGI compatible API server for the given Hug API module'''
-    api = falcon.API(middleware=module.__hug__.middleware)
-    sink = None
-    for startup_handler in module.__hug__.startup_handlers:
-        startup_handler(module.__hug__)
-    if module.__hug__.not_found_handlers:
-        if len(module.__hug__.not_found_handlers) == 1 and None in module.__hug__.not_found_handlers:
-            sink = module.__hug__.not_found_handlers[None]
+def server(hug_api, default_not_found=documentation_404):
+    """Returns a WSGI compatible API server for the given Hug API module"""
+    api = falcon.API(middleware=hug_api.middleware)
+
+    not_found_handler = None
+    for startup_handler in hug_api.startup_handlers:
+        startup_handler(hug_api)
+    if hug_api.not_found_handlers:
+        if len(hug_api.not_found_handlers) == 1 and None in hug_api.not_found_handlers:
+            not_found_handler = hug_api.not_found_handlers[None]
         else:
-            sink = partial(version_router, module=module, api_version=False,
-                           versions=module.__hug__.not_found_handlers, sink=default_sink)
-    elif default_sink:
-        sink = default_sink(module)
-    if sink:
-        api.add_sink(sink)
-    for url, methods in module.__hug__.routes.items():
+            not_found_handler = partial(version_router, api=hug_api, api_version=False,
+                                        versions=hug_api.not_found_handlers, not_found=default_not_found)
+    elif default_not_found:
+        not_found_handler = default_not_found(hug_api)
+
+    if not_found_handler:
+        api.add_sink(not_found_handler)
+        hug_api._not_found = not_found_handler
+
+    for url, extra_sink in hug_api.sinks.items():
+        api.add_sink(extra_sink, url)
+
+    for url, methods in hug_api.routes.items():
         router = {}
         for method, versions in methods.items():
             method_function = "on_{0}".format(method.lower())
             if len(versions) == 1 and None in versions.keys():
                 router[method_function] = versions[None]
             else:
-                router[method_function] = partial(version_router, versions=versions, sink=sink, module=module)
+                router[method_function] = partial(version_router, versions=versions, not_found=not_found_handler,
+                                                  api=hug_api)
 
         router = namedtuple('Router', router.keys())(**router)
         api.add_route(url, router)
-        if module.__hug__.versions and module.__hug__.versions != (None, ):
+        if hug_api.versions and hug_api.versions != (None, ):
             api.add_route('/v{api_version}' + url, router)
 
     def error_serializer(_, error):
-        return (module.__hug__.output_format.content_type,
-                module.__hug__.output_format({"errors": {error.title: error.description}}))
+        return (hug_api.output_format.content_type,
+                hug_api.output_format({"errors": {error.title: error.description}}))
 
     api.set_error_serializer(error_serializer)
     return api
 
 
 def terminal():
-    '''Starts the terminal application'''
+    """Starts the terminal application"""
     parser = argparse.ArgumentParser(description='Hug API Development Server')
     parser.add_argument('-f', '--file', dest='file_name', help="A Python file that contains a Hug API")
     parser.add_argument('-m', '--module', dest='module', help="A Python module that contains a Hug API")
@@ -163,24 +171,23 @@ def terminal():
 
     parsed = parser.parse_args()
     file_name, module = parsed.file_name, parsed.module
-    api = None
+    api_module = None
     server_arguments = {}
     if parsed.no_documentation:
-        server_arguments['default_sink'] = None
+        server_arguments['default_not_found'] = None
     if file_name and module:
         print("Error: can not define both a file and module source for Hug API.")
+        sys.exit(1)
     if file_name:
         sys.path.append(os.path.dirname(os.path.abspath(file_name)))
-        api = server(importlib.machinery.SourceFileLoader(file_name.split(".")[0], file_name).load_module(),
-                     **server_arguments)
+        api_module = importlib.machinery.SourceFileLoader(file_name.split(".")[0], file_name).load_module()
     elif module:
-        api = server(importlib.import_module(module), **server_arguments)
-    else:
+        api_module = importlib.import_module(module)
+    if not api_module or not hasattr(api_module, '__hug__'):
         print("Error: must define a file name or module that contains a Hug API.")
-    if not api:
         sys.exit(1)
 
     print(INTRO)
-    httpd = make_server('', parsed.port, api)
+    httpd = make_server('', parsed.port, server(api_module.__hug__, **server_arguments))
     print("Serving on port {0}...".format(parsed.port))
     httpd.serve_forever()

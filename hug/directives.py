@@ -25,16 +25,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 from functools import partial
 from timeit import default_timer as python_timer
 
+from hug import introspect
+
 
 def _built_in_directive(directive):
-    '''Marks a callable as a built-in directive'''
+    """Marks a callable as a built-in directive"""
     directive.directive = True
     return directive
 
 
 @_built_in_directive
 class Timer(object):
-    '''Keeps track of time surpased since instantiation, outputed by doing float(instance)'''
+    """Keeps track of time surpased since instantiation, outputed by doing float(instance)"""
     __slots__ = ('start', 'round_to')
 
     def __init__(self, round_to=None, **kwargs):
@@ -54,25 +56,25 @@ class Timer(object):
 
 @_built_in_directive
 def module(default=None, module=None, **kwargs):
-    '''Returns the module that is running this hug API function'''
+    """Returns the module that is running this hug API function"""
     return module if module else default
 
 
 @_built_in_directive
 def api(default=None, module=None, **kwargs):
-    '''Returns the api instance in which this API function is being ran'''
+    """Returns the api instance in which this API function is being ran"""
     return getattr(module, '__hug__', default)
 
 
 @_built_in_directive
 def api_version(default=None, api_version=None, **kwargs):
-    '''Returns the current api_version as a directive for use in both request and not request handling code'''
+    """Returns the current api_version as a directive for use in both request and not request handling code"""
     return api_version
 
 
 @_built_in_directive
 class CurrentAPI(object):
-    '''Returns quick access to all api functions on the current version of the api'''
+    """Returns quick access to all api functions on the current version of the api"""
     __slots__ = ('api_version', 'api')
 
     def __init__(self, default=None, api_version=None, **kwargs):
@@ -86,10 +88,15 @@ class CurrentAPI(object):
         if not function:
             raise AttributeError('API Function {0} not found'.format(name))
 
-        accepts = function.interface.api_function.__code__.co_varnames
+        accepts = introspect.arguments(function.interface.api_function)
         if 'hug_api_version' in accepts:
             function = partial(function, hug_api_version=self.api_version)
         if 'hug_current_api' in accepts:
             function = partial(function, hug_current_api=self)
 
         return function
+
+@_built_in_directive
+def user(default=None, request=None, **kwargs):
+    """Returns the current logged in user"""
+    return request.context.get('user')
