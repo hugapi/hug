@@ -36,6 +36,11 @@ from hug.exceptions import InvalidTypeData
 
 
 class Interface(object):
+    """Defines the basic hug interface object, which is responsible for wrapping a user defined function and providing
+       all the info requested in the function as well as the route
+
+       A Interface object should be created for every kind of protocal hug supports
+    """
     __slots__ = ('api', 'spec', 'function', 'takes_kargs', 'takes_kwargs', 'defaults', 'parameters', 'required',
                  'outputs', 'directives', 'on_invalid', 'requires', 'validate_function',
                  'transform', 'input_transformations', 'examples', 'output_doc', 'wrapped')
@@ -116,6 +121,7 @@ class Interface(object):
             self.wrapped.without_directives = self.function
 
     def validate(self, input_parameters):
+        """Runs all set type transformers / validators against the provided input parameters and returns any errors"""
         errors = {}
         for key, type_handler in self.input_transformations.items():
             if self.raise_on_invalid:
@@ -141,6 +147,11 @@ class Interface(object):
         return errors
 
     def check_requirements(self, request=None, response=None):
+        """Checks to see if all requirements set pass
+
+           if all requirements pass nothing will be returned
+           otherwise, the error reported will be returned
+        """
         for requirement in self.requires:
             conclusion = requirement(response=response, request=request, module=self.api.module)
             if conclusion and conclusion is not True:
@@ -148,6 +159,7 @@ class Interface(object):
 
 
 class CLI(Interface):
+    """Defines the Interface responsible for exposing functions to the CLI"""
 
     def __init__(self, route, function):
         super().__init__(route, function)
@@ -210,6 +222,7 @@ class CLI(Interface):
             self.parser.add_argument(*args, **kwargs)
 
     def output(self, data):
+        """Outputs the provided data using the transformations and output format specified for this CLI endpoint"""
         if self.transform:
             data = self.transform(data)
         if hasattr(data, 'read'):
@@ -221,6 +234,7 @@ class CLI(Interface):
         return data
 
     def __call__(self):
+        """Calls the wrapped function through the lens of a CLI ran command"""
         for requirement in self.requires:
             conclusion = requirement(request=sys.argv, module=self.api.module)
             if conclusion and conclusion is not True:
@@ -246,6 +260,7 @@ class CLI(Interface):
 
 
 class HTTP(Interface):
+    """Defines the interface responsible for wrapping functions and exposing them via HTTP based on the route"""
     __slots__ = ('_params_for_outputs', '_params_for_invalid_outputs', '_params_for_transform', 'on_invalid',
                  '_params_for_on_invalid',  'set_status','response_headers', 'transform', 'input_transformations',
                  'examples', 'output_doc', 'wrapped', 'catch_exceptions', 'parse_body', 'invalid_outputs',
@@ -279,6 +294,7 @@ class HTTP(Interface):
         self.wrapped.__dict__['interface'] = self
 
     def gather_parameters(self, request, response, api_version=None, **input_parameters):
+        """Gathers and returns all parameters that will be used for this endpoint"""
         input_parameters.update(request.params)
         if self.parse_body and request.content_length is not None:
             body = request.stream
@@ -316,6 +332,7 @@ class HTTP(Interface):
         return input_parameters
 
     def transform_data(self, data, request=None, response=None):
+        """Runs the transforms specified on this endpoint with the provided data, returning the data modified"""
         if self.transform and not (isinstance(self.transform, type) and isinstance(data, self.transform)):
             if self._params_for_transform:
                 return self.transform(data, **self._arguments(self._params_for_transform, request, response))
@@ -324,12 +341,14 @@ class HTTP(Interface):
         return data
 
     def content_type(self, request=None, response=None):
+        """Returns the content type that should be used by default for this endpoint"""
         if callable(self.outputs.content_type):
             return self.outputs.content_type(request=request, response=response)
         else:
             return self.outputs.content_type
 
     def invalid_content_type(self, request=None, response=None):
+        """Returns the content type that should be used by default on validation errors"""
         if callable(self.invalid_outputs.content_type):
             return self.invalid_outputs.content_type(request=request, response=response)
         else:
@@ -359,6 +378,7 @@ class HTTP(Interface):
         return marshmallow_type
 
     def __call__(self, request, response, api_version=None, **kwargs):
+        """Call the wrapped function over HTTP pulling information as needed"""
         api_version = int(api_version) if api_version is not None else api_version
         if not self.catch_exceptions:
             exception_types = ()
