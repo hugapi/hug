@@ -213,6 +213,29 @@ class Interface(object):
         else:
             return self.outputs.content_type
 
+    def invalid_content_type(self, request=None, response=None):
+        if callable(self.invalid_outputs.content_type):
+            return self.invalid_outputs.content_type(request=request, response=response)
+        else:
+            return self.invalid_outputs.content_type
+
+    def check_requirements(self, request=None, response=None):
+        for requirement in self.requires:
+            conclusion = requirement(response=response, request=request, module=self.api.module)
+            if conclusion and conclusion is not True:
+                return conclusion
+
+    def _arguments(self, requested_params, request=None, response=None):
+        if requested_params:
+            arguments = {}
+            if 'response' in requested_params:
+                arguments['response'] = response
+            if 'request' in requested_params:
+                arguments['request'] = request
+            return arguments
+
+        return empty.dict
+
     def __call__(self, request, response, api_version=None, **kwargs):
         api_version = int(api_version) if api_version is not None else api_version
         if not self.catch_exceptions:
@@ -223,70 +246,34 @@ class Interface(object):
         try:
             for header_name, header_value in self.response_headers:
                 response.set_header(header_name, header_value)
-
             if self.set_status:
                 response.status = self.set_status
+            response.content_type = self.content_type(request, response)
+            params_for_outputs = self._arguments(self.params_for_outputs, request, response)
 
-            if self.params_for_outputs:
-                params_for_outputs = {}
-                if 'response' in self.params_for_outputs:
-                    params_for_outputs['response'] = response
-                if 'request' in self.params_for_outputs:
-                    params_for_outputs['request'] = request
-            else:
-                params_for_outputs = empty.dict
-
-            if callable(self.outputs.content_type):
-                response.content_type = self.content_type(request, response)
-            else:
-                response.content_type =
-            for requirement in self.requires:
-                conclusion = requirement(response=response, request=request, module=self.api.module,
-                                         api_version=api_version)
-                if conclusion is not True:
-                    if conclusion:
-                        response.data = self.outputs(conclusion, **params_for_outputs)
-                    return
+            lacks_requirement = self.check_requirements(request, response)
+            if lacks_requirement:
+                response.data = self.outputs(lacks_requirement, **params_for_outputs)
+                return
 
             input_parameters = self.gather_parameters(request, response, api_version, **kwargs)
             errors = self.validate(input_parameters)
             if errors:
                 data = {'errors': errors}
                 if getattr(self, 'on_invalid', False):
-                    if self.params_for_on_invalid:
-                        extra_kwargs = {}
-                        if 'response' in self.params_for_on_invalid:
-                            extra_kwargs['response'] = response
-                        if 'request' in self.params_for_on_invalid:
-                            extra_kwargs['request'] = request
-                        data = self.on_invalid(data, **extra_kwargs)
-                    else:
-                        data = self.on_invalid(data)
+                    data = self.on_invalid(data, **self._arguments(self.params_for_on_invalid, request, response))
 
                 response.status = HTTP_BAD_REQUEST
                 if getattr(self, 'invalid_outputs', False):
-                    if callable(self.invalid_outputs.content_type):
-                        response.content_type = self.invalid_outputs.content_type(request=request,
-                                                                                        response=response)
-                    else:
-                        response.content_type = self.invalid_outputs.content_type
-                    if self.params_for_invalid_outputs:
-                        function_invalid_output_kwargs = {}
-                        if 'response' in self.params_for_invalid_outputs:
-                            function_invalid_output_kwargs['response'] = response
-                        if 'request' in self.params_for_invalid_outputs:
-                            function_invalid_output_kwargs['request'] = request
-                    else:
-                        function_invalid_output_kwargs = empty.dict
-
-                    response.data = self.invalid_outputs(data, **function_invalid_output_kwargs)
+                    response.content_type = self.invalid_content_type(request, response)
+                    response.data = self.invalid_outputs(data, **self._arguments(self.params_for_invalid_outputs,
+                                                                                 request, response))
                 else:
                     response.data = self.outputs(data, **params_for_outputs)
                 return
 
             if not self.takes_kwargs:
-                input_parameters = {key: value for key, value in input_parameters.items() if
-                                    key in self.parameters}
+                input_parameters = {key: value for key, value in input_parameters.items() if key in self.parameters}
 
             data = self.function(**input_parameters)
             if hasattr(data, 'interface'):
