@@ -173,7 +173,7 @@ class CLI(Interface):
         self.parser = argparse.ArgumentParser(description=route.get('doc', self.spec.__doc__))
         if 'version' in route:
             self.parser.add_argument('-v', '--version', action='version',
-                                version="{0} {1}".format(route['name'] or self.spec.__name__,
+                                version="{0} {1}".format(route.get('name', self.spec.__name__),
                                                          route['version']))
             used_options.update(('v', 'version'))
 
