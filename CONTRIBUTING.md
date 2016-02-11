@@ -33,7 +33,7 @@ Once you have verified that you system matches the base requirements you can sta
 
 Making a contribution
 =========
-Congrats! Your now ready to make a contribution! Use the following as a guide to help you reach a succefull pull-request:
+Congrats! Your now ready to make a contribution! Use the following as a guide to help you reach a successful pull-request:
 
 1. Check the issues page on github to see if the task you want to complete is listed there https://github.com/timothycrosley/hug/issues.
     - If it's listed there write a comment letting others know you are working on it.
@@ -42,7 +42,7 @@ Congrats! Your now ready to make a contribution! Use the following as a guide to
 2. Create an issue branch for your local work `git checkout -b issue/$ISSUE-NUMBER`.
 3. Do your magic here.
 4. Run `clean` to automatically sort your imports according to pep-8 guidlines.
-5. Ensure your code matches hug's latest coding standards defined here: https://github.com/timothycrosley/hug/blob/develop/CODING_STANDARD.md.
+5. Ensure your code matches hug's latest coding standards defined here: https://github.com/timothycrosley/hug/blob/develop/CODING_STANDARD.md. It's important to focus to focus on making your code efficient as hug is used as a base framework for several performance critical APIs.
 7. Submit a pull request to the main project repository via GitHub.
 
 Thanks for the contribution! It will quickly get reviewed, and once accepted will result in your name being added to the ACKNOWLEDGEMENTS.md list :).
