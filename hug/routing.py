@@ -28,11 +28,10 @@ import falcon
 from falcon import HTTP_METHODS
 
 import hug.api
+import hug.interface
 import hug.output_format
 from hug import introspect
 from hug.exceptions import InvalidTypeData
-
-import hug.interface
 
 
 class Router(object):

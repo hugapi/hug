@@ -19,18 +19,20 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import os
-import sys
 import argparse
+import os
 import re
-import hug.api
+import sys
 from functools import wraps
+
 import falcon
 from falcon import HTTP_BAD_REQUEST
+
+import hug.api
+import hug.output_format
+from hug import _empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
-from hug import _empty as empty
-import hug.output_format
 
 
 class Interface(object):
