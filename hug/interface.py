@@ -194,6 +194,19 @@ class Interface(object):
             errors = self.validate_function(input_parameters)
         return errors
 
+    def transform_data(self, data, request=None, response=None):
+        if self.transform and not (isinstance(self.transform, type) and isinstance(data, self.transform)):
+            if self.params_for_transform:
+                extra_kwargs = {}
+                if 'response' in self.params_for_transform:
+                    extra_kwargs['response'] = response
+                if 'request' in self.params_for_transform:
+                    extra_kwargs['request'] = request
+                return self.transform(data, **extra_kwargs)
+            else:
+                return self.transform(data)
+        return data
+
     def __call__(self, request, response, api_version=None, **kwargs):
         api_version = int(api_version) if api_version is not None else api_version
         if not self.catch_exceptions:
@@ -270,47 +283,38 @@ class Interface(object):
                 input_parameters = {key: value for key, value in input_parameters.items() if
                                     key in self.parameters}
 
-            to_return = self.function(**input_parameters)
-            if hasattr(to_return, 'interface'):
-                if to_return.interface is True:
-                    to_return(request, response, api_version=None, **kwargs)
+            data = self.function(**input_parameters)
+            if hasattr(data, 'interface'):
+                if data.interface is True:
+                    data(request, response, api_version=None, **kwargs)
                 else:
-                    to_return.interface(request, response, api_version=None, **kwargs)
+                    data.interface(request, response, api_version=None, **kwargs)
                 return
 
-            if self.transform and not (isinstance(self.transform, type) and isinstance(to_return, self.transform)):
-                if self.params_for_transform:
-                    extra_kwargs = {}
-                    if 'response' in self.params_for_transform:
-                        extra_kwargs['response'] = response
-                    if 'request' in self.params_for_transform:
-                        extra_kwargs['request'] = request
-                    to_return = self.transform(to_return, **extra_kwargs)
-                else:
-                    to_return = self.transform(to_return)
+            data = self.transform_data(data, request, response)
 
-            to_return = self.outputs(to_return, **params_for_outputs)
-            if hasattr(to_return, 'read'):
+            data = self.outputs(data, **params_for_outputs)
+            if hasattr(data, 'read'):
                 size = None
-                if hasattr(to_return, 'name') and os.path.isfile(to_return.name):
-                    size = os.path.getsize(to_return.name)
+                if hasattr(data, 'name') and os.path.isfile(data.name):
+                    size = os.path.getsize(data.name)
                 if request.range and size:
                     start, end = request.range
                     if end < 0:
                         end = size + end
                     end = min(end, size)
                     length = end - start + 1
-                    to_return.seek(start)
-                    response.data = to_return.read(length)
+                    data.seek(start)
+                    response.data = data.read(length)
                     response.status = falcon.HTTP_206
                     response.content_range = (start, end, size)
-                    to_return.close()
+                    data.close()
                 else:
-                    response.stream = to_return
+                    response.stream = data
                     if size:
                         response.stream_len = size
             else:
-                response.data = to_return
+                response.data = data
         except falcon.HTTPNotFound:
             return self.api.not_found(request, response, **kwargs)
         except exception_types as exception:
