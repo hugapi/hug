@@ -207,6 +207,12 @@ class Interface(object):
                 return self.transform(data)
         return data
 
+    def content_type(self, request=None, response=None):
+        if callable(self.outputs.content_type):
+            return self.outputs.content_type(request=request, response=response)
+        else:
+            return self.outputs.content_type
+
     def __call__(self, request, response, api_version=None, **kwargs):
         api_version = int(api_version) if api_version is not None else api_version
         if not self.catch_exceptions:
@@ -231,9 +237,9 @@ class Interface(object):
                 params_for_outputs = empty.dict
 
             if callable(self.outputs.content_type):
-                response.content_type = self.outputs.content_type(request=request, response=response)
+                response.content_type = self.content_type(request, response)
             else:
-                response.content_type = self.outputs.content_type
+                response.content_type =
             for requirement in self.requires:
                 conclusion = requirement(response=response, request=request, module=self.api.module,
                                          api_version=api_version)
@@ -243,7 +249,6 @@ class Interface(object):
                     return
 
             input_parameters = self.gather_parameters(request, response, api_version, **kwargs)
-
             errors = self.validate(input_parameters)
             if errors:
                 data = {'errors': errors}
@@ -292,7 +297,6 @@ class Interface(object):
                 return
 
             data = self.transform_data(data, request, response)
-
             data = self.outputs(data, **params_for_outputs)
             if hasattr(data, 'read'):
                 size = None
