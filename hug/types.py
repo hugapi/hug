@@ -21,23 +21,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from decimal import Decimal
 from json import loads as load_json
-from abc import ABCMeta, abstractmethod
 
-class constraint(object):
-    __metaclass__ = ABCMeta
-    
-    @abstractmethod
-    def validate(self, value):
-        pass
+
+class Type(object):
+    """Defines the base hug concept of a type for use in function annotation.
+       Override `__call__` to define how the type should be transformed and validated
+    """
+    __slots__ = ()
 
     def __call__(self, value):
-        return self.validate(value)
-    
+        raise NotImplementedError('To implement a new type __call__ must be defined')
 
-class accept(constraint):
+
+class Accept(Type):
+    """Allows quick wrapping any Python type converter for use with Hug type annotations"""
+    __slots__ = ('formatter', 'error_text', 'exception_handlers', 'doc', 'cli_behaviour')
+
     def __init__(self, formatter, doc=None, error_text=None, cli_behaviour=None, exception_handlers=None):
         self.formatter = formatter
-        self.__doc__ = doc or self.formatter.__doc__
+        self.doc = doc or self.formatter.__doc__
         self.error_text = error_text
         self.exception_handlers = exception_handlers or {}
 
@@ -48,7 +50,11 @@ class accept(constraint):
         if new_cli_behaviour:
             self.cli_behaviour = new_cli_behaviour
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+        return self.doc
+
+    def __call__(self, value):
         if self.exception_handlers or self.error_text:
             try:
                 return self.formatter(value)
@@ -65,36 +71,46 @@ class accept(constraint):
         else:
             return self.formatter(value)
 
-number = accept(int, 'A whole number', 'Invalid whole number provided')
-float_number = accept(float, 'A float number', 'Invalid float number provided')
-decimal = accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
-text = accept(str, 'Basic text / string value', 'Invalid text value provided')
-boolean = accept(bool, 'Providing any value will set this to true',
+number = Accept(int, 'A whole number', 'Invalid whole number provided')
+float_number = Accept(float, 'A float number', 'Invalid float number provided')
+decimal = Accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
+text = Accept(str, 'Basic text / string value', 'Invalid text value provided')
+boolean = Accept(bool, 'Providing any value will set this to true',
                  'Invalid boolean value provided', cli_behaviour={'action': 'store_true'})
 
-class list_constraint(constraint):
-    '''Multiple Values'''
-    cli_behaviour = {'action': 'append', 'type':text}
-    def validate(self, value):
+
+class Multiple(Type):
+    """Multiple Values"""
+    __slots__ = ('cli_behaviour', )
+
+    def __init__(self):
+        self.cli_behaviour = {'action': 'append', 'type': text}
+
+    def __call__(self, value):
         return value if isinstance(value, list) else [value]
 
-multiple = list_constraint()
-        
-class delimited_list(constraint):
+
+class DelimitedList(Type):
+    """Defines a list type that is formed by delimiting a list with a certain character or set of characters"""
+    __slots__ = ('using')
+
     def __init__(self, using=","):
         self.using = using
-        self.__doc__ = '''Multiple values, separated by "{0}"'''.format(self.using)
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+        return '''Multiple values, separated by "{0}"'''.format(self.using)
+
+    def __call__(self, value):
         return value if type(value) in (list, tuple) else value.split(self.using)
 
-comma_separated_list = delimited_list(using=",")
 
-class boolean_constraint(constraint):
-    '''Accepts a true or false value'''
+class SmartBoolean(Type):
+    """Accepts a true or false value"""
     cli_behaviour = {'action': 'store_true'}
+    __slots__ = ()
 
-    def validate(self, value):
+    def __call__(self, value):
         if type(value) == bool or value in (None, 1, 0):
             return bool(value)
 
@@ -106,42 +122,57 @@ class boolean_constraint(constraint):
 
         raise KeyError('Invalid value passed in for true/false field')
 
-smart_boolean = boolean_constraint()
 
-class dictionary_constraint(constraint):
-    '''A single line dictionary, where items are separted by commas and key:value are separated by a pipe'''
-    def validate(self, value):
+class InlineDictionary(Type):
+    """A single line dictionary, where items are separted by commas and key:value are separated by a pipe"""
+    __slots__ = ()
+
+    def __call__(self, value):
         return {key.strip(): value.strip() for key, value in (item.split(":") for item in value.split("|"))}
 
-inline_dictionary = dictionary_constraint()
 
-class one_of(constraint):
+class OneOf(Type):
+    """Ensures the value is within a set of acceptable values"""
+    __slots__ = ('values', 'cli_behaviour')
+
     def __init__(self, values):
         self.values = values
-        self.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(values))
         self.cli_behaviour = {'choices': values}
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+        return 'Accepts one of the following values: ({0})'.format("|".join(self.values))
+
+    def __call__(self, value):
         if not value in self.values:
             raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(self.values)))
         return value
 
-class mapping(constraint):
-    '''Ensures the value is one of an acceptable set of values mapping those values to a Python equivelent'''
+
+class Mapping(Type):
+    """Ensures the value is one of an acceptable set of values mapping those values to a Python equivelent"""
+    __slots__ = ('value_map', 'values', 'cli_behaviour')
+
     def __init__(self, value_map):
         self.value_map = value_map
         self.values = value_map.keys()
-        self.__doc__ = 'Accepts one of the following values: ({0})'.format("|".join(self.values))
         self.cli_behaviour = {'choices': self.values}
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+        return 'Accepts one of the following values: ({0})'.format("|".join(self.values))
+
+    def __call__(self, value):
         if not value in self.values:
             raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(self.values)))
         return self.value_map[value]
 
-class json_constraint(constraint):
-    '''Accepts a JSON formatted data structure'''
-    def validate(self, value):
+
+class JSON(Type):
+    """Accepts a JSON formatted data structure"""
+    __slots__ = ()
+
+    def __call__(self, value):
         if type(value) in (str, bytes):
             try:
                 return load_json(value)
@@ -150,16 +181,21 @@ class json_constraint(constraint):
         else:
             return value
 
-json = json_constraint()
 
-class multi(constraint):
-    '''Enables accepting one of multiple type methods'''
+
+class Multi(Type):
+    """Enables accepting one of multiple type methods"""
+    __slots__ = ('types', )
+
     def __init__(self, *types):
        self.types = types
-       type_strings = (type_method.__doc__ for type_method in types)
-       self.__doc__ = 'Accepts any of the following value types:{0}\n'.format('\n  - '.join(type_strings))
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+        type_strings = (type_method.__doc__ for type_method in self.types)
+        return 'Accepts any of the following value types:{0}\n'.format('\n  - '.join(type_strings))
+
+    def __call__(self, value):
         for type_method in self.types:
             try:
                 return type_method(value)
@@ -167,15 +203,22 @@ class multi(constraint):
                 pass
         raise ValueError(self.__doc__)
 
-class in_range(constraint):
+
+class InRange(Type):
+    """Accepts a number within a lower and upper bound of acceptable values"""
+    __slots__ = ('lower', 'upper', 'convert')
+
     def __init__(self, lower, upper, convert=number):
         self.lower = lower
         self.upper = upper
         self.convert = convert
-        self.__doc__ = ("{0} that is greater or equal to {1} and less than {2}".format(
-                        convert.__doc__, lower, upper))
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+        return "{0} that is greater or equal to {1} and less than {2}".format(self.convert.__doc__,
+                                                                              self.lower, self.upper)
+
+    def __call__(self, value):
         value = self.convert(value)
         if value < self.lower:
             raise ValueError("'{0}' is less than the lower limit {1}".format(value, self.lower))
@@ -183,39 +226,60 @@ class in_range(constraint):
             raise ValueError("'{0}' reaches the limit of {1}".format(value, self.upper))
         return value
 
-class less_than(constraint):
+
+class LessThan(Type):
+    """Accepts a number within a lower and upper bound of acceptable values"""
+    __slots__ = ('limit', 'convert')
+
     def __init__(self, limit, convert=number):
         self.limit = limit
         self.convert = convert
-        self.__doc__ = "{0} that is less than {1}".format(convert.__doc__, limit)
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+         return "{0} that is less than {1}".format(self.convert.__doc__, self.limit)
+
+    def __call__(self, value):
         value = self.convert(value)
         if not value < self.limit:
             raise ValueError("'{0}' must be less than {1}".format(value, self.limit))
         return value
 
-class greater_than(constraint):
+
+class GreaterThan(Type):
+    """Accepts a value above a given minimum"""
+    __slots__ = ('minimum', 'convert')
+
     def __init__(self, minimum, convert=number):
         self.minimum = minimum
         self.convert = convert
-        self.__doc__ = "{0} that is greater than {1}".format(convert.__doc__, minimum)
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+        return "{0} that is greater than {1}".format(self.convert.__doc__, self.minimum)
+
+    def __call__(self, value):
         value = self.convert(value)
         if not value > self.minimum:
             raise ValueError("'{0}' must be greater than {1}".format(value, self.minimum))
         return value
 
-class length(constraint):
+
+class Length(Type):
+    """Accepts a a value that is withing a specific length limit"""
+    __slots__ = ('lower', 'upper', 'convert')
+
     def __init__(self, lower, upper, convert=text):
         self.lower = lower
         self.upper = upper
         self.convert = convert
-        self.__doc__ = ("{0} that has a length longer or equal to {1} and less then {2}".format(
-                        convert.__doc__, lower, upper))
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+        return ("{0} that has a length longer or equal to {1} and less then {2}".format(self.convert.__doc__,
+                                                                                        self.lower, self.upper))
+
+    def __call__(self, value):
         value = self.convert(value)
         length = len(value)
         if length < self.lower:
@@ -224,39 +288,80 @@ class length(constraint):
             raise ValueError("'{0}' is longer then the allowed limit of {1}".format(value, self.upper))
         return value
 
-class shorter_than(constraint):
+
+class ShorterThan(Type):
     """Accepts a text value shorter than the specified length limit"""
+    __slots__ = ('limit', 'convert')
+
     def __init__(self, limit, convert=text):
         self.limit = limit
         self.convert = convert
-        self.__doc__ = "{0} with a length of no more than {1}".format(convert.__doc__, limit)
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+        return "{0} with a length of no more than {1}".format(self.convert.__doc__, self.limit)
+
+    def __call__(self, value):
         value = self.convert(value)
         length = len(value)
         if not length < self.limit:
             raise ValueError("'{0}' is longer then the allowed limit of {1}".format(value, self.limit))
         return value
 
-class longer_than(constraint):
+
+class LongerThan(Type):
+    """Accepts a value up to the specified limit"""
+    __slots__ = ('limit', 'convert')
+
     def __init__(self, limit, convert=text):
         self.limit = limit
         self.convert = convert
-        self.__doc__ = "{0} with a length longer than {1}".format(convert.__doc__, limit)
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+        return "{0} with a length longer than {1}".format(self.convert.__doc__, self.limit)
+
+    def __call__(self, value):
         value = self.convert(value)
         length = len(value)
         if not length > self.limit:
             raise ValueError("'{0}' must be longer than {1}".format(value, self.limit))
         return value
 
-class cut_off(constraint):
+
+class CutOff(Type):
     """Cuts off the provided value at the specified index"""
+    __slots__ = ('limit', 'convert')
+
     def __init__(self, limit, convert=text):
         self.limit = limit
         self.convert = convert
-        self.__doc__ = "'{0}' with anything over the length of {1} being ignored".format(convert.__doc__, limit)
 
-    def validate(self, value):
+    @property
+    def __doc__(self):
+        return "'{0}' with anything over the length of {1} being ignored".format(self.convert.__doc__, self.limit)
+
+    def __call__(self, value):
         return self.convert(value)[:self.limit]
+
+
+multiple = Multiple()
+smart_boolean = SmartBoolean()
+inline_dictionary = InlineDictionary()
+json = JSON()
+comma_separated_list = DelimitedList(using=",")
+
+
+# NOTE: These forms are going to be DEPRECATED, here for backwards compatibility only
+accept = Accept
+delimited_list = DelimitedList
+one_of = OneOf
+mapping = Mapping
+multi = Multi
+in_range = InRange
+less_than = LessThan
+greater_than = GreaterThan
+length = Length
+shorter_than = ShorterThan
+longer_than = LongerThan
+cut_off = CutOff
