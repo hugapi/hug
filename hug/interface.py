@@ -20,6 +20,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import os
+import sys
+import argparse
 import re
 import hug.api
 from functools import wraps
@@ -29,28 +31,25 @@ from hug import introspect
 from hug.exceptions import InvalidTypeData
 from hug import _empty as empty
 
-AUTO_INCLUDE = {'request', 'response'}
-RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
-
 
 class Interface(object):
-    __slots__ = ('spec', 'function', 'takes_kargs', 'takes_kwargs', 'defaults', 'parameters', 'required',
-                 'outputs', 'invalid_outputs', 'directives', 'on_invalid', 'requires', 'validate_function',
-                 'raise_on_invalid', 'transform', 'input_transformations', 'examples', 'output_doc', 'wrapped')
+    __slots__ = ('api', 'spec', 'function', 'takes_kargs', 'takes_kwargs', 'defaults', 'parameters', 'required',
+                 'outputs', 'directives', 'on_invalid', 'requires', 'validate_function',
+                 'transform', 'input_transformations', 'examples', 'output_doc', 'wrapped')
 
     def __init__(self, route, function):
         self.api = route.get('api', hug.api.from_object(function))
         self.spec =  getattr(function, 'original', function)
         self.function = function
         self.requires = route.get('requires', ())
-        self.validate_function = route.get('validate', False)
-        self.raise_on_invalid = route.get('raise_on_invalid', False)
+        if 'validate' in route:
+            self.validate_function = route['validate']
 
         self.takes_kargs = introspect.takes_kargs(self.spec)
         self.takes_kwargs = introspect.takes_kwargs(self.spec)
 
         if not 'parameters' in route:
-            self.parameters = introspect.arguments(self.spec)
+            self.parameters = introspect.arguments(self.spec, 1 if self.takes_kargs else 0)
             self.defaults = {}
             for index, default in enumerate(reversed(self.spec.__defaults__ or ())):
                 self.defaults[self.parameters[-(index + 1)]] = default
@@ -61,13 +60,9 @@ class Interface(object):
             self.required = tuple([parameter for parameter in self.parameters if parameter not in self.defaults])
         if 'method' in self.spec.__class__.__name__:
             self.required = self.required[1:]
+            self.parameters = self.parameters[1:]
 
         self.outputs = route.get('output', self.api.output_format)
-
-        if 'output_invalid' in route:
-            self.invalid_outputs = route['output_invalid']
-
-
         self.transform = route.get('transform', None)
         if self.transform is None and not isinstance(self.spec.__annotations__.get('return', None), (str, type(None))):
             self.transform = self.spec.__annotations__['return']
@@ -102,33 +97,6 @@ class Interface(object):
 
             self.input_transformations[name] = transformer
 
-
-class HTTP(Interface):
-    __slots__ = ('api', '_params_for_outputs', '_params_for_invalid_outputs', '_params_for_transform', 'on_invalid',
-                 '_params_for_on_invalid',  'set_status','response_headers', 'transform', 'input_transformations',
-                 'examples', 'output_doc', 'wrapped', 'catch_exceptions', 'parse_body')
-
-    def __init__(self, route, function, catch_exceptions=True):
-        super().__init__(route, function)
-        self.catch_exceptions = catch_exceptions
-        self.parse_body = 'parse_body' in route
-        self.set_status = route.get('status', False)
-        self.response_headers = tuple(route.get('response_headers', {}).items())
-
-        self._params_for_outputs = introspect.takes_arguments(self.outputs, *AUTO_INCLUDE)
-        if hasattr(self, 'invalid_outputs'):
-            self._params_for_invalid_outputs = introspect.takes_arguments(self.invalid_outputs, *AUTO_INCLUDE)
-
-        self._params_for_transform = introspect.takes_arguments(self.transform, *AUTO_INCLUDE)
-
-        if 'on_invalid' in route:
-            self._params_for_on_invalid = introspect.takes_arguments(self.on_invalid, *AUTO_INCLUDE)
-        elif self.transform:
-            self._params_for_on_invalid = self._params_for_transform
-
-        if route['versions']:
-            self.api.versions.update(route['versions'])
-
         self.wrapped = self.function
         if self.directives and not getattr(function, 'without_directives', None):
             @wraps(function)
@@ -138,11 +106,171 @@ class HTTP(Interface):
                         continue
                     arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
                     kwargs[parameter] = directive(*arguments, module=self.api.module,
-                                        api_version=max(route['versions'], key=lambda version: version or -1)
-                                        if route['versions'] else None)
+                                        api_version=max(route.get('versions', ()), key=lambda version: version or -1)
+                                        if route.get('versions', None) else None)
                 return function(*args, **kwargs)
             self.wrapped = callable_method
             self.wrapped.without_directives = self.function
+
+    def validate(self, input_parameters):
+        errors = {}
+        for key, type_handler in self.input_transformations.items():
+            if self.raise_on_invalid:
+                if key in input_parameters:
+                    input_parameters[key] = type_handler(input_parameters[key])
+            else:
+                try:
+                    if key in input_parameters:
+                        input_parameters[key] = type_handler(input_parameters[key])
+                except InvalidTypeData as error:
+                    errors[key] = error.reasons or str(error.message)
+                except Exception as error:
+                    if hasattr(error, 'args') and error.args:
+                        errors[key] = error.args[0]
+                    else:
+                        errors[key] = str(error)
+
+        for require in self.required:
+            if not require in input_parameters:
+                errors[require] = "Required parameter not supplied"
+        if not errors and getattr(self, 'validate_function', False):
+            errors = self.validate_function(input_parameters)
+        return errors
+
+    def check_requirements(self, request=None, response=None):
+        for requirement in self.requires:
+            conclusion = requirement(response=response, request=request, module=self.api.module)
+            if conclusion and conclusion is not True:
+                return conclusion
+
+
+class CLI(Interface):
+
+    def __init__(self, route, function):
+        super().__init__(route, function)
+        self.wrapped.__dict__['cli'] = self
+        nargs_set = self.takes_kargs
+        if nargs_set:
+            self.karg = self.parameters[-1]
+
+        used_options = {'h', 'help'}
+        self.parser = argparse.ArgumentParser(description=route.get('doc', self.spec.__doc__))
+        if 'version' in route:
+            self.parser.add_argument('-v', '--version', action='version',
+                                version="{0} {1}".format(route['name'] or self.spec.__name__,
+                                                         route['version']))
+            used_options.update(('v', 'version'))
+
+        for option in self.parameters:
+            if option in self.directives:
+                continue
+
+            if option in self.required:
+                args = (option, )
+            else:
+                short_option = option[0]
+                while short_option in used_options and len(short_option) < len(option):
+                    short_option = option[:len(short_option) + 1]
+
+                used_options.add(short_option)
+                used_options.add(option)
+                if short_option != option:
+                    args = ('-{0}'.format(short_option), '--{0}'.format(option))
+                else:
+                    args = ('--{0}'.format(option), )
+
+            kwargs = {}
+            if option in self.defaults:
+                kwargs['default'] = self.defaults[option]
+            if option in self.input_transformations:
+                transform = self.input_transformations[option]
+                kwargs['type'] = transform
+                kwargs['help'] = transform.__doc__
+                kwargs.update(getattr(transform, 'cli_behaviour', {}))
+            elif option in self.spec.__annotations__ and type(self.spec.__annotations__[option]) == str:
+                kwargs['help'] = option
+            if ((kwargs.get('type', None) == bool or kwargs.get('action', None) == 'store_true') and
+                 kwargs['default'] == False):
+                kwargs['action'] = 'store_true'
+                kwargs.pop('type', None)
+            elif kwargs.get('action', None) == 'store_true':
+                kwargs.pop('action', None) == 'store_true'
+
+            if option == getattr(self, 'karg', ()):
+                kwargs['nargs'] = '*'
+            elif not nargs_set and kwargs.get('action', None) == 'append' and not option in self.defaults:
+                kwargs['nargs'] = '*'
+                kwargs.pop('action', '')
+                nargs_set = True
+
+            self.parser.add_argument(*args, **kwargs)
+
+    def output(self, data):
+        if self.transform:
+            data = self.transform(data)
+        if hasattr(data, 'read'):
+            data = data.read().decode('utf8')
+        if data is not None:
+            data = self.outputs(data)
+            if data:
+                sys.stdout.buffer.write()
+        return data
+
+    def __call__(self):
+        for requirement in self.requires:
+            conclusion = requirement(request=sys.argv, module=self.api.module)
+            if conclusion and conclusion is not True:
+                self.output(conclusion)
+
+        pass_to_function = vars(self.parser.parse_args())
+        for option, directive in self.directives.items():
+            arguments = (self.defaults[option], ) if option in self.defaults else ()
+            pass_to_function[option] = directive(*arguments, module=self.api.module)
+
+        if getattr(self, 'validate_function', False):
+            errors = self.validate_function(pass_to_function)
+            if errors:
+                return self.output(errors)
+
+        if hasattr(self, 'karg'):
+            karg_values = pass_to_function.pop(self.karg, ())
+            result = self.function(*karg_values, **pass_to_function)
+        else:
+            result = self.function(**pass_to_function)
+
+        return self.output(result)
+
+
+class HTTP(Interface):
+    __slots__ = ('_params_for_outputs', '_params_for_invalid_outputs', '_params_for_transform', 'on_invalid',
+                 '_params_for_on_invalid',  'set_status','response_headers', 'transform', 'input_transformations',
+                 'examples', 'output_doc', 'wrapped', 'catch_exceptions', 'parse_body', 'invalid_outputs',
+                 'raise_on_invalid')
+    AUTO_INCLUDE = {'request', 'response'}
+    RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
+
+    def __init__(self, route, function, catch_exceptions=True):
+        super().__init__(route, function)
+        self.catch_exceptions = catch_exceptions
+        self.parse_body = 'parse_body' in route
+        self.set_status = route.get('status', False)
+        self.response_headers = tuple(route.get('response_headers', {}).items())
+        self.raise_on_invalid = route.get('raise_on_invalid', False)
+
+        self._params_for_outputs = introspect.takes_arguments(self.outputs, *self.AUTO_INCLUDE)
+        self._params_for_transform = introspect.takes_arguments(self.transform, *self.AUTO_INCLUDE)
+
+        if 'output_invalid' in route:
+            self.invalid_outputs = route['output_invalid']
+            self._params_for_invalid_outputs = introspect.takes_arguments(self.invalid_outputs, *self.AUTO_INCLUDE)
+
+        if 'on_invalid' in route:
+            self._params_for_on_invalid = introspect.takes_arguments(self.on_invalid, *self.AUTO_INCLUDE)
+        elif self.transform:
+            self._params_for_on_invalid = self._params_for_transform
+
+        if route['versions']:
+            self.api.versions.update(route['versions'])
 
         self.wrapped.__dict__['interface'] = self
 
@@ -154,7 +282,7 @@ class HTTP(Interface):
             encoding = None
             if content_type and ";" in content_type:
                 content_type, rest = content_type.split(";", 1)
-                charset = RE_CHARSET.search(rest).groupdict()
+                charset = self.RE_CHARSET.search(rest).groupdict()
                 encoding = charset.get('charset', encoding).strip()
 
             body_formatting_handler = body and self.api.input_format(content_type)
@@ -183,31 +311,6 @@ class HTTP(Interface):
 
         return input_parameters
 
-    def validate(self, input_parameters):
-        errors = {}
-        for key, type_handler in self.input_transformations.items():
-            if self.raise_on_invalid:
-                if key in input_parameters:
-                    input_parameters[key] = type_handler(input_parameters[key])
-            else:
-                try:
-                    if key in input_parameters:
-                        input_parameters[key] = type_handler(input_parameters[key])
-                except InvalidTypeData as error:
-                    errors[key] = error.reasons or str(error.message)
-                except Exception as error:
-                    if hasattr(error, 'args') and error.args:
-                        errors[key] = error.args[0]
-                    else:
-                        errors[key] = str(error)
-
-        for require in self.required:
-            if not require in input_parameters:
-                errors[require] = "Required parameter not supplied"
-        if not errors and self.validate_function:
-            errors = self.validate_function(input_parameters)
-        return errors
-
     def transform_data(self, data, request=None, response=None):
         if self.transform and not (isinstance(self.transform, type) and isinstance(data, self.transform)):
             if self._params_for_transform:
@@ -227,12 +330,6 @@ class HTTP(Interface):
             return self.invalid_outputs.content_type(request=request, response=response)
         else:
             return self.invalid_outputs.content_type
-
-    def check_requirements(self, request=None, response=None):
-        for requirement in self.requires:
-            conclusion = requirement(response=response, request=request, module=self.api.module)
-            if conclusion and conclusion is not True:
-                return conclusion
 
     def _arguments(self, requested_params, request=None, response=None):
         if requested_params:

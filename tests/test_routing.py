@@ -49,11 +49,19 @@ class TestRouter(object):
         assert new_route != self.route
         assert new_route.route['transform'] == 'transformed'
 
+    def test_validate(self):
+        """Test to ensure overriding the secondary validation method works as expected"""
+        assert self.route.validate(str).route['validate'] == str
+
     def test_api(self):
         """Test to ensure changing the API associated with the route works as expected"""
         new_route = self.route.api('new')
         assert new_route != self.route
         assert new_route.route['api'] == 'new'
+
+    def test_requires(self):
+        """Test to ensure requirements can be added on the fly"""
+        assert self.route.requires(('values', )).route['requires'] == ('values', )
 
     def test_where(self):
         """Test to ensure `where` can be used to replace all arguments on the fly"""
@@ -129,10 +137,6 @@ class TestHTTPRouter(TestRouter):
     def test_output_invalid(self):
         """Test to ensure output_invalid handler can be changed on the fly"""
         assert self.route.output_invalid(hug.output_format.json).route['output_invalid'] == hug.output_format.json
-
-    def test_validate(self):
-        """Test to ensure overriding the secondary validation method works as expected"""
-        assert self.route.validate(str).route['validate'] == str
 
     def test_raise_on_invalid(self):
         """Test to ensure it's possible to set a raise on invalid handler per route"""

@@ -20,8 +20,6 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import argparse
-
 import os
 import re
 from functools import wraps
@@ -34,21 +32,25 @@ import hug.output_format
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 
-from hug.interface import HTTP
+import hug.interface
 
 
 class Router(object):
     """The base chainable router object"""
     __slots__ = ('route', )
 
-    def __init__(self, transform=None, output=None, api=None):
+    def __init__(self, transform=None, output=None, validate=None, api=None, requires=()):
         self.route = {}
         if transform is not None:
             self.route['transform'] = transform
         if output:
             self.route['output'] = output
+        if validate:
+            self.route['validate'] = validate
         if api:
             self.route['api'] = api
+        if requires:
+            self.route['requires'] = (requires, ) if not isinstance(requires, (tuple, list)) else requires
 
     def output(self, formatter, **overrides):
         """Sets the output formatter that should be used to render this route"""
@@ -60,9 +62,17 @@ class Router(object):
         """
         return self.where(transform=function, **overrides)
 
+    def validate(self, validation_function, **overrides):
+        """Sets the secondary validation fucntion to use for this handler"""
+        return self.where(validate=validation_function, **overrides)
+
     def api(self, api, **overrides):
         """Sets the API that should contain this route"""
         return self.where(api=api, **overrides)
+
+    def requires(self, requirements, **overrides):
+        """Adds additional requirements to the specified route"""
+        return self.where(requires=tuple(self.route.get('requires', ())) + tuple(requirements), **overrides)
 
     def where(self, **overrides):
         """Creates a new route, based on the current route, with the specified overrided values"""
@@ -98,144 +108,20 @@ class CLIRouter(Router):
 
     def __call__(self, api_function):
         """Enables exposing a Hug compatible function as a Command Line Interface"""
-        api = self.route.get('api', hug.api.from_object(api_function))
-        function_spec = getattr(api_function, 'original', api_function)
-
-        if introspect.takes_kargs(function_spec):
-            accepted_parameters = introspect.arguments(function_spec, 1)
-            karg_method = accepted_parameters[-1]
-            nargs_set = True
-        else:
-            karg_method = None
-            accepted_parameters = introspect.arguments(function_spec)
-            nargs_set = False
-
-        defaults = {}
-        for index, default in enumerate(reversed(function_spec.__defaults__ or ())):
-            defaults[accepted_parameters[-(index + 1)]] = default
-
-        required = accepted_parameters[:-(len(function_spec.__defaults__ or ())) or None]
-
-
-        directives = api.directives()
-        use_directives = set(accepted_parameters).intersection(directives.keys())
-        output_transform = self.route.get('transform', function_spec.__annotations__.get('return', None))
-
-        is_method = False
-        if 'method' in function_spec.__class__.__name__:
-            is_method = True
-            required = required[1:]
-            accepted_parameters = accepted_parameters[1:]
-
-        used_options = {'h', 'help'}
-        parser = argparse.ArgumentParser(description=self.route.get('doc', function_spec.__doc__))
-        if 'version' in self.route:
-            parser.add_argument('-v', '--version', action='version',
-                                version="{0} {1}".format(self.route['name'] or function_spec.__name__,
-                                                         self.route['version']))
-            used_options.update(('v', 'version'))
-
-        annotations = function_spec.__annotations__
-        named_directives = {directive_name: directives[directive_name] for directive_name in use_directives}
-        for option in accepted_parameters:
-            if option in use_directives:
-                continue
-            elif hasattr(annotations.get(option, None), 'directive'):
-                named_directives[option] = annotations[option]
-                continue
-
-            if option in required:
-                args = (option, )
-            else:
-                short_option = option[0]
-                while short_option in used_options and len(short_option) < len(option):
-                    short_option = option[:len(short_option) + 1]
-
-                used_options.add(short_option)
-                used_options.add(option)
-                if short_option != option:
-                    args = ('-{0}'.format(short_option), '--{0}'.format(option))
-                else:
-                    args = ('--{0}'.format(option), )
-
-            kwargs = {}
-            if option in defaults:
-                kwargs['default'] = defaults[option]
-            if option in annotations:
-                annotation = annotations[option]
-                if isinstance(annotation, str):
-                    kwargs['help'] = annotation
-                else:
-                    kwargs['type'] = annotation
-                    kwargs['help'] = annotation.__doc__
-                    kwargs.update(getattr(annotation, 'cli_behaviour', {}))
-            if ((kwargs.get('type', None) == bool or kwargs.get('action', None) == 'store_true') and
-                    kwargs['default'] == False):
-                kwargs['action'] = 'store_true'
-                kwargs.pop('type', None)
-            elif kwargs.get('action', None) == 'store_true':
-                kwargs.pop('action', None) == 'store_true'
-
-            if option == karg_method or ():
-                kwargs['nargs'] = '*'
-            elif not nargs_set and kwargs.get('action', None) == 'append' and not option in defaults:
-                kwargs['nargs'] = '*'
-                kwargs.pop('action', '')
-                nargs_set = True
-
-            parser.add_argument(*args, **kwargs)
-
-        def cli_interface():
-            pass_to_function = vars(parser.parse_args())
-            for option, directive in named_directives.items():
-                arguments = (defaults[option], ) if option in defaults else ()
-                pass_to_function[option] = directive(*arguments, module=api.module)
-
-            if karg_method:
-                karg_values = pass_to_function.pop(karg_method, ())
-                result = api_function(*karg_values, **pass_to_function)
-            else:
-                result = api_function(**pass_to_function)
-            if output_transform:
-                result = output_transform(result)
-            if hasattr(result, 'read'):
-                result = result.read().decode('utf8')
-            if result is not None:
-                if cli_interface.output is not None:
-                    cli_interface.output(result)
-                else:
-                    print(result)
-
-        callable_method = api_function
-        if named_directives and not getattr(api_function, 'without_directives', None):
-            @wraps(api_function)
-            def callable_method(*args, **kwargs):
-                for parameter, directive in named_directives.items():
-                    if parameter in kwargs:
-                        continue
-                    arguments = (defaults[parameter], ) if parameter in defaults else ()
-                    kwargs[parameter] = directive(*arguments, module=api.module)
-                return api_function(*args, **kwargs)
-            callable_method.without_directives = api_function
-
-        callable_method.__dict__['cli'] = cli_interface
-        cli_interface.output = self.route.get('output', None)
-        cli_interface.karg_method = karg_method
-        return callable_method
+        interface = hug.interface.CLI(self.route, api_function)
+        return interface.wrapped
 
 
 class HTTPRouter(Router):
     """The HTTPRouter provides the base concept of a router from an HTTPRequest to a Python function"""
     __slots__ = ()
 
-    def __init__(self, versions=None, parse_body=False, requires=(), parameters=None, defaults={}, status=None,
-                 on_invalid=None, output_invalid=None, validate=None, raise_on_invalid=False, **kwargs):
+    def __init__(self, versions=None, parse_body=False, parameters=None, defaults={}, status=None,
+                 on_invalid=None, output_invalid=None, raise_on_invalid=False, **kwargs):
         super().__init__(**kwargs)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
         if parse_body:
             self.route['parse_body'] = parse_body
-        if requires:
-            self.route['requires'] = (requires, ) if not isinstance(requires, (tuple, list)) else requires
         if parameters:
             self.route['parameters'] = parameters
         if defaults:
@@ -246,11 +132,8 @@ class HTTPRouter(Router):
             self.route['on_invalid'] = on_invalid
         if output_invalid:
             self.route['output_invalid'] = output_invalid
-        if validate:
-            self.route['validate'] = validate
         if raise_on_invalid:
             self.route['raise_on_invalid'] = raise_on_invalid
-
 
     def versions(self, supported, **overrides):
         """Sets the versions that this route should be compatiable with"""
@@ -259,10 +142,6 @@ class HTTPRouter(Router):
     def parse_body(self, automatic=True, **overrides):
         """Tells hug to automatically parse the input body if it matches a registered input format"""
         return self.where(parse_body=automatic, **overrides)
-
-    def requires(self, requirements, **overrides):
-        """Adds additional requirements to the specified route"""
-        return self.where(requires=tuple(self.route.get('requires', ())) + tuple(requirements), **overrides)
 
     def set_status(self, status, **overrides):
         """Sets the status that will be returned by default"""
@@ -291,16 +170,12 @@ class HTTPRouter(Router):
         """
         return self.where(output_invalid=output_handler, **overrides)
 
-    def validate(self, validation_function, **overrides):
-        """Sets the secondary validation fucntion to use for this handler"""
-        return self.where(validate=validation_function, **overrides)
-
     def raise_on_invalid(self, setting=True, **overrides):
         """Sets the route to raise validation errors instead of catching them"""
         return self.where(raise_on_invalid=setting, **overrides)
 
     def _create_interface(self, api, api_function, catch_exceptions=True):
-        interface = HTTP(self.route, api_function, catch_exceptions)
+        interface = hug.interface.HTTP(self.route, api_function, catch_exceptions)
         return (interface, interface.wrapped)
 
 
