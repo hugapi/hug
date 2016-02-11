@@ -28,6 +28,12 @@ import hug
 import pytest
 
 
+def test_type():
+    """Test to ensure the abstract Type object can't be used"""
+    with pytest.raises(NotImplementedError):
+        hug.types.Type()('value')
+
+
 def test_number():
     """Tests that hug's number type correctly converts and validates input"""
     assert hug.types.number('1') == 1
@@ -40,6 +46,7 @@ def test_range():
     """Tests that hug's range type successfully handles ranges of numbers"""
     assert hug.types.in_range(1, 10)('1') == 1
     assert hug.types.in_range(1, 10)(1) == 1
+    assert '1' in hug.types.in_range(1, 10).__doc__
     with pytest.raises(ValueError):
         hug.types.in_range(1, 10)('bacon')
     with pytest.raises(ValueError):
@@ -53,6 +60,7 @@ def test_less_than():
     assert hug.types.less_than(10)('1') == 1
     assert hug.types.less_than(10)(1) == 1
     assert hug.types.less_than(10)(-10) == -10
+    assert '10' in hug.types.less_than(10).__doc__
     with pytest.raises(ValueError):
         assert hug.types.less_than(10)(10)
 
@@ -62,6 +70,7 @@ def test_greater_than():
     assert hug.types.greater_than(10)('11') == 11
     assert hug.types.greater_than(10)(11) == 11
     assert hug.types.greater_than(10)(1000) == 1000
+    assert '10' in hug.types.greater_than(10).__doc__
     with pytest.raises(ValueError):
         assert hug.types.greater_than(10)(9)
 
@@ -77,6 +86,7 @@ def test_delimited_list():
     assert hug.types.delimited_list(',')('value1,value2') == ['value1', 'value2']
     assert hug.types.delimited_list(',')(['value1', 'value2']) == ['value1', 'value2']
     assert hug.types.delimited_list('|-|')('value1|-|value2|-|value3,value4') == ['value1', 'value2', 'value3,value4']
+    assert ',' in hug.types.delimited_list(',').__doc__
 
 
 def test_comma_separated_list():
@@ -119,6 +129,7 @@ def test_mapping():
     assert mapping_type('n') == None
     assert mapping_type('l') == []
     assert mapping_type('s') == set()
+    assert 'n' in mapping_type.__doc__
     with pytest.raises(KeyError):
         mapping_type('bacon')
 
@@ -152,6 +163,7 @@ def test_length():
     """Tests that hug's length type successfully handles a length range"""
     assert hug.types.length(1, 10)('bacon') == 'bacon'
     assert hug.types.length(1, 10)(42) == '42'
+    assert '42' in hug.types.length(1, 42).__doc__
     with pytest.raises(ValueError):
         hug.types.length(1, 10)('bacon is the greatest food known to man')
     with pytest.raises(ValueError):
@@ -165,6 +177,7 @@ def test_shorter_than():
     assert hug.types.shorter_than(10)('hi there') == 'hi there'
     assert hug.types.shorter_than(10)(1) == '1'
     assert hug.types.shorter_than(10)('') == ''
+    assert '10' in hug.types.shorter_than(10).__doc__
     with pytest.raises(ValueError):
         assert hug.types.shorter_than(10)('there is quite a bit of text here, in fact way more than allowed')
 
@@ -174,6 +187,7 @@ def test_longer_than():
     assert hug.types.longer_than(10)('quite a bit of text here should be') == 'quite a bit of text here should be'
     assert hug.types.longer_than(10)(12345678910) == '12345678910'
     assert hug.types.longer_than(10)(100123456789100) == '100123456789100'
+    assert '10' in hug.types.longer_than(10).__doc__
     with pytest.raises(ValueError):
         assert hug.types.longer_than(10)('short')
 
@@ -183,6 +197,7 @@ def test_cut_off():
     assert hug.types.cut_off(10)('text') == 'text'
     assert hug.types.cut_off(10)(10) == '10'
     assert hug.types.cut_off(10)('some really long text') == 'some reall'
+    assert '10' in hug.types.cut_off(10).__doc__
 
 
 def test_inline_dictionary():
@@ -198,6 +213,7 @@ def test_one_of():
     assert hug.types.one_of(('bacon', 'sausage', 'pancakes'))('bacon') == 'bacon'
     assert hug.types.one_of(['bacon', 'sausage', 'pancakes'])('sausage') == 'sausage'
     assert hug.types.one_of({'bacon', 'sausage', 'pancakes'})('pancakes') == 'pancakes'
+    assert 'bacon' in hug.types.one_of({'bacon', 'sausage', 'pancakes'}).__doc__
     with pytest.raises(KeyError):
         hug.types.one_of({'bacon', 'sausage', 'pancakes'})('syrup')
 
