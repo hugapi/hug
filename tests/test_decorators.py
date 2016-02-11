@@ -684,6 +684,34 @@ def test_cli():
     assert hug.test.cli(cli_command, "Bob", 5) == ("Bob", 5)
 
 
+def test_cli_requires():
+    """Test to ensure your can add requirements to a CLI"""
+    def requires_fail(**kwargs):
+        return {'requirements': 'not met'}
+
+    @hug.cli(output=str, requires=requires_fail)
+    def cli_command(name:str, value:int):
+        return (name, value)
+
+    assert cli_command('Testing', 1) == ('Testing', 1)
+    assert hug.test.cli(cli_command, 'Testing', 1) == {'requirements': 'not met'}
+
+
+def test_cli_validation():
+    """Test to ensure your can add custom validation to a CLI"""
+    def contains_either(fields):
+        if not fields.get('name', '') and not fields.get('value', 0):
+            return {'name': 'must be defined', 'value': 'must be defined'}
+
+    @hug.cli(output=str, validate=contains_either)
+    def cli_command(name:str="", value:int=0):
+        return (name, value)
+
+    assert cli_command('Testing', 1) == ('Testing', 1)
+    assert hug.test.cli(cli_command) == {'name': 'must be defined', 'value': 'must be defined'}
+    assert hug.test.cli(cli_command, name='Testing') == ('Testing', 0)
+
+
 def test_cli_with_defaults():
     """Test to ensure CLIs work correctly with default values"""
     @hug.cli()
@@ -1011,7 +1039,7 @@ def test_exceptions():
 
 def test_validate():
     """Test to ensure hug's secondary validation mechanism works as expected"""
-    def contains_either(request, fields):
+    def contains_either(fields):
         if not 'one' in fields and not 'two' in fields:
             return {'one': 'must be defined', 'two': 'must be defined'}
 

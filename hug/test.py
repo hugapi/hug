@@ -92,7 +92,7 @@ def cli(method, *kargs, **arguments):
 
     old_output = method.cli.output
     if collect_output:
-        method.cli.output = lambda data: to_return.append(data)
+        method.cli.outputs = lambda data: to_return.append(data)
     to_return = []
 
     try:

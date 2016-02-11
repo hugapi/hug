@@ -92,7 +92,6 @@ def api_key(request, response, verify_user, **kwargs):
 
     if api_key:
         user = verify_user(api_key)
-
         if user:
             return user
         else:
