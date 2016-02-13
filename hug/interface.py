@@ -29,10 +29,10 @@ from falcon import HTTP_BAD_REQUEST
 
 import hug.api
 import hug.output_format
-from hug.input_format import separate_encoding
 from hug import _empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
+from hug.input_format import separate_encoding
 
 
 class Interface(object):

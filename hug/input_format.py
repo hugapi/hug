@@ -19,9 +19,8 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import re
-
 import json as json_converter
+import re
 
 from hug.format import content_type, underscore
 
