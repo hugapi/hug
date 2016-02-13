@@ -21,7 +21,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import argparse
 import os
-import re
 import sys
 from functools import wraps
 
@@ -30,6 +29,7 @@ from falcon import HTTP_BAD_REQUEST
 
 import hug.api
 import hug.output_format
+from hug.input_format import separate_encoding
 from hug import _empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
@@ -266,7 +266,6 @@ class HTTP(Interface):
                  'examples', 'output_doc', 'wrapped', 'catch_exceptions', 'parse_body', 'invalid_outputs',
                  'raise_on_invalid')
     AUTO_INCLUDE = {'request', 'response'}
-    RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
 
     def __init__(self, route, function, catch_exceptions=True):
         super().__init__(route, function)
@@ -298,19 +297,10 @@ class HTTP(Interface):
         input_parameters.update(request.params)
         if self.parse_body and request.content_length is not None:
             body = request.stream
-            content_type = request.content_type
-            encoding = None
-            if content_type and ";" in content_type:
-                content_type, rest = content_type.split(";", 1)
-                charset = self.RE_CHARSET.search(rest).groupdict()
-                encoding = charset.get('charset', encoding).strip()
-
-            body_formatting_handler = body and self.api.input_format(content_type)
-            if body_formatting_handler:
-                if encoding is not None:
-                    body = body_formatting_handler(body, encoding)
-                else:
-                    body = body_formatting_handler(body)
+            content_type, encoding = separate_encoding(request.content_type)
+            body_formatter = body and self.api.input_format(content_type)
+            if body_formatter:
+                body = body_formatter(body, encoding) if encoding is not None else body_formatter(body)
             if 'body' in self.parameters:
                 input_parameters['body'] = body
             if isinstance(body, dict):
