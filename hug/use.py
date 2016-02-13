@@ -35,9 +35,10 @@ class Service(object):
     """Defines the base concept of a consumed service.
         This is to enable encapsulating the logic of calling a service so usage can be independant of the interface
     """
-    __slots__ = ('timeout', 'raise_on')
+    __slots__ = ('timeout', 'raise_on', 'version')
 
-    def __init__(self, timeout=None, raise_on=(500, )):
+    def __init__(self, version=None, timeout=None, raise_on=(500, )):
+        self.version = version
         self.timeout = timeout
         self.raise_on = raise_on if type(raise_on) in (tuple, list) else (raise_on, )
 
@@ -82,17 +83,19 @@ class Service(object):
         return self.request('CONNECT', url=url, headers=headers, timeout=timeout, **params)
 
 
-class HTTPService(Service):
+class HTTP(Service):
     __slots__ = ('endpoint', 'session')
 
-    def __init__(self, endpoint, auth=None, headers=empty.dict, timeout=None, raise_on=(500, )):
-        super().__init__(timeout=timeout, raise_on=raise_on)
+    def __init__(self, endpoint, auth=None, headers=empty.dict, version=None, timeout=None, raise_on=(500, )):
+        super().__init__(timeout=timeout, raise_on=raise_on, version=version)
         self.endpoint = endpoint
         self.session = requests.Session()
         self.session.auth = auth
         self.session.headers.update(headers)
 
-    def request(self, method, url, headers=empty.dict, **params):
+    def request(self, method, url, headers=empty.dict, timeout=None, **params):
+        if self.version:
+            url = "/{0}/{1}".format(self.version, url)
         response = self.session.request(method, self.endpoint + url, headers=headers, params=params)
 
         data = BytesIO(response.content)
@@ -103,4 +106,13 @@ class HTTPService(Service):
         if response.status_code in self.raise_on:
             raise requests.HTTPError('{0} {1} occured for url: {2}'.format(response.status_code, response.reason, url))
 
+
         return Response(data, response.status_code, response.headers)
+
+
+class Local(Service):
+    __slots__ = ('api', )
+
+    def __init__(self, endpoint, version=None, headers=empty.dict, timeout=None, raise_on=(500, )):
+
+
