@@ -19,5 +19,88 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from collections import namedtuple
+
+from io import BytesIO
+import requests
+
+import hug._empty as empty
+from hug.defaults import input_format
+from hug.input_format import separate_encoding
+
+Response = namedtuple('Response', ['content', 'status_code', 'headers'])
 
 
+class Service(object):
+    """Defines the base concept of a consumed service.
+        This is to enable encapsulating the logic of calling a service so usage can be independant of the interface
+    """
+    __slots__ = ('timeout', 'raise_on')
+
+    def __init__(self, timeout=None, raise_on=(500, )):
+        self.timeout = timeout
+        self.raise_on = raise_on if type(raise_on) in (tuple, list) else (raise_on, )
+
+    def request(self, method, url, headers=empty.dict, timeout=None, **params):
+        """Calls the service at the specified URL using the "CALL" method"""
+        raise NotImplementedError("Concrete services must define the request method")
+
+    def get(self, url, headers=empty.dict, timeout=None, **params):
+        """Calls the service at the specified URL using the "GET" method"""
+        return self.request('GET', url=url, headers=headers, timeout=timeout, **params)
+
+    def post(self, url, headers=empty.dict, timeout=None, **params):
+        """Calls the service at the specified URL using the "POST" method"""
+        return self.request('POST', url=url, headers=headers, timeout=timeout, **params)
+
+    def delete(self, url, headers=empty.dict, timeout=None, **params):
+        """Calls the service at the specified URL using the "DELETE" method"""
+        return self.request('DELETE', url=url, headers=headers, timeout=timeout, **params)
+
+    def put(self, url, headers=empty.dict, timeout=None, **params):
+        """Calls the service at the specified URL using the "PUT" method"""
+        return self.request('PUT', url=url, headers=headers, timeout=timeout, **params)
+
+    def trace(self, url, headers=empty.dict, timeout=None, **params):
+        """Calls the service at the specified URL using the "TRACE" method"""
+        return self.request('TRACE', url=url, headers=headers, timeout=timeout, **params)
+
+    def patch(self, url, headers=empty.dict, timeout=None, **params):
+        """Calls the service at the specified URL using the "PATCH" method"""
+        return self.request('PATCH', url=url, headers=headers, timeout=timeout, **params)
+
+    def options(self, url, headers=empty.dict, timeout=None, **params):
+        """Calls the service at the specified URL using the "OPTIONS" method"""
+        return self.request('OPTIONS', url=url, headers=headers, timeout=timeout, **params)
+
+    def head(self, url, headers=empty.dict, timeout=None, **params):
+        """Calls the service at the specified URL using the "HEAD" method"""
+        return self.request('HEAD', url=url, headers=headers, timeout=timeout, **params)
+
+    def connect(self, url, headers=empty.dict, timeout=None, **params):
+        """Calls the service at the specified URL using the "CONNECT" method"""
+        return self.request('CONNECT', url=url, headers=headers, timeout=timeout, **params)
+
+
+class HTTPService(Service):
+    __slots__ = ('endpoint', 'session')
+
+    def __init__(self, endpoint, auth=None, headers=empty.dict, timeout=None, raise_on=(500, )):
+        super().__init__(timeout=timeout, raise_on=raise_on)
+        self.endpoint = endpoint
+        self.session = requests.Session()
+        self.session.auth = auth
+        self.session.headers.update(headers)
+
+    def request(self, method, url, headers=empty.dict, **params):
+        response = self.session.request(method, self.endpoint + url, headers=headers, params=params)
+
+        data = BytesIO(response.content)
+        (content_type, encoding) = separate_encoding(response.headers.get('Content-Type', ''), 'utf-8')
+        if content_type in input_format:
+            data = input_format[content_type](data, encoding)
+
+        if response.status_code in self.raise_on:
+            raise requests.HTTPError('{0} {1} occured for url: {2}'.format(response.status_code, response.reason, url))
+
+        return Response(data, response.status_code, response.headers)
