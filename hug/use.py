@@ -86,7 +86,7 @@ class Service(object):
 class HTTP(Service):
     __slots__ = ('endpoint', 'session')
 
-    def __init__(self, endpoint, auth=None, headers=empty.dict, version=None, timeout=None, raise_on=(500, )):
+    def __init__(self, endpoint, auth=None, version=None, headers=empty.dict, timeout=None, raise_on=(500, )):
         super().__init__(timeout=timeout, raise_on=raise_on, version=version)
         self.endpoint = endpoint
         self.session = requests.Session()
@@ -111,8 +111,10 @@ class HTTP(Service):
 
 
 class Local(Service):
-    __slots__ = ('api', )
+    __slots__ = ('api', 'headers')
 
-    def __init__(self, endpoint, version=None, headers=empty.dict, timeout=None, raise_on=(500, )):
-
+    def __init__(self, api, version=None, headers=empty.dict, timeout=None, raise_on=(500, )):
+        super().__init__(timeout=timeout, raise_on=raise_on, version=version)
+        self.api = api
+        self.headers = headers
 
