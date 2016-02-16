@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import re
 from collections import namedtuple
 
 from io import BytesIO
@@ -26,11 +27,12 @@ import requests
 
 import falcon
 import hug._empty as empty
+from hug.api import API
 from hug.defaults import input_format
 from hug.input_format import separate_encoding
 
 Response = namedtuple('Response', ('data', 'status_code', 'headers'))
-Request = namedtuple('Request', ('content_length', 'stream'))
+Request = namedtuple('Request', ('content_length', 'stream', 'params'))
 
 
 class Service(object):
@@ -101,13 +103,12 @@ class HTTP(Service):
         response = self.session.request(method, self.endpoint + url.format(url_params), headers=headers, params=params)
 
         data = BytesIO(response.content)
-        (content_type, encoding) = separate_encoding(response.headers.get('Content-Type', ''), 'utf-8')
+        (content_type, encoding) = separate_encoding(response.headers.get('content-type', ''), 'utf-8')
         if content_type in input_format:
             data = input_format[content_type](data, encoding)
 
         if response.status_code in self.raise_on:
             raise requests.HTTPError('{0} {1} occured for url: {2}'.format(response.status_code, response.reason, url))
-
 
         return Response(data, response.status_code, response.headers)
 
@@ -117,23 +118,24 @@ class Local(Service):
 
     def __init__(self, api, version=None, headers=empty.dict, timeout=None, raise_on=(500, )):
         super().__init__(timeout=timeout, raise_on=raise_on, version=version)
-        self.api = api
+        self.api = API(api)
         self.headers = headers
 
     def request(self, method, url, url_params=empty.dict, headers=empty.dict, timeout=None, **params):
-        function = self.api.versioned.get(self.url, {}).get(namrequeste, None)
+        function = self.api.versioned.get(self.version, {}).get(url, None)
         if not function:
-            function = self.api.versioned.get(None, {}).get(name, None)
+            function = self.api.versioned.get(None, {}).get(url, None)
 
         if not function:
             return Response('Not Found', 404, {'content-type', 'application/json'})
 
         interface = function.interface
         response = falcon.Response()
+        request = Request(None, None, empty.dict)
         interface.set_response_defaults(response)
 
         params.update(url_params)
-        params = interface.gather_parameters(Request(None, None), response, api_version=self.version, **params)
+        params = interface.gather_parameters(request, response, api_version=self.version, **params)
         errors = interface.validate(params)
         if errors:
             interface.render_errors(errors, request, response)
@@ -141,8 +143,8 @@ class Local(Service):
             interface.render_content(interface.call_function(**params), request, response)
 
         data = BytesIO(response.data)
-        (content_type, encoding) = separate_encoding(response.headers.get('Content-Type', ''), 'utf-8')
+        (content_type, encoding) = separate_encoding(response._headers.get('content-type', ''), 'utf-8')
         if content_type in input_format:
             data = input_format[content_type](data, encoding)
 
-        return Response(data, int(filter(str.isdigit, response.status)), response.headers)
+        return Response(data, int(''.join(re.findall('\d+', response.status))), response._headers)

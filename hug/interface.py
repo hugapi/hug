@@ -367,7 +367,7 @@ class HTTP(Interface):
         marshmallow_type.__name__ = marshmallow.__class__.__name__
         return marshmallow_type
 
-    def set_response_defaults(self, response):
+    def set_response_defaults(self, response, request=None):
         """Sets up the response defaults that are defined in the URL route"""
         for header_name, header_value in self.response_headers:
             response.set_header(header_name, header_value)
@@ -392,9 +392,9 @@ class HTTP(Interface):
         if not self.takes_kwargs:
             parameters = {key: value for key, value in parameters.items() if key in self.parameters}
 
-        return self.function(**input_parameters)
+        return self.function(**parameters)
 
-    def render_content(self, content, request, response)
+    def render_content(self, content, request, response, **kwargs):
         if hasattr(content, 'interface'):
             if content.interface is True:
                 content(request, response, api_version=None, **kwargs)
@@ -402,7 +402,7 @@ class HTTP(Interface):
                 content.interface(request, response, api_version=None, **kwargs)
             return
 
-        content = self.transform_content(content, request, response)
+        content = self.transform_data(content, request, response)
         content = self.outputs(content, **self._arguments(self._params_for_outputs, request, response))
         if hasattr(content, 'read'):
             size = None
@@ -435,7 +435,7 @@ class HTTP(Interface):
             exception_types = self.api.exception_handlers(api_version)
             exception_types = tuple(exception_types.keys()) if exception_types else ()
         try:
-            self.set_response_defaults(response)
+            self.set_response_defaults(response, request)
 
             lacks_requirement = self.check_requirements(request, response)
             if lacks_requirement:
@@ -448,7 +448,7 @@ class HTTP(Interface):
             if errors:
                 return self.render_errors(errors, request, response)
 
-            self.render_content(self.call_function(**input_parameters), request, response)
+            self.render_content(self.call_function(**input_parameters), request, response, **kwargs)
         except falcon.HTTPNotFound:
             return self.api.not_found(request, response, **kwargs)
         except exception_types as exception:

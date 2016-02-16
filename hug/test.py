@@ -19,8 +19,6 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from __future__ import absolute_import
-
 import json
 import sys
 from functools import partial
@@ -34,15 +32,11 @@ from falcon.testing import StartResponseMock, create_environ
 from hug import output_format
 from hug.run import server
 from hug.api import API
-from types import ModuleType
 
 
 def call(method, api_or_module, url, body='', headers=None, **params):
     """Simulates a round-trip call against the given API / URL"""
-    if type(api_or_module) in (ModuleType, str):
-        api = server(API(api_or_module))
-    else:
-        api = server(api_or_module)
+    api = server(API(api_or_module))
     response = StartResponseMock()
     if not isinstance(body, str):
         body = output_format.json(body)
