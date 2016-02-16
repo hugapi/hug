@@ -415,7 +415,7 @@ class HTTP(Interface):
                 end = min(end, size)
                 length = end - start + 1
                 content.seek(start)
-                response.content = content.read(length)
+                response.data = content.read(length)
                 response.status = falcon.HTTP_206
                 response.content_range = (start, end, size)
                 content.close()
