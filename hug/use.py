@@ -41,7 +41,7 @@ class Service(object):
     """
     __slots__ = ('timeout', 'raise_on', 'version')
 
-    def __init__(self, version=None, timeout=None, raise_on=(500, )):
+    def __init__(self, version=None, timeout=None, raise_on=(500, ), **kwargs):
         self.version = version
         self.timeout = timeout
         self.raise_on = raise_on if type(raise_on) in (tuple, list) else (raise_on, )
@@ -90,16 +90,15 @@ class Service(object):
 class HTTP(Service):
     __slots__ = ('endpoint', 'session')
 
-    def __init__(self, endpoint, auth=None, version=None, headers=empty.dict, timeout=None, raise_on=(500, )):
-        super().__init__(timeout=timeout, raise_on=raise_on, version=version)
+    def __init__(self, endpoint, auth=None, version=None, headers=empty.dict, timeout=None, raise_on=(500, ), **kwargs):
+        super().__init__(timeout=timeout, raise_on=raise_on, version=version, **kwargs)
         self.endpoint = endpoint
         self.session = requests.Session()
         self.session.auth = auth
         self.session.headers.update(headers)
 
     def request(self, method, url, url_params=empty.dict, headers=empty.dict, timeout=None, **params):
-        if self.version:
-            url = "/{0}/{1}".format(self.version, url)
+        url = "/{0}/{1}".format(self.version, url) if self.version else url
         response = self.session.request(method, self.endpoint + url.format(url_params), headers=headers, params=params)
 
         data = BytesIO(response.content)
@@ -116,8 +115,8 @@ class HTTP(Service):
 class Local(Service):
     __slots__ = ('api', 'headers')
 
-    def __init__(self, api, version=None, headers=empty.dict, timeout=None, raise_on=(500, )):
-        super().__init__(timeout=timeout, raise_on=raise_on, version=version)
+    def __init__(self, api, version=None, headers=empty.dict, timeout=None, raise_on=(500, ), **kwargs):
+        super().__init__(timeout=timeout, raise_on=raise_on, version=version, **kwargs)
         self.api = API(api)
         self.headers = headers
 
@@ -127,6 +126,8 @@ class Local(Service):
             function = self.api.versioned.get(None, {}).get(url, None)
 
         if not function:
+            if 404 in self.raise_on:
+                raise requests.HTTPError('404 Not Found occured for url: {0}'.format(url))
             return Response('Not Found', 404, {'content-type', 'application/json'})
 
         interface = function.interface
@@ -147,4 +148,8 @@ class Local(Service):
         if content_type in input_format:
             data = input_format[content_type](data, encoding)
 
-        return Response(data, int(''.join(re.findall('\d+', response.status))), response._headers)
+        status_code = int(''.join(re.findall('\d+', response.status)))
+        if status_code in self.raise_on:
+            raise requests.HTTPError('{0} occured for url: {1}'.format(response.status, url))
+
+        return Response(data, status_code, response._headers)
