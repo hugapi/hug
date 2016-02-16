@@ -24,8 +24,9 @@ import urllib
 from datetime import datetime
 from decimal import Decimal
 
-import hug
 import pytest
+
+import hug
 
 
 def test_type():

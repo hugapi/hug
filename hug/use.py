@@ -21,11 +21,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import re
 from collections import namedtuple
-
 from io import BytesIO
-import requests
 
 import falcon
+import requests
+
 import hug._empty as empty
 from hug.api import API
 from hug.defaults import input_format

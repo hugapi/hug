@@ -21,9 +21,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import pytest
+import requests
+
 import hug
 from hug import use
-import requests
 
 
 class TestService(object):

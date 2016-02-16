@@ -19,11 +19,13 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import falcon
-import hug
-import pytest
 import sys
+
+import falcon
+import pytest
 from falcon.testing import StartResponseMock, create_environ
+
+import hug
 
 api = hug.API(__name__)
 module = sys.modules[__name__]
