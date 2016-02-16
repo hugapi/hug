@@ -120,15 +120,6 @@ class Local(Service):
         self.api = api
         self.headers = headers
 
-    @static_method
-    def render_response(response):
-        data = BytesIO(response.data)
-        (content_type, encoding) = separate_encoding(response.headers.get('Content-Type', ''), 'utf-8')
-        if content_type in input_format:
-            data = input_format[content_type](data, encoding)
-
-        return Response(data, int(filter(str.isdigit, response.status)), response.headers)
-
     def request(self, method, url, url_params=empty.dict, headers=empty.dict, timeout=None, **params):
         function = self.api.versioned.get(self.url, {}).get(namrequeste, None)
         if not function:
@@ -149,4 +140,9 @@ class Local(Service):
         else:
             interface.render_content(interface.call_function(**params), request, response)
 
-        return self.render_response(response)
+        data = BytesIO(response.data)
+        (content_type, encoding) = separate_encoding(response.headers.get('Content-Type', ''), 'utf-8')
+        if content_type in input_format:
+            data = input_format[content_type](data, encoding)
+
+        return Response(data, int(filter(str.isdigit, response.status)), response.headers)
