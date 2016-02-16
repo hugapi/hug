@@ -5,6 +5,7 @@ Changelog
 - Adds the concept of chain-able routing decorators
 - Adds built-in static file handling support via a `@hug.static` decorator (thanks @BrandonHoffman!)
 - Adds a directive to enable directly accessing the user object from any API call (thanks @ianthetechie)
+- Adds the concept of seamless micro-services via the hug.use module, enable switching between HTTP and local without code change
 - Adds built-in support for 'X-Api-Key' header based authentication via `authentication.api_key`
 - Adds support for running arbitrary python functions at runtime via a `@hug.startup` decorator
 - Adds support for smarter handling of html output types

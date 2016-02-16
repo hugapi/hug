@@ -20,8 +20,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import json as json_converter
+import re
 
 from hug.format import content_type, underscore
+
+RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
+
+
+def separate_encoding(content_type, default=None):
+    """Separates out the encoding from the content_type and returns both in a tuple (content_type, encoding)"""
+    encoding = default
+    if content_type and ";" in content_type:
+        content_type, rest = content_type.split(";", 1)
+        charset = RE_CHARSET.search(rest).groupdict()
+        encoding = charset.get('charset', encoding).strip()
+
+    return (content_type, encoding)
 
 
 @content_type('text/plain')

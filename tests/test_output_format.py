@@ -24,8 +24,9 @@ from datetime import datetime
 from decimal import Decimal
 from io import BytesIO
 
-import hug
 import pytest
+
+import hug
 
 
 def test_text():

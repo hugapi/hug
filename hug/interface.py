@@ -21,7 +21,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import argparse
 import os
-import re
 import sys
 from functools import wraps
 
@@ -33,6 +32,7 @@ import hug.output_format
 from hug import _empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
+from hug.input_format import separate_encoding
 
 
 class Interface(object):
@@ -266,7 +266,6 @@ class HTTP(Interface):
                  'examples', 'output_doc', 'wrapped', 'catch_exceptions', 'parse_body', 'invalid_outputs',
                  'raise_on_invalid')
     AUTO_INCLUDE = {'request', 'response'}
-    RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
 
     def __init__(self, route, function, catch_exceptions=True):
         super().__init__(route, function)
@@ -298,19 +297,10 @@ class HTTP(Interface):
         input_parameters.update(request.params)
         if self.parse_body and request.content_length is not None:
             body = request.stream
-            content_type = request.content_type
-            encoding = None
-            if content_type and ";" in content_type:
-                content_type, rest = content_type.split(";", 1)
-                charset = self.RE_CHARSET.search(rest).groupdict()
-                encoding = charset.get('charset', encoding).strip()
-
-            body_formatting_handler = body and self.api.input_format(content_type)
-            if body_formatting_handler:
-                if encoding is not None:
-                    body = body_formatting_handler(body, encoding)
-                else:
-                    body = body_formatting_handler(body)
+            content_type, encoding = separate_encoding(request.content_type)
+            body_formatter = body and self.api.input_format(content_type)
+            if body_formatter:
+                body = body_formatter(body, encoding) if encoding is not None else body_formatter(body)
             if 'body' in self.parameters:
                 input_parameters['body'] = body
             if isinstance(body, dict):
@@ -377,6 +367,65 @@ class HTTP(Interface):
         marshmallow_type.__name__ = marshmallow.__class__.__name__
         return marshmallow_type
 
+    def set_response_defaults(self, response, request=None):
+        """Sets up the response defaults that are defined in the URL route"""
+        for header_name, header_value in self.response_headers:
+            response.set_header(header_name, header_value)
+        if self.set_status:
+            response.status = self.set_status
+        response.content_type = self.content_type(request, response)
+
+    def render_errors(self, errors, request, response):
+        data = {'errors': errors}
+        if getattr(self, 'on_invalid', False):
+            data = self.on_invalid(data, **self._arguments(self._params_for_on_invalid, request, response))
+
+        response.status = HTTP_BAD_REQUEST
+        if getattr(self, 'invalid_outputs', False):
+            response.content_type = self.invalid_content_type(request, response)
+            response.data = self.invalid_outputs(data, **self._arguments(self._params_for_invalid_outputs,
+                                                                            request, response))
+        else:
+            response.data = self.outputs(data, **self._arguments(self._params_for_outputs, request, response))
+
+    def call_function(self, **parameters):
+        if not self.takes_kwargs:
+            parameters = {key: value for key, value in parameters.items() if key in self.parameters}
+
+        return self.function(**parameters)
+
+    def render_content(self, content, request, response, **kwargs):
+        if hasattr(content, 'interface'):
+            if content.interface is True:
+                content(request, response, api_version=None, **kwargs)
+            else:
+                content.interface(request, response, api_version=None, **kwargs)
+            return
+
+        content = self.transform_data(content, request, response)
+        content = self.outputs(content, **self._arguments(self._params_for_outputs, request, response))
+        if hasattr(content, 'read'):
+            size = None
+            if hasattr(content, 'name') and os.path.isfile(content.name):
+                size = os.path.getsize(content.name)
+            if request.range and size:
+                start, end = request.range
+                if end < 0:
+                    end = size + end
+                end = min(end, size)
+                length = end - start + 1
+                content.seek(start)
+                response.data = content.read(length)
+                response.status = falcon.HTTP_206
+                response.content_range = (start, end, size)
+                content.close()
+            else:
+                response.stream = content
+                if size:
+                    response.stream_len = size
+        else:
+            response.data = content
+
     def __call__(self, request, response, api_version=None, **kwargs):
         """Call the wrapped function over HTTP pulling information as needed"""
         api_version = int(api_version) if api_version is not None else api_version
@@ -386,68 +435,20 @@ class HTTP(Interface):
             exception_types = self.api.exception_handlers(api_version)
             exception_types = tuple(exception_types.keys()) if exception_types else ()
         try:
-            for header_name, header_value in self.response_headers:
-                response.set_header(header_name, header_value)
-            if self.set_status:
-                response.status = self.set_status
-            response.content_type = self.content_type(request, response)
-            params_for_outputs = self._arguments(self._params_for_outputs, request, response)
+            self.set_response_defaults(response, request)
 
             lacks_requirement = self.check_requirements(request, response)
             if lacks_requirement:
-                response.data = self.outputs(lacks_requirement, **params_for_outputs)
+                response.data = self.outputs(lacks_requirement,
+                                             **self._arguments(self._params_for_outputs, request, response))
                 return
 
             input_parameters = self.gather_parameters(request, response, api_version, **kwargs)
             errors = self.validate(input_parameters)
             if errors:
-                data = {'errors': errors}
-                if getattr(self, 'on_invalid', False):
-                    data = self.on_invalid(data, **self._arguments(self._params_for_on_invalid, request, response))
+                return self.render_errors(errors, request, response)
 
-                response.status = HTTP_BAD_REQUEST
-                if getattr(self, 'invalid_outputs', False):
-                    response.content_type = self.invalid_content_type(request, response)
-                    response.data = self.invalid_outputs(data, **self._arguments(self._params_for_invalid_outputs,
-                                                                                 request, response))
-                else:
-                    response.data = self.outputs(data, **params_for_outputs)
-                return
-
-            if not self.takes_kwargs:
-                input_parameters = {key: value for key, value in input_parameters.items() if key in self.parameters}
-
-            data = self.function(**input_parameters)
-            if hasattr(data, 'interface'):
-                if data.interface is True:
-                    data(request, response, api_version=None, **kwargs)
-                else:
-                    data.interface(request, response, api_version=None, **kwargs)
-                return
-
-            data = self.transform_data(data, request, response)
-            data = self.outputs(data, **params_for_outputs)
-            if hasattr(data, 'read'):
-                size = None
-                if hasattr(data, 'name') and os.path.isfile(data.name):
-                    size = os.path.getsize(data.name)
-                if request.range and size:
-                    start, end = request.range
-                    if end < 0:
-                        end = size + end
-                    end = min(end, size)
-                    length = end - start + 1
-                    data.seek(start)
-                    response.data = data.read(length)
-                    response.status = falcon.HTTP_206
-                    response.content_range = (start, end, size)
-                    data.close()
-                else:
-                    response.stream = data
-                    if size:
-                        response.stream_len = size
-            else:
-                response.data = data
+            self.render_content(self.call_function(**input_parameters), request, response, **kwargs)
         except falcon.HTTPNotFound:
             return self.api.not_found(request, response, **kwargs)
         except exception_types as exception:

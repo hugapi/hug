@@ -22,8 +22,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 from base64 import b64encode
 
 import falcon
-import hug
 import pytest
+
+import hug
 
 api = hug.API(__name__)
 
