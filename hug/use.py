@@ -98,7 +98,7 @@ class HTTP(Service):
         self.session.headers.update(headers)
 
     def request(self, method, url, url_params=empty.dict, headers=empty.dict, timeout=None, **params):
-        url = "v{0}/{1}/".format(self.version, url) if self.version else url + "/"
+        url = "{0}/{1}".format(self.version, url.lstrip('/')) if self.version else url
         response = self.session.request(method, self.endpoint + url.format(url_params), headers=headers, params=params)
 
         data = BytesIO(response.content)
