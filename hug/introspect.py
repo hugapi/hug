@@ -19,6 +19,13 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from types import MethodType
+
+
+def is_method(function):
+    """Returns True if the passed in function is identified as a method (NOT a function)"""
+    return isinstance(function, MethodType)
+
 
 def arguments(function, extra_arguments=0):
     """Returns the name of all arguments a function takes"""

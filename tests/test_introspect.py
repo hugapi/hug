@@ -38,6 +38,18 @@ def function_with_both(argument1, argument2, argument3, *args, **kwargs):
     pass
 
 
+class Object(object):
+
+    def my_method(self):
+        pass
+
+
+def test_is_method():
+    """Test to ensure hugs introspection can correctly identify the difference between a function and method"""
+    assert not hug.introspect.is_method(function_with_kwargs)
+    assert hug.introspect.is_method(Object().my_method)
+
+
 def test_arguments():
     """Test to ensure hug introspection can correctly pull out arguments from a function definition"""
     def function(argument1, argument2):

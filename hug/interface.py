@@ -66,7 +66,7 @@ class Interface(object):
             self.defaults = route.get('defaults', {})
             self.parameters = tuple(route['parameters'])
             self.required = tuple([parameter for parameter in self.parameters if parameter not in self.defaults])
-        if 'method' in self.spec.__class__.__name__:
+        if introspect.is_method(self.spec):
             self.required = self.required[1:]
             self.parameters = self.parameters[1:]
 
