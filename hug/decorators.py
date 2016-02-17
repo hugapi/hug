@@ -33,6 +33,7 @@ import hug.api
 import hug.defaults
 import hug.output_format
 from hug.format import underscore
+from hug import introspect
 
 
 def default_output_format(content_type='application/json', apply_globally=False):
@@ -131,3 +132,12 @@ def wraps(function):
             delattr(function, 'original')
         return decorator
     return wrap
+
+
+def auto_kwargs(function):
+    """Modifies the provided function to support kwargs by only passing along kwargs for parameters it accepts"""
+    supported = introspect.arguments(function)
+    @wraps(function)
+    def call_function(*args, **kwargs):
+        return function(*args, **{key: value for key, value in kwargs.items() if key in supported})
+    return call_function

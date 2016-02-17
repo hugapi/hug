@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from hug.decorators import auto_kwargs
 
 
 def content_type(transformers, default=None):
@@ -31,6 +32,8 @@ def content_type(transformers, default=None):
              ...
             }
     """
+    transformers = {content_type: auto_kwargs(transformer) for content_type, transformer in transformers.items()}
+    default = default and auto_kwargs(default)
     def transform(data, request):
         transformer = transformers.get(request.content_type.split(';')[0], default)
         if not transformer:
@@ -50,6 +53,8 @@ def suffix(transformers, default=None):
              ...
             }
     """
+    transformers = {suffix: auto_kwargs(transformer) for suffix, transformer in transformers.items()}
+    default = default and auto_kwargs(default)
     def transform(data, request):
         path = request.path
         transformer = default
@@ -72,7 +77,9 @@ def prefix(transformers, default=None):
              ...
             }
     """
-    def transform(data, request):
+    transformers = {prefix: auto_kwargs(transformer) for prefix, transformer in transformers.items()}
+    default = default and auto_kwargs(default)
+    def transform(data, request=None, response=None):
         path = request.path
         transformer = default
         for prefix_test, prefix_transformer in transformers.items():
@@ -91,9 +98,10 @@ def all(*transformers):
 
             [transformer_1, transformer_2...]
     """
-    def transform(data):
+    transformers = tuple(auto_kwargs(transformer) for transformer in transformers)
+    def transform(data, request=None, response=None):
         for transformer in transformers:
-            data = transformer(data)
+            data = transformer(data, request=request, response=response)
 
         return data
     return transform

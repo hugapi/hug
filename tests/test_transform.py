@@ -72,7 +72,7 @@ def test_prefix():
 
 def test_all():
     """Test to ensure transform.all allows chaining multiple transformations as expected"""
-    def annotate(data):
+    def annotate(data, response):
         return {'Text': data}
 
-    assert hug.transform.all(str, annotate)(1) == {'Text': '1'}
+    assert hug.transform.all(str, annotate)(1, response='hi') == {'Text': '1'}
