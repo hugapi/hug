@@ -82,3 +82,18 @@ def prefix(transformers, default=None):
 
         return transformer(data) if transformer else data
     return transform
+
+
+def all(*transformers):
+    """Returns the results of applying all passed in transformers to data
+
+       should pass in list of transformers
+
+            [transformer_1, transformer_2...]
+    """
+    def transform(data):
+        for transformer in transformers:
+            data = transformer(data)
+
+        return data
+    return transform
