@@ -14,4 +14,4 @@ restates the projects MIT license.
 
 There should be a `tests/test_$MODULE_NAME.py` file created to correspond to every new module that contains
 test coverage for the module. Ideally, tests should be 1:1 (one test object per code object, one test method
-per code method) to the extent possible.
+per code method) to the extent cleanly possible.
