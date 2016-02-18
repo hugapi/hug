@@ -156,7 +156,7 @@ the base Python function.
 Switching from using a hug API over one interface to another
 ===================
 hug does it's best to also solve the other side of the coin: that is how APIs are used.
-Naturally, native Python will always be the fastest, however HTTP can provide attractive auto updating and
+Naturally, native Python will always be the fastest, however HTTP can provide attractive auto updating
 and clear responsibility separation benefits. You can interact with hug APIs via hug.use.[interface] if the ability
 to switch between these is a high priority for you. The code that enables this is found in `hug/use.py` and should be
 kept in mind if working on adding an additional interface for hug, or changing how hug calls functions.
