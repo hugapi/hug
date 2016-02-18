@@ -32,10 +32,10 @@ from hug.routing import ExceptionRouter as exception
 from hug.routing import NotFoundRouter as not_found
 from hug.routing import SinkRouter as sink
 from hug.routing import StaticRouter as static
-from hug.routing import URLRouter as call
+from hug.routing import URLRouter as http
 
 
-class Object(call):
+class Object(http):
     """Defines a router for classes and objects"""
 
     def __init__(self, **route):
@@ -60,7 +60,7 @@ class Object(call):
             routes = getattr(argument, '_hug_routes', None)
             if routes:
                 for route in routes:
-                    call(**self.where(**route).route)(argument)
+                    http(**self.where(**route).route)(argument)
 
         return method_or_class
 
@@ -78,9 +78,9 @@ class Object(call):
                     routes = getattr(handler, '_hug_routes', None)
                     if routes:
                         for route in routes:
-                            call(**router.accept(method).where(**route).route)(handler)
+                            http(**router.accept(method).where(**route).route)(handler)
                     else:
-                        call(**router.accept(method).route)(handler)
+                        http(**router.accept(method).route)(handler)
             return class_definition
         return decorator
 
@@ -97,7 +97,7 @@ class API(object):
     def urls(self, *kargs, **kwargs):
         """Starts the process of building a new URL route linked to this API instance"""
         kwargs['api'] = self.api
-        return call(*kargs, **kwargs)
+        return http(*kargs, **kwargs)
 
     def not_found(self, *kargs, **kwargs):
         """Defines the handler that should handle not found requests against this API"""
@@ -131,11 +131,14 @@ class API(object):
 
 
 for method in HTTP_METHODS:
-    method_handler = partial(call, accept=(method, ))
+    method_handler = partial(http, accept=(method, ))
     method_handler.__doc__ = "Exposes a Python method externally as an HTTP {0} method".format(method.upper())
     globals()[method.lower()] = method_handler
 
-get_post = partial(call, accept=('GET', 'POST'))
+get_post = partial(http, accept=('GET', 'POST'))
 get_post.__doc__ = "Exposes a Python method externally under both the HTTP POST and GET methods"
 
 object = Object()
+
+#DEPRECATED: for backwords compatibility with hug 1.x.x
+call = http
