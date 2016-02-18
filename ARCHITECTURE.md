@@ -5,7 +5,7 @@ It consistently benchmarks among the top 3 performing web frameworks for Python,
 For almost every common Web API task the code written to accomplish it in hug is a small fraction of what is required in other Frameworks.
 
 However, it's important to note, hug is not a Web API Framework. OK -- that certainly is a function it performs. And exceptionally well at that.
-But at it's core, hug is a framework for exposing idiomatically correct and standard internal Python APIs externally.
+But at its core, hug is a framework for exposing idiomatically correct and standard internal Python APIs externally.
 A framework to allow developers and architects to define logic and structure once, and then cleanly expose it over other means.
 
 Currently, this means that you can expose existing Python functions / APIs over HTTP and CLI in addition to standard Python.
