@@ -161,14 +161,14 @@ and clear responsibility separation benefits. You can interact with hug APIs via
 to switch between these is a high priority for you. The code that enables this is found in `hug/use.py` and should be
 kept in mind if working on adding an additional interface for hug, or changing how hug calls functions.
 
-Feel free to update! Or request more info be added!
+Feel free to update or request more info :)
 ===================
-I tried my best to highlight where important functionality in the hug project lived via this Architecture document, as well as
+I tried my best to highlight where important functionality in the hug project lives via this Architecture document, as well as
 explain the reasoning behind it. However, this document is certainly not complete! If you encounter anything you would like to be
 expanded upon or explained in detail here, please either let me know or modify the document so everyone can get a good walk through of hugs architecture.
 
 Thanks!
 
-I hope you have found this guide useful!
+I hope you have found this guide useful :)
 
 ~Timothy
