@@ -290,7 +290,7 @@ class HTTP(Interface):
         if route['versions']:
             self.api.versions.update(route['versions'])
 
-        self.wrapped.__dict__['interface'] = self
+        self.wrapped.__dict__['http'] = self
 
     def gather_parameters(self, request, response, api_version=None, **input_parameters):
         """Gathers and returns all parameters that will be used for this endpoint"""
@@ -395,11 +395,11 @@ class HTTP(Interface):
         return self.function(**parameters)
 
     def render_content(self, content, request, response, **kwargs):
-        if hasattr(content, 'interface'):
-            if content.interface is True:
+        if hasattr(content, 'http'):
+            if content.http is True:
                 content(request, response, api_version=None, **kwargs)
             else:
-                content.interface(request, response, api_version=None, **kwargs)
+                content.http(request, response, api_version=None, **kwargs)
             return
 
         content = self.transform_data(content, request, response)

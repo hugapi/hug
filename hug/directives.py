@@ -88,7 +88,7 @@ class CurrentAPI(object):
         if not function:
             raise AttributeError('API Function {0} not found'.format(name))
 
-        accepts = introspect.arguments(function.interface.function)
+        accepts = introspect.arguments(function.http.function)
         if 'hug_api_version' in accepts:
             function = partial(function, hug_api_version=self.api_version)
         if 'hug_current_api' in accepts:
