@@ -130,7 +130,7 @@ class Local(Service):
                 raise requests.HTTPError('404 Not Found occured for url: {0}'.format(url))
             return Response('Not Found', 404, {'content-type', 'application/json'})
 
-        interface = function.interface
+        interface = function.http
         response = falcon.Response()
         request = Request(None, None, empty.dict)
         interface.set_response_defaults(response)

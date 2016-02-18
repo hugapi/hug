@@ -38,7 +38,7 @@ def test_basic_call():
         return "Hello World!"
 
     assert hello_world() == "Hello World!"
-    assert hello_world.interface
+    assert hello_world.http
 
     assert hug.test.get(api, '/hello_world').data == "Hello World!"
     assert hug.test.get(module, '/hello_world').data == "Hello World!"
@@ -53,7 +53,7 @@ def test_basic_call_on_method():
             return "Hello World!"
 
     api_instance = API()
-    assert api_instance.hello_world.interface
+    assert api_instance.hello_world.http
     assert api_instance.hello_world() == 'Hello World!'
     assert hug.test.get(api, '/hello_world').data == "Hello World!"
 
@@ -92,7 +92,7 @@ def test_single_parameter():
         return text
 
     assert echo('Embrace') == 'Embrace'
-    assert echo.interface
+    assert echo.http
     with pytest.raises(TypeError):
         echo()
 
