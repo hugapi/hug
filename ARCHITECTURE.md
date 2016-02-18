@@ -147,7 +147,7 @@ the base Python function.
     - The above would cause the method to return a stringed result, while the original Python function would still return an int.
     - All of hug's built in transformations are defined in `hug/transform.py`
 - Input / Output formats: hug provides an extensive number of built-in input and output formats.
-    @hug.get(output_format=hug.output_format.json)
+    `@hug.get(output_format=hug.output_format.json)`
     - These formats define how data should be sent to your API function and how it will be returned
     - All of hugs built-in output formats are found in `hug/output_format.py`
     - All of hugs built-in input formats are found in `hug/input_format.py`
