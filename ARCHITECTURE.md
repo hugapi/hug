@@ -4,7 +4,7 @@ hug is the cleanest way to create HTTP REST APIs on Python3.
 It consistently benchmarks among the top 3 performing web frameworks for Python, handily beating out Flask and Django.
 For almost every common Web API task the code written to accomplish it in hug is a small fraction of what is required in other Frameworks.
 
-However, it's important to note, hug is not a Web API Framework. OK -- that certainly is a function it performs. And exceptional well at that.
+However, it's important to note, hug is not a Web API Framework. OK -- that certainly is a function it performs. And exceptionally well at that.
 But at it's core, hug is a framework for exposing idiomatically correct and standard internal Python APIs externally.
 A framework to allow developers and architects to define logic and structure once, and then cleanly expose it over other means.
 
