@@ -30,6 +30,7 @@ Changelog
 - Added support for a custom final pass validation function
 - Added support for defining routes separate from handlers
 - Added support for raising on validation errors - to enable overall exception handlers to catch them
+- Added support for multiple transformers on an endpoint via `transform.all`
 - Updated all default output formats to gracefully handle error dictionaries
 - Documentation generation was moved to API instances to enable easier customization
 - Now correctly identifies and handles custom encodings

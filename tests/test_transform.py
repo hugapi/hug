@@ -68,3 +68,11 @@ def test_prefix():
 
     request.path = 'hey.undefined'
     transformer({'data': 'value'}, request) == {'data': 'value'}
+
+
+def test_all():
+    """Test to ensure transform.all allows chaining multiple transformations as expected"""
+    def annotate(data, response):
+        return {'Text': data}
+
+    assert hug.transform.all(str, annotate)(1, response='hi') == {'Text': '1'}
