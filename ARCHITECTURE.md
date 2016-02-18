@@ -14,8 +14,8 @@ into hug have and will continue to support this goal.
 
 This central concept also frees hug to rely on the fastest and best of breed components for every interface it supports:
 
-    - Falcon is leveraged when exposing to HTTP for it's impressive performance at this task
-    - Argparse is leveraged when exposing to CLI for the clean consistent interaction it enables from the command line
+- Falcon is leveraged when exposing to HTTP for it's impressive performance at this task
+- Argparse is leveraged when exposing to CLI for the clean consistent interaction it enables from the command line
 
 
 What this looks like in practice - an illustrative example
@@ -83,20 +83,20 @@ What happened internally as I exposed my API to new interfaces?
 ===================
 A few things hapen when you wrapped that first function for external use, with hug.cli():
 
-    -   hug created a singleton hug.API object on your module to keep track of all interfaces that exist within the module
-        - This is referable by `__hug__` or `hug.API(__name__)`
-    -   a new hug.interface.CLI() object was created and attached to `add.cli`
-        - This interface fully encapsulates the logic needed to expose `add` as a command line tool
-        - NOTE: all supported ways to expose a function via hug can be found in `hug/interface.py`
-    -   the original Python `add` function is returned unmodified (with exception to the `.cli` property addition)
+-   hug created a singleton hug.API object on your module to keep track of all interfaces that exist within the module
+    - This is referable by `__hug__` or `hug.API(__name__)`
+-   a new hug.interface.CLI() object was created and attached to `add.cli`
+    - This interface fully encapsulates the logic needed to expose `add` as a command line tool
+    - NOTE: all supported ways to expose a function via hug can be found in `hug/interface.py`
+-   the original Python `add` function is returned unmodified (with exception to the `.cli` property addition)
 
 Then when I extended my API to run as HTTP service the same basic pattern was followed:
 
-    -   hug saw that the singleton already existed
-    -   a new hug.interface.HTTP() object was created and attached to `hug.http`
-        - This interface encapsulates the logic needed to expose the `add` command as an HTTP service
-        - The new HTTP interface handler is registered to the API singleton
-    -   the original Python `add` function is returned unmodified (with exception to the `.http` property addition)
+-   hug saw that the singleton already existed
+-   a new hug.interface.HTTP() object was created and attached to `hug.http`
+    - This interface encapsulates the logic needed to expose the `add` command as an HTTP service
+    - The new HTTP interface handler is registered to the API singleton
+-   the original Python `add` function is returned unmodified (with exception to the `.http` property addition)
 
 At the end of this, I have 2 interface objects attached to my original function: `add.cli` and `add.http`.
 Which is consistent with what I want to accomplish, one Python API with 2 additional external interfaces.
@@ -113,11 +113,11 @@ Where does the code live for these core pieces?
 While hug has a lot of modules that enable it to provide a great depth of functionality, everything accomplished above,
 and that is core to hug, lives in only a few:
 
-    -   `hug/api.py`: Defines the hug per-module singleton object that keeps track of all registered interfaces
-    -   `hug/routing.py`: holds all the data and settings that should be passed to newly created interfaces, and creates the interfaces from that data.
-        - This directly is what powers `hug.get`, `hug.cli, and all other function to interface routers
-        - Can be seen as a Factory for creating new interfaces
-    -   `hug/interface.py`: Defines the actual interfaces that manage external interaction with your function (CLI and HTTP).
+-   `hug/api.py`: Defines the hug per-module singleton object that keeps track of all registered interfaces
+-   `hug/routing.py`: holds all the data and settings that should be passed to newly created interfaces, and creates the interfaces from that data.
+    - This directly is what powers `hug.get`, `hug.cli, and all other function to interface routers
+    - Can be seen as a Factory for creating new interfaces
+-   `hug/interface.py`: Defines the actual interfaces that manage external interaction with your function (CLI and HTTP).
 
 These 3 modules define the core functionality of hug, and any API that uses hug will inevitably utilize these modules.
 Develop a good handling on just these and you'll be in great shape to contribute to hug, and think of new ways to improve the Framework.
@@ -130,28 +130,28 @@ Enabling interfaces to improve upon internal functions
 hug provides several mechanisms to enable your exposed interfaces to have additional capabilities not defined by
 the base Python function.
 
-    - Enforced type annotations: hug interfaces automatically enforce type annotations you set on functions
-        `def add(number_1:hug.types.number, number_2:hug.types.number):`
-        - These types are simply called with the data passed into that field, if an exception is thrown it's seen as invalid
-        - all of hugs custom types to be used for annotation are defined in `hug/types.py`
-    - Directives: hug interfaces allow replacing Python function parameters with dynamically pulled data via directives.
-        `def add(number_1:hug.types.number, number_2:hug.types.number, hug_timer=2):`
-        - In this example `hug_timer` is directive, when calling via a hug interface hug_timer is replaced with a timer that contains the starting time.
-        - All of hug's built-in directives are defined in hug/directives.py
-    - Requires: hug requirements allow you to specify requirements that must be met only for specified interfaces.
-        `@hug.get(requires=hug.authentication.basic(hug.authentication.verify('User1', 'mypassword')))`
-        - Causes the HTTP method to only succesfully call the Python function if User1 is logged in
-        - requirements are currently highly focused on authentication, and all existing require functions are defined in hug/authentication.py
-    - Transformations: hug transformations enable changing the result of a function but only for the specified interface
-        `@hug.get(transform=str)`
-        - The above would cause the method to return a stringed result, while the original Python function would still return an int.
-        - All of hug's built in transformations are defined in `hug/transform.py`
-    - Input / Output formats: hug provides an extensive number of built-in input and output formats.
-        @hug.get(output_format=hug.output_format.json)
-        - These formats define how data should be sent to your API function and how it will be returned
-        - All of hugs built-in output formats are found in `hug/output_format.py`
-        - All of hugs built-in input formats are found in `hug/input_format.py`
-        - The default assumption for output_formatting is JSON
+- Enforced type annotations: hug interfaces automatically enforce type annotations you set on functions
+    `def add(number_1:hug.types.number, number_2:hug.types.number):`
+    - These types are simply called with the data passed into that field, if an exception is thrown it's seen as invalid
+    - all of hugs custom types to be used for annotation are defined in `hug/types.py`
+- Directives: hug interfaces allow replacing Python function parameters with dynamically pulled data via directives.
+    `def add(number_1:hug.types.number, number_2:hug.types.number, hug_timer=2):`
+    - In this example `hug_timer` is directive, when calling via a hug interface hug_timer is replaced with a timer that contains the starting time.
+    - All of hug's built-in directives are defined in hug/directives.py
+- Requires: hug requirements allow you to specify requirements that must be met only for specified interfaces.
+    `@hug.get(requires=hug.authentication.basic(hug.authentication.verify('User1', 'mypassword')))`
+    - Causes the HTTP method to only succesfully call the Python function if User1 is logged in
+    - requirements are currently highly focused on authentication, and all existing require functions are defined in hug/authentication.py
+- Transformations: hug transformations enable changing the result of a function but only for the specified interface
+    `@hug.get(transform=str)`
+    - The above would cause the method to return a stringed result, while the original Python function would still return an int.
+    - All of hug's built in transformations are defined in `hug/transform.py`
+- Input / Output formats: hug provides an extensive number of built-in input and output formats.
+    @hug.get(output_format=hug.output_format.json)
+    - These formats define how data should be sent to your API function and how it will be returned
+    - All of hugs built-in output formats are found in `hug/output_format.py`
+    - All of hugs built-in input formats are found in `hug/input_format.py`
+    - The default assumption for output_formatting is JSON
 
 Switching from using a hug API over one interface to another
 ===================
