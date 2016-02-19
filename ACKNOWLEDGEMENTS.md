@@ -27,6 +27,7 @@ Documenters
 - M.Yasoob Ullah Khalid (@yasoob)
 - Lionel Montrieux (@lmontrieux)
 - Ian Wagner (@ianthetechie)
+- Andrew Murray (@radarhere)
 
 --------------------------------------------
 
