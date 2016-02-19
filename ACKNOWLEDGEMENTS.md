@@ -28,6 +28,7 @@ Documenters
 - Lionel Montrieux (@lmontrieux)
 - Ian Wagner (@ianthetechie)
 - Andrew Murray (@radarhere)
+- Tim (@timlyo)
 
 --------------------------------------------
 
