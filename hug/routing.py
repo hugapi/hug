@@ -80,6 +80,25 @@ class Router(object):
         return self.__class__(**route_data)
 
 
+class LocalRouter(Router):
+    """The LocalRouter defines how interfaces should be handled when accessed locally from within Python code"""
+    __slots__ = ()
+
+    def __init__(self, directives=True, validate=True, **kwargs):
+        super().__init__(**kwargs)
+
+        if not directives:
+            self.route['skip_directives'] = True
+        if not validate:
+            self.route['skip_validation'] = True
+
+    def directives(use=True, **kwargs):
+        self.where(directives=use)
+
+    def validate(enforce=True, **kwargs):
+        self.where(validate=enforce)
+
+
 class CLIRouter(Router):
     """The CLIRouter provides a chainable router that can be used to route a CLI command to a Python function"""
     __slots__ = ()

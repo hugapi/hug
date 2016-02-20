@@ -71,6 +71,12 @@ class TestRouter(object):
         assert new_route.route['transform'] == 'transformer'
 
 
+class TestLocalRouter(TestRouter):
+    """A collection of tests to ensure the LocalRouter object works as expected"""
+    route = LocalRouter(name='cli', version=1, doc='Hi there!', transform='transform', output='output')
+
+
+
 class TestCLIRouter(TestRouter):
     """A collection of tests to ensure the CLIRouter object works as expected"""
     route = CLIRouter(name='cli', version=1, doc='Hi there!', transform='transform', output='output')
