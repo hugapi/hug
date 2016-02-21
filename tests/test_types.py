@@ -23,6 +23,7 @@ import json
 import urllib
 from datetime import datetime
 from decimal import Decimal
+from marshmallow import Schema, fields
 
 import hug
 import pytest
@@ -272,3 +273,49 @@ def test_multi():
     assert multi_type('t') == True
     with pytest.raises(ValueError):
         multi_type('Bacon!')
+
+def test_chain():
+    chain_type = hug.types.Chain(hug.types.text, hug.types.LongerThan(10))
+    assert chain_type(12345678901) == "12345678901" 
+    with pytest.raises(ValueError):
+        chain_type(1)
+
+def test_nullable():
+    nullable_type = hug.types.Nullable(hug.types.text, hug.types.LongerThan(10))
+    assert nullable_type(12345678901) == "12345678901" 
+    assert nullable_type(None) == None
+    with pytest.raises(ValueError):
+        nullable_type(1)
+
+def test_schema_type():
+    class User(hug.types.Schema):
+        username = hug.types.text
+        password = hug.types.Chain(hug.types.text, hug.types.LongerThan(10))
+    user_one = User({"username": "brandon", "password": "password123"})
+    user_two = User(user_one)
+    with pytest.raises(ValueError):
+        user_three = User({"username": "brandon", "password": "123"})
+    user_three = User({"username": "brandon", "password": "123"}, force=True)
+    assert "username" in User.__slots__
+    assert "_username" in User.__slots__
+    assert user_one._username == "brandon"
+    assert user_two == user_one
+    assert user_three._username == "brandon"
+    assert user_one.username == "brandon"
+    assert user_two.username == "brandon"
+    assert user_three.username == "brandon"
+    assert user_one.password == "password123"
+    with pytest.raises(ValueError):
+        user_one.password = "test"
+    assert user_one.password == "password123"
+    
+def test_marshmallow_schema():
+    class UserSchema(Schema):
+        name = fields.Str()
+
+    schema_type = hug.types.MarshmallowSchema(UserSchema())
+    assert schema_type({"name": "test"}) == {"name": "test"}
+    assert schema_type("""{"name": "test"}""") == {"name": "test"}
+    with pytest.raises(ValueError):
+        schema_type({"name": 1})
+

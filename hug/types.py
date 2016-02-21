@@ -27,6 +27,7 @@ class Type(object):
     """Defines the base hug concept of a type for use in function annotation.
        Override `__call__` to define how the type should be transformed and validated
     """
+    _hug_type = True
     __slots__ = ()
 
     def __call__(self, value):
@@ -180,8 +181,6 @@ class JSON(Type):
                 raise ValueError('Incorrectly formatted JSON provided')
         else:
             return value
-
-
 
 class Multi(Type):
     """Enables accepting one of multiple type methods"""
@@ -344,11 +343,99 @@ class CutOff(Type):
     def __call__(self, value):
         return self.convert(value)[:self.limit]
 
+class Chain(Type):
+    """type for chaining multiple types together"""
+    __slots__ = ('types')
+
+    def __init__(self, *types):
+        self.types = types
+
+    def __call__(self, value):
+        for type_function in self.types:
+            value = type_function(value)
+        return value
+
+class Nullable(Chain):
+    """A Chain types that Allows None values"""
+    __slots__ = ('types')
+
+    def __init__(self, *types):
+        self.types = types
+
+    def __call__(self, value):
+        if value == None:
+            return None
+        else:
+            return super(Nullable, self).__call__(value)
+
+class TypedProperty(object):
+    """class for building property objects for schema objects"""
+    __slots__ = ('name', 'type_func')
+    def __init__(self, name, type_func):
+        self.name = "_" + name
+        self.type_func = type_func
+
+    def __get__(self, instance, cls):
+        return getattr(instance, self.name, None)
+
+    def __set__(self, instance, value):
+        setattr(instance,self.name,self.type_func(value))
+
+    def __delete__(self,instance):
+        raise AttributeError("Can't delete attribute")
+
+class NewTypeMeta(type):
+    """Meta class to turn Schema objects into format usable by hug"""
+    __slots__ = ()
+    def __init__(cls, name, bases, nmspc):
+        cls._types = {attr: getattr(cls, attr) for attr in dir(cls) if getattr(getattr(cls, attr), "_hug_type", False)}
+        slots = getattr(cls, "__slots__", ())
+        slots = set(slots)
+        for attr, type_func in cls._types.items():
+            slots.add("_" + attr) 
+            slots.add(attr) 
+            prop = TypedProperty(attr, type_func);
+            setattr(cls, attr, prop)
+        cls.__slots__ = tuple(slots)
+        super(NewTypeMeta, cls).__init__(name, bases, nmspc)
+ 
+class Schema(object, metaclass=NewTypeMeta):
+    """Schema for creating complex types using hug types"""
+    _hug_type = True
+    __slots__ = ()
+    def __new__(cls, json, *args, **kwargs):
+        if json.__class__ == cls:
+            return json #if json is already this type of object return it
+        else:
+            return super(Schema, cls).__new__(cls)
+            
+            
+    def __init__(self, json, force=False):
+        if self != json:
+            for (key, value) in json.items():
+                if force:
+                    key = "_" + key
+                setattr(self, key, value)
+
+json = JSON()
+
+class MarshmallowSchema(Type):
+    """type for using marshmallow schema's"""
+    __slots__ = ("schema")
+    def __init__(self, schema):
+        self.schema = schema
+
+    def __call__(self, value):
+        value = json(value)
+        (value, errors) = self.schema.load(value)
+        if errors:
+            raise ValueError(errors)
+        else:
+            return value
 
 multiple = Multiple()
 smart_boolean = SmartBoolean()
 inline_dictionary = InlineDictionary()
-json = JSON()
 comma_separated_list = DelimitedList(using=",")
 
 
