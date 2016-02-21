@@ -4,3 +4,4 @@ pytest-cov==2.2.0
 isort==4.2.2
 wheel==0.26.0
 python-coveralls==2.5.0
+marshmallow==2.6.0
