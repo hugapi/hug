@@ -296,6 +296,8 @@ def test_schema_type():
     with pytest.raises(ValueError):
         user_three = User({"username": "brandon", "password": "123"})
     user_three = User({"username": "brandon", "password": "123"}, force=True)
+    with pytest.raises(AttributeError):
+        del user_one.username
     assert "username" in User.__slots__
     assert "_username" in User.__slots__
     assert user_one._username == "brandon"
