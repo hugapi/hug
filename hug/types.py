@@ -343,6 +343,7 @@ class CutOff(Type):
     def __call__(self, value):
         return self.convert(value)[:self.limit]
 
+
 class Chain(Type):
     """type for chaining multiple types together"""
     __slots__ = ('types')
@@ -354,6 +355,7 @@ class Chain(Type):
         for type_function in self.types:
             value = type_function(value)
         return value
+
 
 class Nullable(Chain):
     """A Chain types that Allows None values"""
@@ -367,6 +369,7 @@ class Nullable(Chain):
             return None
         else:
             return super(Nullable, self).__call__(value)
+
 
 class TypedProperty(object):
     """class for building property objects for schema objects"""
@@ -384,6 +387,7 @@ class TypedProperty(object):
     def __delete__(self,instance):
         raise AttributeError("Can't delete attribute")
 
+
 class NewTypeMeta(type):
     """Meta class to turn Schema objects into format usable by hug"""
     __slots__ = ()
@@ -392,13 +396,14 @@ class NewTypeMeta(type):
         slots = getattr(cls, "__slots__", ())
         slots = set(slots)
         for attr, type_func in cls._types.items():
-            slots.add("_" + attr) 
-            slots.add(attr) 
+            slots.add("_" + attr)
+            slots.add(attr)
             prop = TypedProperty(attr, type_func);
             setattr(cls, attr, prop)
         cls.__slots__ = tuple(slots)
         super(NewTypeMeta, cls).__init__(name, bases, nmspc)
- 
+
+
 class Schema(object, metaclass=NewTypeMeta):
     """Schema for creating complex types using hug types"""
     _hug_type = True
@@ -408,8 +413,8 @@ class Schema(object, metaclass=NewTypeMeta):
             return json #if json is already this type of object return it
         else:
             return super(Schema, cls).__new__(cls)
-            
-            
+
+
     def __init__(self, json, force=False):
         if self != json:
             for (key, value) in json.items():
@@ -418,6 +423,7 @@ class Schema(object, metaclass=NewTypeMeta):
                 setattr(self, key, value)
 
 json = JSON()
+
 
 class MarshmallowSchema(Type):
     """type for using marshmallow schema's"""
@@ -432,6 +438,7 @@ class MarshmallowSchema(Type):
             raise ValueError(errors)
         else:
             return value
+
 
 multiple = Multiple()
 smart_boolean = SmartBoolean()
