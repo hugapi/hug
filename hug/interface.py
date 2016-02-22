@@ -1,6 +1,6 @@
 """hug/interface.py
 
-Defines the various interfaces hug provides to expose routes to functions
+Defines the various interface hug provides to expose routes to functions
 
 Copyright (C) 2015  Timothy Edmund Crosley
 
@@ -35,61 +35,33 @@ from hug.exceptions import InvalidTypeData
 from hug.input_format import separate_encoding
 
 
-class Interface(object):
-    """Defines the basic hug interface object, which is responsible for wrapping a user defined function and providing
-       all the info requested in the function as well as the route
+class Interfaces(object):
+    """Defines the per-function singleton applied to hugged functions defining common data needed by all interfaces"""
+    __slots__ = ('function', 'takes_kargs', 'takes_kwargs', 'parameters', 'defaults', 'required', 'directives',
+                 'input_transformations', 'transform', 'http', 'cli', 'local', 'spec', 'karg')
 
-       A Interface object should be created for every kind of protocal hug supports
-    """
-    __slots__ = ('api', 'spec', 'function', 'takes_kargs', 'takes_kwargs', 'defaults', 'parameters', 'required',
-                 'outputs', 'directives', 'on_invalid', 'requires', 'validate_function',
-                 'transform', 'input_transformations', 'examples', 'output_doc', 'wrapped')
-
-    def __init__(self, route, function):
-        self.api = route.get('api', hug.api.from_object(function))
-        self.spec =  getattr(function, 'original', function)
+    def __init__(self, function):
+        self.spec = getattr(function, 'original', function)
         self.function = function
-        self.requires = route.get('requires', ())
-        if 'validate' in route:
-            self.validate_function = route['validate']
 
         self.takes_kargs = introspect.takes_kargs(self.spec)
         self.takes_kwargs = introspect.takes_kwargs(self.spec)
 
-        if not 'parameters' in route:
-            self.parameters = introspect.arguments(self.spec, 1 if self.takes_kargs else 0)
-            self.defaults = {}
-            for index, default in enumerate(reversed(self.spec.__defaults__ or ())):
-                self.defaults[self.parameters[-(index + 1)]] = default
-            self.required = self.parameters[:-(len(self.spec.__defaults__ or ())) or None]
-        else:
-            self.defaults = route.get('defaults', {})
-            self.parameters = tuple(route['parameters'])
-            self.required = tuple([parameter for parameter in self.parameters if parameter not in self.defaults])
+        self.parameters = introspect.arguments(self.spec, 1 if self.takes_kargs else 0)
+        if self.takes_kargs:
+            self.karg = self.parameters[-1]
+
+        self.defaults = {}
+        for index, default in enumerate(reversed(self.spec.__defaults__ or ())):
+            self.defaults[self.parameters[-(index + 1)]] = default
+
+        self.required = self.parameters[:-(len(self.spec.__defaults__ or ())) or None]
         if introspect.is_method(self.spec):
             self.required = self.required[1:]
             self.parameters = self.parameters[1:]
 
-        self.outputs = route.get('output', self.api.output_format)
-        self.transform = route.get('transform', None)
-        if self.transform is None and not isinstance(self.spec.__annotations__.get('return', None), (str, type(None))):
-            self.transform = self.spec.__annotations__['return']
-
-        if hasattr(self.transform, 'dump'):
-            self.transform = self.transform.dump
-            self.output_doc = self.transform.__doc__
-        elif self.transform or 'return' in self.spec.__annotations__:
-            self.output_doc = self.transform or self.spec.__annotations__['return']
-
-        if 'on_invalid' in route:
-            self.on_invalid = route['on_invalid']
-        elif self.transform:
-            self.on_invalid = self.transform
-
-        defined_directives = self.api.directives()
-        used_directives = set(self.parameters).intersection(defined_directives)
-        self.directives = {directive_name: defined_directives[directive_name] for directive_name in used_directives}
-
+        self.transform = self.spec.__annotations__.get('return', None)
+        self.directives = {}
         self.input_transformations = {}
         for name, transformer in self.spec.__annotations__.items():
             if isinstance(transformer, str):
@@ -105,7 +77,71 @@ class Interface(object):
 
             self.input_transformations[name] = transformer
 
-        self.wrapped = self.function
+    def _marshmallow_schema(self, marshmallow):
+        """Dynamically generates a hug style type handler from a Marshmallow style schema"""
+        def marshmallow_type(input_data):
+            result, errors = marshmallow.loads(input_data) if isinstance(input_data, str) else marshmallow.load(input_data)
+            if errors:
+                raise InvalidTypeData('Invalid {0} passed in'.format(marshmallow.__class__.__name__), errors)
+            return result
+
+        marshmallow_type.__doc__ = marshmallow.__doc__
+        marshmallow_type.__name__ = marshmallow.__class__.__name__
+        return marshmallow_type
+
+
+class Interface(object):
+    """Defines the basic hug interface object, which is responsible for wrapping a user defined function and providing
+       all the info requested in the function as well as the route
+
+       A Interface object should be created for every kind of protocal hug supports
+    """
+    __slots__ = ('interface', 'api', 'defaults', 'parameters', 'required', 'outputs', 'on_invalid', 'requires',
+                 'validate_function', 'transform', 'examples', 'output_doc', 'wrapped', 'directives')
+
+    def __init__(self, route, function):
+        self.api = route.get('api', hug.api.from_object(function))
+        if 'examples' in route:
+            self.examples = route['examples']
+        if not hasattr(function, 'interface'):
+            function.__dict__['interface'] = Interfaces(function)
+
+        self.interface = function.interface
+        self.requires = route.get('requires', ())
+        if 'validate' in route:
+            self.validate_function = route['validate']
+
+        if not 'parameters' in route:
+            self.defaults = self.interface.defaults
+            self.parameters = self.interface.parameters
+            self.required = self.interface.required
+        else:
+            self.defaults = route.get('defaults', {})
+            self.parameters = tuple(route['parameters'])
+            self.required = tuple([parameter for parameter in self.parameters if parameter not in self.defaults])
+
+        self.outputs = route.get('output', self.api.output_format)
+        self.transform = route.get('transform', None)
+        if self.transform is None and not isinstance(self.interface.transform, (str, type(None))):
+            self.transform = self.interface.transform
+
+        if hasattr(self.transform, 'dump'):
+            self.transform = self.transform.dump
+            self.output_doc = self.transform.__doc__
+        elif self.transform or self.interface.transform:
+            self.output_doc = self.transform or self.interface.transform
+
+        if 'on_invalid' in route:
+            self.on_invalid = route['on_invalid']
+        elif self.transform:
+            self.on_invalid = self.transform
+
+        defined_directives = self.api.directives()
+        used_directives = set(self.parameters).intersection(defined_directives)
+        self.directives = {directive_name: defined_directives[directive_name] for directive_name in used_directives}
+        self.directives.update(self.interface.directives)
+
+        self.wrapped = self.interface.function
         if self.directives and not getattr(function, 'without_directives', None):
             @wraps(function)
             def callable_method(*args, **kwargs):
@@ -118,12 +154,13 @@ class Interface(object):
                                         if route.get('versions', None) else None)
                 return function(*args, **kwargs)
             self.wrapped = callable_method
-            self.wrapped.without_directives = self.function
+            self.wrapped.without_directives = self.interface.function
+            self.wrapped.interface = self.interface
 
     def validate(self, input_parameters):
         """Runs all set type transformers / validators against the provided input parameters and returns any errors"""
         errors = {}
-        for key, type_handler in self.input_transformations.items():
+        for key, type_handler in self.interface.input_transformations.items():
             if self.raise_on_invalid:
                 if key in input_parameters:
                     input_parameters[key] = type_handler(input_parameters[key])
@@ -139,7 +176,7 @@ class Interface(object):
                     else:
                         errors[key] = str(error)
 
-        for require in self.required:
+        for require in self.interface.required:
             if not require in input_parameters:
                 errors[require] = "Required parameter not supplied"
         if not errors and getattr(self, 'validate_function', False):
@@ -163,25 +200,23 @@ class CLI(Interface):
 
     def __init__(self, route, function):
         super().__init__(route, function)
+        self.interface.cli = self
         self.outputs = route.get('output', hug.output_format.text)
-        self.wrapped.__dict__['cli'] = self
-        nargs_set = self.takes_kargs
-        if nargs_set:
-            self.karg = self.parameters[-1]
 
         used_options = {'h', 'help'}
-        self.parser = argparse.ArgumentParser(description=route.get('doc', self.spec.__doc__))
+        nargs_set = self.interface.takes_kargs
+        self.parser = argparse.ArgumentParser(description=route.get('doc', self.interface.spec.__doc__))
         if 'version' in route:
             self.parser.add_argument('-v', '--version', action='version',
-                                version="{0} {1}".format(route.get('name', self.spec.__name__),
+                                version="{0} {1}".format(route.get('name', self.interface.spec.__name__),
                                                          route['version']))
             used_options.update(('v', 'version'))
 
-        for option in self.parameters:
+        for option in self.interface.parameters:
             if option in self.directives:
                 continue
 
-            if option in self.required:
+            if option in self.interface.required:
                 args = (option, )
             else:
                 short_option = option[0]
@@ -198,12 +233,13 @@ class CLI(Interface):
             kwargs = {}
             if option in self.defaults:
                 kwargs['default'] = self.defaults[option]
-            if option in self.input_transformations:
-                transform = self.input_transformations[option]
+            if option in self.interface.input_transformations:
+                transform = self.interface.input_transformations[option]
                 kwargs['type'] = transform
                 kwargs['help'] = transform.__doc__
                 kwargs.update(getattr(transform, 'cli_behaviour', {}))
-            elif option in self.spec.__annotations__ and type(self.spec.__annotations__[option]) == str:
+            elif (option in self.interface.spec.__annotations__ and
+                  type(self.interface.spec.__annotations__[option]) == str):
                 kwargs['help'] = option
             if ((kwargs.get('type', None) == bool or kwargs.get('action', None) == 'store_true') and
                  kwargs['default'] == False):
@@ -212,9 +248,9 @@ class CLI(Interface):
             elif kwargs.get('action', None) == 'store_true':
                 kwargs.pop('action', None) == 'store_true'
 
-            if option == getattr(self, 'karg', ()):
+            if option == getattr(self.interface, 'karg', ()):
                 kwargs['nargs'] = '*'
-            elif not nargs_set and kwargs.get('action', None) == 'append' and not option in self.defaults:
+            elif not nargs_set and kwargs.get('action', None) == 'append' and not option in self.interface.defaults:
                 kwargs['nargs'] = '*'
                 kwargs.pop('action', '')
                 nargs_set = True
@@ -250,11 +286,11 @@ class CLI(Interface):
             if errors:
                 return self.output(errors)
 
-        if hasattr(self, 'karg'):
-            karg_values = pass_to_function.pop(self.karg, ())
-            result = self.function(*karg_values, **pass_to_function)
+        if hasattr(self.interface, 'karg'):
+            karg_values = pass_to_function.pop(self.interface.karg, ())
+            result = self.interface.function(*karg_values, **pass_to_function)
         else:
-            result = self.function(**pass_to_function)
+            result = self.interface.function(**pass_to_function)
 
         return self.output(result)
 
@@ -290,7 +326,7 @@ class HTTP(Interface):
         if route['versions']:
             self.api.versions.update(route['versions'])
 
-        self.wrapped.__dict__['http'] = self
+        self.interface.http = self
 
     def gather_parameters(self, request, response, api_version=None, **input_parameters):
         """Gathers and returns all parameters that will be used for this endpoint"""
@@ -355,18 +391,6 @@ class HTTP(Interface):
 
         return empty.dict
 
-    def _marshmallow_schema(self, marshmallow):
-        """Dynamically generates a hug style type handler from a Marshmallow style schema"""
-        def marshmallow_type(input_data):
-            result, errors = marshmallow.loads(input_data) if isinstance(input_data, str) else marshmallow.load(input_data)
-            if errors:
-                raise InvalidTypeData('Invalid {0} passed in'.format(marshmallow.__class__.__name__), errors)
-            return result
-
-        marshmallow_type.__doc__ = marshmallow.__doc__
-        marshmallow_type.__name__ = marshmallow.__class__.__name__
-        return marshmallow_type
-
     def set_response_defaults(self, response, request=None):
         """Sets up the response defaults that are defined in the URL route"""
         for header_name, header_value in self.response_headers:
@@ -389,17 +413,17 @@ class HTTP(Interface):
             response.data = self.outputs(data, **self._arguments(self._params_for_outputs, request, response))
 
     def call_function(self, **parameters):
-        if not self.takes_kwargs:
+        if not self.interface.takes_kwargs:
             parameters = {key: value for key, value in parameters.items() if key in self.parameters}
 
-        return self.function(**parameters)
+        return self.interface.function(**parameters)
 
     def render_content(self, content, request, response, **kwargs):
-        if hasattr(content, 'http'):
-            if content.http is True:
+        if hasattr(content, 'interface') and (content.interface == True or hasattr(content.interface, 'http')):
+            if content.interface is True:
                 content(request, response, api_version=None, **kwargs)
             else:
-                content.http(request, response, api_version=None, **kwargs)
+                content.interface.http(request, response, api_version=None, **kwargs)
             return
 
         content = self.transform_data(content, request, response)

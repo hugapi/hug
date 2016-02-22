@@ -29,7 +29,7 @@ def for_handler(handler, version=None, doc=None, base_url="", url=""):
     if doc is None:
         doc = OrderedDict()
 
-    usage = handler.function.__doc__
+    usage = handler.interface.function.__doc__
     if usage:
         doc['usage'] = usage
     for example in handler.examples:
@@ -50,7 +50,7 @@ def for_handler(handler, version=None, doc=None, base_url="", url=""):
 
     if parameters:
         inputs = doc.setdefault('inputs', OrderedDict())
-        types = handler.function.__annotations__
+        types = handler.interface.function.__annotations__
         for argument in parameters:
             kind = types.get(argument, hug.types.text)
             input_definition = inputs.setdefault(argument, OrderedDict())
