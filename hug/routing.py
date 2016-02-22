@@ -38,7 +38,7 @@ class Router(object):
     """The base chainable router object"""
     __slots__ = ('route', )
 
-    def __init__(self, transform=None, output=None, validate=None, api=None, requires=()):
+    def __init__(self, transform=None, output=None, validate=None, api=None, requires=(), **kwargs):
         self.route = {}
         if transform is not None:
             self.route['transform'] = transform
@@ -92,11 +92,11 @@ class LocalRouter(Router):
         if not validate:
             self.route['skip_validation'] = True
 
-    def directives(use=True, **kwargs):
-        self.where(directives=use)
+    def directives(self, use=True, **kwargs):
+        return self.where(directives=use)
 
-    def validate(enforce=True, **kwargs):
-        self.where(validate=enforce)
+    def validate(self, enforce=True, **kwargs):
+        return self.where(validate=enforce)
 
 
 class CLIRouter(Router):
