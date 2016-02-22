@@ -21,7 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import hug
 from hug.routing import (CLIRouter, ExceptionRouter, HTTPRouter, NotFoundRouter,
-                         Router, SinkRouter, StaticRouter, URLRouter)
+                         Router, SinkRouter, StaticRouter, URLRouter, LocalRouter)
 
 api = hug.API(__name__)
 
@@ -75,6 +75,25 @@ class TestLocalRouter(TestRouter):
     """A collection of tests to ensure the LocalRouter object works as expected"""
     route = LocalRouter(name='cli', version=1, doc='Hi there!', transform='transform', output='output')
 
+    def test_validate(self):
+        """Test to ensure changing wether a local route should validate or not works as expected"""
+        assert not 'skip_validation' in self.route.route
+
+        route = self.route.validate()
+        assert not 'skip_validation' in route.route
+
+        route = self.route.validate(False)
+        assert 'skip_validation' in route.route
+
+    def test_directives(self):
+        """Test to ensure changing wether a local route should supply directives or not works as expected"""
+        assert not 'skip_directives' in self.route.route
+
+        route = self.route.directives()
+        assert not 'skip_directives' in route.route
+
+        route = self.route.directives(False)
+        assert 'skip_directives' in route.route
 
 
 class TestCLIRouter(TestRouter):
