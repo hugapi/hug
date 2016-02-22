@@ -29,6 +29,7 @@ Documenters
 - Ian Wagner (@ianthetechie)
 - Andrew Murray (@radarhere)
 - Tim (@timlyo)
+- Sven-Hendrik Haase (@svenstaro)
 
 --------------------------------------------
 
