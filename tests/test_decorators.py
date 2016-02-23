@@ -360,6 +360,7 @@ def test_multiple_version_injection():
     assert hug.test.get(api, 'v3/my_api_function').data == 3
 
     @hug.get(versions=(None, 1))
+    @hug.local(version=1)
     def call_other_function(hug_current_api):
         return hug_current_api.my_api_function()
 
@@ -367,6 +368,7 @@ def test_multiple_version_injection():
     assert call_other_function() == 1
 
     @hug.get(versions=1)
+    @hug.local(version=1)
     def one_more_level_of_indirection(hug_current_api):
         return hug_current_api.call_other_function()
 
@@ -793,6 +795,7 @@ def test_cli_with_conflicting_short_options():
 def test_cli_with_directives():
     """Test to ensure it's possible to use directives with hug CLIs"""
     @hug.cli()
+    @hug.local()
     def test(hug_timer):
         return float(hug_timer)
 
@@ -804,6 +807,7 @@ def test_cli_with_directives():
 def test_cli_with_named_directives():
     """Test to ensure you can pass named directives into the cli"""
     @hug.cli()
+    @hug.local()
     def test(timer:hug.directives.Timer):
         return float(timer)
 
