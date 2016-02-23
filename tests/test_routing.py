@@ -73,7 +73,7 @@ class TestRouter(object):
 
 class TestLocalRouter(TestRouter):
     """A collection of tests to ensure the LocalRouter object works as expected"""
-    route = LocalRouter(name='cli', version=1, doc='Hi there!', transform='transform', output='output')
+    route = LocalRouter(name='cli', doc='Hi there!', transform='transform', output='output')
 
     def test_validate(self):
         """Test to ensure changing wether a local route should validate or not works as expected"""
@@ -94,6 +94,14 @@ class TestLocalRouter(TestRouter):
 
         route = self.route.directives(False)
         assert 'skip_directives' in route.route
+
+    def test_version(self):
+        """Test to ensure changing the version of a LocalRoute on the fly works"""
+        assert not 'version' in self.route.route
+
+        route = self.route.version(2)
+        assert 'version' in route.route
+        assert route.route['version'] == 2
 
 
 class TestCLIRouter(TestRouter):
