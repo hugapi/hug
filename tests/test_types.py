@@ -23,11 +23,11 @@ import json
 import urllib
 from datetime import datetime
 from decimal import Decimal
-from marshmallow import Schema, fields
 
 import pytest
 
 import hug
+from marshmallow import Schema, fields
 
 
 def test_type():
@@ -321,4 +321,3 @@ def test_marshmallow_schema():
     assert schema_type("""{"name": "test"}""") == {"name": "test"}
     with pytest.raises(ValueError):
         schema_type({"name": 1})
-

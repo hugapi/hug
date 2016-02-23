@@ -29,11 +29,11 @@ from falcon import HTTP_METHODS
 import hug.api
 from hug.routing import CLIRouter as cli
 from hug.routing import ExceptionRouter as exception
+from hug.routing import LocalRouter as local
 from hug.routing import NotFoundRouter as not_found
 from hug.routing import SinkRouter as sink
 from hug.routing import StaticRouter as static
 from hug.routing import URLRouter as http
-from hug.routing import LocalRouter as local
 
 
 class Object(http):

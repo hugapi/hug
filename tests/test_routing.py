@@ -20,8 +20,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import hug
-from hug.routing import (CLIRouter, ExceptionRouter, HTTPRouter, NotFoundRouter,
-                         Router, SinkRouter, StaticRouter, URLRouter, LocalRouter, InternalValidation)
+from hug.routing import (CLIRouter, ExceptionRouter, HTTPRouter, InternalValidation, LocalRouter,
+                         NotFoundRouter, Router, SinkRouter, StaticRouter, URLRouter)
 
 api = hug.API(__name__)
 

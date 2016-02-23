@@ -21,7 +21,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
-
 from types import MethodType
 
 

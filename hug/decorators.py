@@ -32,8 +32,8 @@ from falcon import HTTP_METHODS
 import hug.api
 import hug.defaults
 import hug.output_format
-from hug.format import underscore
 from hug import introspect
+from hug.format import underscore
 
 
 def default_output_format(content_type='application/json', apply_globally=False):
