@@ -31,6 +31,7 @@ Changelog
 - Added support for defining routes separate from handlers
 - Added support for raising on validation errors - to enable overall exception handlers to catch them
 - Added support for multiple transformers on an endpoint via `transform.all`
+- Added support for applying type annotations and directives locally with @hug.local()
 - Updated all default output formats to gracefully handle error dictionaries
 - Documentation generation was moved to API instances to enable easier customization
 - Now correctly identifies and handles custom encodings
@@ -41,6 +42,8 @@ Changelog
 - Automatically works around a bug in uwsgi when returning byte streams
 - Refactored how interfaces are built to be more reasuable, and more easily introspected
 - Refactored how the built in annotation types are built to be more easily built upon
+- Breaking Changes
+    - directives are no longer automatically applied to local function calls, '@hug.local' must be used to apply them
 
 ### 1.9.9
 - Hug's json serializer will now automatically convert decimal.Decimal objects during serializationkw
