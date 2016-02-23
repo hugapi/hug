@@ -195,6 +195,88 @@ class Interface(object):
                 return conclusion
 
 
+class Local(Interface):
+    """Defines the Interface responsible for exposing functions locally"""
+    __slots__ = ('skip_directives', 'skip_validation')
+
+    def __init__(self, route, function):
+        super().__init__(route, function)
+
+        if 'skip_directives' in route:
+            self.skip_directives = True
+        if 'skip_validation' in route:
+            self.skip_validation = True
+
+        self.interface.local = self
+
+def __call__(self, request, response, api_version=None, **kwargs):
+        """Call the wrapped function over HTTP pulling information as needed"""
+        api_version = int(api_version) if api_version is not None else api_version
+        if not self.catch_exceptions:
+            exception_types = ()
+        else:
+            exception_types = self.api.exception_handlers(api_version)
+            exception_types = tuple(exception_types.keys()) if exception_types else ()
+        try:
+            self.set_response_defaults(response, request)
+
+            lacks_requirement = self.check_requirements(request, response)
+            if lacks_requirement:
+                response.data = self.outputs(lacks_requirement,
+                                             **self._arguments(self._params_for_outputs, request, response))
+                return
+
+            input_parameters = self.gather_parameters(request, response, api_version, **kwargs)
+            errors = self.validate(input_parameters)
+            if errors:
+                return self.render_errors(errors, request, response)
+
+            self.render_content(self.call_function(**input_parameters), request, response, **kwargs)
+        except falcon.HTTPNotFound:
+            return self.api.not_found(request, response, **kwargs)
+        except exception_types as exception:
+            handler = None
+            if type(exception) in exception_types:
+                handler = self.api.exception_handlers(api_version)[type(exception)]
+            else:
+                for exception_type, exception_handler in tuple(self.api.exception_handlers(api_version).items())[::-1]:
+                    if isinstance(exception, exception_type):
+                        handler = exception_handler
+            handler(request=request, response=response, exception=exception, **kwargs)
+
+    def __call__(self, *kargs, **kwargs):
+        """Defines how calling the function locally should be handled"""
+        for requirement in self.requires:
+            lacks_requirement = self.check_requirements(request, response)
+            if lacks_requirement:
+                return lacks_requirement
+            conclusion = requirement(module=self.api.module)
+
+            for index, argument in enumerate(kargs):
+                kwargs[self.parameters[index]] = argument
+
+            if conclusion and conclusion is not True:
+                return conclusion
+
+        pass_to_function = vars(self.parser.parse_args())
+        for option, directive in self.directives.items():
+            arguments = (self.defaults[option], ) if option in self.defaults else ()
+            pass_to_function[option] = directive(*arguments, module=self.api.module)
+
+        if getattr(self, 'validate_function', False):
+            errors = self.validate_function(pass_to_function)
+            if errors:
+                return errors
+
+        if hasattr(self.interface, 'karg'):
+            karg_values = pass_to_function.pop(self.interface.karg, ())
+            result = self.interface.function(*karg_values, **pass_to_function)
+        else:
+            result = self.interface.function(**pass_to_function)
+
+        return result
+
+
 class CLI(Interface):
     """Defines the Interface responsible for exposing functions to the CLI"""
 
@@ -274,7 +356,7 @@ class CLI(Interface):
         for requirement in self.requires:
             conclusion = requirement(request=sys.argv, module=self.api.module)
             if conclusion and conclusion is not True:
-                self.output(conclusion)
+                return self.output(conclusion)
 
         pass_to_function = vars(self.parser.parse_args())
         for option, directive in self.directives.items():
