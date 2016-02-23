@@ -80,25 +80,6 @@ class Router(object):
         return self.__class__(**route_data)
 
 
-class LocalRouter(Router):
-    """The LocalRouter defines how interfaces should be handled when accessed locally from within Python code"""
-    __slots__ = ()
-
-    def __init__(self, directives=True, validate=True, **kwargs):
-        super().__init__(**kwargs)
-
-        if not directives:
-            self.route['skip_directives'] = True
-        if not validate:
-            self.route['skip_validation'] = True
-
-    def directives(self, use=True, **kwargs):
-        return self.where(directives=use)
-
-    def validate(self, enforce=True, **kwargs):
-        return self.where(validate=enforce)
-
-
 class CLIRouter(Router):
     """The CLIRouter provides a chainable router that can be used to route a CLI command to a Python function"""
     __slots__ = ()
@@ -126,16 +107,75 @@ class CLIRouter(Router):
 
     def __call__(self, api_function):
         """Enables exposing a Hug compatible function as a Command Line Interface"""
-        interface = hug.interface.CLI(self.route, api_function)
-        return interface.wrapped
+        hug.interface.CLI(self.route, api_function)
+        return api_function
 
 
-class HTTPRouter(Router):
+class InternalValidation(Router):
+    """Defines the base route for interfaces that define their own internal validation"""
+    __slots__ = ()
+
+    def __init__(self, raise_on_invalid=False, on_invalid=None, output_invalid=None, **kwargs):
+        super().__init__(**kwargs)
+        if raise_on_invalid:
+            self.route['raise_on_invalid'] = raise_on_invalid
+        if on_invalid:
+            self.route['on_invalid'] = on_invalid
+        if output_invalid:
+            self.route['output_invalid'] = output_invalid
+
+    def raise_on_invalid(self, setting=True, **overrides):
+        """Sets the route to raise validation errors instead of catching them"""
+        return self.where(raise_on_invalid=setting, **overrides)
+
+    def on_invalid(self, function, **overrides):
+        """Sets a function to use to transform data on validation errors.
+
+        Defaults to the transform function if one is set to ensure no special
+        handling occurs for invalid data set to `False`.
+        """
+        return self.where(on_invalid=function, **overrides)
+
+    def output_invalid(self, output_handler, **overrides):
+        """Sets an output handler to be used when handler validation fails.
+
+        Defaults to the output formatter set globally for the route.
+        """
+        return self.where(output_invalid=output_handler, **overrides)
+
+
+class LocalRouter(InternalValidation):
+    """The LocalRouter defines how interfaces should be handled when accessed locally from within Python code"""
+    __slots__ = ()
+
+    def __init__(self, directives=True, validate=True, version=None, **kwargs):
+        super().__init__(**kwargs)
+        if version is not None:
+            self.route['version'] = version
+        if not directives:
+            self.route['skip_directives'] = True
+        if not validate:
+            self.route['skip_validation'] = True
+
+    def directives(self, use=True, **kwargs):
+        return self.where(directives=use)
+
+    def validate(self, enforce=True, **kwargs):
+        return self.where(validate=enforce)
+
+    def version(self, supported, **kwargs):
+        return self.where(version=supported)
+
+    def __call__(self, api_function):
+        """Enables exposing a hug compatible function locally"""
+        return hug.interface.Local(self.route, api_function)
+
+
+class HTTPRouter(InternalValidation):
     """The HTTPRouter provides the base concept of a router from an HTTPRequest to a Python function"""
     __slots__ = ()
 
-    def __init__(self, versions=None, parse_body=False, parameters=None, defaults={}, status=None,
-                 on_invalid=None, output_invalid=None, raise_on_invalid=False, **kwargs):
+    def __init__(self, versions=None, parse_body=False, parameters=None, defaults={}, status=None, **kwargs):
         super().__init__(**kwargs)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
         if parse_body:
@@ -146,12 +186,6 @@ class HTTPRouter(Router):
             self.route['defaults'] = defaults
         if status:
             self.route['status'] = status
-        if on_invalid:
-            self.route['on_invalid'] = on_invalid
-        if output_invalid:
-            self.route['output_invalid'] = output_invalid
-        if raise_on_invalid:
-            self.route['raise_on_invalid'] = raise_on_invalid
 
     def versions(self, supported, **overrides):
         """Sets the versions that this route should be compatiable with"""
@@ -173,28 +207,9 @@ class HTTPRouter(Router):
         """Sets the custom defaults that will be used for custom parameters"""
         return self.where(defaults=defaults, **overrides)
 
-    def on_invalid(self, function, **overrides):
-        """Sets a function to use to transform data on validation errors.
-
-        Defaults to the transform function if one is set to ensure no special
-        handling occurs for invalid data set to `False`.
-        """
-        return self.where(on_invalid=function, **overrides)
-
-    def output_invalid(self, output_handler, **overrides):
-        """Sets an output handler to be used when handler validation fails.
-
-        Defaults to the output formatter set globally for the route.
-        """
-        return self.where(output_invalid=output_handler, **overrides)
-
-    def raise_on_invalid(self, setting=True, **overrides):
-        """Sets the route to raise validation errors instead of catching them"""
-        return self.where(raise_on_invalid=setting, **overrides)
-
     def _create_interface(self, api, api_function, catch_exceptions=True):
         interface = hug.interface.HTTP(self.route, api_function, catch_exceptions)
-        return (interface, interface.wrapped)
+        return (interface, api_function)
 
 
 class NotFoundRouter(HTTPRouter):

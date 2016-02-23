@@ -97,7 +97,8 @@ class Interface(object):
        A Interface object should be created for every kind of protocal hug supports
     """
     __slots__ = ('interface', 'api', 'defaults', 'parameters', 'required', 'outputs', 'on_invalid', 'requires',
-                 'validate_function', 'transform', 'examples', 'output_doc', 'wrapped', 'directives')
+                 'validate_function', 'transform', 'examples', 'output_doc', 'wrapped', 'directives',
+                 'raise_on_invalid', 'invalid_outputs')
 
     def __init__(self, route, function):
         self.api = route.get('api', hug.api.from_object(function))
@@ -110,6 +111,8 @@ class Interface(object):
         self.requires = route.get('requires', ())
         if 'validate' in route:
             self.validate_function = route['validate']
+        if 'output_invalid' in route:
+            self.invalid_outputs = route['output_invalid']
 
         if not 'parameters' in route:
             self.defaults = self.interface.defaults
@@ -120,7 +123,7 @@ class Interface(object):
             self.parameters = tuple(route['parameters'])
             self.required = tuple([parameter for parameter in self.parameters if parameter not in self.defaults])
 
-        self.outputs = route.get('output', self.api.output_format)
+        self.outputs = route.get('output', None)
         self.transform = route.get('transform', None)
         if self.transform is None and not isinstance(self.interface.transform, (str, type(None))):
             self.transform = self.interface.transform
@@ -131,6 +134,7 @@ class Interface(object):
         elif self.transform or self.interface.transform:
             self.output_doc = self.transform or self.interface.transform
 
+        self.raise_on_invalid = route.get('raise_on_invalid', False)
         if 'on_invalid' in route:
             self.on_invalid = route['on_invalid']
         elif self.transform:
@@ -140,22 +144,6 @@ class Interface(object):
         used_directives = set(self.parameters).intersection(defined_directives)
         self.directives = {directive_name: defined_directives[directive_name] for directive_name in used_directives}
         self.directives.update(self.interface.directives)
-
-        self.wrapped = self.interface.function
-        if self.directives and not getattr(function, 'without_directives', None):
-            @wraps(function)
-            def callable_method(*args, **kwargs):
-                for parameter, directive in self.directives.items():
-                    if parameter in kwargs:
-                        continue
-                    arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
-                    kwargs[parameter] = directive(*arguments, module=self.api.module,
-                                        api_version=max(route.get('versions', ()), key=lambda version: version or -1)
-                                        if route.get('versions', None) else None)
-                return function(*args, **kwargs)
-            self.wrapped = callable_method
-            self.wrapped.without_directives = self.interface.function
-            self.wrapped.interface = self.interface
 
     def validate(self, input_parameters):
         """Runs all set type transformers / validators against the provided input parameters and returns any errors"""
@@ -197,11 +185,19 @@ class Interface(object):
 
 class Local(Interface):
     """Defines the Interface responsible for exposing functions locally"""
-    __slots__ = ('skip_directives', 'skip_validation')
+    __slots__ = ('skip_directives', 'skip_validation', 'version')
+
+    @property
+    def __name__(self):
+        return self.interface.spec.__name__
+
+    @property
+    def __module__(self):
+        return self.interface.spec.__module__
 
     def __init__(self, route, function):
         super().__init__(route, function)
-
+        self.version = route.get('version', None)
         if 'skip_directives' in route:
             self.skip_directives = True
         if 'skip_validation' in route:
@@ -209,72 +205,36 @@ class Local(Interface):
 
         self.interface.local = self
 
-def __call__(self, request, response, api_version=None, **kwargs):
-        """Call the wrapped function over HTTP pulling information as needed"""
-        api_version = int(api_version) if api_version is not None else api_version
-        if not self.catch_exceptions:
-            exception_types = ()
-        else:
-            exception_types = self.api.exception_handlers(api_version)
-            exception_types = tuple(exception_types.keys()) if exception_types else ()
-        try:
-            self.set_response_defaults(response, request)
-
-            lacks_requirement = self.check_requirements(request, response)
-            if lacks_requirement:
-                response.data = self.outputs(lacks_requirement,
-                                             **self._arguments(self._params_for_outputs, request, response))
-                return
-
-            input_parameters = self.gather_parameters(request, response, api_version, **kwargs)
-            errors = self.validate(input_parameters)
-            if errors:
-                return self.render_errors(errors, request, response)
-
-            self.render_content(self.call_function(**input_parameters), request, response, **kwargs)
-        except falcon.HTTPNotFound:
-            return self.api.not_found(request, response, **kwargs)
-        except exception_types as exception:
-            handler = None
-            if type(exception) in exception_types:
-                handler = self.api.exception_handlers(api_version)[type(exception)]
-            else:
-                for exception_type, exception_handler in tuple(self.api.exception_handlers(api_version).items())[::-1]:
-                    if isinstance(exception, exception_type):
-                        handler = exception_handler
-            handler(request=request, response=response, exception=exception, **kwargs)
-
     def __call__(self, *kargs, **kwargs):
         """Defines how calling the function locally should be handled"""
         for requirement in self.requires:
-            lacks_requirement = self.check_requirements(request, response)
+            lacks_requirement = self.check_requirements()
             if lacks_requirement:
-                return lacks_requirement
-            conclusion = requirement(module=self.api.module)
+                return self.outputs(lacks_requirement) if self.outputs else lacks_requirement
 
-            for index, argument in enumerate(kargs):
-                kwargs[self.parameters[index]] = argument
+        for index, argument in enumerate(kargs):
+            kwargs[self.parameters[index]] = argument
 
-            if conclusion and conclusion is not True:
-                return conclusion
+        if not getattr(self, 'skip_directives', False):
+            for parameter, directive in self.directives.items():
+                if parameter in kwargs:
+                    continue
+                arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
+                kwargs[parameter] = directive(*arguments, module=self.api.module, api_version=self.version)
 
-        pass_to_function = vars(self.parser.parse_args())
-        for option, directive in self.directives.items():
-            arguments = (self.defaults[option], ) if option in self.defaults else ()
-            pass_to_function[option] = directive(*arguments, module=self.api.module)
-
-        if getattr(self, 'validate_function', False):
-            errors = self.validate_function(pass_to_function)
+        if not getattr(self, 'skip_validation', False):
+            errors = self.validate(kwargs)
             if errors:
-                return errors
+                errors = {'errors': errors}
+                if getattr(self, 'on_invalid', False):
+                    errors = self.on_invalid(errors)
+                outputs = getattr(self, 'invalid_outputs', self.outputs)
+                return outputs(errors) if outputs else errors
 
-        if hasattr(self.interface, 'karg'):
-            karg_values = pass_to_function.pop(self.interface.karg, ())
-            result = self.interface.function(*karg_values, **pass_to_function)
-        else:
-            result = self.interface.function(**pass_to_function)
-
-        return result
+        result = self.interface.function(**kwargs)
+        if self.transform:
+            result = self.transform(result)
+        return self.outputs(result) if self.outputs else result
 
 
 class CLI(Interface):
@@ -381,8 +341,7 @@ class HTTP(Interface):
     """Defines the interface responsible for wrapping functions and exposing them via HTTP based on the route"""
     __slots__ = ('_params_for_outputs', '_params_for_invalid_outputs', '_params_for_transform', 'on_invalid',
                  '_params_for_on_invalid',  'set_status','response_headers', 'transform', 'input_transformations',
-                 'examples', 'output_doc', 'wrapped', 'catch_exceptions', 'parse_body', 'invalid_outputs',
-                 'raise_on_invalid')
+                 'examples', 'output_doc', 'wrapped', 'catch_exceptions', 'parse_body')
     AUTO_INCLUDE = {'request', 'response'}
 
     def __init__(self, route, function, catch_exceptions=True):
@@ -391,13 +350,12 @@ class HTTP(Interface):
         self.parse_body = 'parse_body' in route
         self.set_status = route.get('status', False)
         self.response_headers = tuple(route.get('response_headers', {}).items())
-        self.raise_on_invalid = route.get('raise_on_invalid', False)
+        self.outputs = route.get('output', self.api.output_format)
 
         self._params_for_outputs = introspect.takes_arguments(self.outputs, *self.AUTO_INCLUDE)
         self._params_for_transform = introspect.takes_arguments(self.transform, *self.AUTO_INCLUDE)
 
         if 'output_invalid' in route:
-            self.invalid_outputs = route['output_invalid']
             self._params_for_invalid_outputs = introspect.takes_arguments(self.invalid_outputs, *self.AUTO_INCLUDE)
 
         if 'on_invalid' in route:

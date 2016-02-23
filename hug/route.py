@@ -33,6 +33,7 @@ from hug.routing import NotFoundRouter as not_found
 from hug.routing import SinkRouter as sink
 from hug.routing import StaticRouter as static
 from hug.routing import URLRouter as http
+from hug.routing import LocalRouter as local
 
 
 class Object(http):
