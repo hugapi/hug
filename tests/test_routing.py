@@ -21,7 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import hug
 from hug.routing import (CLIRouter, ExceptionRouter, HTTPRouter, NotFoundRouter,
-                         Router, SinkRouter, StaticRouter, URLRouter, LocalRouter)
+                         Router, SinkRouter, StaticRouter, URLRouter, LocalRouter, InternalValidation)
 
 api = hug.API(__name__)
 
@@ -71,7 +71,54 @@ class TestRouter(object):
         assert new_route.route['transform'] == 'transformer'
 
 
-class TestLocalRouter(TestRouter):
+class TestCLIRouter(TestRouter):
+    """A collection of tests to ensure the CLIRouter object works as expected"""
+    route = CLIRouter(name='cli', version=1, doc='Hi there!', transform='transform', output='output')
+
+    def test_name(self):
+        """Test to ensure the name can be replaced on the fly"""
+        new_route = self.route.name('new name')
+        assert new_route != self.route
+        assert new_route.route['name'] == 'new name'
+        assert new_route.route['transform'] == 'transform'
+        assert new_route.route['output'] == 'output'
+
+    def test_version(self):
+        """Test to ensure the version can be replaced on the fly"""
+        new_route = self.route.version(2)
+        assert new_route != self.route
+        assert new_route.route['version'] == 2
+        assert new_route.route['transform'] == 'transform'
+        assert new_route.route['output'] == 'output'
+
+    def test_doc(self):
+        """Test to ensure the documentation can be replaced on the fly"""
+        new_route = self.route.doc('FAQ')
+        assert new_route != self.route
+        assert new_route.route['doc'] == 'FAQ'
+        assert new_route.route['transform'] == 'transform'
+        assert new_route.route['output'] == 'output'
+
+
+class TestInternalValidation(TestRouter):
+    """Collection of tests to ensure the base Router for routes that define internal validation work as expected"""
+    route = InternalValidation(name='cli', doc='Hi there!', transform='transform', output='output')
+
+    def test_raise_on_invalid(self):
+        """Test to ensure it's possible to set a raise on invalid handler per route"""
+        assert not 'raise_on_invalid' in self.route.route
+        assert self.route.raise_on_invalid().route['raise_on_invalid']
+
+    def test_on_invalid(self):
+        """Test to ensure on_invalid handler can be changed on the fly"""
+        assert self.route.on_invalid(str).route['on_invalid'] == str
+
+    def test_output_invalid(self):
+        """Test to ensure output_invalid handler can be changed on the fly"""
+        assert self.route.output_invalid(hug.output_format.json).route['output_invalid'] == hug.output_format.json
+
+
+class TestLocalRouter(TestInternalValidation):
     """A collection of tests to ensure the LocalRouter object works as expected"""
     route = LocalRouter(name='cli', doc='Hi there!', transform='transform', output='output')
 
@@ -104,36 +151,7 @@ class TestLocalRouter(TestRouter):
         assert route.route['version'] == 2
 
 
-class TestCLIRouter(TestRouter):
-    """A collection of tests to ensure the CLIRouter object works as expected"""
-    route = CLIRouter(name='cli', version=1, doc='Hi there!', transform='transform', output='output')
-
-    def test_name(self):
-        """Test to ensure the name can be replaced on the fly"""
-        new_route = self.route.name('new name')
-        assert new_route != self.route
-        assert new_route.route['name'] == 'new name'
-        assert new_route.route['transform'] == 'transform'
-        assert new_route.route['output'] == 'output'
-
-    def test_version(self):
-        """Test to ensure the version can be replaced on the fly"""
-        new_route = self.route.version(2)
-        assert new_route != self.route
-        assert new_route.route['version'] == 2
-        assert new_route.route['transform'] == 'transform'
-        assert new_route.route['output'] == 'output'
-
-    def test_doc(self):
-        """Test to ensure the documentation can be replaced on the fly"""
-        new_route = self.route.doc('FAQ')
-        assert new_route != self.route
-        assert new_route.route['doc'] == 'FAQ'
-        assert new_route.route['transform'] == 'transform'
-        assert new_route.route['output'] == 'output'
-
-
-class TestHTTPRouter(TestRouter):
+class TestHTTPRouter(TestInternalValidation):
     """Collection of tests to ensure the base HTTPRouter object works as expected"""
     route = HTTPRouter(output='output', versions=(1, ), parse_body=False, transform='transform', requires=('love', ),
                        parameters=('one', ), defaults={'one': 'value'}, status=200)
@@ -162,19 +180,6 @@ class TestHTTPRouter(TestRouter):
     def test_status(self):
         """Test to ensure the default status can be changed on the fly"""
         assert self.route.set_status(500).route['status'] == 500
-
-    def test_on_invalid(self):
-        """Test to ensure on_invalid handler can be changed on the fly"""
-        assert self.route.on_invalid(str).route['on_invalid'] == str
-
-    def test_output_invalid(self):
-        """Test to ensure output_invalid handler can be changed on the fly"""
-        assert self.route.output_invalid(hug.output_format.json).route['output_invalid'] == hug.output_format.json
-
-    def test_raise_on_invalid(self):
-        """Test to ensure it's possible to set a raise on invalid handler per route"""
-        assert not 'raise_on_invalid' in self.route.route
-        assert self.route.raise_on_invalid().route['raise_on_invalid']
 
 
 class TestStaticRouter(TestHTTPRouter):

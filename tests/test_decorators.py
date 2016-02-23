@@ -855,6 +855,62 @@ def test_cli_file_return():
     assert 'hug' in hug.test.cli(test)
 
 
+def test_local_type_annotation():
+    """Test to ensure local type annotation works as expected"""
+    @hug.local(raise_on_invalid=True)
+    def test(number:int):
+        return number
+
+    assert test(3) == 3
+    with pytest.raises(Exception):
+        test('h')
+
+    @hug.local(raise_on_invalid=False)
+    def test(number:int):
+        return number
+
+    assert test('h')['errors']
+
+    @hug.local(raise_on_invalid=False, validate=False)
+    def test(number:int):
+        return number
+
+    assert test('h') == 'h'
+
+
+def test_local_transform():
+    """Test to ensure local type annotation works as expected"""
+    @hug.local(transform=str)
+    def test(number:int):
+        return number
+
+    assert test(3) == '3'
+
+
+def test_local_on_invalid():
+    """Test to ensure local type annotation works as expected"""
+    @hug.local(on_invalid=str)
+    def test(number:int):
+        return number
+
+    assert isinstance(test('h'), str)
+
+
+def test_local_requires():
+    """Test to ensure only if requirements successfully keep calls from happening locally"""
+    global_state = False
+    def requirement(**kwargs):
+        return global_state and 'Unauthorized'
+
+    @hug.local(requires=requirement)
+    def hello():
+        return 'Hi!'
+
+    assert hello() == 'Hi!'
+    global_state = True
+    assert hello() == 'Unauthorized'
+
+
 def test_static_file_support():
     """Test to ensure static file routing works as expected"""
     @hug.static('/static')

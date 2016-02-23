@@ -131,6 +131,21 @@ def test_named_directives():
     assert isinstance(test(), hug.directives.Timer)
 
 
+def test_local_named_directives():
+    """Ensure that it's possible to attach directives to local function calling"""
+    @hug.local()
+    def test(time:__hug__.directive('timer')=3):
+        return time
+
+    assert isinstance(test(), hug.directives.Timer)
+
+    @hug.local(directives=False)
+    def test(time:__hug__.directive('timer')=3):
+        return time
+
+    assert isinstance(test(3), int)
+
+
 def test_named_directives_by_name():
     """Ensure that it's possible to attach directives to named parameters using only the name of the directive"""
     @hug.get()
