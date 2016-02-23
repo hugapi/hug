@@ -84,16 +84,16 @@ def cli(method, *kargs, **arguments):
     old_sys_argv = sys.argv
     sys.argv = [str(part) for part in command_args]
 
-    old_output = method.cli.output
+    old_output = method.interface.cli.output
     if collect_output:
-        method.cli.outputs = lambda data: to_return.append(data)
+        method.interface.cli.outputs = lambda data: to_return.append(data)
     to_return = []
 
     try:
-        method.cli()
+        method.interface.cli()
     except Exception as e:
         to_return = (e, )
 
-    method.cli.output = old_output
+    method.interface.cli.output = old_output
     sys.argv = old_sys_argv
     return to_return and to_return[0] or None

@@ -80,7 +80,7 @@ class API(object, metaclass=ModuleSingleton):
     def not_found(self):
         """Returns the active not found handler"""
         handler = getattr(self, '_not_found', self.base_404)
-        handler.http = True
+        handler.interface = True
         return handler
 
     def input_format(self, content_type):

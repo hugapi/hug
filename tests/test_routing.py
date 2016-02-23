@@ -21,7 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import hug
 from hug.routing import (CLIRouter, ExceptionRouter, HTTPRouter, NotFoundRouter,
-                         Router, SinkRouter, StaticRouter, URLRouter)
+                         Router, SinkRouter, StaticRouter, URLRouter, LocalRouter, InternalValidation)
 
 api = hug.API(__name__)
 
@@ -100,7 +100,58 @@ class TestCLIRouter(TestRouter):
         assert new_route.route['output'] == 'output'
 
 
-class TestHTTPRouter(TestRouter):
+class TestInternalValidation(TestRouter):
+    """Collection of tests to ensure the base Router for routes that define internal validation work as expected"""
+    route = InternalValidation(name='cli', doc='Hi there!', transform='transform', output='output')
+
+    def test_raise_on_invalid(self):
+        """Test to ensure it's possible to set a raise on invalid handler per route"""
+        assert not 'raise_on_invalid' in self.route.route
+        assert self.route.raise_on_invalid().route['raise_on_invalid']
+
+    def test_on_invalid(self):
+        """Test to ensure on_invalid handler can be changed on the fly"""
+        assert self.route.on_invalid(str).route['on_invalid'] == str
+
+    def test_output_invalid(self):
+        """Test to ensure output_invalid handler can be changed on the fly"""
+        assert self.route.output_invalid(hug.output_format.json).route['output_invalid'] == hug.output_format.json
+
+
+class TestLocalRouter(TestInternalValidation):
+    """A collection of tests to ensure the LocalRouter object works as expected"""
+    route = LocalRouter(name='cli', doc='Hi there!', transform='transform', output='output')
+
+    def test_validate(self):
+        """Test to ensure changing wether a local route should validate or not works as expected"""
+        assert not 'skip_validation' in self.route.route
+
+        route = self.route.validate()
+        assert not 'skip_validation' in route.route
+
+        route = self.route.validate(False)
+        assert 'skip_validation' in route.route
+
+    def test_directives(self):
+        """Test to ensure changing wether a local route should supply directives or not works as expected"""
+        assert not 'skip_directives' in self.route.route
+
+        route = self.route.directives()
+        assert not 'skip_directives' in route.route
+
+        route = self.route.directives(False)
+        assert 'skip_directives' in route.route
+
+    def test_version(self):
+        """Test to ensure changing the version of a LocalRoute on the fly works"""
+        assert not 'version' in self.route.route
+
+        route = self.route.version(2)
+        assert 'version' in route.route
+        assert route.route['version'] == 2
+
+
+class TestHTTPRouter(TestInternalValidation):
     """Collection of tests to ensure the base HTTPRouter object works as expected"""
     route = HTTPRouter(output='output', versions=(1, ), parse_body=False, transform='transform', requires=('love', ),
                        parameters=('one', ), defaults={'one': 'value'}, status=200)
@@ -129,19 +180,6 @@ class TestHTTPRouter(TestRouter):
     def test_status(self):
         """Test to ensure the default status can be changed on the fly"""
         assert self.route.set_status(500).route['status'] == 500
-
-    def test_on_invalid(self):
-        """Test to ensure on_invalid handler can be changed on the fly"""
-        assert self.route.on_invalid(str).route['on_invalid'] == str
-
-    def test_output_invalid(self):
-        """Test to ensure output_invalid handler can be changed on the fly"""
-        assert self.route.output_invalid(hug.output_format.json).route['output_invalid'] == hug.output_format.json
-
-    def test_raise_on_invalid(self):
-        """Test to ensure it's possible to set a raise on invalid handler per route"""
-        assert not 'raise_on_invalid' in self.route.route
-        assert self.route.raise_on_invalid().route['raise_on_invalid']
 
 
 class TestStaticRouter(TestHTTPRouter):

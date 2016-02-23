@@ -42,6 +42,7 @@ def test_timer():
     assert float(timer) < timer.start
 
     @hug.get()
+    @hug.local()
     def timer_tester(hug_timer):
         return hug_timer
 
@@ -109,7 +110,7 @@ def test_user():
     """Ensure that it's possible to get the current authenticated user based on a directive"""
     user = 'test_user'
     password = 'super_secret'
-    
+
     @hug.get(requires=hug.authentication.basic(hug.authentication.verify(user, password)))
     def authenticated_hello(hug_user):
         return hug_user
@@ -124,12 +125,31 @@ def test_named_directives():
     def test(time:hug.directives.Timer=3):
         return time
 
+    assert isinstance(test(1), int)
+
+    test = hug.local()(test)
     assert isinstance(test(), hug.directives.Timer)
+
+
+def test_local_named_directives():
+    """Ensure that it's possible to attach directives to local function calling"""
+    @hug.local()
+    def test(time:__hug__.directive('timer')=3):
+        return time
+
+    assert isinstance(test(), hug.directives.Timer)
+
+    @hug.local(directives=False)
+    def test(time:__hug__.directive('timer')=3):
+        return time
+
+    assert isinstance(test(3), int)
 
 
 def test_named_directives_by_name():
     """Ensure that it's possible to attach directives to named parameters using only the name of the directive"""
     @hug.get()
+    @hug.local()
     def test(time:__hug__.directive('timer')=3):
         return time
 

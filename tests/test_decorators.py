@@ -38,7 +38,7 @@ def test_basic_call():
         return "Hello World!"
 
     assert hello_world() == "Hello World!"
-    assert hello_world.http
+    assert hello_world.interface.http
 
     assert hug.test.get(api, '/hello_world').data == "Hello World!"
     assert hug.test.get(module, '/hello_world').data == "Hello World!"
@@ -53,7 +53,7 @@ def test_basic_call_on_method():
             return "Hello World!"
 
     api_instance = API()
-    assert api_instance.hello_world.http
+    assert api_instance.hello_world.interface.http
     assert api_instance.hello_world() == 'Hello World!'
     assert hug.test.get(api, '/hello_world').data == "Hello World!"
 
@@ -92,7 +92,7 @@ def test_single_parameter():
         return text
 
     assert echo('Embrace') == 'Embrace'
-    assert echo.http
+    assert echo.interface.http
     with pytest.raises(TypeError):
         echo()
 
@@ -360,6 +360,7 @@ def test_multiple_version_injection():
     assert hug.test.get(api, 'v3/my_api_function').data == 3
 
     @hug.get(versions=(None, 1))
+    @hug.local(version=1)
     def call_other_function(hug_current_api):
         return hug_current_api.my_api_function()
 
@@ -367,6 +368,7 @@ def test_multiple_version_injection():
     assert call_other_function() == 1
 
     @hug.get(versions=1)
+    @hug.local(version=1)
     def one_more_level_of_indirection(hug_current_api):
         return hug_current_api.call_other_function()
 
@@ -793,6 +795,7 @@ def test_cli_with_conflicting_short_options():
 def test_cli_with_directives():
     """Test to ensure it's possible to use directives with hug CLIs"""
     @hug.cli()
+    @hug.local()
     def test(hug_timer):
         return float(hug_timer)
 
@@ -804,6 +807,7 @@ def test_cli_with_directives():
 def test_cli_with_named_directives():
     """Test to ensure you can pass named directives into the cli"""
     @hug.cli()
+    @hug.local()
     def test(timer:hug.directives.Timer):
         return float(timer)
 
@@ -849,6 +853,62 @@ def test_cli_file_return():
         return open('README.md', 'rb')
 
     assert 'hug' in hug.test.cli(test)
+
+
+def test_local_type_annotation():
+    """Test to ensure local type annotation works as expected"""
+    @hug.local(raise_on_invalid=True)
+    def test(number:int):
+        return number
+
+    assert test(3) == 3
+    with pytest.raises(Exception):
+        test('h')
+
+    @hug.local(raise_on_invalid=False)
+    def test(number:int):
+        return number
+
+    assert test('h')['errors']
+
+    @hug.local(raise_on_invalid=False, validate=False)
+    def test(number:int):
+        return number
+
+    assert test('h') == 'h'
+
+
+def test_local_transform():
+    """Test to ensure local type annotation works as expected"""
+    @hug.local(transform=str)
+    def test(number:int):
+        return number
+
+    assert test(3) == '3'
+
+
+def test_local_on_invalid():
+    """Test to ensure local type annotation works as expected"""
+    @hug.local(on_invalid=str)
+    def test(number:int):
+        return number
+
+    assert isinstance(test('h'), str)
+
+
+def test_local_requires():
+    """Test to ensure only if requirements successfully keep calls from happening locally"""
+    global_state = False
+    def requirement(**kwargs):
+        return global_state and 'Unauthorized'
+
+    @hug.local(requires=requirement)
+    def hello():
+        return 'Hi!'
+
+    assert hello() == 'Hi!'
+    global_state = True
+    assert hello() == 'Unauthorized'
 
 
 def test_static_file_support():
