@@ -20,6 +20,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import re
+import socket
 from collections import namedtuple
 from io import BytesIO
 
@@ -153,3 +154,78 @@ class Local(Service):
             raise requests.HTTPError('{0} occured for url: {1}'.format(response.status, url))
 
         return Response(data, status_code, response._headers)
+
+
+class Socket(Service):
+    __slots__ = ('socket', 'socket_fd', 'connection')
+
+    Connection = namedtuple('Connection', ('connect_to', 'proto', 'sockopts'))
+    protocols = {
+        'tcp': (socket.AF_INET, socket.SOCK_STREAM),
+        'unix_stream': (socket.AF_UNIX, socket.SOCK_STREAM),
+        'udp': (socket.AF_INET, socket.SOCK_DGRAM),
+        'unix_dgram': (socket.AF_UNIX, socket.SOCK_DGRAM)
+    }
+    streams = ('tcp', 'unix_stream')
+    datagrams = ('udp', 'unix_dgram')
+
+    def __init__(self, connect_to, proto, version=None,
+                 headers=empty.dict, timeout=None, raise_on=(500, ), **kwargs):
+        super().__init__(timeout=timeout, raise_on=raise_on, version=version, **kwargs)
+        self.connection = Socket.Connection(connect_to, proto, set())
+        (self.socket, self.socket_fd) = self.connect(timeout)
+
+    def setsockopt(self, *sockopts):
+        """Add options to current socket, and save them in case we reconnect"""
+        if type(sockopts[0]) in (list, tuple):
+            for sock_opt in sockopts[0]:
+                level, option, value = sock_opt
+                self.connection.sockopts.add((level, option, value))
+                self.socket.setsockopt(level, option, value)
+        else:
+            level, option, value = sockopts
+            self.connection.sockopts.add((level, option, value))
+            self.socket.setsockopt(level, option, value)
+
+    def connect(self, timeout=None):
+        """Setup/Connect socket, configure socket options if passed in the form of
+        [(socket.<level>, socket.<option>, value),
+         (socket.<level>, socket.<option>, value)]
+        and return socket file-like object.
+        """
+        _socket = socket.socket(*Socket.protocols[self.connection.proto])
+        if timeout:
+            _socket.settimeout(timeout)
+
+        # Reconfigure original socket options.
+        if self.connection.sockopts:
+            for sock_opt in self.connection.sockopts:
+                level, option, value = sock_opt
+                _socket.setsockopt(level, option, value)
+
+        _socket.connect(self.connection.connect_to)
+        return (_socket, _socket.makefile(mode='rwb', encoding='utf-8'))
+
+    def request(self, query, headers=empty.dict, timeout=None):
+        if timeout:
+            self.socket.settimeout(timeout)
+
+        data = BytesIO()
+        self.socket_fd.write(query.encode('utf-8'))
+        self.socket_fd.flush()
+
+        for received in self.socket_fd:
+            data.write(received.rstrip())
+        data.seek(0)
+
+        (content_type, encoding) = separate_encoding(headers.get('content-type', ''), 'utf-8')
+        if content_type in input_format:
+            data = input_format[content_type](data, encoding)
+        else:
+            data = data.read()
+
+        if self.connection.proto in Socket.streams:
+            # streaming sockets need to be reconnected.
+            (self.socket, self.socket_fd) = self.connect(timeout)
+
+        return Response(data, None, headers)

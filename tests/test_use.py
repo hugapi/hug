@@ -129,6 +129,55 @@ class TestLocal(object):
             assert self.service.get('exception')
 
 
+class TestSocket(object):
+    """Test to ensure the Socket Service object enables sending/receiving data from arbitrary server/port sockets"""
+    import socket
+    addr = socket.gethostbyname('www.purple.com')
+    service = use.Socket(connect_to=(addr, 80), proto='tcp', timeout=60)
+
+    def test_init(self):
+        """Test to ensure the Socket service instantiation populates the expected attributes"""
+        assert isinstance(self.service, use.Service)
+
+    def test_protocols(self):
+        """Test to ensure all supported protocols are present"""
+        protocols = sorted(['tcp', 'udp', 'unix_stream', 'unix_dgram'])
+        assert sorted(self.service.protocols) == protocols
+
+    def test_streams(self):
+        assert self.service.streams == ('tcp', 'unix_stream')
+
+    def test_datagrams(self):
+        assert self.service.datagrams == ('udp', 'unix_dgram')
+
+    def test_connection(self):
+        assert self.service.connection.connect_to == (self.addr, 80)
+        assert self.service.connection.proto == 'tcp'
+        assert self.service.connection.sockopts == set()
+
+    def test_connection_sockopts_unit(self):
+        self.service.connection.sockopts.clear()
+        self.service.setsockopt(self.socket.SOL_SOCKET, self.socket.SO_KEEPALIVE, 1)
+        assert self.service.connection.sockopts == {(self.socket.SOL_SOCKET, self.socket.SO_KEEPALIVE, 1)}
+
+    def test_connection_sockopts_batch(self):
+        self.service.setsockopt(((self.socket.SOL_SOCKET, self.socket.SO_KEEPALIVE, 1),
+                                 (self.socket.SOL_SOCKET, self.socket.SO_REUSEADDR, 1)))
+        assert self.service.connection.sockopts == {(self.socket.SOL_SOCKET, self.socket.SO_KEEPALIVE, 1),
+                                                       (self.socket.SOL_SOCKET, self.socket.SO_REUSEADDR, 1)}
+
+    def test_request_with_headers(self):
+        """Test to ensure requesting data with content-type specified works as expected"""
+        assert ' '.join(self.service.request(query='GET / HTTP/1.0\r\n\r\n', timeout=120,
+                                              headers={'content-type': 'text/html'}
+                                              ).data.split()[:2]) == 'HTTP/1.1 200'
+
+    def test_request(self):
+        """Test to ensure requesting data from a socket service works as expected"""
+        assert b' '.join(self.service.request(query='GET / HTTP/1.0\r\n\r\n').data.split()[:2]) == b'HTTP/1.1 200'
+
+
+
 @hug.get()
 def hello_world():
     return 'Hi!'
