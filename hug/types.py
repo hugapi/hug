@@ -19,10 +19,9 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import uuid as hug_uuid
 from decimal import Decimal
 from json import loads as load_json
-
-import uuid as hug_uuid
 
 from hug.exceptions import InvalidTypeData
 
