@@ -22,6 +22,7 @@ Code Contributors
 - Trevor Scheitrum (@trevorscheitrum)
 - Ian Wagner (@ianthetechie)
 - Erwin Haasnoot (@ErwinHaasnoot)
+- Kirk Leon Guerrero (@kirklg)
 
 Documenters
 ===================
