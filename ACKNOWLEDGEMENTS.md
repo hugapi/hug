@@ -8,6 +8,7 @@ Notable Bug Reporters
 - Carl Neuhaus (@carlneuhaus)
 - Eirik Rye (@eirikrye)
 - Matteo Bertini (@naufraghi)
+- Erwin Haasnoot (@ErwinHaasnoot)
 
 Code Contributors
 ===================
@@ -20,6 +21,7 @@ Code Contributors
 - Matteo Bertini (@naufraghi)
 - Trevor Scheitrum (@trevorscheitrum)
 - Ian Wagner (@ianthetechie)
+- Erwin Haasnoot (@ErwinHaasnoot)
 
 Documenters
 ===================
