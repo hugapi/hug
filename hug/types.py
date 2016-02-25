@@ -75,9 +75,20 @@ class Accept(Type):
 number = Accept(int, 'A whole number', 'Invalid whole number provided')
 float_number = Accept(float, 'A float number', 'Invalid float number provided')
 decimal = Accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
-text = Accept(str, 'Basic text / string value', 'Invalid text value provided')
 boolean = Accept(bool, 'Providing any value will set this to true',
                  'Invalid boolean value provided', cli_behaviour={'action': 'store_true'})
+
+
+class Text(Type):
+    """Basic text / string value"""
+    __slots__ = ()
+
+    def __call__(self, value):
+        if type(value) in (list, tuple):
+            raise ValueError('Invalid text value provided')
+        return str(value)
+
+text = Text()
 
 
 class Multiple(Type):
