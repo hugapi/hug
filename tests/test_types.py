@@ -28,6 +28,7 @@ import pytest
 from marshmallow import Schema, fields
 
 import hug
+from hug.exceptions import InvalidTypeData
 
 
 def test_type():
@@ -321,5 +322,6 @@ def test_marshmallow_schema():
     schema_type = hug.types.MarshmallowSchema(UserSchema())
     assert schema_type({"name": "test"}) == {"name": "test"}
     assert schema_type("""{"name": "test"}""") == {"name": "test"}
-    with pytest.raises(ValueError):
+    assert schema_type.__doc__ == 'UserSchema'
+    with pytest.raises(InvalidTypeData):
         schema_type({"name": 1})

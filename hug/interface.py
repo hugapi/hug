@@ -25,14 +25,14 @@ import sys
 from functools import wraps
 
 import falcon
-from falcon import HTTP_BAD_REQUEST
-
 import hug.api
 import hug.output_format
+from falcon import HTTP_BAD_REQUEST
 from hug import _empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 from hug.input_format import separate_encoding
+from hug.types import MarshmallowSchema
 
 
 class Interfaces(object):
@@ -71,23 +71,11 @@ class Interfaces(object):
                 continue
 
             if hasattr(transformer, 'load'):
-                transformer = self._marshmallow_schema(transformer)
+                transformer = MarshmallowSchema(transformer)
             elif hasattr(transformer, 'deserialize'):
                 transformer = transformer.deserialize
 
             self.input_transformations[name] = transformer
-
-    def _marshmallow_schema(self, marshmallow):
-        """Dynamically generates a hug style type handler from a Marshmallow style schema"""
-        def marshmallow_type(input_data):
-            result, errors = marshmallow.loads(input_data) if isinstance(input_data, str) else marshmallow.load(input_data)
-            if errors:
-                raise InvalidTypeData('Invalid {0} passed in'.format(marshmallow.__class__.__name__), errors)
-            return result
-
-        marshmallow_type.__doc__ = marshmallow.__doc__
-        marshmallow_type.__name__ = marshmallow.__class__.__name__
-        return marshmallow_type
 
 
 class Interface(object):

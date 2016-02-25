@@ -22,6 +22,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 from decimal import Decimal
 from json import loads as load_json
 
+from hug.exceptions import InvalidTypeData
+
 
 class Type(object):
     """Defines the base hug concept of a type for use in function annotation.
@@ -440,19 +442,21 @@ json = JSON()
 
 
 class MarshmallowSchema(Type):
-    """type for using marshmallow schema's"""
+    """Allows using a Marshmallow Schema directly in a hug type annotation"""
     __slots__ = ("schema", )
 
     def __init__(self, schema):
         self.schema = schema
 
+    @property
+    def __doc__(self):
+        return self.schema.__doc__ or self.schema.__class__.__name__
+
     def __call__(self, value):
-        value = json(value)
-        (value, errors) = self.schema.load(value)
+        value, errors = self.schema.loads(value) if isinstance(value, str) else self.schema.load(value)
         if errors:
-            raise ValueError(errors)
-        else:
-            return value
+            raise InvalidTypeData('Invalid {0} passed in'.format(self.schema.__class__.__name__), errors)
+        return value
 
 
 multiple = Multiple()
