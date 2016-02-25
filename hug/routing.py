@@ -352,40 +352,58 @@ class URLRouter(HTTPRouter):
         """Sets a list of HTTP methods this router should accept"""
         return self.where(accept=accept, **overrides)
 
-    def get(self, **overrides):
+    def get(self, urls=None, **overrides):
         """Sets the acceptable HTTP method to a GET"""
+        if urls is not None:
+            overrides['urls'] = urls
         return self.where(accept='GET', **overrides)
 
-    def delete(self, **overrides):
+    def delete(self, urls=None, **overrides):
         """Sets the acceptable HTTP method to DELETE"""
+        if urls is not None:
+            overrides['urls'] = urls
         return self.where(accept='DELETE', **overrides)
 
-    def post(self, **overrides):
+    def post(self, urls=None, **overrides):
         """Sets the acceptable HTTP method to POST"""
+        if urls is not None:
+            overrides['urls'] = urls
         return self.where(accept='POST', **overrides)
 
-    def put(self, **overrides):
+    def put(self, urls=None, **overrides):
         """Sets the acceptable HTTP method to PUT"""
+        if urls is not None:
+            overrides['urls'] = urls
         return self.where(accept='PUT', **overrides)
 
-    def trace(self, **overrides):
+    def trace(self, urls=None, **overrides):
         """Sets the acceptable HTTP method to TRACE"""
+        if urls is not None:
+            overrides['urls'] = urls
         return self.where(accept='TRACE', **overrides)
 
-    def patch(self, **overrides):
+    def patch(self, urls=None, **overrides):
         """Sets the acceptable HTTP method to PATCH"""
+        if urls is not None:
+            overrides['urls'] = urls
         return self.where(accept='PATCH', **overrides)
 
-    def options(self, **overrides):
+    def options(self, urls=None, **overrides):
         """Sets the acceptable HTTP method to OPTIONS"""
+        if urls is not None:
+            overrides['urls'] = urls
         return self.where(accept='OPTIONS', **overrides)
 
-    def head(self, **overrides):
+    def head(self, urls=None, **overrides):
         """Sets the acceptable HTTP method to HEAD"""
+        if urls is not None:
+            overrides['urls'] = urls
         return self.where(accept='HEAD', **overrides)
 
-    def connect(self, **overrides):
+    def connect(self, urls=None, **overrides):
         """Sets the acceptable HTTP method to CONNECT"""
+        if urls is not None:
+            overrides['urls'] = urls
         return self.where(accept='CONNECT', **overrides)
 
     def call(self, **overrides):
