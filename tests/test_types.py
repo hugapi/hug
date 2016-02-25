@@ -168,9 +168,10 @@ def test_uuid():
        Examples were taken from https://docs.python.org/3/library/uuid.html"""
 
     assert hug.types.uuid('{12345678-1234-5678-1234-567812345678}') == UUID('12345678-1234-5678-1234-567812345678')
-    assert hug.types.uuid('12345678-1234-5678-1234-567812345678') == UUID
+    assert hug.types.uuid('12345678-1234-5678-1234-567812345678') == UUID('12345678123456781234567812345678')
     assert hug.types.uuid('12345678123456781234567812345678') == UUID('12345678-1234-5678-1234-567812345678')
-    assert hug.types.uuid('urn:uuid:12345678-1234-5678-1234-567812345678') == UUID('12345678-1234-5678-1234-567812345678')
+    assert hug.types.uuid('urn:uuid:12345678-1234-5678-1234-567812345678') == \
+           UUID('12345678-1234-5678-1234-567812345678')
 
     with pytest.raises(ValueError):
         hug.types.uuid(1)
