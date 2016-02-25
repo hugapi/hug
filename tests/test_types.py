@@ -159,6 +159,8 @@ def test_text():
     assert hug.types.text('1') == '1'
     assert hug.types.text(1) == '1'
     assert hug.types.text('text') == 'text'
+    with pytest.raises(ValueError):
+        hug.types.text(['one', 'two'])
 
 
 def test_length():
@@ -277,13 +279,13 @@ def test_multi():
 
 def test_chain():
     chain_type = hug.types.Chain(hug.types.text, hug.types.LongerThan(10))
-    assert chain_type(12345678901) == "12345678901" 
+    assert chain_type(12345678901) == "12345678901"
     with pytest.raises(ValueError):
         chain_type(1)
 
 def test_nullable():
     nullable_type = hug.types.Nullable(hug.types.text, hug.types.LongerThan(10))
-    assert nullable_type(12345678901) == "12345678901" 
+    assert nullable_type(12345678901) == "12345678901"
     assert nullable_type(None) == None
     with pytest.raises(ValueError):
         nullable_type(1)
@@ -311,7 +313,7 @@ def test_schema_type():
     with pytest.raises(ValueError):
         user_one.password = "test"
     assert user_one.password == "password123"
-    
+
 def test_marshmallow_schema():
     class UserSchema(Schema):
         name = fields.Str()
