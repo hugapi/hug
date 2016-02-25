@@ -27,11 +27,11 @@ from unittest import mock
 from urllib.parse import urlencode
 
 from falcon import HTTP_METHODS
-from falcon.testing import StartResponseMock, create_environ
+from falcon.testing import create_environ, StartResponseMock
 
 from hug import output_format
-from hug.run import server
 from hug.api import API
+from hug.run import server
 
 
 def call(method, api_or_module, url, body='', headers=None, **params):

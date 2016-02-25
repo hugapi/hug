@@ -23,6 +23,7 @@ import json
 import urllib
 from datetime import datetime
 from decimal import Decimal
+from uuid import UUID
 
 import pytest
 from marshmallow import Schema, fields
@@ -161,6 +162,31 @@ def test_text():
     assert hug.types.text('text') == 'text'
     with pytest.raises(ValueError):
         hug.types.text(['one', 'two'])
+
+def test_uuid():
+    """Tests that hug's text validator correctly handles UUID values
+       Examples were taken from https://docs.python.org/3/library/uuid.html"""
+
+    assert hug.types.uuid('{12345678-1234-5678-1234-567812345678}') == UUID('12345678-1234-5678-1234-567812345678')
+    assert hug.types.uuid('12345678-1234-5678-1234-567812345678') == UUID('12345678123456781234567812345678')
+    assert hug.types.uuid('12345678123456781234567812345678') == UUID('12345678-1234-5678-1234-567812345678')
+    assert hug.types.uuid('urn:uuid:12345678-1234-5678-1234-567812345678') == \
+           UUID('12345678-1234-5678-1234-567812345678')
+
+    with pytest.raises(ValueError):
+        hug.types.uuid(1)
+
+    with pytest.raises(ValueError):
+        # Invalid HEX character
+        hug.types.uuid('12345678-1234-5678-1234-56781234567G')
+
+    with pytest.raises(ValueError):
+        # One character added
+        hug.types.uuid('12345678-1234-5678-1234-5678123456781')
+    with pytest.raises(ValueError):
+        # One character removed
+        hug.types.uuid('12345678-1234-5678-1234-56781234567')
+
 
 
 def test_length():
