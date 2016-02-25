@@ -98,7 +98,6 @@ def test_comma_separated_list():
     assert hug.types.comma_separated_list('value1,value2') == ['value1', 'value2']
 
 
-
 def test_float_number():
     """Tests to ensure the float type correctly allows floating point values"""
     assert hug.types.float_number('1.1') == 1.1
@@ -278,20 +277,25 @@ def test_multi():
     with pytest.raises(ValueError):
         multi_type('Bacon!')
 
+
 def test_chain():
+    """Test to ensure that chaining together multiple types works as expected"""
     chain_type = hug.types.Chain(hug.types.text, hug.types.LongerThan(10))
     assert chain_type(12345678901) == "12345678901"
     with pytest.raises(ValueError):
         chain_type(1)
 
 def test_nullable():
+    """Test the concept of a nullable type"""
     nullable_type = hug.types.Nullable(hug.types.text, hug.types.LongerThan(10))
     assert nullable_type(12345678901) == "12345678901"
     assert nullable_type(None) == None
     with pytest.raises(ValueError):
         nullable_type(1)
 
+
 def test_schema_type():
+    """Test hug's complex schema types"""
     class User(hug.types.Schema):
         username = hug.types.text
         password = hug.types.Chain(hug.types.text, hug.types.LongerThan(10))
@@ -315,7 +319,9 @@ def test_schema_type():
         user_one.password = "test"
     assert user_one.password == "password123"
 
+
 def test_marshmallow_schema():
+    """Test hug's marshmallow schema support"""
     class UserSchema(Schema):
         name = fields.Str()
 
