@@ -22,6 +22,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 from decimal import Decimal
 from json import loads as load_json
 
+import uuid as hug_uuid
+
 from hug.exceptions import InvalidTypeData
 
 
@@ -79,6 +81,7 @@ float_number = Accept(float, 'A float number', 'Invalid float number provided')
 decimal = Accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
 boolean = Accept(bool, 'Providing any value will set this to true',
                  'Invalid boolean value provided', cli_behaviour={'action': 'store_true'})
+uuid = Accept(hug_uuid.UUID, 'A Universally Unique IDentifier', 'Invalid UUID provided')
 
 
 class Text(Type):
