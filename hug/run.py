@@ -86,9 +86,6 @@ def determine_version(request, api_version=None, api=None):
     return next(iter(request_version or (None, )))
 
 
-
-
-
 def documentation_404(api):
     """Returns a smart 404 page that contains documentation for the written API"""
     def handle_404(request, response, *kargs, **kwargs):
