@@ -193,6 +193,7 @@ class JSON(Type):
         else:
             return value
 
+
 class Multi(Type):
     """Enables accepting one of multiple type methods"""
     __slots__ = ('types', )
@@ -393,7 +394,7 @@ class TypedProperty(object):
         return getattr(instance, self.name, None)
 
     def __set__(self, instance, value):
-        setattr(instance,self.name,self.type_func(value))
+        setattr(instance, self.name, self.type_func(value))
 
     def __delete__(self,instance):
         raise AttributeError("Can't delete attribute")
@@ -421,10 +422,9 @@ class Schema(object, metaclass=NewTypeMeta):
     __slots__ = ()
     def __new__(cls, json, *args, **kwargs):
         if json.__class__ == cls:
-            return json #if json is already this type of object return it
+            return json
         else:
             return super(Schema, cls).__new__(cls)
-
 
     def __init__(self, json, force=False):
         if self != json:
