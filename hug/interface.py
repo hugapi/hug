@@ -120,7 +120,8 @@ class Interface(object):
             self.transform = self.transform.dump
             self.output_doc = self.transform.__doc__
         elif self.transform or self.interface.transform:
-            self.output_doc = self.transform or self.interface.transform
+            output_doc = (self.transform or self.interface.transform)
+            self.output_doc = output_doc if type(output_doc) is str else output_doc.__doc__
 
         self.raise_on_invalid = route.get('raise_on_invalid', False)
         if 'on_invalid' in route:
@@ -329,7 +330,7 @@ class HTTP(Interface):
     """Defines the interface responsible for wrapping functions and exposing them via HTTP based on the route"""
     __slots__ = ('_params_for_outputs', '_params_for_invalid_outputs', '_params_for_transform', 'on_invalid',
                  '_params_for_on_invalid',  'set_status','response_headers', 'transform', 'input_transformations',
-                 'examples', 'output_doc', 'wrapped', 'catch_exceptions', 'parse_body')
+                 'examples', 'wrapped', 'catch_exceptions', 'parse_body')
     AUTO_INCLUDE = {'request', 'response'}
 
     def __init__(self, route, function, catch_exceptions=True):
