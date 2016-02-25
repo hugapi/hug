@@ -1,7 +1,5 @@
 import hug
-
-from handlers import hello
-from handlers import birthday
+from handlers import birthday, hello
 
 
 @hug.extend_api('')

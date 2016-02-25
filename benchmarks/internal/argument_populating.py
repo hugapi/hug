@@ -1,6 +1,7 @@
+import time
+
 from hug.decorators import auto_kwargs
 from hug.introspect import generate_accepted_kwargs
-import time
 
 DATA = {'request': None}
 

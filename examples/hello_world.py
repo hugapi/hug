@@ -5,5 +5,3 @@ import hug
 def hello():
     """Says hello"""
     return 'Hello World!'
-
-

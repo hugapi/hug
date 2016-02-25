@@ -25,9 +25,9 @@ from datetime import datetime
 from decimal import Decimal
 
 import pytest
+from marshmallow import Schema, fields
 
 import hug
-from marshmallow import Schema, fields
 
 
 def test_type():

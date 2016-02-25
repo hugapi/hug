@@ -386,6 +386,7 @@ class Nullable(Chain):
 class TypedProperty(object):
     """class for building property objects for schema objects"""
     __slots__ = ('name', 'type_func')
+
     def __init__(self, name, type_func):
         self.name = "_" + name
         self.type_func = type_func
@@ -403,6 +404,7 @@ class TypedProperty(object):
 class NewTypeMeta(type):
     """Meta class to turn Schema objects into format usable by hug"""
     __slots__ = ()
+
     def __init__(cls, name, bases, nmspc):
         cls._types = {attr: getattr(cls, attr) for attr in dir(cls) if getattr(getattr(cls, attr), "_hug_type", False)}
         slots = getattr(cls, "__slots__", ())
@@ -420,6 +422,7 @@ class Schema(object, metaclass=NewTypeMeta):
     """Schema for creating complex types using hug types"""
     _hug_type = True
     __slots__ = ()
+
     def __new__(cls, json, *args, **kwargs):
         if json.__class__ == cls:
             return json
@@ -438,7 +441,8 @@ json = JSON()
 
 class MarshmallowSchema(Type):
     """type for using marshmallow schema's"""
-    __slots__ = ("schema")
+    __slots__ = ("schema", )
+
     def __init__(self, schema):
         self.schema = schema
 
