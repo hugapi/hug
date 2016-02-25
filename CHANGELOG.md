@@ -9,6 +9,7 @@ Changelog
 - Adds built-in support for 'X-Api-Key' header based authentication via `authentication.api_key`
 - Adds support for running arbitrary python functions at runtime via a `@hug.startup` decorator
 - Adds support for smarter handling of html output types
+- Adds a UUID type
 - Adds support for explicit API creation / referencing using `hug.api(__name__)`
 - Adds a logging middleware to simplify the process of logging all requests with hug
 - Adds a `middleware_class` class decorator, to enable quickly registering middleware classes
