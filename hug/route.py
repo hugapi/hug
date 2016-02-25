@@ -39,11 +39,8 @@ from hug.routing import URLRouter as http
 class Object(http):
     """Defines a router for classes and objects"""
 
-    def __init__(self, **route):
-        if 'requires' in route:
-            requires = route['requires']
-            route['requires'] = (requires, ) if not isinstance(requires, (tuple, list)) else requires
-        self.route = route
+    def __init__(self, urls=None, accept=HTTP_METHODS, output=None, **kwargs):
+        super().__init__(urls=urls, accept=accept, output=output, **kwargs)
 
     def __call__(self, method_or_class):
         if isinstance(method_or_class, (MethodType, FunctionType)):
