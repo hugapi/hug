@@ -42,6 +42,7 @@ Changelog
 - Automatically works around a bug in uwsgi when returning byte streams
 - Refactored how interfaces are built to be more reasuable, and more easily introspected
 - Refactored how the built in annotation types are built to be more easily built upon
+- Updated type.string to fail if a list is passed in
 - Breaking Changes
     - directives are no longer automatically applied to local function calls, '@hug.local' must be used to apply them
 
