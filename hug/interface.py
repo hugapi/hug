@@ -172,6 +172,33 @@ class Interface(object):
                 return conclusion
 
 
+    def documentation(self, add_to=None):
+        """Produces general documentation for the interface"""
+        doc = OrderedDict if add_to is None else add_to
+
+        usage = self.interface.spec.__doc__
+        if usage:
+            doc['usage'] = usage
+        doc['outputs'] = OrderedDict()
+        doc['outputs']['format'] = handler.outputs.__doc__
+        doc['outputs']['content_type'] = handler.outputs.content_type
+        parameters = [param for param in self.parameters if not param in ('request', 'response', 'self')
+                                                        and not param.startswith('hug_')
+                                                        and not hasattr(param, 'directive')]
+        if parameters:
+            inputs = doc.setdefault('inputs', OrderedDict())
+            types = handler.interface.function.__annotations__
+            for argument in parameters:
+                kind = types.get(argument, hug.types.text)
+                input_definition = inputs.setdefault(argument, OrderedDict())
+                input_definition['type'] = kind if isinstance(kind, str) else kind.__doc__
+                default = handler.defaults.get(argument, None)
+                if default is not None:
+                    input_definition['default'] = default
+
+        return doc
+
+
 class Local(Interface):
     """Defines the Interface responsible for exposing functions locally"""
     __slots__ = ('skip_directives', 'skip_validation', 'version')
