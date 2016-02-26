@@ -779,6 +779,13 @@ def test_cli_with_hug_types():
     assert hug.test.cli(all_the) == ['nothing_here']
     assert hug.test.cli(all_the, 'one', 'two', 'three') ==  ['one', 'two', 'three']
 
+    @hug.cli()
+    def one_of(value:hug.types.one_of(['one', 'two'])='one'):
+        return value
+
+    assert hug.test.cli(one_of, value='one') == 'one'
+    assert hug.test.cli(one_of, value='two') == 'two'
+
 
 def test_cli_with_conflicting_short_options():
     """Test to ensure that it's possible to expose a CLI with the same first few letters in option"""

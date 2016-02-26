@@ -39,20 +39,14 @@ class Type(object):
 
 class Accept(Type):
     """Allows quick wrapping any Python type converter for use with Hug type annotations"""
-    __slots__ = ('formatter', 'error_text', 'exception_handlers', 'doc', 'cli_behaviour')
+    __slots__ = ('kind', 'base_kind', 'error_text', 'exception_handlers', 'doc')
 
-    def __init__(self, formatter, doc=None, error_text=None, cli_behaviour=None, exception_handlers=None):
-        self.formatter = formatter
-        self.doc = doc or self.formatter.__doc__
+    def __init__(self, kind, doc=None, error_text=None, exception_handlers=None):
+        self.kind = kind
+        self.base_kind = getattr(self.kind, 'base_kind', self.kind)
+        self.doc = doc or self.kind.__doc__
         self.error_text = error_text
         self.exception_handlers = exception_handlers or {}
-
-        new_cli_behaviour = getattr(self.formatter, 'cli_behaviour', {})
-        if cli_behaviour:
-            new_cli_behaviour.update(cli_behaviour)
-
-        if new_cli_behaviour:
-            self.cli_behaviour = new_cli_behaviour
 
     @property
     def __doc__(self):
@@ -61,7 +55,7 @@ class Accept(Type):
     def __call__(self, value):
         if self.exception_handlers or self.error_text:
             try:
-                return self.formatter(value)
+                return self.kind(value)
             except Exception as exception:
                 for take_exception, rewrite in self.exception_handlers.items():
                     if isinstance(exception, take_exception):
@@ -73,13 +67,13 @@ class Accept(Type):
                     raise ValueError(self.error_text)
                 raise exception
         else:
-            return self.formatter(value)
+            return self.kind(value)
 
 number = Accept(int, 'A whole number', 'Invalid whole number provided')
 float_number = Accept(float, 'A float number', 'Invalid float number provided')
 decimal = Accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
 boolean = Accept(bool, 'Providing any value will set this to true',
-                 'Invalid boolean value provided', cli_behaviour={'action': 'store_true'})
+                 'Invalid boolean value provided')
 uuid = Accept(hug_uuid.UUID, 'A Universally Unique IDentifier', 'Invalid UUID provided')
 
 
@@ -97,10 +91,7 @@ text = Text()
 
 class Multiple(Type):
     """Multiple Values"""
-    __slots__ = ('cli_behaviour', )
-
-    def __init__(self):
-        self.cli_behaviour = {'action': 'append', 'type': text}
+    __slots__ = ()
 
     def __call__(self, value):
         return value if isinstance(value, list) else [value]
@@ -108,7 +99,7 @@ class Multiple(Type):
 
 class DelimitedList(Type):
     """Defines a list type that is formed by delimiting a list with a certain character or set of characters"""
-    __slots__ = ('using')
+    __slots__ = ('using', )
 
     def __init__(self, using=","):
         self.using = using
@@ -123,7 +114,6 @@ class DelimitedList(Type):
 
 class SmartBoolean(Type):
     """Accepts a true or false value"""
-    cli_behaviour = {'action': 'store_true'}
     __slots__ = ()
 
     def __call__(self, value):
@@ -149,11 +139,10 @@ class InlineDictionary(Type):
 
 class OneOf(Type):
     """Ensures the value is within a set of acceptable values"""
-    __slots__ = ('values', 'cli_behaviour')
+    __slots__ = ('values', )
 
     def __init__(self, values):
         self.values = values
-        self.cli_behaviour = {'choices': values}
 
     @property
     def __doc__(self):
@@ -165,14 +154,13 @@ class OneOf(Type):
         return value
 
 
-class Mapping(Type):
+class Mapping(OneOf):
     """Ensures the value is one of an acceptable set of values mapping those values to a Python equivelent"""
-    __slots__ = ('value_map', 'values', 'cli_behaviour')
+    __slots__ = ('value_map', )
 
     def __init__(self, value_map):
         self.value_map = value_map
         self.values = value_map.keys()
-        self.cli_behaviour = {'choices': self.values}
 
     @property
     def __doc__(self):
@@ -362,7 +350,7 @@ class CutOff(Type):
 
 class Chain(Type):
     """type for chaining multiple types together"""
-    __slots__ = ('types')
+    __slots__ = ('types', )
 
     def __init__(self, *types):
         self.types = types
@@ -375,7 +363,7 @@ class Chain(Type):
 
 class Nullable(Chain):
     """A Chain types that Allows None values"""
-    __slots__ = ('types')
+    __slots__ = ('types', )
 
     def __init__(self, *types):
         self.types = types
