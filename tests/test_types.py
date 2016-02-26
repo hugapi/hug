@@ -280,12 +280,6 @@ def test_accept_custom_exception_handlers():
         custom_type(0)
 
 
-def test_accept_custom_cli_behavior():
-    """Tests to ensure it's easy to customize the cli behavior using the accept wrapper"""
-    custom_type = hug.types.accept(hug.types.multiple, 'Multiple values', cli_behaviour={'type': list})
-    assert custom_type.cli_behaviour == {'type': list, 'action': 'append'}
-
-
 def test_json():
     """Test to ensure that the json type correctly handles url encoded json, as well as direct json"""
     assert hug.types.json({'this': 'works'}) == {'this': 'works'}
@@ -310,6 +304,7 @@ def test_chain():
     assert chain_type(12345678901) == "12345678901"
     with pytest.raises(ValueError):
         chain_type(1)
+
 
 def test_nullable():
     """Test the concept of a nullable type"""
