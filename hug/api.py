@@ -29,7 +29,6 @@ from falcon import HTTP_METHODS
 
 import hug.defaults
 import hug.output_format
-from hug import documentation
 from hug.run import INTRO, server
 
 
@@ -181,12 +180,38 @@ class API(object, metaclass=ModuleSingleton):
 
     def documentation(self, base_url='', api_version=None):
         """Generates and returns documentation for this API endpoint"""
-        return documentation.for_module(self.module, base_url=base_url, api_version=api_version,
-                                        handler_documentation=self.handler_documentation)
+        documentation = OrderedDict()
+        overview = self.module.__doc__
+        if overview:
+            documentation['overview'] = overview
 
-    def handler_documentation(self, handler, version=None, doc=None, base_url="", url="", **kwargs):
-        """Generates and returns documentation for a single provided handler, used by API.documentation"""
-        return documentation.for_handler(handler, version=version, doc=doc, base_url=base_url, url=url, **kwargs)
+        documentation['versions'] = OrderedDict()
+        versions = self.versions
+        for version in (api_version, ) if api_version else versions:
+            documentation['versions'][version] = OrderedDict()
+
+        for url, methods in self.routes.items():
+            for method, method_versions in methods.items():
+                for version, handler in method_versions.items():
+                    if version == None:
+                        applies_to = versions
+                    else:
+                        applies_to = (version, )
+                    for version in applies_to:
+                        if api_version and version != api_version:
+                            continue
+
+                        doc = documentation['versions'][version].setdefault(url, OrderedDict())
+                        doc[method] = handler.documentation(doc.get(method, None), version=version,
+                                                            base_url=base_url, url=url)
+
+        if len(documentation['versions']) == 1:
+            documentation.update(tuple(documentation['versions'].values())[0])
+            documentation.pop('versions')
+        else:
+            documentation['versions'].pop(None, '')
+
+        return documentation
 
     def serve(self, port=8000, no_documentation=False):
         """Runs the basic hug development server against this API"""
