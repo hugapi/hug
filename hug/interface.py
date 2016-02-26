@@ -23,6 +23,7 @@ import argparse
 import os
 import sys
 from functools import wraps
+from collections import OrderedDict
 
 import falcon
 import hug.api
@@ -32,13 +33,11 @@ from hug import _empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 from hug.input_format import separate_encoding
-from hug.types import MarshmallowSchema, Multiple, SmartBoolean, OneOf, Text
+from hug.types import MarshmallowSchema, Multiple, SmartBoolean, OneOf, Text, text
 
 
 class Interfaces(object):
     """Defines the per-function singleton applied to hugged functions defining common data needed by all interfaces"""
-    __slots__ = ('function', 'takes_kargs', 'takes_kwargs', 'parameters', 'defaults', 'required', 'directives',
-                 'input_transformations', 'transform', 'http', 'cli', 'local', 'spec', 'karg')
 
     def __init__(self, function):
         self.spec = getattr(function, 'original', function)
@@ -180,19 +179,19 @@ class Interface(object):
         if usage:
             doc['usage'] = usage
         doc['outputs'] = OrderedDict()
-        doc['outputs']['format'] = handler.outputs.__doc__
-        doc['outputs']['content_type'] = handler.outputs.content_type
+        doc['outputs']['format'] = self.outputs.__doc__
+        doc['outputs']['content_type'] = self.outputs.content_type
         parameters = [param for param in self.parameters if not param in ('request', 'response', 'self')
                                                         and not param.startswith('hug_')
                                                         and not hasattr(param, 'directive')]
         if parameters:
             inputs = doc.setdefault('inputs', OrderedDict())
-            types = handler.interface.function.__annotations__
+            types = self.interface.spec.__annotations__
             for argument in parameters:
-                kind = types.get(argument, hug.types.text)
+                kind = types.get(argument, text)
                 input_definition = inputs.setdefault(argument, OrderedDict())
                 input_definition['type'] = kind if isinstance(kind, str) else kind.__doc__
-                default = handler.defaults.get(argument, None)
+                default = self.defaults.get(argument, None)
                 if default is not None:
                     input_definition['default'] = default
 
@@ -548,3 +547,26 @@ class HTTP(Interface):
                     if isinstance(exception, exception_type):
                         handler = exception_handler
             handler(request=request, response=response, exception=exception, **kwargs)
+
+    def documentation(self, add_to=None, version=None, base_url="", url=""):
+        """Returns the documentation specific to an HTTP interface"""
+        doc = OrderedDict() if add_to is None else add_to
+
+        usage = self.interface.spec.__doc__
+        if usage:
+            doc['usage'] = usage
+
+        for example in self.examples:
+            example_text =  "{0}{1}{2}".format(base_url, '/v{0}'.format(version) if version else '', url)
+            if isinstance(example, str):
+                example_text += "?{0}".format(example)
+            doc_examples = doc.setdefault('examples', [])
+            if not example_text in doc_examples:
+                doc_examples.append(example_text)
+
+        doc = super().documentation(doc)
+
+        if getattr(self, 'output_doc', ''):
+            doc['outputs']['type'] = self.output_doc
+
+        return doc

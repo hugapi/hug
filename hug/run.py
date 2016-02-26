@@ -30,7 +30,6 @@ from wsgiref.simple_server import make_server
 
 import falcon
 
-from hug import documentation
 from hug._version import current
 
 
