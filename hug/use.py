@@ -209,10 +209,10 @@ class Socket(Service):
                 level, option, value = sock_opt
                 _socket.setsockopt(level, option, value)
 
-        _socket.connect(self.connection.connect_to)
+        _socket.connect(tuple(self.connection.connect_to))
         return (_socket, _socket.makefile(mode='rwb', encoding='utf-8'))
 
-    def request(self, query, headers=empty.dict, timeout=None):
+    def request(self, query, timeout=None):
         if timeout:
             self.socket.settimeout(timeout)
 
@@ -221,17 +221,11 @@ class Socket(Service):
         self.socket_fd.flush()
 
         for received in self.socket_fd:
-            data.write(received.rstrip())
+            data.write(received)
         data.seek(0)
-
-        (content_type, encoding) = separate_encoding(headers.get('content-type', ''), 'utf-8')
-        if content_type in input_format:
-            data = input_format[content_type](data, encoding)
-        else:
-            data = data.read()
 
         if self.connection.proto in Socket.streams:
             # streaming sockets need to be reconnected.
             (self.socket, self.socket_fd) = self.connect(self.timeout)
 
-        return Response(data, None, headers)
+        return Response(data, None, None)

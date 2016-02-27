@@ -170,15 +170,9 @@ class TestSocket(object):
         assert self.service.connection.sockopts == {(self.socket.SOL_SOCKET, self.socket.SO_KEEPALIVE, 1),
                                                        (self.socket.SOL_SOCKET, self.socket.SO_REUSEADDR, 1)}
 
-    def test_request_with_headers(self):
-        """Test to ensure requesting data with content-type specified works as expected"""
-        assert ' '.join(self.service.request(query='GET / HTTP/1.0\r\n\r\n', timeout=120,
-                                              headers={'content-type': 'text/html'}
-                                              ).data.split()[:2]) == 'HTTP/1.1 200'
-
     def test_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
-        assert b' '.join(self.service.request(query='GET / HTTP/1.0\r\n\r\n').data.split()[:2]) == b'HTTP/1.1 200'
+        assert b' '.join(self.service.request(query='GET / HTTP/1.0\r\n\r\n', timeout=30).data.read().split()[:2]) == b'HTTP/1.1 200'
 
 
 
