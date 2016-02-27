@@ -155,6 +155,10 @@ class TestSocket(object):
         assert self.service.connection.proto == 'tcp'
         assert self.service.connection.sockopts == set()
 
+    def test_settimeout(self):
+        self.service.settimeout(60)
+        assert self.service.timeout == 60
+
     def test_connection_sockopts_unit(self):
         self.service.connection.sockopts.clear()
         self.service.setsockopt(self.socket.SOL_SOCKET, self.socket.SO_KEEPALIVE, 1)
