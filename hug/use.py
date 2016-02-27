@@ -157,7 +157,7 @@ class Local(Service):
 
 
 class Socket(Service):
-    __slots__ = ('socket', 'socket_fd', 'connection')
+    __slots__ = ('socket', 'socket_fd', 'timeout', 'connection')
 
     Connection = namedtuple('Connection', ('connect_to', 'proto', 'sockopts'))
     protocols = {
@@ -172,8 +172,14 @@ class Socket(Service):
     def __init__(self, connect_to, proto, version=None,
                  headers=empty.dict, timeout=None, raise_on=(500, ), **kwargs):
         super().__init__(timeout=timeout, raise_on=raise_on, version=version, **kwargs)
+        self.timeout = timeout
         self.connection = Socket.Connection(connect_to, proto, set())
         (self.socket, self.socket_fd) = self.connect(timeout)
+
+    def settimeout(self, timeout):
+        """Set the default timeout"""
+        self.timeout = timeout
+        self.socket.settimeout(timeout)
 
     def setsockopt(self, *sockopts):
         """Add options to current socket, and save them in case we reconnect"""
@@ -203,10 +209,10 @@ class Socket(Service):
                 level, option, value = sock_opt
                 _socket.setsockopt(level, option, value)
 
-        _socket.connect(self.connection.connect_to)
+        _socket.connect(tuple(self.connection.connect_to))
         return (_socket, _socket.makefile(mode='rwb', encoding='utf-8'))
 
-    def request(self, query, headers=empty.dict, timeout=None):
+    def request(self, query, timeout=None):
         if timeout:
             self.socket.settimeout(timeout)
 
@@ -215,17 +221,11 @@ class Socket(Service):
         self.socket_fd.flush()
 
         for received in self.socket_fd:
-            data.write(received.rstrip())
+            data.write(received)
         data.seek(0)
-
-        (content_type, encoding) = separate_encoding(headers.get('content-type', ''), 'utf-8')
-        if content_type in input_format:
-            data = input_format[content_type](data, encoding)
-        else:
-            data = data.read()
 
         if self.connection.proto in Socket.streams:
             # streaming sockets need to be reconnected.
-            (self.socket, self.socket_fd) = self.connect(timeout)
+            (self.socket, self.socket_fd) = self.connect(self.timeout)
 
-        return Response(data, None, headers)
+        return Response(data, None, None)
