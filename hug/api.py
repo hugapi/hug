@@ -29,39 +29,50 @@ from falcon import HTTP_METHODS
 
 import hug.defaults
 import hug.output_format
-from hug.run import INTRO, server
+from hug._version import current
+
+INTRO = """
+/#######################################################################\\
+          `.----``..-------..``.----.
+         :/:::::--:---------:--::::://.
+        .+::::----##/-/oo+:-##----:::://
+        `//::-------/oosoo-------::://.       ##    ##  ##    ##    #####
+          .-:------./++o/o-.------::-`   ```  ##    ##  ##    ##  ##
+             `----.-./+o+:..----.     `.:///. ########  ##    ## ##
+   ```        `----.-::::::------  `.-:::://. ##    ##  ##    ## ##   ####
+  ://::--.``` -:``...-----...` `:--::::::-.`  ##    ##  ##   ##   ##    ##
+  :/:::::::::-:-     `````      .:::::-.`     ##    ##    ####     ######
+   ``.--:::::::.                .:::.`
+         ``..::.                .::         EMBRACE THE APIs OF THE FUTURE
+             ::-                .:-
+             -::`               ::-                   VERSION {0}
+             `::-              -::`
+              -::-`           -::-
+\########################################################################/
+
+ Copyright (C) 2015 Timothy Edmund Crosley
+ Under the MIT License
+
+""".format(current)
 
 
-class ModuleSingleton(type):
-    """Defines the module level __hug__ singleton"""
+class InterfaceAPI(object):
+    """Defines the per-interface API which defines all shared information for a specific interface, and how it should
+        be exposed
+    """
+    __slots__ = ('api', )
 
-    def __call__(cls, module, *args, **kwargs):
-        if isinstance(module, API):
-            return module
-
-        if type(module) == str:
-            module = sys.modules[module]
-
-        if not '__hug__' in module.__dict__:
-            def api_auto_instantiate(*kargs, **kwargs):
-                if not hasattr(module, '__hug_serving__'):
-                    module.__hug_wsgi__ = server(module.__hug__)
-                    module.__hug_serving__ = True
-                return module.__hug_wsgi__(*kargs, **kwargs)
-
-            module.__hug__ = super().__call__(module, *args, **kwargs)
-            module.__hug_wsgi__ = api_auto_instantiate
-        return module.__hug__
+    def __init__(self, api):
+        self.api = api
 
 
-class API(object, metaclass=ModuleSingleton):
-    """Stores the information necessary to expose API calls within this module externally"""
-    __slots__ = ('module', 'versions', 'routes', '_output_format', '_input_format', '_directives', 'versioned',
-                 '_middleware', '_not_found_handlers', '_startup_handlers', 'sinks', '_exception_handlers',
-                 '_not_found')
+class HTTPInterfaceAPI(InterfaceAPI):
+    """Defines the HTTP interface specific API"""
+    __slots__ = ('routes', 'versions', '_output_format', '_input_format', 'versioned', '_middleware',
+                 '_not_found_handlers', '_startup_handlers', 'sinks', '_not_found')
 
-    def __init__(self, module):
-        self.module = module
+    def __init__(self, api):
+        super().__init__(api)
         self.versions = set()
         self.routes = OrderedDict()
         self.sinks = OrderedDict()
@@ -91,19 +102,6 @@ class API(object, metaclass=ModuleSingleton):
         if getattr(self, '_input_format', None) is None:
             self._input_format = {}
         self._input_format[content_type] = handler
-
-    def directives(self):
-        """Returns all directives applicable to this Hug API"""
-        directive_sources = chain(hug.defaults.directives.items(), getattr(self, '_directives', {}).items())
-        return {'hug_' + directive_name: directive for directive_name, directive in directive_sources}
-
-    def directive(self, name, default=None):
-        """Returns the loaded directive with the specified name, or default if passed name is not present"""
-        return getattr(self, '_directives', {}).get(name,  hug.defaults.directives.get(name, default))
-
-    def add_directive(self, directive):
-        self._directives = getattr(self, '_directives', {})
-        self._directives[directive.__name__] = directive
 
     @property
     def middleware(self):
@@ -151,32 +149,6 @@ class API(object, metaclass=ModuleSingleton):
             self._not_found_handlers = {}
 
         self.not_found_handlers[version] = handler
-
-    @property
-    def startup_handlers(self):
-        return getattr(self, '_startup_handlers', ())
-
-    def add_startup_handler(self, handler):
-        """Adds a startup handler to the hug api"""
-        if not self.startup_handlers:
-            self._startup_handlers = []
-
-        self.startup_handlers.append(handler)
-
-    def exception_handlers(self, version=None):
-        if not hasattr(self, '_exception_handlers'):
-            return None
-
-        return self._exception_handlers.get(version, self._exception_handlers.get(None, None))
-
-    def add_exception_handler(self, exception_type, error_handler, versions=(None, )):
-        """Adds a error handler to the hug api"""
-        versions = (versions, ) if not isinstance(versions, (tuple, list)) else versions
-        if not hasattr(self, '_exception_handlers'):
-            self._exception_handlers = {}
-
-        for version in versions:
-            self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
 
     def documentation(self, base_url='', api_version=None):
         """Generates and returns documentation for this API endpoint"""
@@ -229,6 +201,82 @@ class API(object, metaclass=ModuleSingleton):
     def base_404(request, response, *kargs, **kwargs):
         """Defines the base 404 handler"""
         response.status = falcon.HTTP_NOT_FOUND
+
+
+
+
+class ModuleSingleton(type):
+    """Defines the module level __hug__ singleton"""
+
+    def __call__(cls, module, *args, **kwargs):
+        if isinstance(module, API):
+            return module
+
+        if type(module) == str:
+            module = sys.modules[module]
+
+        if not '__hug__' in module.__dict__:
+            def api_auto_instantiate(*kargs, **kwargs):
+                if not hasattr(module, '__hug_serving__'):
+                    module.__hug_wsgi__ = server(module.__hug__)
+                    module.__hug_serving__ = True
+                return module.__hug_wsgi__(*kargs, **kwargs)
+
+            module.__hug__ = super().__call__(module, *args, **kwargs)
+            module.__hug_wsgi__ = api_auto_instantiate
+        return module.__hug__
+
+
+class API(object, metaclass=ModuleSingleton):
+    """Stores the information necessary to expose API calls within this module externally"""
+    __slots__ = ('module', '_directives', '_exception_handlers', '_http')
+
+    def __init__(self, module):
+        self.module = module
+
+    def directives(self):
+        """Returns all directives applicable to this Hug API"""
+        directive_sources = chain(hug.defaults.directives.items(), getattr(self, '_directives', {}).items())
+        return {'hug_' + directive_name: directive for directive_name, directive in directive_sources}
+
+    def directive(self, name, default=None):
+        """Returns the loaded directive with the specified name, or default if passed name is not present"""
+        return getattr(self, '_directives', {}).get(name,  hug.defaults.directives.get(name, default))
+
+    def add_directive(self, directive):
+        self._directives = getattr(self, '_directives', {})
+        self._directives[directive.__name__] = directive
+
+    @property
+    def startup_handlers(self):
+        return getattr(self, '_startup_handlers', ())
+
+    @property
+    def http(self):
+        if not hasattr(self, '_http'):
+            self._http = HTTPInterfaceAPI(self)
+
+    def add_startup_handler(self, handler):
+        """Adds a startup handler to the hug api"""
+        if not self.startup_handlers:
+            self._startup_handlers = []
+
+        self.startup_handlers.append(handler)
+
+    def exception_handlers(self, version=None):
+        if not hasattr(self, '_exception_handlers'):
+            return None
+
+        return self._exception_handlers.get(version, self._exception_handlers.get(None, None))
+
+    def add_exception_handler(self, exception_type, error_handler, versions=(None, )):
+        """Adds a error handler to the hug api"""
+        versions = (versions, ) if not isinstance(versions, (tuple, list)) else versions
+        if not hasattr(self, '_exception_handlers'):
+            self._exception_handlers = {}
+
+        for version in versions:
+            self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
 
 
 def from_object(obj):
