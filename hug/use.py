@@ -209,7 +209,7 @@ class Socket(Service):
                 level, option, value = sock_opt
                 _socket.setsockopt(level, option, value)
 
-        _socket.connect(tuple(self.connection.connect_to))
+        _socket.connect(self.connection.connect_to)
         return (_socket, _socket.makefile(mode='rwb', encoding='utf-8'))
 
     def request(self, query, timeout=None):
