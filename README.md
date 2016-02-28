@@ -144,6 +144,7 @@ Type annotations also feed into Hug's automatic documentation generation to let 
 
 
 **Directives** functions that get executed with the request / response data based on being requested as an argument in your api_function.
+These apply as input parameters only, and can not be applied currently as output formats or transformations.
 
 ```py
 @hug.get()
