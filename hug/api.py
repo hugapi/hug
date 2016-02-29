@@ -202,6 +202,100 @@ class HTTPInterfaceAPI(InterfaceAPI):
         """Defines the base 404 handler"""
         response.status = falcon.HTTP_NOT_FOUND
 
+    def determine_version(self, request, api_version=None):
+        """Determines the appropriate version given the set api_version, the request header, and URL query params"""
+        if api_version is False:
+            api_version = None
+            for version in self.versions:
+                if version and "v{0}".format(version) in request.path:
+                    api_version = version
+                    break
+
+        request_version = set()
+        if api_version is not None:
+            request_version.add(api_version)
+
+        version_header = request.get_header("X-API-VERSION")
+        if version_header:
+            request_version.add(version_header)
+
+        version_param = request.get_param('api_version')
+        if version_param is not None:
+            request_version.add(version_param)
+
+        if len(request_version) > 1:
+            raise ValueError('You are requesting conflicting versions')
+
+        return next(iter(request_version or (None, )))
+
+    def documentation_404(self):
+        """Returns a smart 404 page that contains documentation for the written API"""
+        def handle_404(request, response, *kargs, **kwargs):
+            base_url = request.url[:-1]
+            if request.path and request.path != "/":
+                base_url = request.url.split(request.path)[0]
+
+            to_return = OrderedDict()
+            to_return['404'] = ("The API call you tried to make was not defined. "
+                                "Here's a definition of the API to help you get going :)")
+            to_return['documentation'] = self.documentation(base_url, self.determine_version(request, False))
+            response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
+            response.status = falcon.HTTP_NOT_FOUND
+            response.content_type = 'application/json'
+        return handle_404
+
+    def version_router(self, request, response, api_version=None, versions={}, not_found=None, **kwargs):
+        """Intelligently routes a request to the correct handler based on the version being requested"""
+        request_version = self.determine_version(request, api_version)
+        if request_version:
+            request_version = int(request_version)
+        versions.get(request_version, versions.get(None, not_found))(request, response, api_version=api_version,
+                                                                     **kwargs)
+
+    def server(self, default_not_found=documentation_404):
+        """Returns a WSGI compatible API server for the given Hug API module"""
+        falcon = falcon.API(middleware=self.middleware)
+
+        not_found_handler = None
+        for startup_handler in self.startup_handlers:
+            startup_handler(self)
+        if self.not_found_handlers:
+            if len(self.not_found_handlers) == 1 and None in self.not_found_handlers:
+                not_found_handler = self.not_found_handlers[None]
+            else:
+                not_found_handler = partial(version_router, api=self, api_version=False,
+                                            versions=self.not_found_handlers, not_found=default_not_found)
+        elif default_not_found:
+            not_found_handler = default_not_found(self)
+
+        if not_found_handler:
+            falcon.add_sink(not_found_handler)
+            self._not_found = not_found_handler
+
+        for url, extra_sink in self.sinks.items():
+            falcon.add_sink(extra_sink, url)
+
+        for url, methods in self.routes.items():
+            router = {}
+            for method, versions in methods.items():
+                method_function = "on_{0}".format(method.lower())
+                if len(versions) == 1 and None in versions.keys():
+                    router[method_function] = versions[None]
+                else:
+                    router[method_function] = partial(version_router, versions=versions, not_found=not_found_handler,
+                                                    api=self)
+
+            router = namedtuple('Router', router.keys())(**router)
+            falcon.add_route(url, router)
+            if self.versions and self.versions != (None, ):
+                falcon.add_route('/v{api_version}' + url, router)
+
+        def error_serializer(_, error):
+            return (self.output_format.content_type,
+                    self.output_format({"errors": {error.title: error.description}}))
+
+        falcon.set_error_serializer(error_serializer)
+        return falcon
 
 
 
