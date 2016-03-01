@@ -216,11 +216,11 @@ Input formatters are mapped based on the `content_type` of the request data, and
 
 ```py
 @hug.request_middleware()
-def proccess_data(request, response):
+def process_data(request, response):
     request.env['SERVER_NAME'] = 'changed'
 
 @hug.response_middleware()
-def proccess_data(request, response, resource):
+def process_data(request, response, resource):
     response.set_header('MyHeader', 'Value')
 ```
 
