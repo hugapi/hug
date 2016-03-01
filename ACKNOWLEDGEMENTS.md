@@ -33,6 +33,7 @@ Documenters
 - Andrew Murray (@radarhere)
 - Tim (@timlyo)
 - Sven-Hendrik Haase (@svenstaro)
+- Matt Caldwell (@mattcaldwell)
 
 --------------------------------------------
 
