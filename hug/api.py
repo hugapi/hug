@@ -156,11 +156,17 @@ class HTTPInterfaceAPI(InterfaceAPI):
         if overview:
             documentation['overview'] = overview
 
-        documentation['versions'] = OrderedDict()
+        version_dict = OrderedDict()
         versions = self.versions
-        for version in (api_version, ) if api_version else versions:
-            documentation['versions'][version] = OrderedDict()
-
+        versions_list = list(versions)
+        versions_list.remove(None)
+        if api_version == None and len(versions_list) > 0:
+            api_version = max(versions_list)
+            documentation['version'] = api_version
+        elif api_version != None:
+            documentation['version'] = api_version
+        if versions_list:
+            documentation['versions'] = versions_list
         for url, methods in self.routes.items():
             for method, method_versions in methods.items():
                 for version, handler in method_versions.items():
@@ -171,17 +177,11 @@ class HTTPInterfaceAPI(InterfaceAPI):
                     for version in applies_to:
                         if api_version and version != api_version:
                             continue
-
-                        doc = documentation['versions'][version].setdefault(url, OrderedDict())
+                        doc = version_dict.setdefault(url, OrderedDict())
                         doc[method] = handler.documentation(doc.get(method, None), version=version,
                                                             base_url=base_url, url=url)
 
-        if len(documentation['versions']) == 1:
-            documentation.update(tuple(documentation['versions'].values())[0])
-            documentation.pop('versions')
-        else:
-            documentation['versions'].pop(None, '')
-
+        documentation['handlers'] = version_dict
         return documentation
 
     def serve(self, port=8000, no_documentation=False):

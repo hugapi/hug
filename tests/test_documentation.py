@@ -59,33 +59,42 @@ def test_basic_documentation():
     documentation = api.http.documentation()
     assert 'test_documentation' in documentation['overview']
 
-    assert '/hello_world' in documentation
-    assert '/echo' in documentation
-    assert '/happy_birthday' in documentation
-    assert not '/birthday' in documentation
-    assert '/noop' in documentation
-    assert '/string_docs' in documentation
+    assert '/hello_world' in documentation["handlers"]
+    assert '/echo' in documentation["handlers"]
+    assert '/happy_birthday' in documentation["handlers"]
+    assert not '/birthday' in documentation["handlers"]
+    assert '/noop' in documentation["handlers"]
+    assert '/string_docs' in documentation["handlers"]
 
-    assert documentation['/hello_world']['GET']['usage']  == "Returns hello world"
-    assert documentation['/hello_world']['GET']['examples']  == ["/hello_world"]
-    assert documentation['/hello_world']['GET']['outputs']['content_type']  == "application/json"
-    assert not 'inputs' in documentation['/hello_world']['GET']
+    assert documentation["handlers"]['/hello_world']['GET']['usage']  == "Returns hello world"
+    assert documentation["handlers"]['/hello_world']['GET']['examples']  == ["/hello_world"]
+    assert documentation["handlers"]['/hello_world']['GET']['outputs']['content_type']  == "application/json"
+    assert not 'inputs' in documentation["handlers"]['/hello_world']['GET']
 
-    assert 'text' in documentation['/echo']['POST']['inputs']['text']['type']
-    assert not 'default' in documentation['/echo']['POST']['inputs']['text']
+    assert 'text' in documentation["handlers"]['/echo']['POST']['inputs']['text']['type']
+    assert not 'default' in documentation["handlers"]['/echo']['POST']['inputs']['text']
 
-    assert 'number' in documentation['/happy_birthday']['POST']['inputs']['age']['type']
-    assert documentation['/happy_birthday']['POST']['inputs']['age']['default'] == 1
+    assert 'number' in documentation["handlers"]['/happy_birthday']['POST']['inputs']['age']['type']
+    assert documentation["handlers"]['/happy_birthday']['POST']['inputs']['age']['default'] == 1
 
-    assert not 'inputs' in documentation['/noop']['POST']
+    assert not 'inputs' in documentation["handlers"]['/noop']['POST']
 
-    assert documentation['/string_docs']['GET']['inputs']['data']['type'] == 'Takes data'
-    assert documentation['/string_docs']['GET']['outputs']['type'] == 'Returns data'
+    assert documentation["handlers"]['/string_docs']['GET']['inputs']['data']['type'] == 'Takes data'
+    assert documentation["handlers"]['/string_docs']['GET']['outputs']['type'] == 'Returns data'
 
     @hug.post(versions=1)
     def echo(text):
         """V1 Docs"""
         return 'V1'
+
+    @hug.post(versions=2)
+    def echo(text):
+        """V1 Docs"""
+        return 'V2'
+
+    @hug.post(versions=2)
+    def test(text):
+        """V1 Docs"""
 
     @hug.get()
     def unversioned():
@@ -94,16 +103,20 @@ def test_basic_documentation():
     versioned_doc = api.http.documentation()
     assert 'versions' in versioned_doc
     assert 1 in versioned_doc['versions']
-    assert '/unversioned' in versioned_doc['versions'][1]
+    assert '/unversioned' in versioned_doc['handlers']
+    assert '/echo' in versioned_doc['handlers']
+    assert '/test' in versioned_doc['handlers']
 
-    specific_version_doc = api.http.documentation(api_version=1)
-    assert not 'versions' in specific_version_doc
-    assert '/echo' in specific_version_doc
-    assert '/unversioned' in specific_version_doc
+    specific_version_doc  = api.http.documentation(api_version=1)
+    assert 'versions' in specific_version_doc
+    assert '/echo' in specific_version_doc['handlers']
+    assert '/unversioned' in specific_version_doc['handlers']
+    assert '/test' not in specific_version_doc['handlers']
 
     handler = api.http.documentation_404()
     response = StartResponseMock()
     handler(Request(create_environ(path='v1/doc')), response)
     documentation = json.loads(response.data.decode('utf8'))['documentation']
-    assert not 'versions' in documentation
-    assert '/echo' in documentation
+    assert 'versions' in documentation
+    assert '/echo' in documentation['handlers']
+    assert '/test' not in documentation['handlers']
