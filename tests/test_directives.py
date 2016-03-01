@@ -68,6 +68,11 @@ def test_api():
     assert hug.test.get(api, 'api_tester').data is True
 
 
+def test_documentation():
+    """Test documentation directive"""
+    assert 'handlers' in hug.directives.documentation(module=api.module)
+
+
 def test_api_version():
     """Ensure that it's possible to get the current version of an API based on a directive"""
     @hug.get(versions=1)

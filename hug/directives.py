@@ -73,6 +73,15 @@ def api_version(default=None, api_version=None, **kwargs):
 
 
 @_built_in_directive
+def documentation(default=None, api_version=None, module=None, **kwargs):
+    """returns documentation for the current api"""
+    api_version = default or api_version
+    api = getattr(module, '__hug__', None)
+    if api:
+        return api.documentation(base_url="", api_version=api_version)
+
+
+@_built_in_directive
 class CurrentAPI(object):
     """Returns quick access to all api functions on the current version of the api"""
     __slots__ = ('api_version', 'api')
