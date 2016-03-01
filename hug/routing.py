@@ -291,7 +291,7 @@ class ExceptionRouter(HTTPRouter):
         (interface, callable_method) = self._create_interface(api, api_function, catch_exceptions=False)
         for version in self.route['versions']:
             for exception in self.route['exceptions']:
-                api.add_exception_handler(exception, interface, version)
+                api.http.add_exception_handler(exception, interface, version)
 
         return callable_method
 

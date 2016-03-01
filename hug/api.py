@@ -71,7 +71,7 @@ class InterfaceAPI(object):
 class HTTPInterfaceAPI(InterfaceAPI):
     """Defines the HTTP interface specific API"""
     __slots__ = ('routes', 'versions', '_output_format', '_input_format', 'versioned', '_middleware',
-                 '_not_found_handlers', '_startup_handlers', 'sinks', '_not_found')
+                 '_not_found_handlers', '_startup_handlers', 'sinks', '_not_found', '_exception_handlers')
 
     def __init__(self, api):
         super().__init__(api)
@@ -118,6 +118,21 @@ class HTTPInterfaceAPI(InterfaceAPI):
     def add_sink(self, sink, url):
         self.sinks[url] = sink
 
+    def exception_handlers(self, version=None):
+        if not hasattr(self, '_exception_handlers'):
+            return None
+
+        return self._exception_handlers.get(version, self._exception_handlers.get(None, None))
+
+    def add_exception_handler(self, exception_type, error_handler, versions=(None, )):
+        """Adds a error handler to the hug api"""
+        versions = (versions, ) if not isinstance(versions, (tuple, list)) else versions
+        if not hasattr(self, '_exception_handlers'):
+            self._exception_handlers = {}
+
+        for version in versions:
+            self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
+
     def extend(self, http_api, route=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         self.versions.update(http_api.versions)
@@ -132,7 +147,11 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self.add_middleware(middleware)
 
         for startup_handler in (http_api.startup_handlers or ()):
-            self.add_startup_handler(startup_handler)
+            self.add_startup_handler(startup_handler)\
+
+        for version, handler in getattr(http_api, '_exception_handlers', {}).items():
+            for exception_type, exception_handler in handler.items():
+                self.add_exception_handler(exception_type, exception_handler, version)
 
         for input_format, input_format_handler in getattr(http_api, '_input_format', {}).items():
             if not input_format in getattr(self, '_input_format', {}):
@@ -331,7 +350,7 @@ class ModuleSingleton(type):
 
 class API(object, metaclass=ModuleSingleton):
     """Stores the information necessary to expose API calls within this module externally"""
-    __slots__ = ('module', '_directives', '_exception_handlers', '_http')
+    __slots__ = ('module', '_directives', '_http')
 
     def __init__(self, module):
         self.module = module
@@ -355,30 +374,12 @@ class API(object, metaclass=ModuleSingleton):
             self._http = HTTPInterfaceAPI(self)
         return self._http
 
-    def exception_handlers(self, version=None):
-        if not hasattr(self, '_exception_handlers'):
-            return None
-
-        return self._exception_handlers.get(version, self._exception_handlers.get(None, None))
-
-    def add_exception_handler(self, exception_type, error_handler, versions=(None, )):
-        """Adds a error handler to the hug api"""
-        versions = (versions, ) if not isinstance(versions, (tuple, list)) else versions
-        if not hasattr(self, '_exception_handlers'):
-            self._exception_handlers = {}
-
-        for version in versions:
-            self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
-
     def extend(self, api, route=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         api = API(api)
 
         if hasattr(api, '_http'):
             self.http.extend(api.http, route)
-
-        for exception_type, exception_handler in getattr(api, '_exception_handlers', {}).items():
-            self.add_exception_handler(exception_type, exception_handler)
 
         for directive in getattr(api, '_directives', {}).values():
             self.add_directive(directive)

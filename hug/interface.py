@@ -519,7 +519,7 @@ class HTTP(Interface):
         if not self.catch_exceptions:
             exception_types = ()
         else:
-            exception_types = self.api.exception_handlers(api_version)
+            exception_types = self.api.http.exception_handlers(api_version)
             exception_types = tuple(exception_types.keys()) if exception_types else ()
         try:
             self.set_response_defaults(response, request)
@@ -541,9 +541,10 @@ class HTTP(Interface):
         except exception_types as exception:
             handler = None
             if type(exception) in exception_types:
-                handler = self.api.exception_handlers(api_version)[type(exception)]
+                handler = self.api.http.exception_handlers(api_version)[type(exception)]
             else:
-                for exception_type, exception_handler in tuple(self.api.exception_handlers(api_version).items())[::-1]:
+                for exception_type, exception_handler in \
+                                        tuple(self.api.http.exception_handlers(api_version).items())[::-1]:
                     if isinstance(exception, exception_type):
                         handler = exception_handler
             handler(request=request, response=response, exception=exception, **kwargs)

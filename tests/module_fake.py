@@ -2,7 +2,7 @@
 import hug
 
 
-class FakeException(Exception):
+class FakeException(BaseException):
     pass
 
 
@@ -66,6 +66,6 @@ def static():
 
 
 @hug.exception(FakeException)
-def handler_exception(exception):
+def handle_exception(exception):
     """Handles the provided exception for testing"""
     return True
