@@ -22,12 +22,15 @@ import sys
 import os
 import importlib
 
-import hug
+from hug.route import cli
+from hug.types import boolean, number
+from hug.api import API
+from hug._version import current
 
 
-@hug.cli(version=hug.__version__)
-def hug(file:'A Python file that contains a Hug API', module:'A Python module that contains a Hug API',
-        port:hug.types.int=8000, no_404_documentation:hug.types.boolean=False):
+@cli(version=current)
+def hug(file:'A Python file that contains a Hug API'=None, module:'A Python module that contains a Hug API'=None,
+        port:number=8000, no_404_documentation:boolean=False):
     """Hug API Development Server"""
     api_module = None
     server_arguments = {}
@@ -43,4 +46,4 @@ def hug(file:'A Python file that contains a Hug API', module:'A Python module th
         print("Error: must define a file name or module that contains a Hug API.")
         sys.exit(1)
 
-    hug.API(api_module).http.serve(port, no_404_documentation)
+    API(api_module).http.serve(port, no_404_documentation)
