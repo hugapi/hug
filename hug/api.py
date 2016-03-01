@@ -19,10 +19,12 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+from functools import partial
 import sys
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from itertools import chain
 from wsgiref.simple_server import make_server
+import json
 
 import falcon
 from falcon import HTTP_METHODS
@@ -116,26 +118,23 @@ class HTTPInterfaceAPI(InterfaceAPI):
     def add_sink(self, sink, url):
         self.sinks[url] = sink
 
-    def extend(self, module, route=""):
-        """Adds handlers from a different Hug API module to this one - to create a single API"""
-        self.versions.update(module.__hug__.versions)
+    def extend(self, http_api, route=""):
+        """Adds handlers from a different Hug API to this one - to create a single API"""
+        self.versions.update(http_api.versions)
 
-        for item_route, handler in module.__hug__.routes.items():
+        for item_route, handler in http_api.routes.items():
             self.routes[route + item_route] = handler
 
-        for (url, sink) in module.__hug__.sinks.items():
+        for (url, sink) in http_api.sinks.items():
             self.add_sink(sink, url)
 
-        for directive in getattr(module.__hug__, '_directives', {}).values():
-            self.add_directive(directive)
-
-        for middleware in (module.__hug__.middleware or ()):
+        for middleware in (http_api.middleware or ()):
             self.add_middleware(middleware)
 
-        for startup_handler in (module.__hug__.startup_handlers or ()):
+        for startup_handler in (http_api.startup_handlers or ()):
             self.add_startup_handler(startup_handler)
 
-        for input_format, input_format_handler in getattr(module.__hug__, '_input_format', {}).items():
+        for input_format, input_format_handler in getattr(http_api, '_input_format', {}).items():
             if not input_format in getattr(self, '_input_format', {}):
                 self.set_input_format(input_format, input_format_handler)
 
@@ -153,7 +152,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
     def documentation(self, base_url='', api_version=None):
         """Generates and returns documentation for this API endpoint"""
         documentation = OrderedDict()
-        overview = self.module.__doc__
+        overview = self.api.module.__doc__
         if overview:
             documentation['overview'] = overview
 
@@ -254,7 +253,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
     def server(self, default_not_found=documentation_404):
         """Returns a WSGI compatible API server for the given Hug API module"""
-        falcon = falcon.API(middleware=self.middleware)
+        falcon_api = falcon.API(middleware=self.middleware)
 
         not_found_handler = None
         for startup_handler in self.startup_handlers:
@@ -263,17 +262,17 @@ class HTTPInterfaceAPI(InterfaceAPI):
             if len(self.not_found_handlers) == 1 and None in self.not_found_handlers:
                 not_found_handler = self.not_found_handlers[None]
             else:
-                not_found_handler = partial(version_router, api=self, api_version=False,
+                not_found_handler = partial(self.version_router, api_version=False,
                                             versions=self.not_found_handlers, not_found=default_not_found)
         elif default_not_found:
             not_found_handler = default_not_found(self)
 
         if not_found_handler:
-            falcon.add_sink(not_found_handler)
+            falcon_api.add_sink(not_found_handler)
             self._not_found = not_found_handler
 
         for url, extra_sink in self.sinks.items():
-            falcon.add_sink(extra_sink, url)
+            falcon_api.add_sink(extra_sink, url)
 
         for url, methods in self.routes.items():
             router = {}
@@ -282,21 +281,31 @@ class HTTPInterfaceAPI(InterfaceAPI):
                 if len(versions) == 1 and None in versions.keys():
                     router[method_function] = versions[None]
                 else:
-                    router[method_function] = partial(version_router, versions=versions, not_found=not_found_handler,
-                                                    api=self)
+                    router[method_function] = partial(self.version_router, versions=versions,
+                                                      not_found=not_found_handler)
 
             router = namedtuple('Router', router.keys())(**router)
-            falcon.add_route(url, router)
+            falcon_api.add_route(url, router)
             if self.versions and self.versions != (None, ):
-                falcon.add_route('/v{api_version}' + url, router)
+                falcon_api.add_route('/v{api_version}' + url, router)
 
         def error_serializer(_, error):
             return (self.output_format.content_type,
                     self.output_format({"errors": {error.title: error.description}}))
 
-        falcon.set_error_serializer(error_serializer)
-        return falcon
+        falcon_api.set_error_serializer(error_serializer)
+        return falcon_api
 
+    @property
+    def startup_handlers(self):
+        return getattr(self, '_startup_handlers', ())
+
+    def add_startup_handler(self, handler):
+        """Adds a startup handler to the hug api"""
+        if not self.startup_handlers:
+            self._startup_handlers = []
+
+        self.startup_handlers.append(handler)
 
 
 class ModuleSingleton(type):
@@ -312,7 +321,7 @@ class ModuleSingleton(type):
         if not '__hug__' in module.__dict__:
             def api_auto_instantiate(*kargs, **kwargs):
                 if not hasattr(module, '__hug_serving__'):
-                    module.__hug_wsgi__ = server(module.__hug__)
+                    module.__hug_wsgi__ = module.__hug__.http.server()
                     module.__hug_serving__ = True
                 return module.__hug_wsgi__(*kargs, **kwargs)
 
@@ -342,20 +351,10 @@ class API(object, metaclass=ModuleSingleton):
         self._directives[directive.__name__] = directive
 
     @property
-    def startup_handlers(self):
-        return getattr(self, '_startup_handlers', ())
-
-    @property
     def http(self):
         if not hasattr(self, '_http'):
             self._http = HTTPInterfaceAPI(self)
-
-    def add_startup_handler(self, handler):
-        """Adds a startup handler to the hug api"""
-        if not self.startup_handlers:
-            self._startup_handlers = []
-
-        self.startup_handlers.append(handler)
+        return self._http
 
     def exception_handlers(self, version=None):
         if not hasattr(self, '_exception_handlers'):
@@ -371,6 +370,22 @@ class API(object, metaclass=ModuleSingleton):
 
         for version in versions:
             self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
+
+    def documentation(self):
+        return {'http': self.http.documentation()}
+
+    def extend(self, api, route=""):
+        """Adds handlers from a different Hug API to this one - to create a single API"""
+        api = API(api)
+
+        if hasattr(api, '_http'):
+            self.http.extend(api.http)
+
+        for exception_handler in getattr(api, '_exception_handlers', {}).values():
+            self.add_exception_handler(exception_handler)
+
+        for directive in getattr(api, '_directives', {}).values():
+            self.add_directive(directive)
 
 
 def from_object(obj):

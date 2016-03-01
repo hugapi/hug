@@ -122,9 +122,9 @@ class Local(Service):
         self.headers = headers
 
     def request(self, method, url, url_params=empty.dict, headers=empty.dict, timeout=None, **params):
-        function = self.api.versioned.get(self.version, {}).get(url, None)
+        function = self.api.http.versioned.get(self.version, {}).get(url, None)
         if not function:
-            function = self.api.versioned.get(None, {}).get(url, None)
+            function = self.api.http.versioned.get(None, {}).get(url, None)
 
         if not function:
             if 404 in self.raise_on:

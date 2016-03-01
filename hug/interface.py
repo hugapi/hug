@@ -537,7 +537,7 @@ class HTTP(Interface):
 
             self.render_content(self.call_function(**input_parameters), request, response, **kwargs)
         except falcon.HTTPNotFound:
-            return self.api.not_found(request, response, **kwargs)
+            return self.api.http.not_found(request, response, **kwargs)
         except exception_types as exception:
             handler = None
             if type(exception) in exception_types:

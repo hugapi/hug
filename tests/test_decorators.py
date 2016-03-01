@@ -563,7 +563,7 @@ def test_smart_outputter():
 
 def test_output_format():
     """Test to ensure it's possible to quickly change the default hug output format"""
-    old_formatter = api.output_format
+    old_formatter = api.http.output_format
 
     @hug.default_output_format()
     def augmented(data):
@@ -583,20 +583,20 @@ def test_output_format():
         return hug.output_format.json(data)
 
 
-    api.output_format = hug.output_format.text
+    api.http.output_format = hug.output_format.text
 
     @hug.get()
     def my_method():
         return {'Should': 'work'}
 
     assert hug.test.get(api, 'my_method').data == "{'Should': 'work'}"
-    api.output_format = old_formatter
+    api.http.output_format = old_formatter
 
 
 def test_input_format():
     """Test to ensure it's possible to quickly change the default hug output format"""
-    old_format = api.input_format('application/json')
-    api.set_input_format('application/json', lambda a: {'no': 'relation'})
+    old_format = api.http.input_format('application/json')
+    api.http.set_input_format('application/json', lambda a: {'no': 'relation'})
 
     @hug.get()
     def hello(body):
@@ -610,7 +610,7 @@ def test_input_format():
 
     assert not hug.test.get(api, 'hello').data
 
-    api.set_input_format('application/json', old_format)
+    api.http.set_input_format('application/json', old_format)
 
 
 def test_content_type_with_parameter():
@@ -1046,7 +1046,7 @@ def test_startup():
     def happens_on_startup(api):
         pass
 
-    assert happens_on_startup in api.startup_handlers
+    assert happens_on_startup in api.http.startup_handlers
 
 
 def test_adding_headers():
@@ -1064,7 +1064,7 @@ def test_on_demand_404():
     """Test to ensure it's possible to route to a 404 response on demand"""
     @hug.get()
     def my_endpoint(hug_api):
-        return hug_api.not_found
+        return hug_api.http.not_found
 
     assert '404' in hug.test.get(api, 'my_endpoint').status
 
@@ -1078,8 +1078,8 @@ def test_on_demand_404():
     @hug.get()
     def my_endpoint(hug_api):
         """Test to ensure base 404 handler works as expected"""
-        del hug_api._not_found
-        return hug_api.not_found
+        del hug_api.http._not_found
+        return hug_api.http.not_found
 
     assert '404' in hug.test.get(api, 'my_endpoint').status
 

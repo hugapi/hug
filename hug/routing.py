@@ -223,7 +223,7 @@ class NotFoundRouter(HTTPRouter):
         api = self.route.get('api', hug.api.from_object(api_function))
         (interface, callable_method) = self._create_interface(api, api_function)
         for version in self.route['versions']:
-            api.set_not_found_handler(interface, version)
+            api.http.set_not_found_handler(interface, version)
 
         return callable_method
 
@@ -241,7 +241,7 @@ class SinkRouter(HTTPRouter):
         api = hug.api.from_object(api_function)
         (interface, callable_method) = self._create_interface(api, api_function)
         for base_url in self.route.get('urls', ("/{0}".format(api_function.__name__), )):
-            api.add_sink(interface, base_url)
+            api.http.add_sink(interface, base_url)
         return callable_method
 
 
@@ -274,7 +274,7 @@ class StaticRouter(SinkRouter):
                         return path
 
                 hug.redirect.not_found()
-            api.add_sink(self._create_interface(api, read_file)[0], base_url)
+            api.http.add_sink(self._create_interface(api, read_file)[0], base_url)
         return api_function
 
 
@@ -334,12 +334,12 @@ class URLRouter(HTTPRouter):
             for prefix in self.route.get('prefixes', ()):
                 expose.append(prefix + base_url)
             for url in expose:
-                handlers = api.routes.setdefault(url, {})
+                handlers = api.http.routes.setdefault(url, {})
                 for method in self.route.get('accept', ()):
                     version_mapping = handlers.setdefault(method.upper(), {})
                     for version in self.route['versions']:
                         version_mapping[version] = interface
-                        api.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
+                        api.http.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
 
         interface.examples = use_examples
         return callable_method

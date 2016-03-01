@@ -82,9 +82,9 @@ class CurrentAPI(object):
         self.api = api(**kwargs)
 
     def __getattr__(self, name):
-        function = self.api.versioned.get(self.api_version, {}).get(name, None)
+        function = self.api.http.versioned.get(self.api_version, {}).get(name, None)
         if not function:
-            function = self.api.versioned.get(None, {}).get(name, None)
+            function = self.api.http.versioned.get(None, {}).get(name, None)
         if not function:
             raise AttributeError('API Function {0} not found'.format(name))
 

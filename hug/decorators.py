@@ -44,7 +44,7 @@ def default_output_format(content_type='application/json', apply_globally=False)
         if apply_globally:
             hug.defaults.output_format = formatter
         else:
-            api.output_format = formatter
+            api.http.output_format = formatter
         return formatter
     return decorator
 
@@ -57,7 +57,7 @@ def default_input_format(content_type='application/json', apply_globally=False):
         if apply_globally:
             hug.defaults.input_format[content_type] = formatter
         else:
-            api.set_input_format(content_type, formatter)
+            api.http.set_input_format(content_type, formatter)
         return formatter
     return decorator
 
@@ -78,7 +78,7 @@ def directive(apply_globally=True):
 def startup():
     """Runs the provided function on startup, passing in an instance of the api"""
     def startup_wrapper(startup_function):
-        hug.api.from_object(startup_function).add_startup_handler(startup_function)
+        hug.api.from_object(startup_function).http.add_startup_handler(startup_function)
         return startup_function
     return startup_wrapper
 
@@ -88,7 +88,7 @@ def request_middleware():
     def decorator(middleware_method):
         api = hug.api.from_object(middleware_method)
         middleware_method.__self__ = middleware_method
-        api.add_middleware(namedtuple('MiddlewareRouter', ('process_request', ))(middleware_method))
+        api.http.add_middleware(namedtuple('MiddlewareRouter', ('process_request', ))(middleware_method))
         return middleware_method
     return decorator
 
@@ -98,7 +98,7 @@ def response_middleware():
     def decorator(middleware_method):
         api = hug.api.from_object(middleware_method)
         middleware_method.__self__ = middleware_method
-        api.add_middleware(namedtuple('MiddlewareRouter', ('process_response', ))(middleware_method))
+        api.http.add_middleware(namedtuple('MiddlewareRouter', ('process_response', ))(middleware_method))
         return middleware_method
     return decorator
 
@@ -106,7 +106,7 @@ def response_middleware():
 def middleware_class():
     """Registers a middleware class"""
     def decorator(middleware_class):
-        hug.api.from_object(middleware_class).add_middleware(middleware_class())
+        hug.api.from_object(middleware_class).http.add_middleware(middleware_class())
         return middleware_class
     return decorator
 
