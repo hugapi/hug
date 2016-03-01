@@ -254,9 +254,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
     def server(self, default_not_found=True):
         """Returns a WSGI compatible API server for the given Hug API module"""
         falcon_api = falcon.API(middleware=self.middleware)
-        default_not_found = self.documentation_404() if default_not_found is True else default_not_found
+        default_not_found = self.documentation_404() if default_not_found is True else None
 
-        not_found_handler = None
+        not_found_handler = default_not_found
         for startup_handler in self.startup_handlers:
             startup_handler(self)
         if self.not_found_handlers:
