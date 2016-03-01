@@ -370,9 +370,6 @@ class API(object, metaclass=ModuleSingleton):
         for version in versions:
             self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
 
-    def documentation(self):
-        return {'http': self.http.documentation()}
-
     def extend(self, api, route=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         api = API(api)
@@ -380,8 +377,8 @@ class API(object, metaclass=ModuleSingleton):
         if hasattr(api, '_http'):
             self.http.extend(api.http, route)
 
-        for exception_handler in getattr(api, '_exception_handlers', {}).values():
-            self.add_exception_handler(exception_handler)
+        for exception_type, exception_handler in getattr(api, '_exception_handlers', {}).items():
+            self.add_exception_handler(exception_type, exception_handler)
 
         for directive in getattr(api, '_directives', {}).values():
             self.add_directive(directive)
