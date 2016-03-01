@@ -187,9 +187,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
     def serve(self, port=8000, no_documentation=False):
         """Runs the basic hug development server against this API"""
         if no_documentation:
-            api = self.server(self.module, sink=None)
+            api = self.server(None)
         else:
-            api = self.server(self.module)
+            api = self.server()
 
         print(INTRO)
         httpd = make_server('', port, api)
@@ -251,9 +251,10 @@ class HTTPInterfaceAPI(InterfaceAPI):
         versions.get(request_version, versions.get(None, not_found))(request, response, api_version=api_version,
                                                                      **kwargs)
 
-    def server(self, default_not_found=documentation_404):
+    def server(self, default_not_found=True):
         """Returns a WSGI compatible API server for the given Hug API module"""
         falcon_api = falcon.API(middleware=self.middleware)
+        default_not_found = self.documentation_404() if default_not_found is True else default_not_found
 
         not_found_handler = None
         for startup_handler in self.startup_handlers:
@@ -264,8 +265,6 @@ class HTTPInterfaceAPI(InterfaceAPI):
             else:
                 not_found_handler = partial(self.version_router, api_version=False,
                                             versions=self.not_found_handlers, not_found=default_not_found)
-        elif default_not_found:
-            not_found_handler = default_not_found(self)
 
         if not_found_handler:
             falcon_api.add_sink(not_found_handler)
