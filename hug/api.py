@@ -379,7 +379,7 @@ class API(object, metaclass=ModuleSingleton):
         api = API(api)
 
         if hasattr(api, '_http'):
-            self.http.extend(api.http)
+            self.http.extend(api.http, route)
 
         for exception_handler in getattr(api, '_exception_handlers', {}).values():
             self.add_exception_handler(exception_handler)
