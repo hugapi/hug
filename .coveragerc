@@ -1,6 +1,6 @@
 [report]
 include = hug/*.py
-exclude_lines = def terminal
+exclude_lines = def hug
                 def serve
                 sys.stdout.buffer.write
 

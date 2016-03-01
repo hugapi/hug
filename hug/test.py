@@ -31,12 +31,11 @@ from falcon.testing import create_environ, StartResponseMock
 
 from hug import output_format
 from hug.api import API
-from hug.run import server
 
 
 def call(method, api_or_module, url, body='', headers=None, **params):
     """Simulates a round-trip call against the given API / URL"""
-    api = server(API(api_or_module))
+    api = API(api_or_module).http.server()
     response = StartResponseMock()
     if not isinstance(body, str):
         body = output_format.json(body)

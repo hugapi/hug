@@ -57,7 +57,7 @@ def test_session_middleware():
     # Add middleware
     session_store = TestSessionStore()
     middleware = SessionMiddleware(session_store, cookie_name='test-sid')
-    __hug__.add_middleware(middleware)
+    __hug__.http.add_middleware(middleware)
 
     # Get cookies from response
     response = hug.test.get(api, '/count')

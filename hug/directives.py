@@ -78,7 +78,7 @@ def documentation(default=None, api_version=None, module=None, **kwargs):
     api_version = default or api_version
     api = getattr(module, '__hug__', None)
     if api:
-        return api.documentation(base_url="", api_version=api_version)
+        return api.http.documentation(base_url="", api_version=api_version)
 
 
 @_built_in_directive
@@ -91,9 +91,9 @@ class CurrentAPI(object):
         self.api = api(**kwargs)
 
     def __getattr__(self, name):
-        function = self.api.versioned.get(self.api_version, {}).get(name, None)
+        function = self.api.http.versioned.get(self.api_version, {}).get(name, None)
         if not function:
-            function = self.api.versioned.get(None, {}).get(name, None)
+            function = self.api.http.versioned.get(None, {}).get(name, None)
         if not function:
             raise AttributeError('API Function {0} not found'.format(name))
 

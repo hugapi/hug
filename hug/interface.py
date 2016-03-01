@@ -373,7 +373,7 @@ class HTTP(Interface):
         self.parse_body = 'parse_body' in route
         self.set_status = route.get('status', False)
         self.response_headers = tuple(route.get('response_headers', {}).items())
-        self.outputs = route.get('output', self.api.output_format)
+        self.outputs = route.get('output', self.api.http.output_format)
 
         self._params_for_outputs = introspect.takes_arguments(self.outputs, *self.AUTO_INCLUDE)
         self._params_for_transform = introspect.takes_arguments(self.transform, *self.AUTO_INCLUDE)
@@ -387,7 +387,7 @@ class HTTP(Interface):
             self._params_for_on_invalid = self._params_for_transform
 
         if route['versions']:
-            self.api.versions.update(route['versions'])
+            self.api.http.versions.update(route['versions'])
 
         self.interface.http = self
 
@@ -397,7 +397,7 @@ class HTTP(Interface):
         if self.parse_body and request.content_length is not None:
             body = request.stream
             content_type, encoding = separate_encoding(request.content_type)
-            body_formatter = body and self.api.input_format(content_type)
+            body_formatter = body and self.api.http.input_format(content_type)
             if body_formatter:
                 body = body_formatter(body, encoding) if encoding is not None else body_formatter(body)
             if 'body' in self.parameters:
@@ -519,7 +519,7 @@ class HTTP(Interface):
         if not self.catch_exceptions:
             exception_types = ()
         else:
-            exception_types = self.api.exception_handlers(api_version)
+            exception_types = self.api.http.exception_handlers(api_version)
             exception_types = tuple(exception_types.keys()) if exception_types else ()
         try:
             self.set_response_defaults(response, request)
@@ -537,13 +537,14 @@ class HTTP(Interface):
 
             self.render_content(self.call_function(**input_parameters), request, response, **kwargs)
         except falcon.HTTPNotFound:
-            return self.api.not_found(request, response, **kwargs)
+            return self.api.http.not_found(request, response, **kwargs)
         except exception_types as exception:
             handler = None
             if type(exception) in exception_types:
-                handler = self.api.exception_handlers(api_version)[type(exception)]
+                handler = self.api.http.exception_handlers(api_version)[type(exception)]
             else:
-                for exception_type, exception_handler in tuple(self.api.exception_handlers(api_version).items())[::-1]:
+                for exception_type, exception_handler in \
+                                        tuple(self.api.http.exception_handlers(api_version).items())[::-1]:
                     if isinstance(exception, exception_type):
                         handler = exception_handler
             handler(request=request, response=response, exception=exception, **kwargs)

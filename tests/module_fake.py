@@ -2,6 +2,10 @@
 import hug
 
 
+class FakeException(BaseException):
+    pass
+
+
 @hug.directive(apply_globally=False)
 def my_directive(default=None, **kwargs):
     """for testing"""
@@ -59,3 +63,9 @@ def on_startup(api):
 def static():
     """for testing"""
     return ('', )
+
+
+@hug.exception(FakeException)
+def handle_exception(exception):
+    """Handles the provided exception for testing"""
+    return True

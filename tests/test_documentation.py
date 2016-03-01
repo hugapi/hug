@@ -56,7 +56,7 @@ def test_basic_documentation():
         """Annotations defined with strings should be documentation only"""
         pass
 
-    documentation = api.documentation()
+    documentation = api.http.documentation()
     assert 'test_documentation' in documentation['overview']
 
     assert '/hello_world' in documentation["handlers"]
@@ -91,7 +91,7 @@ def test_basic_documentation():
     def echo(text):
         """V1 Docs"""
         return 'V2'
-    
+
     @hug.post(versions=2)
     def test(text):
         """V1 Docs"""
@@ -100,20 +100,20 @@ def test_basic_documentation():
     def unversioned():
         return 'Hello'
 
-    versioned_doc = api.documentation()
+    versioned_doc = api.http.documentation()
     assert 'versions' in versioned_doc
     assert 1 in versioned_doc['versions']
     assert '/unversioned' in versioned_doc['handlers']
     assert '/echo' in versioned_doc['handlers']
     assert '/test' in versioned_doc['handlers']
 
-    specific_version_doc  = api.documentation(api_version=1)
+    specific_version_doc  = api.http.documentation(api_version=1)
     assert 'versions' in specific_version_doc
     assert '/echo' in specific_version_doc['handlers']
     assert '/unversioned' in specific_version_doc['handlers']
     assert '/test' not in specific_version_doc['handlers']
 
-    handler = hug.run.documentation_404(api)
+    handler = api.http.documentation_404()
     response = StartResponseMock()
     handler(Request(create_environ(path='v1/doc')), response)
     documentation = json.loads(response.data.decode('utf8'))['documentation']
