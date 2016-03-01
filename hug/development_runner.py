@@ -22,9 +22,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 import hug
 
 
-@hug.cli('hug', version=hug.__version__)
-def development_tool(file:'A Python file that contains a Hug API', module:'A Python module that contains a Hug API',
-                     port:hug.types.int=8000, no_404_documentation:hug.types.boolean=False):
+@hug.cli(version=hug.__version__)
+def hug(file:'A Python file that contains a Hug API', module:'A Python module that contains a Hug API',
+        port:hug.types.int=8000, no_404_documentation:hug.types.boolean=False):
     """Hug API Development Server"""
     api_module = None
     server_arguments = {}

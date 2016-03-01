@@ -97,7 +97,7 @@ setup(name='hug',
       license="MIT",
       entry_points={
         'console_scripts': [
-            'hug = hug:run.terminal',
+            'hug = hug:development_runner.hug.interface.cli',
         ]
       },
       packages=['hug'],
