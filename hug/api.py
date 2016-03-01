@@ -188,9 +188,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
     def serve(self, port=8000, no_documentation=False):
         """Runs the basic hug development server against this API"""
         if no_documentation:
-            api = server(self.module, sink=None)
+            api = self.server(self.module, sink=None)
         else:
-            api = server(self.module)
+            api = self.server(self.module)
 
         print(INTRO)
         httpd = make_server('', port, api)
