@@ -96,8 +96,9 @@ def test_basic_documentation():
     @hug.post(versions=2)
     def test(text):
         """V1 Docs"""
+        return True
 
-    @hug.get()
+    @hug.get(requires=test)
     def unversioned():
         return 'Hello'
 
@@ -112,6 +113,7 @@ def test_basic_documentation():
     assert 'versions' in specific_version_doc
     assert '/echo' in specific_version_doc['handlers']
     assert '/unversioned' in specific_version_doc['handlers']
+    assert specific_version_doc['handlers']['/unversioned']['GET']['requires'] == ['V1 Docs']
     assert '/test' not in specific_version_doc['handlers']
 
     handler = api.http.documentation_404()
