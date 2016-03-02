@@ -52,35 +52,36 @@ def test_basic_documentation():
         pass
 
     @hug.get()
-    def string_docs(data:'Takes data') -> 'Returns data':
+    def string_docs(data:'Takes data', ignore_directive:hug.directives.Timer) -> 'Returns data':
         """Annotations defined with strings should be documentation only"""
         pass
 
     documentation = api.http.documentation()
     assert 'test_documentation' in documentation['overview']
 
-    assert '/hello_world' in documentation["handlers"]
-    assert '/echo' in documentation["handlers"]
-    assert '/happy_birthday' in documentation["handlers"]
-    assert not '/birthday' in documentation["handlers"]
-    assert '/noop' in documentation["handlers"]
-    assert '/string_docs' in documentation["handlers"]
+    assert '/hello_world' in documentation['handlers']
+    assert '/echo' in documentation['handlers']
+    assert '/happy_birthday' in documentation['handlers']
+    assert not '/birthday' in documentation['handlers']
+    assert '/noop' in documentation['handlers']
+    assert '/string_docs' in documentation['handlers']
 
-    assert documentation["handlers"]['/hello_world']['GET']['usage']  == "Returns hello world"
-    assert documentation["handlers"]['/hello_world']['GET']['examples']  == ["/hello_world"]
-    assert documentation["handlers"]['/hello_world']['GET']['outputs']['content_type']  == "application/json"
-    assert not 'inputs' in documentation["handlers"]['/hello_world']['GET']
+    assert documentation['handlers']['/hello_world']['GET']['usage']  == "Returns hello world"
+    assert documentation['handlers']['/hello_world']['GET']['examples']  == ["/hello_world"]
+    assert documentation['handlers']['/hello_world']['GET']['outputs']['content_type']  == "application/json"
+    assert not 'inputs' in documentation['handlers']['/hello_world']['GET']
 
-    assert 'text' in documentation["handlers"]['/echo']['POST']['inputs']['text']['type']
-    assert not 'default' in documentation["handlers"]['/echo']['POST']['inputs']['text']
+    assert 'text' in documentation['handlers']['/echo']['POST']['inputs']['text']['type']
+    assert not 'default' in documentation['handlers']['/echo']['POST']['inputs']['text']
 
-    assert 'number' in documentation["handlers"]['/happy_birthday']['POST']['inputs']['age']['type']
-    assert documentation["handlers"]['/happy_birthday']['POST']['inputs']['age']['default'] == 1
+    assert 'number' in documentation['handlers']['/happy_birthday']['POST']['inputs']['age']['type']
+    assert documentation['handlers']['/happy_birthday']['POST']['inputs']['age']['default'] == 1
 
-    assert not 'inputs' in documentation["handlers"]['/noop']['POST']
+    assert not 'inputs' in documentation['handlers']['/noop']['POST']
 
-    assert documentation["handlers"]['/string_docs']['GET']['inputs']['data']['type'] == 'Takes data'
-    assert documentation["handlers"]['/string_docs']['GET']['outputs']['type'] == 'Returns data'
+    assert documentation['handlers']['/string_docs']['GET']['inputs']['data']['type'] == 'Takes data'
+    assert documentation['handlers']['/string_docs']['GET']['outputs']['type'] == 'Returns data'
+    assert not 'ignore_directive' in documentation['handlers']['/string_docs']['GET']['inputs']
 
     @hug.post(versions=1)
     def echo(text):

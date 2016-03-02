@@ -189,6 +189,9 @@ class Interface(object):
             types = self.interface.spec.__annotations__
             for argument in parameters:
                 kind = types.get(argument, text)
+                if getattr(kind, 'directive', None) is True:
+                    continue
+
                 input_definition = inputs.setdefault(argument, OrderedDict())
                 input_definition['type'] = kind if isinstance(kind, str) else kind.__doc__
                 default = self.defaults.get(argument, None)
