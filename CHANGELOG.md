@@ -33,6 +33,7 @@ Changelog
 - Added support for raising on validation errors - to enable overall exception handlers to catch them
 - Added support for multiple transformers on an endpoint via `transform.all`
 - Added support for applying type annotations and directives locally with @hug.local()
+- Added support for a base_url by doing `hug.API(__name__).http.base_url = '/base_url'`
 - Added requirements to documentation
 - Updated all default output formats to gracefully handle error dictionaries
 - Documentation generation was moved to API instances to enable easier customization
