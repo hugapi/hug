@@ -70,15 +70,16 @@ class InterfaceAPI(object):
 
 class HTTPInterfaceAPI(InterfaceAPI):
     """Defines the HTTP interface specific API"""
-    __slots__ = ('routes', 'versions', '_output_format', '_input_format', 'versioned', '_middleware',
+    __slots__ = ('routes', 'versions', 'base_url', '_output_format', '_input_format', 'versioned', '_middleware',
                  '_not_found_handlers', '_startup_handlers', 'sinks', '_not_found', '_exception_handlers')
 
-    def __init__(self, api):
+    def __init__(self, api, base_url=''):
         super().__init__(api)
         self.versions = set()
         self.routes = OrderedDict()
         self.sinks = OrderedDict()
         self.versioned = OrderedDict()
+        self.base_url = base_url
 
     @property
     def output_format(self):
@@ -290,7 +291,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self._not_found = not_found_handler
 
         for url, extra_sink in self.sinks.items():
-            falcon_api.add_sink(extra_sink, url)
+            falcon_api.add_sink(extra_sink, self.base_url + url)
 
         for url, methods in self.routes.items():
             router = {}
@@ -303,9 +304,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
                                                       not_found=not_found_handler)
 
             router = namedtuple('Router', router.keys())(**router)
-            falcon_api.add_route(url, router)
+            falcon_api.add_route(self.base_url + url, router)
             if self.versions and self.versions != (None, ):
-                falcon_api.add_route('/v{api_version}' + url, router)
+                falcon_api.add_route(self.base_url + '/v{api_version}' + url, router)
 
         def error_serializer(_, error):
             return (self.output_format.content_type,
