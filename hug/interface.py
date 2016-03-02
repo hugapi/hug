@@ -178,6 +178,8 @@ class Interface(object):
         usage = self.interface.spec.__doc__
         if usage:
             doc['usage'] = usage
+        if getattr(self, 'requires', None):
+            doc['requires'] = [getattr(requirement, '__doc__', requirement.__name__) for requirement in self.requires]
         doc['outputs'] = OrderedDict()
         doc['outputs']['format'] = self.outputs.__doc__
         doc['outputs']['content_type'] = self.outputs.content_type
