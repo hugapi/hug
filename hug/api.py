@@ -327,6 +327,23 @@ class HTTPInterfaceAPI(InterfaceAPI):
         self.startup_handlers.append(handler)
 
 
+class CLIInterfaceAPI(InterfaceAPI):
+    """Defines the CLI interface specific API"""
+    __slots__ = ('commands', )
+
+    def __init__(self, api, version=''):
+        super().__init__(api)
+        self.commands = {}
+
+    def __call__():
+        """Routes to the correct command line tool"""
+        if not sys.argv[1:] or not sys.argv[1] in self.commands:
+            print(self.api.module.__doc__ or self.api.module.__name__)
+            print("\nAvailable Commands:\n\n\t- " + "\n- ".join(self.commands.keys()))
+            return sys.exit(1)
+        self.commands.get(sys.argv[1])
+
+
 class ModuleSingleton(type):
     """Defines the module level __hug__ singleton"""
 
@@ -351,7 +368,7 @@ class ModuleSingleton(type):
 
 class API(object, metaclass=ModuleSingleton):
     """Stores the information necessary to expose API calls within this module externally"""
-    __slots__ = ('module', '_directives', '_http')
+    __slots__ = ('module', '_directives', '_http', '_cli')
 
     def __init__(self, module):
         self.module = module
@@ -374,6 +391,13 @@ class API(object, metaclass=ModuleSingleton):
         if not hasattr(self, '_http'):
             self._http = HTTPInterfaceAPI(self)
         return self._http
+
+    @property
+    def cli(self):
+        if not hasattr(self, '_cli'):
+            self._cli = CLIInterfaceAPI(self)
+        return self._cli
+
 
     def extend(self, api, route=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
