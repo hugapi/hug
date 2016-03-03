@@ -338,7 +338,6 @@ class CLI(Interface):
             data = self.outputs(data)
             if data:
                 sys.stdout.buffer.write(data)
-                sys.stdout.buffer.write('\n')
         return data
 
     def __call__(self):
