@@ -46,7 +46,7 @@ Here's how I modify it to expose it via the command line:
 
 
     if __name__ == '__main__':
-        add.cli()
+        add.interface.cli()
 
 Yay! Now I can just do my math from the command line using `add.py $NUMBER_1 $NUMBER_2`.
 And even better, if I miss an argument it let's me know what it is and how to fix my error.
@@ -69,7 +69,7 @@ No problem. I'll just expose it over HTTP as well:
 
 
     if __name__ == '__main__':
-        add.cli()
+        add.interface.cli()
 
 That's it. I then run my new service via `hug -f add.py` and can see it running on `http://localhost:8000/`.
 The default page shows me documentation that points me toward `http://localhost:8000/add?number_1=1&number_2=2` to perform my first addition.
@@ -85,18 +85,18 @@ A few things hapen when you wrapped that first function for external use, with h
 
 -   hug created a singleton hug.API object on your module to keep track of all interfaces that exist within the module
     - This is referable by `__hug__` or `hug.API(__name__)`
--   a new hug.interface.CLI() object was created and attached to `add.cli`
+-   a new hug.interface.CLI() object was created and attached to `add.interface.cli`
     - This interface fully encapsulates the logic needed to expose `add` as a command line tool
     - NOTE: all supported ways to expose a function via hug can be found in `hug/interface.py`
--   the original Python `add` function is returned unmodified (with exception to the `.cli` property addition)
+-   the original Python `add` function is returned unmodified (with exception to the `.interface.cli` property addition)
 
 Then when I extended my API to run as HTTP service the same basic pattern was followed:
 
 -   hug saw that the singleton already existed
--   a new hug.interface.HTTP() object was created and attached to `hug.http`
+-   a new hug.interface.HTTP() object was created and attached to `add.interface.http`
     - This interface encapsulates the logic needed to expose the `add` command as an HTTP service
     - The new HTTP interface handler is registered to the API singleton
--   the original Python `add` function is returned unmodified (with exception to the `.http` property addition)
+-   the original Python `add` function is returned unmodified (with exception to the `.interface.http` property addition)
 
 At the end of this, I have 2 interface objects attached to my original function: `add.cli` and `add.http`.
 Which is consistent with what I want to accomplish, one Python API with 2 additional external interfaces.
@@ -113,7 +113,7 @@ Where does the code live for these core pieces?
 While hug has a lot of modules that enable it to provide a great depth of functionality, everything accomplished above,
 and that is core to hug, lives in only a few:
 
--   `hug/api.py`: Defines the hug per-module singleton object that keeps track of all registered interfaces
+-   `hug/api.py`: Defines the hug per-module singleton object that keeps track of all registered interfaces, alongside the associated per interface APIs (HTTPInterfaceAPI, CLIInterfaceAPI)
 -   `hug/routing.py`: holds all the data and settings that should be passed to newly created interfaces, and creates the interfaces from that data.
     - This directly is what powers `hug.get`, `hug.cli, and all other function to interface routers
     - Can be seen as a Factory for creating new interfaces
