@@ -133,7 +133,7 @@ class TestSocket(object):
     """Test to ensure the Socket Service object enables sending/receiving data from arbitrary server/port sockets"""
     import socket
     tcp_service = use.Socket(connect_to=('www.purple.com', 80), proto='tcp', timeout=60)
-    udp_service = use.Socket(connect_to=('10.3.4.2', 123), proto='udp', timeout=60)
+    udp_service = use.Socket(connect_to=('pool.ntp.org', 123), proto='udp', timeout=60)
 
     def test_init(self):
         """Test to ensure the Socket service instantiation populates the expected attributes"""
