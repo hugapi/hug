@@ -52,6 +52,8 @@ def hug(file:'A Python file that contains a Hug API'=None, module:'A Python modu
         if command not in api.cli.commands:
             print(str(api.cli))
             sys.exit(1)
+
+        sys.argv[1:] = sys.argv[(sys.argv.index('-c') if '-c' in sys.argv else sys.argv.index('--command')) + 2:]
         api.cli.commands[command]()
         return
 
