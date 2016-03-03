@@ -22,6 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import pytest
 import requests
+import struct
 
 import hug
 from hug import use
@@ -133,7 +134,7 @@ class TestSocket(object):
     """Test to ensure the Socket Service object enables sending/receiving data from arbitrary server/port sockets"""
     import socket
     tcp_service = use.Socket(connect_to=('www.purple.com', 80), proto='tcp', timeout=60)
-    udp_service = use.Socket(connect_to=('pool.ntp.org', 123), proto='udp', timeout=60)
+    udp_service = use.Socket(connect_to=('8.8.8.8', 53), proto='udp', timeout=60)
 
     def test_init(self):
         """Test to ensure the Socket service instantiation populates the expected attributes"""
@@ -176,8 +177,15 @@ class TestSocket(object):
 
     def test_datagram_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
-        time_request = '\x1b' + 47 * '\0'
-        assert len(self.udp_service.request(time_request).data.read()) > 0
+        packet = struct.pack("!HHHHHH", 0x0001, 0x0100, 1, 0, 0, 0)
+        for name in ('www', 'google', 'com'):
+            header = b"!b"
+            header += bytes(str(len(name)), "utf-8") + b"s"
+            query = struct.pack(header, len(name), name.encode('utf-8'))
+            packet = packet+query
+
+        dns_query = packet + struct.pack("!bHH",0,1,1)
+        assert len(self.udp_service.request(dns_query.decode("utf-8"), buffer_size=4096).data.read()) > 0
 
 
 
