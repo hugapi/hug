@@ -227,7 +227,7 @@ def process_data(request, response, resource):
 You can also easily add any Falcon style middleware using:
 
 ```py
-__hug__.add_middleware(MiddlewareObject())
+__hug__.http.add_middleware(MiddlewareObject())
 ```
 
 
