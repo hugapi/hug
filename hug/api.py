@@ -271,10 +271,11 @@ class HTTPInterfaceAPI(InterfaceAPI):
         versions.get(request_version, versions.get(None, not_found))(request, response, api_version=api_version,
                                                                      **kwargs)
 
-    def server(self, default_not_found=True):
+    def server(self, default_not_found=True, base_url=None):
         """Returns a WSGI compatible API server for the given Hug API module"""
         falcon_api = falcon.API(middleware=self.middleware)
         default_not_found = self.documentation_404() if default_not_found is True else None
+        base_url = self.base_url if base_url is None else base_url
 
         not_found_handler = default_not_found
         for startup_handler in self.startup_handlers:
@@ -291,7 +292,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self._not_found = not_found_handler
 
         for url, extra_sink in self.sinks.items():
-            falcon_api.add_sink(extra_sink, self.base_url + url)
+            falcon_api.add_sink(extra_sink, base_url + url)
 
         for url, methods in self.routes.items():
             router = {}
@@ -304,9 +305,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
                                                       not_found=not_found_handler)
 
             router = namedtuple('Router', router.keys())(**router)
-            falcon_api.add_route(self.base_url + url, router)
+            falcon_api.add_route(base_url + url, router)
             if self.versions and self.versions != (None, ):
-                falcon_api.add_route(self.base_url + '/v{api_version}' + url, router)
+                falcon_api.add_route(base_url + '/v{api_version}' + url, router)
 
         def error_serializer(_, error):
             return (self.output_format.content_type,
