@@ -337,10 +337,12 @@ class CLIInterfaceAPI(InterfaceAPI):
 
     def __call__(self):
         """Routes to the correct command line tool"""
-        if not sys.argv[1:] or not sys.argv[1] in self.commands:
+        if not len(sys.argv) > 1 or not sys.argv[1] in self.commands:
             print(str(self))
             return sys.exit(1)
-        self.commands.get(sys.argv[1])()
+
+        command = sys.argv.pop(1)
+        self.commands.get(command)()
 
     def __str__(self):
         return "{0}\n\nAvailable Commands:{1}\n".format(self.api.module.__doc__ or self.api.module.__name__,
