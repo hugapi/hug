@@ -25,6 +25,7 @@ from collections import namedtuple
 from io import BytesIO
 
 import falcon
+from queue import Queue
 import requests
 
 import hug._empty as empty
@@ -157,7 +158,7 @@ class Local(Service):
 
 
 class Socket(Service):
-    __slots__ = ('socket', 'socket_fd', 'timeout', 'connection')
+    __slots__ = ('connection_pool', 'timeout', 'connection', 'send_and_receive')
 
     Connection = namedtuple('Connection', ('connect_to', 'proto', 'sockopts'))
     protocols = {
@@ -170,38 +171,35 @@ class Socket(Service):
     datagrams = ('udp', 'unix_dgram')
 
     def __init__(self, connect_to, proto, version=None,
-                 headers=empty.dict, timeout=None, raise_on=(500, ), **kwargs):
+                 headers=empty.dict, timeout=None, pool=0, raise_on=(500, ), **kwargs):
         super().__init__(timeout=timeout, raise_on=raise_on, version=version, **kwargs)
         self.timeout = timeout
         self.connection = Socket.Connection(connect_to, proto, set())
-        (self.socket, self.socket_fd) = self.connect(timeout)
+        self.connection_pool = Queue(maxsize=pool if pool else 1)
+
+        if proto in Socket.streams:
+            self.send_and_receive = self._stream_send_and_receive
+        else:
+            self.send_and_receive = self._dgram_send_and_receive
 
     def settimeout(self, timeout):
         """Set the default timeout"""
         self.timeout = timeout
-        self.socket.settimeout(timeout)
 
     def setsockopt(self, *sockopts):
-        """Add options to current socket, and save them in case we reconnect"""
+        """Add socket options to set"""
         if type(sockopts[0]) in (list, tuple):
             for sock_opt in sockopts[0]:
                 level, option, value = sock_opt
                 self.connection.sockopts.add((level, option, value))
-                self.socket.setsockopt(level, option, value)
         else:
             level, option, value = sockopts
             self.connection.sockopts.add((level, option, value))
-            self.socket.setsockopt(level, option, value)
 
-    def connect(self, timeout=None):
-        """Setup/Connect socket, configure socket options if passed in the form of
-        [(socket.<level>, socket.<option>, value),
-         (socket.<level>, socket.<option>, value)]
-        and return socket file-like object.
-        """
+    def _register_socket(self):
+        """Create/Connect socket, apply options"""
         _socket = socket.socket(*Socket.protocols[self.connection.proto])
-        if timeout:
-            _socket.settimeout(timeout)
+        _socket.settimeout(self.timeout)
 
         # Reconfigure original socket options.
         if self.connection.sockopts:
@@ -210,22 +208,40 @@ class Socket(Service):
                 _socket.setsockopt(level, option, value)
 
         _socket.connect(self.connection.connect_to)
-        return (_socket, _socket.makefile(mode='rwb', encoding='utf-8'))
+        return _socket
 
-    def request(self, query, timeout=None):
-        if timeout:
-            self.socket.settimeout(timeout)
-
+    def _stream_send_and_receive(self, _socket, message, *args, **kwargs):
+        """TCP/Stream sender and receiver"""
         data = BytesIO()
-        self.socket_fd.write(query.encode('utf-8'))
-        self.socket_fd.flush()
 
-        for received in self.socket_fd:
+        _socket_fd = _socket.makefile(mode='rwb', encoding='utf-8')
+        _socket_fd.write(message.encode('utf-8'))
+        _socket_fd.flush()
+
+        for received in _socket_fd:
             data.write(received)
         data.seek(0)
 
+        _socket_fd.close()
+        return data
+
+    def _dgram_send_and_receive(self, _socket, message, buffer_size=4096, *args):
+        """User Datagram Protocol sender and receiver"""
+        _socket.sendto(message.encode('utf-8'), self.connection.connect_to)
+        data, address = _socket.recvfrom(buffer_size)
+        return BytesIO(data)
+
+    def request(self, message, timeout=None, *args, **kwargs):
+        """Populate connection pool, send message, return BytesIO, and cleanup"""
+        if not self.connection_pool.full():
+            self.connection_pool.put(self._register_socket())
+
+        _socket = self.connection_pool.get()
+        _socket.settimeout(timeout)
+
+        data = self.send_and_receive(_socket, message, *args, **kwargs)
+
         if self.connection.proto in Socket.streams:
-            # streaming sockets need to be reconnected.
-            (self.socket, self.socket_fd) = self.connect(self.timeout)
+            _socket.shutdown(socket.SHUT_RDWR)
 
         return Response(data, None, None)
