@@ -20,6 +20,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import sys
+from unittest import mock
 
 import falcon
 import pytest
@@ -754,6 +755,7 @@ def test_cli_with_hug_types():
 
     assert hug.test.cli(succeed) ==  'No :('
     assert hug.test.cli(succeed, success=True) ==  'Yes!'
+    assert 'succeed' in str(__hug__.cli)
 
     @hug.cli()
     def succeed(success:hug.types.smart_boolean=True):
@@ -1121,3 +1123,19 @@ def test_validate():
     assert hug.test.get(api, 'my_endpoint', two=True).data == True
     assert hug.test.get(api, 'my_endpoint').status
     assert hug.test.get(api, 'my_endpoint').data == {'errors': {'one': 'must be defined', 'two': 'must be defined'}}
+
+
+def test_cli_api(capsys):
+    """Ensure that the overall CLI Interface API works as expected"""
+    @hug.cli()
+    def my_cli_command():
+        print("Success!")
+
+    with mock.patch('sys.argv', ['/bin/command', 'my_cli_command']):
+        __hug__.cli()
+        out, err = capsys.readouterr()
+        assert "Success!" in out
+
+    with mock.patch('sys.argv', []):
+        with pytest.raises(SystemExit):
+            __hug__.cli()

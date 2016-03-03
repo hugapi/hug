@@ -317,7 +317,7 @@ class CLI(Interface):
             elif kwargs.get('action', None) == 'store_true':
                 kwargs.pop('action', None) == 'store_true'
 
-            if option == getattr(self.interface, 'karg', ()):
+            if option == getattr(self.interface, 'karg', None) or ():
                 kwargs['nargs'] = '*'
             elif not nargs_set and kwargs.get('action', None) == 'append' and not option in self.interface.defaults:
                 kwargs['nargs'] = '*'
@@ -325,6 +325,8 @@ class CLI(Interface):
                 nargs_set = True
 
             self.parser.add_argument(*args, **kwargs)
+
+        self.api.cli.commands[route.get('name', self.interface.spec.__name__)] = self
 
     def output(self, data):
         """Outputs the provided data using the transformations and output format specified for this CLI endpoint"""
@@ -336,7 +338,6 @@ class CLI(Interface):
             data = self.outputs(data)
             if data:
                 sys.stdout.buffer.write(data)
-                sys.stdout.buffer.write('\n')
         return data
 
     def __call__(self):
@@ -346,7 +347,7 @@ class CLI(Interface):
             if conclusion and conclusion is not True:
                 return self.output(conclusion)
 
-        pass_to_function = vars(self.parser.parse_args())
+        pass_to_function = vars(self.parser.parse_known_args()[0])
         for option, directive in self.directives.items():
             arguments = (self.defaults[option], ) if option in self.defaults else ()
             pass_to_function[option] = directive(*arguments, module=self.api.module)

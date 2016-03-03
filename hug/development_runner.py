@@ -30,7 +30,7 @@ from hug._version import current
 
 @cli(version=current)
 def hug(file:'A Python file that contains a Hug API'=None, module:'A Python module that contains a Hug API'=None,
-        port:number=8000, no_404_documentation:boolean=False):
+        port:number=8000, no_404_documentation:boolean=False, command:'Run a command defined in the given module'=None):
     """Hug API Development Server"""
     api_module = None
     server_arguments = {}
@@ -39,11 +39,22 @@ def hug(file:'A Python file that contains a Hug API'=None, module:'A Python modu
         sys.exit(1)
     if file:
         sys.path.append(os.path.dirname(os.path.abspath(file)))
+        sys.path.append(os.getcwd())
         api_module = importlib.machinery.SourceFileLoader(file.split(".")[0], file).load_module()
     elif module:
         api_module = importlib.import_module(module)
     if not api_module or not hasattr(api_module, '__hug__'):
         print("Error: must define a file name or module that contains a Hug API.")
         sys.exit(1)
+
+    api = API(api_module)
+    if command:
+        if command not in api.cli.commands:
+            print(str(api.cli))
+            sys.exit(1)
+
+        sys.argv[1:] = sys.argv[(sys.argv.index('-c') if '-c' in sys.argv else sys.argv.index('--command')) + 2:]
+        api.cli.commands[command]()
+        return
 
     API(api_module).http.serve(port, no_404_documentation)
