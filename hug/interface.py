@@ -317,7 +317,7 @@ class CLI(Interface):
             elif kwargs.get('action', None) == 'store_true':
                 kwargs.pop('action', None) == 'store_true'
 
-            if option == getattr(self.interface, 'karg', ()):
+            if option == getattr(self.interface, 'karg', None) or ():
                 kwargs['nargs'] = '*'
             elif not nargs_set and kwargs.get('action', None) == 'append' and not option in self.interface.defaults:
                 kwargs['nargs'] = '*'
