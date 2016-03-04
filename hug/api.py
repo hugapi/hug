@@ -248,19 +248,20 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         return next(iter(request_version or (None, )))
 
-    def documentation_404(self):
+    def documentation_404(self, base_url=None):
         """Returns a smart 404 page that contains documentation for the written API"""
+        base_url = self.base_url if base_url is None else base_url
         def handle_404(request, response, *kargs, **kwargs):
-            base_url = self.base_url
-            if not base_url:
-                base_url = request.url[:-1]
+            url_prefix = self.base_url
+            if not url_prefix:
+                url_prefix = request.url[:-1]
                 if request.path and request.path != "/":
-                    base_url = request.url.split(request.path)[0]
+                    url_prefix = request.url.split(request.path)[0]
 
             to_return = OrderedDict()
             to_return['404'] = ("The API call you tried to make was not defined. "
                                 "Here's a definition of the API to help you get going :)")
-            to_return['documentation'] = self.documentation(base_url, self.determine_version(request, False))
+            to_return['documentation'] = self.documentation(url_prefix, self.determine_version(request, False))
             response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
             response.status = falcon.HTTP_NOT_FOUND
             response.content_type = 'application/json'
@@ -278,8 +279,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
         """Returns a WSGI compatible API server for the given Hug API module"""
         falcon_api = falcon.API(middleware=self.middleware)
         default_not_found = self.documentation_404() if default_not_found is True else None
-        if base_url is not None:
-            self.base_url = base_url
+        base_url = self.base_url if base_url is None else base_url
 
         not_found_handler = default_not_found
         for startup_handler in self.startup_handlers:
@@ -296,7 +296,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self._not_found = not_found_handler
 
         for url, extra_sink in self.sinks.items():
-            falcon_api.add_sink(extra_sink, self.base_url + url)
+            falcon_api.add_sink(extra_sink, base_url + url)
 
         for url, methods in self.routes.items():
             router = {}
@@ -309,9 +309,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
                                                       not_found=not_found_handler)
 
             router = namedtuple('Router', router.keys())(**router)
-            falcon_api.add_route(self.base_url + url, router)
+            falcon_api.add_route(base_url + url, router)
             if self.versions and self.versions != (None, ):
-                falcon_api.add_route(self.base_url + '/v{api_version}' + url, router)
+                falcon_api.add_route(base_url + '/v{api_version}' + url, router)
 
         def error_serializer(_, error):
             return (self.output_format.content_type,
