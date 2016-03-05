@@ -37,6 +37,13 @@ class Type(object):
         raise NotImplementedError('To implement a new type __call__ must be defined')
 
 
+def create(documentation, base):
+    """Creates a new type handler with the specified transformations"""
+    def new_type_handler(function):
+        return function
+    return new_type_handler
+
+
 class Accept(Type):
     """Allows quick wrapping any Python type converter for use with Hug type annotations"""
     __slots__ = ('kind', 'base_kind', 'error_text', 'exception_handlers', 'doc')
