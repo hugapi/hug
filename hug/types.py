@@ -19,12 +19,12 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import uuid as hug_uuid
+import uuid as native_uuid
 from decimal import Decimal
 from json import loads as load_json
 
 from hug.exceptions import InvalidTypeData
-from hug import _empty as empty
+import hug._empty as empty
 
 
 class Type(object):
@@ -41,20 +41,20 @@ class Type(object):
         raise NotImplementedError('To implement a new type __call__ must be defined')
 
 
-def create(base_type=Type, transform_base=True, doc=None, error_text=None, exception_handlers=empty.dict):
+def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type, chain=True):
     """Creates a new type handler with the specified type-casting handler"""
-    base_type = base_type if type(base_type) == type else type(base_type)
+    extend = extend if type(extend) == type else type(extend)
     def new_type_handler(function):
-        class NewType(base_type):
+        class NewType(extend):
             __slots__ = ()
 
-            if transform_base and base_type != Type:
+            if chain and extend != Type:
                 if error_text or exception_handlers:
                     def __call__(self, value):
                         try:
                             value = super()(value)
                             return function(value)
-                        except Exception:
+                        except Exception as exception:
                             for take_exception, rewrite in exception_handlers.items():
                                 if isinstance(exception, take_exception):
                                     if isinstance(rewrite, str):
@@ -63,6 +63,7 @@ def create(base_type=Type, transform_base=True, doc=None, error_text=None, excep
                                         raise rewrite(value)
                             if error_text:
                                 raise ValueError(error_text)
+                            raise exception
                 else:
                     def __call__(self, value):
                         value = super()(value)
@@ -72,7 +73,7 @@ def create(base_type=Type, transform_base=True, doc=None, error_text=None, excep
                     def __call__(self, value):
                         try:
                             return function(value)
-                        except Exception:
+                        except Exception as exception:
                             for take_exception, rewrite in exception_handlers.items():
                                 if isinstance(exception, take_exception):
                                     if isinstance(rewrite, str):
@@ -81,6 +82,7 @@ def create(base_type=Type, transform_base=True, doc=None, error_text=None, excep
                                         raise rewrite(value)
                             if error_text:
                                 raise ValueError(error_text)
+                            raise exception
                 else:
                     def __call__(self, value):
                         return function(value)
@@ -91,44 +93,15 @@ def create(base_type=Type, transform_base=True, doc=None, error_text=None, excep
     return new_type_handler
 
 
-class Accept(Type):
-    """Allows quick wrapping any Python type converter for use with Hug type annotations"""
-    __slots__ = ('kind', 'base_kind', 'error_text', 'exception_handlers', 'doc')
+def accept(kind, doc=None, error_text=None, exception_handlers=empty.dict):
+    """Allows quick wrapping of any Python type cast function for use as a hug type annotation"""
+    return create(doc, error_text, exception_handlers=exception_handlers, chain=False)(kind)()
 
-    def __init__(self, kind, doc=None, error_text=None, exception_handlers=None, **kwargs):
-        self.kind = kind
-        self.base_kind = getattr(self.kind, 'base_kind', self.kind)
-        self.doc = doc or self.kind.__doc__
-        self.error_text = error_text
-        self.exception_handlers = exception_handlers or {}
-
-    @property
-    def __doc__(self):
-        return self.doc
-
-    def __call__(self, value):
-        if self.exception_handlers or self.error_text:
-            try:
-                return self.kind(value)
-            except Exception as exception:
-                for take_exception, rewrite in self.exception_handlers.items():
-                    if isinstance(exception, take_exception):
-                        if isinstance(rewrite, str):
-                            raise ValueError(rewrite)
-                        else:
-                            raise rewrite(value)
-                if self.error_text:
-                    raise ValueError(self.error_text)
-                raise exception
-        else:
-            return self.kind(value)
-
-number = Accept(int, 'A whole number', 'Invalid whole number provided')
-float_number = Accept(float, 'A float number', 'Invalid float number provided')
-decimal = Accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
-boolean = Accept(bool, 'Providing any value will set this to true',
-                 'Invalid boolean value provided')
-uuid = Accept(hug_uuid.UUID, 'A Universally Unique IDentifier', 'Invalid UUID provided')
+number = accept(int, 'A Whole number', 'Invalid whole number provided')
+float_number = accept(float, 'A float number', 'Invalid float number provided')
+decimal = accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
+boolean = accept(bool, 'Providing any value will set this to true', 'Invalid boolean value provided')
+uuid = accept(native_uuid.UUID, 'A Universally Unique IDentifier', 'Invalid UUID provided')
 
 
 class Text(Type):
@@ -510,7 +483,6 @@ comma_separated_list = DelimitedList(using=",")
 
 
 # NOTE: These forms are going to be DEPRECATED, here for backwards compatibility only
-accept = Accept
 delimited_list = DelimitedList
 one_of = OneOf
 mapping = Mapping
