@@ -42,7 +42,7 @@ class Type(object):
 
 
 def create(base_type=Type, transform_base=True, doc=None, error_text=None, exception_handlers=empty.dict):
-    """Creates a new type handler with the specified transformations"""
+    """Creates a new type handler with the specified type-casting handler"""
     base_type = base_type if type(base_type) == type else type(base_type)
     def new_type_handler(function):
         class NewType(base_type):
