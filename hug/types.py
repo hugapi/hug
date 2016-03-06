@@ -139,7 +139,7 @@ class DelimitedList(Type):
         return value if type(value) in (list, tuple) else value.split(self.using)
 
 
-class SmartBoolean(Type):
+class SmartBoolean(type(boolean)):
     """Accepts a true or false value"""
     __slots__ = ()
 

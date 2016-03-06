@@ -33,6 +33,7 @@ import hug._empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 from hug.input_format import separate_encoding
+import hug.types as types
 from hug.types import MarshmallowSchema, Multiple, SmartBoolean, OneOf, Text, text
 
 
@@ -299,14 +300,13 @@ class CLI(Interface):
                 transform = self.interface.input_transformations[option]
                 kwargs['type'] = transform
                 kwargs['help'] = transform.__doc__
-                kind = getattr(transform, 'base_kind', transform)
-                if kind in (list, tuple) or isinstance(kind, Multiple):
+                if isinstance(transform, types.Multiple):
                     kwargs['action'] = 'append'
                     kwargs['type'] = Text()
-                elif kind == bool or isinstance(kind, SmartBoolean):
+                elif transform == bool or isinstance(transform, type(types.boolean)):
                     kwargs['action'] = 'store_true'
-                elif isinstance(kind, OneOf):
-                    kwargs['choices'] = kind.values
+                elif isinstance(transform, types.OneOf):
+                    kwargs['choices'] = transform.values
             elif (option in self.interface.spec.__annotations__ and
                   type(self.interface.spec.__annotations__[option]) == str):
                 kwargs['help'] = option
