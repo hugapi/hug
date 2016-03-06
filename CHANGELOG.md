@@ -49,6 +49,7 @@ Changelog
 - Updated type.string to fail if a list is passed in
 - Removed 'cli_behaviour' from types, instead moving the responsibility of per-type behavior to the CLI interface
 - Fixed a bug that leaked annotation provided directives to the produced documentation
+- Fully re-factored hug's type system for easier extensibility
 - Breaking Changes
     - directives are no longer automatically applied to local function calls, '@hug.local' must be used to apply them
     - cli_behaviour has been removed as a type feature - however common sense inheritance of base types should easily replace it's usage
