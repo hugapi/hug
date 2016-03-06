@@ -40,7 +40,7 @@ class Type(object):
         raise NotImplementedError('To implement a new type __call__ must be defined')
 
 
-def create(base_type=Type, transform_base=True):
+def create(base_type=Type, transform_base=True, doc=None, error_text=None):
     """Creates a new type handler with the specified transformations"""
     base_type = base_type if type(base_type) == type else type(base_type)
     def new_type_handler(function):
@@ -48,13 +48,29 @@ def create(base_type=Type, transform_base=True):
             __slots__ = ()
 
             if transform_base and base_type != Type:
-                def __call__(self, value):
-                    value = super()(value)
-                    return function(value)
+                if error_text:
+                    def __call__(self, value):
+                        try:
+                            value = super()(value)
+                            return function(value)
+                        except Exception:
+                            raise ValueError(error_text)
+                else:
+                    def __call__(self, value):
+                        value = super()(value)
+                        return function(value)
             else:
-                def _call__(self, value):
-                    return function(value)
-        NewType.__doc__ = function.__doc__
+                if error_text:
+                    def __call__(self, value):
+                        try:
+                            return function(value)
+                        except Exception:
+                            raise ValueError(error_text)
+                else:
+                    def __call__(self, value):
+                        return function(value)
+
+        NewType.__doc__ = function.__doc__ if doc is None else doc
         return NewType
 
     return new_type_handler
