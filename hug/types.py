@@ -37,10 +37,14 @@ class Type(object):
         raise NotImplementedError('To implement a new type __call__ must be defined')
 
 
-def create(documentation, base):
+def create(documentation, base_type):
     """Creates a new type handler with the specified transformations"""
     def new_type_handler(function):
-        return function
+        class NewType(base_type):
+            def __call__(self, value):
+                value = super()(value)
+                return function(value)
+
     return new_type_handler
 
 
