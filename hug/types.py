@@ -24,6 +24,7 @@ from decimal import Decimal
 from json import loads as load_json
 
 from hug.exceptions import InvalidTypeData
+from hug import _empty as empty
 
 
 class Type(object):
@@ -40,7 +41,7 @@ class Type(object):
         raise NotImplementedError('To implement a new type __call__ must be defined')
 
 
-def create(base_type=Type, transform_base=True, doc=None, error_text=None):
+def create(base_type=Type, transform_base=True, doc=None, error_text=None, exception_handlers=empty.dict):
     """Creates a new type handler with the specified transformations"""
     base_type = base_type if type(base_type) == type else type(base_type)
     def new_type_handler(function):
@@ -48,24 +49,38 @@ def create(base_type=Type, transform_base=True, doc=None, error_text=None):
             __slots__ = ()
 
             if transform_base and base_type != Type:
-                if error_text:
+                if error_text or exception_handlers:
                     def __call__(self, value):
                         try:
                             value = super()(value)
                             return function(value)
                         except Exception:
-                            raise ValueError(error_text)
+                            for take_exception, rewrite in exception_handlers.items():
+                                if isinstance(exception, take_exception):
+                                    if isinstance(rewrite, str):
+                                        raise ValueError(rewrite)
+                                    else:
+                                        raise rewrite(value)
+                            if error_text:
+                                raise ValueError(error_text)
                 else:
                     def __call__(self, value):
                         value = super()(value)
                         return function(value)
             else:
-                if error_text:
+                if error_text or exception_handlers:
                     def __call__(self, value):
                         try:
                             return function(value)
                         except Exception:
-                            raise ValueError(error_text)
+                            for take_exception, rewrite in exception_handlers.items():
+                                if isinstance(exception, take_exception):
+                                    if isinstance(rewrite, str):
+                                        raise ValueError(rewrite)
+                                    else:
+                                        raise rewrite(value)
+                            if error_text:
+                                raise ValueError(error_text)
                 else:
                     def __call__(self, value):
                         return function(value)
