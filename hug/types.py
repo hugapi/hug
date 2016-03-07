@@ -238,7 +238,7 @@ class InRange(Type):
     """Accepts a number within a lower and upper bound of acceptable values"""
     __slots__ = ('lower', 'upper', 'convert')
 
-    def __init__(self, lower, upper, convert=number, **kwargs):
+    def __init__(self, lower, upper, convert=number):
         self.lower = lower
         self.upper = upper
         self.convert = convert
@@ -261,7 +261,7 @@ class LessThan(Type):
     """Accepts a number within a lower and upper bound of acceptable values"""
     __slots__ = ('limit', 'convert')
 
-    def __init__(self, limit, convert=number, **kwargs):
+    def __init__(self, limit, convert=number):
         self.limit = limit
         self.convert = convert
 
@@ -280,7 +280,7 @@ class GreaterThan(Type):
     """Accepts a value above a given minimum"""
     __slots__ = ('minimum', 'convert')
 
-    def __init__(self, minimum, convert=number, **kwargs):
+    def __init__(self, minimum, convert=number):
         self.minimum = minimum
         self.convert = convert
 
@@ -299,7 +299,7 @@ class Length(Type):
     """Accepts a a value that is withing a specific length limit"""
     __slots__ = ('lower', 'upper', 'convert')
 
-    def __init__(self, lower, upper, convert=text, **kwargs):
+    def __init__(self, lower, upper, convert=text):
         self.lower = lower
         self.upper = upper
         self.convert = convert
@@ -323,7 +323,7 @@ class ShorterThan(Type):
     """Accepts a text value shorter than the specified length limit"""
     __slots__ = ('limit', 'convert')
 
-    def __init__(self, limit, convert=text, **kwargs):
+    def __init__(self, limit, convert=text):
         self.limit = limit
         self.convert = convert
 
@@ -343,7 +343,7 @@ class LongerThan(Type):
     """Accepts a value up to the specified limit"""
     __slots__ = ('limit', 'convert')
 
-    def __init__(self, limit, convert=text, **kwargs):
+    def __init__(self, limit, convert=text):
         self.limit = limit
         self.convert = convert
 
@@ -363,7 +363,7 @@ class CutOff(Type):
     """Cuts off the provided value at the specified index"""
     __slots__ = ('limit', 'convert')
 
-    def __init__(self, limit, convert=text, **kwargs):
+    def __init__(self, limit, convert=text):
         self.limit = limit
         self.convert = convert
 
@@ -379,7 +379,7 @@ class Chain(Type):
     """type for chaining multiple types together"""
     __slots__ = ('types', )
 
-    def __init__(self, *types, **kwargs):
+    def __init__(self, *types):
         self.types = types
 
     def __call__(self, value):
@@ -392,7 +392,7 @@ class Nullable(Chain):
     """A Chain types that Allows None values"""
     __slots__ = ('types', )
 
-    def __init__(self, *types, **kwargs):
+    def __init__(self, *types):
         self.types = types
 
     def __call__(self, value):
@@ -406,7 +406,7 @@ class TypedProperty(object):
     """class for building property objects for schema objects"""
     __slots__ = ('name', 'type_func')
 
-    def __init__(self, name, type_func, **kwargs):
+    def __init__(self, name, type_func):
         self.name = "_" + name
         self.type_func = type_func
 
@@ -448,7 +448,7 @@ class Schema(object, metaclass=NewTypeMeta):
         else:
             return super(Schema, cls).__new__(cls)
 
-    def __init__(self, json, force=False, **kwargs):
+    def __init__(self, json, force=False):
         if self != json:
             for (key, value) in json.items():
                 if force:
@@ -462,7 +462,7 @@ class MarshmallowSchema(Type):
     """Allows using a Marshmallow Schema directly in a hug type annotation"""
     __slots__ = ("schema", )
 
-    def __init__(self, schema, **kwargs):
+    def __init__(self, schema):
         self.schema = schema
 
     @property
