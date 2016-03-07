@@ -1,4 +1,4 @@
-![HUG](https://raw.github.com/timothycrosley/hug/develop/logo.png)
+![HUG](https://raw.github.com/timothycrosley/hug/develop/artwork/logo.png)
 ===================
 
 [![PyPI version](https://badge.fury.io/py/hug.svg)](http://badge.fury.io/py/hug)
@@ -20,7 +20,7 @@ Hug's Design Objectives:
 
 As a result of these goals Hug is Python3+ only and uses Falcon under the cover to quickly handle requests.
 
-[![HUG Hello World Example](https://raw.github.com/timothycrosley/hug/develop/example.gif)](https://github.com/timothycrosley/hug/blob/develop/examples/hello_world.py)
+[![HUG Hello World Example](https://raw.github.com/timothycrosley/hug/develop/artwork/example.gif)](https://github.com/timothycrosley/hug/blob/develop/examples/hello_world.py)
 
 
 Installing Hug

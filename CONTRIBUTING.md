@@ -49,7 +49,10 @@ Thanks for the contribution! It will quickly get reviewed, and once accepted wil
 
 Getting a free t-shirt
 =========
-Once you have finished contributing to the project send your mailing address to timothy.crosley@gmail.com, with the title Hug Shirt for @$GITHUB_USER_NAME.
+![hug t-shirt](https://raw.github.com/timothycrosley/hug/develop/artwork/t-shirt.png)
+
+Once you have finished contributing to the project send your mailing address and shirt size to timothy.crosley@gmail.com, with the title hug Shirt for @$GITHUB_USER_NAME.
+
 When the project has reached 100 contributers I will be sending every one of the original hundred contributers a t-shirt to commemorate their awesome work.
 
 Thank you!
