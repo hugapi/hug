@@ -34,6 +34,7 @@ Documenters
 - Tim (@timlyo)
 - Sven-Hendrik Haase (@svenstaro)
 - Matt Caldwell (@mattcaldwell)
+- berdario (@berdario)
 
 --------------------------------------------
 

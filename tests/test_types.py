@@ -352,3 +352,43 @@ def test_marshmallow_schema():
     assert schema_type.__doc__ == 'UserSchema'
     with pytest.raises(InvalidTypeData):
         schema_type({"name": 1})
+
+
+def test_create_type():
+    """Test hug's new type creation decorator works as expected"""
+    @hug.type(extend=hug.types.text, exception_handlers={TypeError: ValueError, LookupError: 'Hi!'},
+              error_text='Invalid')
+    def prefixed_string(value):
+        if value == 'hi':
+            raise TypeError('Repeat of prefix')
+        elif value == 'bye':
+            raise LookupError('Never say goodbye!')
+        elif value == '1+1':
+            raise ArithmeticError('Testing different error types')
+        return 'hi-' + value
+
+    my_type = prefixed_string()
+    assert my_type('there') == 'hi-there'
+    with pytest.raises(ValueError):
+        my_type([])
+    with pytest.raises(ValueError):
+        my_type('hi')
+    with pytest.raises(ValueError):
+        my_type('bye')
+
+    @hug.type(extend=hug.types.text, exception_handlers={TypeError: ValueError})
+    def prefixed_string(value):
+        if value == '1+1':
+            raise ArithmeticError('Testing different error types')
+        return 'hi-' + value
+
+    my_type = prefixed_string()
+    with pytest.raises(ArithmeticError):
+        my_type('1+1')
+
+    @hug.type(extend=hug.types.text)
+    def prefixed_string(value):
+        return 'hi-' + value
+
+    my_type = prefixed_string()
+    assert my_type('there') == 'hi-there'

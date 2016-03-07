@@ -19,11 +19,12 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import uuid as hug_uuid
+import uuid as native_uuid
 from decimal import Decimal
 from json import loads as load_json
 
 from hug.exceptions import InvalidTypeData
+import hug._empty as empty
 
 
 class Type(object):
@@ -33,48 +34,74 @@ class Type(object):
     _hug_type = True
     __slots__ = ()
 
+    def __init__(self, **kwargs):
+        pass
+
     def __call__(self, value):
         raise NotImplementedError('To implement a new type __call__ must be defined')
 
 
-class Accept(Type):
-    """Allows quick wrapping any Python type converter for use with Hug type annotations"""
-    __slots__ = ('kind', 'base_kind', 'error_text', 'exception_handlers', 'doc')
+def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type, chain=True):
+    """Creates a new type handler with the specified type-casting handler"""
+    extend = extend if type(extend) == type else type(extend)
+    def new_type_handler(function):
+        class NewType(extend):
+            __slots__ = ()
 
-    def __init__(self, kind, doc=None, error_text=None, exception_handlers=None):
-        self.kind = kind
-        self.base_kind = getattr(self.kind, 'base_kind', self.kind)
-        self.doc = doc or self.kind.__doc__
-        self.error_text = error_text
-        self.exception_handlers = exception_handlers or {}
+            if chain and extend != Type:
+                if error_text or exception_handlers:
+                    def __call__(self, value):
+                        try:
+                            value = super().__call__(value)
+                            return function(value)
+                        except Exception as exception:
+                            for take_exception, rewrite in exception_handlers.items():
+                                if isinstance(exception, take_exception):
+                                    if isinstance(rewrite, str):
+                                        raise ValueError(rewrite)
+                                    else:
+                                        raise rewrite(value)
+                            if error_text:
+                                raise ValueError(error_text)
+                            raise exception
+                else:
+                    def __call__(self, value):
+                        value = super().__call__(value)
+                        return function(value)
+            else:
+                if error_text or exception_handlers:
+                    def __call__(self, value):
+                        try:
+                            return function(value)
+                        except Exception as exception:
+                            for take_exception, rewrite in exception_handlers.items():
+                                if isinstance(exception, take_exception):
+                                    if isinstance(rewrite, str):
+                                        raise ValueError(rewrite)
+                                    else:
+                                        raise rewrite(value)
+                            if error_text:
+                                raise ValueError(error_text)
+                            raise exception
+                else:
+                    def __call__(self, value):
+                        return function(value)
 
-    @property
-    def __doc__(self):
-        return self.doc
+        NewType.__doc__ = function.__doc__ if doc is None else doc
+        return NewType
 
-    def __call__(self, value):
-        if self.exception_handlers or self.error_text:
-            try:
-                return self.kind(value)
-            except Exception as exception:
-                for take_exception, rewrite in self.exception_handlers.items():
-                    if isinstance(exception, take_exception):
-                        if isinstance(rewrite, str):
-                            raise ValueError(rewrite)
-                        else:
-                            raise rewrite(value)
-                if self.error_text:
-                    raise ValueError(self.error_text)
-                raise exception
-        else:
-            return self.kind(value)
+    return new_type_handler
 
-number = Accept(int, 'A whole number', 'Invalid whole number provided')
-float_number = Accept(float, 'A float number', 'Invalid float number provided')
-decimal = Accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
-boolean = Accept(bool, 'Providing any value will set this to true',
-                 'Invalid boolean value provided')
-uuid = Accept(hug_uuid.UUID, 'A Universally Unique IDentifier', 'Invalid UUID provided')
+
+def accept(kind, doc=None, error_text=None, exception_handlers=empty.dict):
+    """Allows quick wrapping of any Python type cast function for use as a hug type annotation"""
+    return create(doc, error_text, exception_handlers=exception_handlers, chain=False)(kind)()
+
+number = accept(int, 'A Whole number', 'Invalid whole number provided')
+float_number = accept(float, 'A float number', 'Invalid float number provided')
+decimal = accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
+boolean = accept(bool, 'Providing any value will set this to true', 'Invalid boolean value provided')
+uuid = accept(native_uuid.UUID, 'A Universally Unique IDentifier', 'Invalid UUID provided')
 
 
 class Text(Type):
@@ -97,7 +124,7 @@ class Multiple(Type):
         return value if isinstance(value, list) else [value]
 
 
-class DelimitedList(Type):
+class DelimitedList(Multiple):
     """Defines a list type that is formed by delimiting a list with a certain character or set of characters"""
     __slots__ = ('using', )
 
@@ -112,7 +139,7 @@ class DelimitedList(Type):
         return value if type(value) in (list, tuple) else value.split(self.using)
 
 
-class SmartBoolean(Type):
+class SmartBoolean(type(boolean)):
     """Accepts a true or false value"""
     __slots__ = ()
 
@@ -456,7 +483,6 @@ comma_separated_list = DelimitedList(using=",")
 
 
 # NOTE: These forms are going to be DEPRECATED, here for backwards compatibility only
-accept = Accept
 delimited_list = DelimitedList
 one_of = OneOf
 mapping = Mapping
