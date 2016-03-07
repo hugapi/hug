@@ -38,7 +38,7 @@ class SessionMiddleware(object):
     __slots__ = ('store', 'context_name', 'cookie_name', 'cookie_expires', 'cookie_max_age', 'cookie_domain',
                  'cookie_path', 'cookie_secure', 'cookie_http_only')
     def __init__(self, store, context_name='session', cookie_name='sid', cookie_expires=None, cookie_max_age=None,
-                 cookie_domain=None, cookie_path=None, cookie_secure=True, cookie_http_only=True):
+                 cookie_domain=None, cookie_path=None, cookie_secure=False, cookie_http_only=True):
         self.store = store
         self.context_name = context_name
         self.cookie_name = cookie_name
