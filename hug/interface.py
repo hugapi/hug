@@ -300,7 +300,7 @@ class CLI(Interface):
                 transform = self.interface.input_transformations[option]
                 kwargs['type'] = transform
                 kwargs['help'] = transform.__doc__
-                if isinstance(transform, types.Multiple):
+                if transform in (list, tuple) or isinstance(transform, types.Multiple):
                     kwargs['action'] = 'append'
                     kwargs['type'] = Text()
                 elif transform == bool or isinstance(transform, type(types.boolean)):

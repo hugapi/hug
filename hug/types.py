@@ -52,7 +52,7 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
                 if error_text or exception_handlers:
                     def __call__(self, value):
                         try:
-                            value = super()(value)
+                            value = super().__call__(value)
                             return function(value)
                         except Exception as exception:
                             for take_exception, rewrite in exception_handlers.items():
@@ -66,7 +66,7 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
                             raise exception
                 else:
                     def __call__(self, value):
-                        value = super()(value)
+                        value = super().__call__(value)
                         return function(value)
             else:
                 if error_text or exception_handlers:
@@ -124,7 +124,7 @@ class Multiple(Type):
         return value if isinstance(value, list) else [value]
 
 
-class DelimitedList(Type):
+class DelimitedList(Multiple):
     """Defines a list type that is formed by delimiting a list with a certain character or set of characters"""
     __slots__ = ('using', )
 
