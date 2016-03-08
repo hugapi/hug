@@ -7,7 +7,7 @@ Defines the method decorators at the core of Hug's approach to creating HTTP API
 - Decorator for registering a new directive method
 - Decorator for including another API modules handlers into the current one, with opitonal prefix route
 
-Copyright (C) 2015  Timothy Edmund Crosley
+Copyright (C) 2016  Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation

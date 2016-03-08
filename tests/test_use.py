@@ -3,7 +3,7 @@
 Tests to ensure hugs service consuming classes, that are the backbone of the seamless micro-service concept,
 work as intended
 
-Copyright (C) 2015 Timothy Edmund Crosley
+Copyright (C) 2016 Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation

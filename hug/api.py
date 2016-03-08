@@ -2,7 +2,7 @@
 
 Defines the dynamically generated Hug API object that is responsible for storing all routes and state within a module
 
-Copyright (C) 2015  Timothy Edmund Crosley
+Copyright (C) 2016  Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -53,7 +53,7 @@ INTRO = """
               -::-`           -::-
 \########################################################################/
 
- Copyright (C) 2015 Timothy Edmund Crosley
+ Copyright (C) 2016 Timothy Edmund Crosley
  Under the MIT License
 
 """.format(current)

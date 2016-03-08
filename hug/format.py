@@ -3,7 +3,7 @@
 Defines formatting utility methods that are common both to input and output formatting and aid in general formatting of
 fields and content
 
-Copyright (C) 2015  Timothy Edmund Crosley
+Copyright (C) 2016  Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation

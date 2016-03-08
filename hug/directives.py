@@ -5,7 +5,7 @@ on an argument it takes and that arguments default value. The directive gets cal
 ther request data, and api_version. The result of running the directive method is then set as the argument value.
 Directive attributes are always prefixed with 'hug_'
 
-Copyright (C) 2015  Timothy Edmund Crosley
+Copyright (C) 2016  Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
