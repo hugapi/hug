@@ -1,7 +1,7 @@
 -r common.txt
-pytest==2.8.2
-pytest-cov==2.2.0
+pytest==2.9.0
+pytest-cov==2.2.1
 isort==4.2.2
-wheel==0.26.0
-python-coveralls==2.5.0
+wheel==0.29.0
+python-coveralls==2.7.0
 marshmallow==2.6.0
