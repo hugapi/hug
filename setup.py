@@ -101,7 +101,7 @@ setup(name='hug',
         ]
       },
       packages=['hug'],
-      requires=['falcon', 'requests'],
+      requires=['falcon==0.3.0', 'requests'],
       install_requires=['falcon', 'requests'],
       cmdclass=cmdclass,
       ext_modules=ext_modules,
