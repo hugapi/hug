@@ -32,16 +32,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 from falcon import *
 
 from hug import (authentication, directives, exceptions, format, input_format, introspect,
-                 middleware, output_format, redirect, route, test, transform, types, use, validate,
-                 development_runner)
-from hug.types import create as type
+                 middleware, output_format, redirect, route, test, transform, types, use, validate)
 from hug._version import current
 from hug.api import API
 from hug.decorators import (default_input_format, default_output_format, directive, extend_api,
                             middleware_class, request_middleware, response_middleware, startup, wraps)
 from hug.route import (call, cli, connect, delete, exception, get, get_post, head, http, local,
                        not_found, object, options, patch, post, put, sink, static, trace)
+from hug.types import create as type
 
+from hug import development_runner # isort:skip
 from hug import defaults  # isort:skip - must be imported last for defaults to have access to all modules
 
 __version__ = current

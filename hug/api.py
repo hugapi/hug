@@ -19,12 +19,12 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from functools import partial
+import json
 import sys
 from collections import OrderedDict, namedtuple
+from functools import partial
 from itertools import chain
 from wsgiref.simple_server import make_server
-import json
 
 import falcon
 from falcon import HTTP_METHODS
@@ -32,6 +32,7 @@ from falcon import HTTP_METHODS
 import hug.defaults
 import hug.output_format
 from hug._version import current
+
 
 INTRO = """
 /#######################################################################\\

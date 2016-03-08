@@ -23,9 +23,9 @@ import re
 import socket
 from collections import namedtuple
 from io import BytesIO
+from queue import Queue
 
 import falcon
-from queue import Queue
 import requests
 
 import hug._empty as empty

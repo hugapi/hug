@@ -18,14 +18,14 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABI
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 """
-import sys
-import os
 import importlib
+import os
+import sys
 
+from hug._version import current
+from hug.api import API
 from hug.route import cli
 from hug.types import boolean, number
-from hug.api import API
-from hug._version import current
 
 
 @cli(version=current)

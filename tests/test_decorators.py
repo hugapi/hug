@@ -209,7 +209,7 @@ def test_range_request():
     """Test to ensure that requesting a range works as expected"""
     @hug.get(output=hug.output_format.png_image)
     def image():
-        return 'logo.png'
+        return 'artwork/logo.png'
 
     assert hug.test.get(api, 'image', headers={'range': 'bytes=0-100'})
     assert hug.test.get(api, 'image', headers={'range': 'bytes=0--1'})

@@ -22,19 +22,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 import argparse
 import os
 import sys
-from functools import wraps
 from collections import OrderedDict
+from functools import wraps
 
 import falcon
+from falcon import HTTP_BAD_REQUEST
+
+import hug._empty as empty
 import hug.api
 import hug.output_format
-from falcon import HTTP_BAD_REQUEST
-import hug._empty as empty
+import hug.types as types
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 from hug.input_format import separate_encoding
-import hug.types as types
-from hug.types import MarshmallowSchema, Multiple, SmartBoolean, OneOf, Text, text
+from hug.types import MarshmallowSchema, Multiple, OneOf, SmartBoolean, Text, text
 
 
 class Interfaces(object):

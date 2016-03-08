@@ -23,8 +23,8 @@ import uuid as native_uuid
 from decimal import Decimal
 from json import loads as load_json
 
-from hug.exceptions import InvalidTypeData
 import hug._empty as empty
+from hug.exceptions import InvalidTypeData
 
 
 class Type(object):
