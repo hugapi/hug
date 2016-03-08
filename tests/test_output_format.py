@@ -113,8 +113,8 @@ def test_json_camelcase():
 
 def test_image():
     """Ensure that it's possible to output images with hug"""
-    assert hasattr(hug.output_format.png_image('logo.png', hug.Response()), 'read')
-    with open('logo.png', 'rb') as image_file:
+    assert hasattr(hug.output_format.png_image('artwork/logo.png', hug.Response()), 'read')
+    with open('artwork/logo.png', 'rb') as image_file:
         assert hasattr(hug.output_format.png_image(image_file, hug.Response()), 'read')
 
     assert hug.output_format.png_image('Not Existent', hug.Response()) == None
@@ -141,9 +141,9 @@ def test_file():
         pass
 
     fake_response = FakeResponse()
-    assert hasattr(hug.output_format.file('logo.png', fake_response), 'read')
+    assert hasattr(hug.output_format.file('artwork/logo.png', fake_response), 'read')
     assert fake_response.content_type == 'image/png'
-    with open('logo.png', 'rb') as image_file:
+    with open('artwork/logo.png', 'rb') as image_file:
         hasattr(hug.output_format.file(image_file, fake_response), 'read')
 
     assert not hasattr(hug.output_format.file('NON EXISTENT FILE', fake_response), 'read')
@@ -151,8 +151,8 @@ def test_file():
 
 def test_video():
     """Ensure that it's possible to output videos with hug"""
-    assert hasattr(hug.output_format.mp4_video('example.gif', hug.Response()), 'read')
-    with open('example.gif', 'rb') as image_file:
+    assert hasattr(hug.output_format.mp4_video('artwork/example.gif', hug.Response()), 'read')
+    with open('artwork/example.gif', 'rb') as image_file:
         assert hasattr(hug.output_format.mp4_video(image_file, hug.Response()), 'read')
 
     assert hug.output_format.mp4_video('Not Existent', hug.Response()) == None
