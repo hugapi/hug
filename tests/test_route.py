@@ -110,9 +110,9 @@ class TestAPIRouter(object):
         """Test to ensure you can dynamically create a sink route attached to a hug API"""
         assert self.router.sink().route == SinkRouter(api=api).route
 
-    def test_exceptions(self):
+    def test_exception(self):
         """Test to ensure you can dynamically create an Exception route attached to a hug API"""
-        assert self.router.exceptions().route == ExceptionRouter(api=api).route
+        assert self.router.exception().route == ExceptionRouter(api=api).route
 
     def test_cli(self):
         """Test to ensure you can dynamically create a CLI route attached to a hug API"""

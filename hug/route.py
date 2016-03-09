@@ -112,7 +112,7 @@ class API(object):
         kwargs['api'] = self.api
         return sink(*kargs, **kwargs)
 
-    def exceptions(self, *kargs, **kwargs):
+    def exception(self, *kargs, **kwargs):
         """Defines how this API should handle the provided exceptions"""
         kwargs['api'] = self.api
         return exception(*kargs, **kwargs)
