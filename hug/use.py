@@ -231,13 +231,16 @@ class Socket(Service):
         data, address = _socket.recvfrom(buffer_size)
         return BytesIO(data)
 
-    def request(self, message, timeout=None, *args, **kwargs):
+    def request(self, message, timeout=False, *args, **kwargs):
         """Populate connection pool, send message, return BytesIO, and cleanup"""
         if not self.connection_pool.full():
             self.connection_pool.put(self._register_socket())
 
         _socket = self.connection_pool.get()
-        _socket.settimeout(timeout)
+
+        # setting timeout to None enables the socket to block.
+        if timeout or timeout is None:
+            _socket.settimeout(timeout)
 
         data = self.send_and_receive(_socket, message, *args, **kwargs)
 
