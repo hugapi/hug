@@ -52,7 +52,7 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
                 if error_text or exception_handlers:
                     def __call__(self, value):
                         try:
-                            value = super().__call__(value)
+                            value = super(NewType, self).__call__(value)
                             return function(value)
                         except Exception as exception:
                             for take_exception, rewrite in exception_handlers.items():
@@ -66,7 +66,7 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
                             raise exception
                 else:
                     def __call__(self, value):
-                        value = super().__call__(value)
+                        value = super(NewType, self).__call__(value)
                         return function(value)
             else:
                 if error_text or exception_handlers:
