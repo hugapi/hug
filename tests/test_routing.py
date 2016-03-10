@@ -206,8 +206,8 @@ class TestHTTPRouter(TestInternalValidation):
 
 class TestStaticRouter(TestHTTPRouter):
     """Test to ensure that the static router sets up routes correctly"""
-    route = StaticRouter("/here", requires=('love' ,))
-    route2 = StaticRouter(("/here", "/there"), api='api')
+    route = StaticRouter("/here", requires=('love' ,), cache=True)
+    route2 = StaticRouter(("/here", "/there"), api='api', cache={'no_store': True})
 
     def test_init(self):
         """Test to ensure the route instanciates as expected"""

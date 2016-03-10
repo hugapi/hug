@@ -279,8 +279,12 @@ class StaticRouter(SinkRouter):
     """Provides a chainable router that can be used to return static files automtically from a set of directories"""
     __slots__ = ('route', )
 
-    def __init__(self, urls=None, output=hug.output_format.file, **kwargs):
+    def __init__(self, urls=None, output=hug.output_format.file, cache=False, **kwargs):
         super().__init__(urls=urls, output=output, **kwargs)
+        if cache is True:
+            self.cache()
+        elif cache is not False:
+            self.cache(**cache)
 
     def __call__(self, api_function):
         directories = []
