@@ -268,7 +268,7 @@ class SinkRouter(HTTPRouter):
             self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
 
     def __call__(self, api_function):
-        api = hug.api.from_object(api_function)
+        api = self.route.get('api', hug.api.from_object(api_function))
         (interface, callable_method) = self._create_interface(api, api_function)
         for base_url in self.route.get('urls', ("/{0}".format(api_function.__name__), )):
             api.http.add_sink(interface, base_url)
@@ -321,7 +321,7 @@ class ExceptionRouter(HTTPRouter):
         self.route['exceptions'] = (exceptions, ) if not isinstance(exceptions, (list, tuple)) else exceptions
 
     def __call__(self, api_function):
-        api = hug.api.from_object(api_function)
+        api = self.route.get('api', hug.api.from_object(api_function))
         (interface, callable_method) = self._create_interface(api, api_function, catch_exceptions=False)
         for version in self.route['versions']:
             for exception in self.route['exceptions']:
@@ -350,7 +350,7 @@ class URLRouter(HTTPRouter):
             self.route['prefixes'] = (prefixes, ) if isinstance(prefixes, str) else prefixes
 
     def __call__(self, api_function):
-        api = hug.api.from_object(api_function)
+        api = self.route.get('api', hug.api.from_object(api_function))
         (interface, callable_method) = self._create_interface(api, api_function)
 
         use_examples = self.route.get('examples', ())
