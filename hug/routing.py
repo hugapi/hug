@@ -175,7 +175,8 @@ class HTTPRouter(InternalValidation):
     """The HTTPRouter provides the base concept of a router from an HTTPRequest to a Python function"""
     __slots__ = ()
 
-    def __init__(self, versions=None, parse_body=False, parameters=None, defaults={}, status=None, **kwargs):
+    def __init__(self, versions=None, parse_body=False, parameters=None, defaults={}, status=None,
+                 response_headers=None, **kwargs):
         super().__init__(**kwargs)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
         if parse_body:
@@ -186,6 +187,8 @@ class HTTPRouter(InternalValidation):
             self.route['defaults'] = defaults
         if status:
             self.route['status'] = status
+        if response_headers:
+            self.route['response_headers'] = response_headers
 
     def versions(self, supported, **overrides):
         """Sets the versions that this route should be compatiable with"""
@@ -210,6 +213,31 @@ class HTTPRouter(InternalValidation):
     def _create_interface(self, api, api_function, catch_exceptions=True):
         interface = hug.interface.HTTP(self.route, api_function, catch_exceptions)
         return (interface, api_function)
+
+    def response_headers(self, headers, **overrides):
+        """Sets the response headers automatically injected by the router"""
+        return self.where(response_headers=headers, **overrides)
+
+    def add_response_headers(self, headers, **overrides):
+        """Adds the specified response headers while keeping existing ones in-tact"""
+        response_headers = self.route.get('response_headers', {}).copy()
+        response_headers.update(headers)
+        return self.where(response_headers=response_headers, **overrides)
+
+    def cache(self, private=False, max_age=31536000, s_maxage=None, no_cache=False, no_store=False,
+              must_revalidate=False, **overrides):
+        """Convience method for quickly adding cache header to route"""
+        parts = ('private' if private else 'public', 'max-age={0}'.format(max_age),
+                 's-maxage={0}'.format(s_maxage) if s_maxage is not None else None, no_cache and 'no-cache',
+                 no_store and 'no-store', must_revalidate and 'must-revalidate')
+        return self.add_response_headers({'cache-control': ', '.join(filter(bool, parts))}, **overrides)
+
+    def allow_origins(self, *origins, methods=None, **overrides):
+        """Convience method for quickly allowing other resources to access this one"""
+        headers = {'Access-Control-Allow-Origin': ', '.join(origins) if origins else '*'}
+        if methods:
+            headers['Access-Control-Allow-Methods'] = ', '.join(methods)
+        return self.add_response_headers(headers, **overrides)
 
 
 class NotFoundRouter(HTTPRouter):
@@ -302,7 +330,8 @@ class URLRouter(HTTPRouter):
 
     def __init__(self, urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None,
                  suffixes=(), prefixes=(), response_headers=None, parse_body=True, **kwargs):
-        super().__init__(output=output, versions=versions, parse_body=parse_body, **kwargs)
+        super().__init__(output=output, versions=versions, parse_body=parse_body, response_headers=response_headers,
+                         **kwargs)
         if urls is not None:
             self.route['urls'] = (urls, ) if isinstance(urls, str) else urls
         if accept:
@@ -313,8 +342,6 @@ class URLRouter(HTTPRouter):
             self.route['suffixes'] = (suffixes, ) if isinstance(suffixes, str) else suffixes
         if prefixes:
             self.route['prefixes'] = (prefixes, ) if isinstance(prefixes, str) else prefixes
-        if response_headers:
-            self.route['response_headers'] = response_headers
 
     def __call__(self, api_function):
         api = hug.api.from_object(api_function)
@@ -422,27 +449,3 @@ class URLRouter(HTTPRouter):
         """Sets the prefixes supported by the route"""
         return self.where(prefixes=prefixes, **overrides)
 
-    def response_headers(self, headers, **overrides):
-        """Sets the response headers automatically injected by the router"""
-        return self.where(response_headers=headers, **overrides)
-
-    def add_response_headers(self, headers, **overrides):
-        """Adds the specified response headers while keeping existing ones in-tact"""
-        response_headers = self.route.get('response_headers', {}).copy()
-        response_headers.update(headers)
-        return self.where(response_headers=response_headers, **overrides)
-
-    def cache(self, private=False, max_age=31536000, s_maxage=None, no_cache=False, no_store=False,
-              must_revalidate=False, **overrides):
-        """Convience method for quickly adding cache header to route"""
-        parts = ('private' if private else 'public', 'max-age={0}'.format(max_age),
-                 's-maxage={0}'.format(s_maxage) if s_maxage is not None else None, no_cache and 'no-cache',
-                 no_store and 'no-store', must_revalidate and 'must-revalidate')
-        return self.add_response_headers({'cache-control': ', '.join(filter(bool, parts))}, **overrides)
-
-    def allow_origins(self, *origins, methods=None, **overrides):
-        """Convience method for quickly allowing other resources to access this one"""
-        headers = {'Access-Control-Allow-Origin': ', '.join(origins) if origins else '*'}
-        if methods:
-            headers['Access-Control-Allow-Methods'] = ', '.join(methods)
-        return self.add_response_headers(headers, **overrides)
