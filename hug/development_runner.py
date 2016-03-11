@@ -36,8 +36,6 @@ def hug(file:'A Python file that contains a Hug API'=None, module:'A Python modu
     """Hug API Development Server"""
     api_module = None
     server_arguments = {}
-    print(file)
-    print(module)
     if file and module:
         print("Error: can not define both a file and module source for Hug API.")
         sys.exit(1)
