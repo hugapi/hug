@@ -1,4 +1,4 @@
-"""An example of writing an API to scrapper hacker news once, and then enabling usage everywhere"""
+"""An example of writing an API to scrape hacker news once, and then enabling usage everywhere"""
 import hug
 import requests
 
