@@ -171,10 +171,13 @@ class Socket(Service):
     }
     streams = ('tcp', 'unix_stream')
     datagrams = ('udp', 'unix_dgram')
+    inet = ('tcp', 'udp')
+    unix = ('unix_stream', 'unix_dgram')
 
     def __init__(self, connect_to, proto, version=None,
                  headers=empty.dict, timeout=None, pool=0, raise_on=(500, ), **kwargs):
         super().__init__(timeout=timeout, raise_on=raise_on, version=version, **kwargs)
+        connect_to = tuple(connect_to) if proto in Socket.inet else connect_to
         self.timeout = timeout
         self.connection = Socket.Connection(connect_to, proto, set())
         self.connection_pool = Queue(maxsize=pool if pool else 1)
