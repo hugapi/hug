@@ -93,6 +93,7 @@ class TestService(object):
 class TestHTTP(object):
     """Test to ensure the HTTP Service object enables pulling data from external HTTP services"""
     service = use.HTTP('http://www.google.com/', raise_on=404)
+    json_service = use.HTTP('http://www.google.com/', raise_on=404, transport_json=True)
 
     def test_init(self):
         """Test to ensure HTTP service instantiation populates expected attributes"""
@@ -102,6 +103,10 @@ class TestHTTP(object):
     def test_request(self):
         """Test so ensure the HTTP service can successfully be used to pull data from an external service"""
         response = self.service.request('GET', 'search', query='api')
+        assert response
+        assert response.data
+
+        response = self.json_service.request('GET', 'search', query='api')
         assert response
         assert response.data
 

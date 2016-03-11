@@ -92,18 +92,21 @@ class Service(object):
 
 
 class HTTP(Service):
-    __slots__ = ('endpoint', 'session')
+    __slots__ = ('endpoint', 'session', 'json_transport')
 
-    def __init__(self, endpoint, auth=None, version=None, headers=empty.dict, timeout=None, raise_on=(500, ), **kwargs):
+    def __init__(self, endpoint, auth=None, version=None, headers=empty.dict, timeout=None, raise_on=(500, ),
+                 json_transport=False, **kwargs):
         super().__init__(timeout=timeout, raise_on=raise_on, version=version, **kwargs)
         self.endpoint = endpoint
         self.session = requests.Session()
         self.session.auth = auth
         self.session.headers.update(headers)
+        self.json_transport = json_transport
 
     def request(self, method, url, url_params=empty.dict, headers=empty.dict, timeout=None, **params):
         url = "{0}/{1}".format(self.version, url.lstrip('/')) if self.version else url
-        response = self.session.request(method, self.endpoint + url.format(url_params), headers=headers, params=params)
+        kwargs = {'json' if self.json_transport else 'params': params}
+        response = self.session.request(method, self.endpoint + url.format(url_params), headers=headers, **kwargs)
 
         data = BytesIO(response.content)
         (content_type, encoding) = separate_encoding(response.headers.get('content-type', ''), 'utf-8')
