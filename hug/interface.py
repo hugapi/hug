@@ -341,6 +341,8 @@ class CLI(Interface):
             data = self.outputs(data)
             if data:
                 sys.stdout.buffer.write(data)
+                if not data.endswith(b'\n'):
+                    sys.stdout.buffer.write(b'\n')
         return data
 
     def __call__(self):

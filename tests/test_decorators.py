@@ -1139,3 +1139,12 @@ def test_cli_api(capsys):
     with mock.patch('sys.argv', []):
         with pytest.raises(SystemExit):
             __hug__.cli()
+
+
+def test_cli_api_return():
+    """Ensure returning from a CLI API works as expected"""
+    @hug.cli()
+    def my_cli_command():
+        return "Success!"
+
+    my_cli_command.interface.cli()
