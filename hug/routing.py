@@ -121,9 +121,9 @@ class InternalValidation(Router):
         super().__init__(**kwargs)
         if raise_on_invalid:
             self.route['raise_on_invalid'] = raise_on_invalid
-        if on_invalid:
+        if on_invalid != None:
             self.route['on_invalid'] = on_invalid
-        if output_invalid:
+        if output_invalid != None:
             self.route['output_invalid'] = output_invalid
 
     def raise_on_invalid(self, setting=True, **overrides):
