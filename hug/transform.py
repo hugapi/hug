@@ -34,7 +34,8 @@ def content_type(transformers, default=None):
              ...
             }
     """
-    transformers = {content_type: auto_kwargs(transformer) for content_type, transformer in transformers.items()}
+    transformers = {content_type: auto_kwargs(transformer) if transformer else transformer
+                    for content_type, transformer in transformers.items()}
     default = default and auto_kwargs(default)
     def transform(data, request):
         transformer = transformers.get(request.content_type.split(';')[0], default)
@@ -55,7 +56,8 @@ def suffix(transformers, default=None):
              ...
             }
     """
-    transformers = {suffix: auto_kwargs(transformer) for suffix, transformer in transformers.items()}
+    transformers = {suffix: auto_kwargs(transformer) if transformer
+                    else transformer for suffix, transformer in transformers.items()}
     default = default and auto_kwargs(default)
     def transform(data, request):
         path = request.path
@@ -79,7 +81,8 @@ def prefix(transformers, default=None):
              ...
             }
     """
-    transformers = {prefix: auto_kwargs(transformer) for prefix, transformer in transformers.items()}
+    transformers = {prefix: auto_kwargs(transformer) if transformer else transformer
+                    for prefix, transformer in transformers.items()}
     default = default and auto_kwargs(default)
     def transform(data, request=None, response=None):
         path = request.path
