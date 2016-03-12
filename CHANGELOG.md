@@ -1,3 +1,14 @@
+Install the latest
+===================
+
+To install the latest version of hug simply run:
+
+```bash
+pip3 install hug --upgrade
+```
+
+Ideally, within a virtual environment.
+
 Changelog
 =========
 
