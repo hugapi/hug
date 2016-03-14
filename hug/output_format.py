@@ -97,9 +97,11 @@ def on_valid(valid_content_type, on_invalid=json):
     """Renders as the specified content type only if no errors are found in the provided data object"""
     invalid_kwargs = introspect.generate_accepted_kwargs(on_invalid, 'request', 'response')
     invalid_takes_response = introspect.takes_all_arguments(on_invalid, 'response')
+
     def wrapper(function):
         valid_kwargs = introspect.generate_accepted_kwargs(function, 'request', 'response')
         valid_takes_response = introspect.takes_all_arguments(function, 'response')
+
         @content_type(valid_content_type)
         @wraps(function)
         def output_content(content, response, **kwargs):

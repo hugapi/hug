@@ -138,5 +138,5 @@ get_post.__doc__ = "Exposes a Python method externally under both the HTTP POST 
 
 object = Object()
 
-#DEPRECATED: for backwords compatibility with hug 1.x.x
+# DEPRECATED: for backwords compatibility with hug 1.x.x
 call = http

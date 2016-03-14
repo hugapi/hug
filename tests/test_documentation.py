@@ -42,7 +42,7 @@ def test_basic_documentation():
         return text
 
     @hug.post('/happy_birthday', examples="name=HUG&age=1")
-    def birthday(name, age:hug.types.number=1):
+    def birthday(name, age: hug.types.number=1):
         """Says happy birthday to a user"""
         return "Happy {age} Birthday {name}!".format(**locals())
 
@@ -52,7 +52,7 @@ def test_basic_documentation():
         pass
 
     @hug.get()
-    def string_docs(data:'Takes data', ignore_directive:hug.directives.Timer) -> 'Returns data':
+    def string_docs(data: 'Takes data', ignore_directive: hug.directives.Timer) -> 'Returns data':
         """Annotations defined with strings should be documentation only"""
         pass
 
@@ -66,9 +66,9 @@ def test_basic_documentation():
     assert '/noop' in documentation['handlers']
     assert '/string_docs' in documentation['handlers']
 
-    assert documentation['handlers']['/hello_world']['GET']['usage']  == "Returns hello world"
-    assert documentation['handlers']['/hello_world']['GET']['examples']  == ["/hello_world"]
-    assert documentation['handlers']['/hello_world']['GET']['outputs']['content_type']  == "application/json"
+    assert documentation['handlers']['/hello_world']['GET']['usage'] == "Returns hello world"
+    assert documentation['handlers']['/hello_world']['GET']['examples'] == ["/hello_world"]
+    assert documentation['handlers']['/hello_world']['GET']['outputs']['content_type'] == "application/json"
     assert not 'inputs' in documentation['handlers']['/hello_world']['GET']
 
     assert 'text' in documentation['handlers']['/echo']['POST']['inputs']['text']['type']
@@ -83,12 +83,12 @@ def test_basic_documentation():
     assert documentation['handlers']['/string_docs']['GET']['outputs']['type'] == 'Returns data'
     assert not 'ignore_directive' in documentation['handlers']['/string_docs']['GET']['inputs']
 
-    @hug.post(versions=1)
+    @hug.post(versions=1)  # noqa
     def echo(text):
         """V1 Docs"""
         return 'V1'
 
-    @hug.post(versions=2)
+    @hug.post(versions=2)  # noqa
     def echo(text):
         """V1 Docs"""
         return 'V2'
@@ -109,7 +109,7 @@ def test_basic_documentation():
     assert '/echo' in versioned_doc['handlers']
     assert '/test' in versioned_doc['handlers']
 
-    specific_version_doc  = api.http.documentation(api_version=1)
+    specific_version_doc = api.http.documentation(api_version=1)
     assert 'versions' in specific_version_doc
     assert '/echo' in specific_version_doc['handlers']
     assert '/unversioned' in specific_version_doc['handlers']

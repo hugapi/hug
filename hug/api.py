@@ -184,17 +184,17 @@ class HTTPInterfaceAPI(InterfaceAPI):
         versions = self.versions
         versions_list = list(versions)
         versions_list.remove(None)
-        if api_version == None and len(versions_list) > 0:
+        if api_version is None and len(versions_list) > 0:
             api_version = max(versions_list)
             documentation['version'] = api_version
-        elif api_version != None:
+        elif api_version is not None:
             documentation['version'] = api_version
         if versions_list:
             documentation['versions'] = versions_list
         for url, methods in self.routes.items():
             for method, method_versions in methods.items():
                 for version, handler in method_versions.items():
-                    if version == None:
+                    if version is None:
                         applies_to = versions
                     else:
                         applies_to = (version, )
@@ -254,6 +254,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
     def documentation_404(self, base_url=None):
         """Returns a smart 404 page that contains documentation for the written API"""
         base_url = self.base_url if base_url is None else base_url
+
         def handle_404(request, response, *kargs, **kwargs):
             url_prefix = self.base_url
             if not url_prefix:

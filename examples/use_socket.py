@@ -20,7 +20,7 @@ def get_time():
 
 
 @hug.get()
-def reverse_http_proxy(length:int=100):
+def reverse_http_proxy(length: int=100):
     """Simple reverse http proxy function that returns data/html from another http server (via sockets)
     only drawback is the peername is static, and currently does not support being changed.
     Example: curl localhost:8000/reverse_http_proxy?length=400"""

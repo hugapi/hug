@@ -21,9 +21,13 @@ import pytest
 from falcon.request import SimpleCookie
 
 import hug
+from hug.exceptions import SessionNotFound
 from hug.middleware import LogMiddleware, SessionMiddleware
 
 api = hug.API(__name__)
+
+# Fix flake8 undefined names (F821)
+__hug__ = __hug__  # noqa
 
 
 def test_session_middleware():
@@ -85,6 +89,7 @@ def test_session_middleware():
 
 def test_logging_middleware():
     output = []
+
     class Logger(object):
         def info(self, content):
             output.append(content)

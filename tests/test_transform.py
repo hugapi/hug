@@ -25,6 +25,7 @@ import hug
 def test_content_type():
     """Test to ensure the transformer used can change based on the provided content-type"""
     transformer = hug.transform.content_type({'application/json': int, 'text/plain': str})
+
     class FakeRequest(object):
         content_type = 'application/json'
 
@@ -41,6 +42,7 @@ def test_content_type():
 def test_suffix():
     """Test to ensure transformer content based on the end suffix of the URL works as expected"""
     transformer = hug.transform.suffix({'.js': int, '.txt': str})
+
     class FakeRequest(object):
         path = 'hey.js'
 
@@ -57,6 +59,7 @@ def test_suffix():
 def test_prefix():
     """Test to ensure transformer content based on the end prefix of the URL works as expected"""
     transformer = hug.transform.prefix({'js/': int, 'txt/': str})
+
     class FakeRequest(object):
         path = 'js/hey'
 

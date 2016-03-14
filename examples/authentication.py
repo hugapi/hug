@@ -45,6 +45,6 @@ def api_key_verify(api_key):
 
 api_key_authentication = hug.authentication.api_key(api_key_verify)
 
-@hug.get('/key_authenticated', requires=api_key_authentication)
+@hug.get('/key_authenticated', requires=api_key_authentication)  # noqa
 def basic_auth_api_call(user: hug.directives.user):
     return 'Successfully authenticated with user: {0}'.format(user.user_id)

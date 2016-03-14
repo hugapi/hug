@@ -117,7 +117,7 @@ def test_image():
     with open('artwork/logo.png', 'rb') as image_file:
         assert hasattr(hug.output_format.png_image(image_file, hug.Response()), 'read')
 
-    assert hug.output_format.png_image('Not Existent', hug.Response()) == None
+    assert hug.output_format.png_image('Not Existent', hug.Response()) is None
 
     class FakeImageWithSave():
         def save(self, to, format):
@@ -155,7 +155,7 @@ def test_video():
     with open('artwork/example.gif', 'rb') as image_file:
         assert hasattr(hug.output_format.mp4_video(image_file, hug.Response()), 'read')
 
-    assert hug.output_format.mp4_video('Not Existent', hug.Response()) == None
+    assert hug.output_format.mp4_video('Not Existent', hug.Response()) is None
 
     class FakeVideoWithSave():
         def save(self, to, format):
@@ -187,6 +187,7 @@ def test_on_content_type():
     """Ensure that it's possible to route the output type format by the requested content-type"""
     formatter = hug.output_format.on_content_type({'application/json': hug.output_format.json,
                                                    'text/plain': hug.output_format.text})
+
     class FakeRequest(object):
         content_type = 'application/json'
 
@@ -206,6 +207,7 @@ def test_on_content_type():
 def test_suffix():
     """Ensure that it's possible to route the output type format by the suffix of the requested URL"""
     formatter = hug.output_format.suffix({'.js': hug.output_format.json, '.html': hug.output_format.text})
+
     class FakeRequest(object):
         path = 'endpoint.js'
 
@@ -225,6 +227,7 @@ def test_suffix():
 def test_prefix():
     """Ensure that it's possible to route the output type format by the prefix of the requested URL"""
     formatter = hug.output_format.prefix({'js/': hug.output_format.json, 'html/': hug.output_format.text})
+
     class FakeRequest(object):
         path = 'js/endpoint'
 

@@ -179,7 +179,8 @@ class TestSocket(object):
 
     def test_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
-        assert b' '.join(self.tcp_service.request(message='GET / HTTP/1.0\r\n\r\n', timeout=30).data.read().split()[:2]) == b'HTTP/1.1 200'
+        data = self.tcp_service.request(message='GET / HTTP/1.0\r\n\r\n', timeout=30)
+        assert b' '.join(data.read().split()[:2]) == b'HTTP/1.1 200'
 
     def test_datagram_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
@@ -188,9 +189,9 @@ class TestSocket(object):
             header = b"!b"
             header += bytes(str(len(name)), "utf-8") + b"s"
             query = struct.pack(header, len(name), name.encode('utf-8'))
-            packet = packet+query
+            packet = packet + query
 
-        dns_query = packet + struct.pack("!bHH",0,1,1)
+        dns_query = packet + struct.pack("!bHH", 0, 1, 1)
         assert len(self.udp_service.request(dns_query.decode("utf-8"), buffer_size=4096).data.read()) > 0
 
 

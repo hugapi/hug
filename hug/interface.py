@@ -314,7 +314,7 @@ class CLI(Interface):
                   type(self.interface.spec.__annotations__[option]) == str):
                 kwargs['help'] = option
             if ((kwargs.get('type', None) == bool or kwargs.get('action', None) == 'store_true') and
-                 kwargs['default'] == False):
+                 not kwargs['default']):
                 kwargs['action'] = 'store_true'
                 kwargs.pop('type', None)
             elif kwargs.get('action', None) == 'store_true':
@@ -374,7 +374,7 @@ class CLI(Interface):
 class HTTP(Interface):
     """Defines the interface responsible for wrapping functions and exposing them via HTTP based on the route"""
     __slots__ = ('_params_for_outputs', '_params_for_invalid_outputs', '_params_for_transform', 'on_invalid',
-                 '_params_for_on_invalid',  'set_status','response_headers', 'transform', 'input_transformations',
+                 '_params_for_on_invalid', 'set_status', 'response_headers', 'transform', 'input_transformations',
                  'examples', 'wrapped', 'catch_exceptions', 'parse_body')
     AUTO_INCLUDE = {'request', 'response'}
 
@@ -493,7 +493,7 @@ class HTTP(Interface):
         return self.interface.function(**parameters)
 
     def render_content(self, content, request, response, **kwargs):
-        if hasattr(content, 'interface') and (content.interface == True or hasattr(content.interface, 'http')):
+        if hasattr(content, 'interface') and (content.interface or hasattr(content.interface, 'http')):
             if content.interface is True:
                 content(request, response, api_version=None, **kwargs)
             else:
@@ -555,7 +555,7 @@ class HTTP(Interface):
                 handler = self.api.http.exception_handlers(api_version)[type(exception)]
             else:
                 for exception_type, exception_handler in \
-                                        tuple(self.api.http.exception_handlers(api_version).items())[::-1]:
+                  tuple(self.api.http.exception_handlers(api_version).items())[::-1]:
                     if isinstance(exception, exception_type):
                         handler = exception_handler
             handler(request=request, response=response, exception=exception, **kwargs)
@@ -569,7 +569,7 @@ class HTTP(Interface):
             doc['usage'] = usage
 
         for example in self.examples:
-            example_text =  "{0}{1}{2}".format(base_url, '/v{0}'.format(version) if version else '', url)
+            example_text = "{0}{1}{2}".format(base_url, '/v{0}'.format(version) if version else '', url)
             if isinstance(example, str):
                 example_text += "?{0}".format(example)
             doc_examples = doc.setdefault('examples', [])
