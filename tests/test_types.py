@@ -119,17 +119,17 @@ def test_decimal():
 
 def test_boolean():
     """Test to ensure the custom boolean type correctly supports boolean conversion"""
-    assert hug.types.boolean('1') == True
-    assert hug.types.boolean('T') == True
-    assert hug.types.boolean('') == False
-    assert hug.types.boolean('False') == True
-    assert hug.types.boolean(False) == False
+    assert hug.types.boolean('1')
+    assert hug.types.boolean('T')
+    assert not hug.types.boolean('')
+    assert hug.types.boolean('False')
+    assert not hug.types.boolean(False)
 
 
 def test_mapping():
     """Test to ensure the mapping type works as expected"""
     mapping_type = hug.types.mapping({'n': None, 'l': [], 's': set()})
-    assert mapping_type('n') == None
+    assert mapping_type('n') is None
     assert mapping_type('l') == []
     assert mapping_type('s') == set()
     assert 'n' in mapping_type.__doc__
@@ -139,18 +139,18 @@ def test_mapping():
 
 def test_smart_boolean():
     """Test to ensure that the smart boolean type works as expected"""
-    assert hug.types.smart_boolean('true') == True
-    assert hug.types.smart_boolean('t') == True
-    assert hug.types.smart_boolean('1') == True
-    assert hug.types.smart_boolean(1) == True
-    assert hug.types.smart_boolean('') == False
-    assert hug.types.smart_boolean('false') == False
-    assert hug.types.smart_boolean('f') == False
-    assert hug.types.smart_boolean('0') == False
-    assert hug.types.smart_boolean(0) == False
-    assert hug.types.smart_boolean(True) == True
-    assert hug.types.smart_boolean(None) == False
-    assert hug.types.smart_boolean(False) == False
+    assert hug.types.smart_boolean('true')
+    assert hug.types.smart_boolean('t')
+    assert hug.types.smart_boolean('1')
+    assert hug.types.smart_boolean(1)
+    assert not hug.types.smart_boolean('')
+    assert not hug.types.smart_boolean('false')
+    assert not hug.types.smart_boolean('f')
+    assert not hug.types.smart_boolean('0')
+    assert not hug.types.smart_boolean(0)
+    assert hug.types.smart_boolean(True)
+    assert not hug.types.smart_boolean(None)
+    assert not hug.types.smart_boolean(False)
     with pytest.raises(KeyError):
         hug.types.smart_boolean('bacon')
 
@@ -293,7 +293,7 @@ def test_multi():
     multi_type = hug.types.multi(hug.types.json, hug.types.smart_boolean)
     assert multi_type({'this': 'works'}) == {'this': 'works'}
     assert multi_type(json.dumps({'this': 'works'})) == {'this': 'works'}
-    assert multi_type('t') == True
+    assert multi_type('t')
     with pytest.raises(ValueError):
         multi_type('Bacon!')
 
@@ -310,7 +310,7 @@ def test_nullable():
     """Test the concept of a nullable type"""
     nullable_type = hug.types.Nullable(hug.types.text, hug.types.LongerThan(10))
     assert nullable_type(12345678901) == "12345678901"
-    assert nullable_type(None) == None
+    assert nullable_type(None) is None
     with pytest.raises(ValueError):
         nullable_type(1)
 

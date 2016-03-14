@@ -7,7 +7,7 @@ def echo(text):
     return text
 
 
-@hug.get('/echo', versions=range(2, 5))
+@hug.get('/echo', versions=range(2, 5))  # noqa
 def echo(text):
     return 'Echo: {text}'.format(**locals())
 

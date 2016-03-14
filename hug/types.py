@@ -46,6 +46,7 @@ class Type(object):
 def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type, chain=True):
     """Creates a new type handler with the specified type-casting handler"""
     extend = extend if type(extend) == type else type(extend)
+
     def new_type_handler(function):
         class NewType(extend):
             __slots__ = ()
@@ -398,7 +399,7 @@ class Nullable(Chain):
         self.types = types
 
     def __call__(self, value):
-        if value == None:
+        if value is None:
             return None
         else:
             return super(Nullable, self).__call__(value)
@@ -418,7 +419,7 @@ class TypedProperty(object):
     def __set__(self, instance, value):
         setattr(instance, self.name, self.type_func(value))
 
-    def __delete__(self,instance):
+    def __delete__(self, instance):
         raise AttributeError("Can't delete attribute")
 
 
@@ -433,7 +434,7 @@ class NewTypeMeta(type):
         for attr, type_func in cls._types.items():
             slots.add("_" + attr)
             slots.add(attr)
-            prop = TypedProperty(attr, type_func);
+            prop = TypedProperty(attr, type_func)
             setattr(cls, attr, prop)
         cls.__slots__ = tuple(slots)
         super(NewTypeMeta, cls).__init__(name, bases, nmspc)

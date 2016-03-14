@@ -162,7 +162,7 @@ class TestHTTPRouter(TestInternalValidation):
 
     def test_parse_body(self):
         """Test to ensure the parsing body flag be flipped on the fly"""
-        assert self.route.parse_body().route['parse_body'] == True
+        assert self.route.parse_body().route['parse_body']
         assert not 'parse_body' in self.route.parse_body(False).route
 
     def test_requires(self):
@@ -206,7 +206,7 @@ class TestHTTPRouter(TestInternalValidation):
 
 class TestStaticRouter(TestHTTPRouter):
     """Test to ensure that the static router sets up routes correctly"""
-    route = StaticRouter("/here", requires=('love' ,), cache=True)
+    route = StaticRouter("/here", requires=('love',), cache=True)
     route2 = StaticRouter(("/here", "/there"), api='api', cache={'no_store': True})
 
     def test_init(self):

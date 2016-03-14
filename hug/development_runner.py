@@ -31,11 +31,11 @@ from hug.types import boolean, number
 
 
 @cli(version=current)
-def hug(file:'A Python file that contains a Hug API'=None, module:'A Python module that contains a Hug API'=None,
-        port:number=8000, no_404_documentation:boolean=False, command:'Run a command defined in the given module'=None):
+def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python module that contains a Hug API'=None,
+        port: number=8000, no_404_documentation: boolean=False,
+        command: 'Run a command defined in the given module'=None):
     """Hug API Development Server"""
     api_module = None
-    server_arguments = {}
     if file and module:
         print("Error: can not define both a file and module source for Hug API.")
         sys.exit(1)

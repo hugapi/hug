@@ -27,6 +27,9 @@ import hug
 
 api = hug.API(__name__)
 
+# Fix flake8 undefined names (F821)
+__hug__ = __hug__  # noqa
+
 
 def test_timer():
     """Tests that the timer directive outputs the correct format, and automatically attaches itself to an API"""
@@ -98,13 +101,13 @@ def test_current_api():
     def second_method():
         return "Unversioned"
 
-    @hug.get(versions=2)
+    @hug.get(versions=2)  # noqa
     def version_call_tester(hug_current_api):
         return hug_current_api.second_method()
 
     assert hug.test.get(api, 'v2/version_call_tester').data == 'Unversioned'
 
-    @hug.get(versions=3)
+    @hug.get(versions=3)  # noqa
     def version_call_tester(hug_current_api):
         return hug_current_api.first_method()
 
@@ -127,7 +130,7 @@ def test_user():
 def test_named_directives():
     """Ensure that it's possible to attach directives to named parameters"""
     @hug.get()
-    def test(time:hug.directives.Timer=3):
+    def test(time: hug.directives.Timer=3):
         return time
 
     assert isinstance(test(1), int)
@@ -139,13 +142,13 @@ def test_named_directives():
 def test_local_named_directives():
     """Ensure that it's possible to attach directives to local function calling"""
     @hug.local()
-    def test(time:__hug__.directive('timer')=3):
+    def test(time: __hug__.directive('timer')=3):
         return time
 
     assert isinstance(test(), hug.directives.Timer)
 
     @hug.local(directives=False)
-    def test(time:__hug__.directive('timer')=3):
+    def test(time: __hug__.directive('timer')=3):
         return time
 
     assert isinstance(test(3), int)
@@ -155,7 +158,7 @@ def test_named_directives_by_name():
     """Ensure that it's possible to attach directives to named parameters using only the name of the directive"""
     @hug.get()
     @hug.local()
-    def test(time:__hug__.directive('timer')=3):
+    def test(time: __hug__.directive('timer')=3):
         return time
 
     assert isinstance(test(), hug.directives.Timer)
@@ -174,16 +177,16 @@ def test_per_api_directives():
     assert hug.test.get(api, 'my_api_method').data == 'heyyy'
 
 
-def test_user():
+def test_user_directives():
     """Test the user directives functionality, to ensure it will provide the set user object"""
-    @hug.get()
-    def try_user(user:hug.directives.user):
+    @hug.get()  # noqa
+    def try_user(user: hug.directives.user):
         return user
 
-    assert hug.test.get(api, 'try_user').data == None
+    assert hug.test.get(api, 'try_user').data is None
 
-    @hug.get(requires=hug.authentication.basic(hug.authentication.verify('Tim', 'Custom password')))
-    def try_user(user:hug.directives.user):
+    @hug.get(requires=hug.authentication.basic(hug.authentication.verify('Tim', 'Custom password')))  # noqa
+    def try_user(user: hug.directives.user):
         return user
 
     token = b'Basic ' + b64encode('{0}:{1}'.format('Tim', 'Custom password').encode('utf8'))
