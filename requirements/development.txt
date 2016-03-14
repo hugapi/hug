@@ -1,11 +1,11 @@
 -r common.txt
-pytest==2.9.0
-pytest-cov==2.2.1
-tox==2.3.1
-isort==4.2.2
 Cython==0.23.4
-ipython==4.1.1
-wheel==0.29.0
-python-coveralls==2.7.0
-frosted==1.4.1
 flake8==2.4.1
+frosted==1.4.1
+ipython==4.1.1
+isort==4.2.2
+pytest-cov==2.2.1
+pytest==2.9.0
+python-coveralls==2.7.0
+tox==2.3.1
+wheel==0.29.0
