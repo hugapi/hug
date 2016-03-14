@@ -8,3 +8,4 @@ ipython==4.1.1
 wheel==0.29.0
 python-coveralls==2.7.0
 frosted==1.4.1
+flake8==2.4.1
