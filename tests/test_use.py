@@ -179,8 +179,8 @@ class TestSocket(object):
 
     def test_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
-        data = self.tcp_service.request(message='GET / HTTP/1.0\r\n\r\n', timeout=30)
-        assert b' '.join(data.read().split()[:2]) == b'HTTP/1.1 200'
+        data = self.tcp_service.request(message='GET / HTTP/1.0\r\n\r\n', timeout=30).data.read()
+        assert b' '.join(data.split()[:2]) == b'HTTP/1.1 200'
 
     def test_datagram_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
