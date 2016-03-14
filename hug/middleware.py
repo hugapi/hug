@@ -23,7 +23,7 @@ import logging
 import uuid
 
 
-class SessionMiddleware(object):
+class SessionMiddleware:
     """Simple session middleware.
 
     Injects a session dictionary into the context of a request, sets a session cookie,
@@ -78,7 +78,7 @@ class SessionMiddleware(object):
                             http_only=self.cookie_http_only)
 
 
-class LogMiddleware(object):
+class LogMiddleware:
     """A middleware that logs all incoming requests and outgoing responses that make their way through the API"""
     __slots__ = ('logger', )
 
