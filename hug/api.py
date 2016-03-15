@@ -355,7 +355,7 @@ class CLIInterfaceAPI(InterfaceAPI):
 
     def __str__(self):
         return "{0}\n\nAvailable Commands:{1}\n".format(self.api.module.__doc__ or self.api.module.__name__,
-                                                        "\n\n\t- " + "\n- ".join(self.commands.keys()))
+                                                        "\n\n\t- " + "\n\t- ".join(self.commands.keys()))
 
 
 class ModuleSingleton(type):
