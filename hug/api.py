@@ -95,9 +95,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
     @property
     def not_found(self):
         """Returns the active not found handler"""
-        handler = getattr(self, '_not_found', self.base_404)
-        handler.interface = True
-        return handler
+        return getattr(self, '_not_found', self.base_404)
 
     def input_format(self, content_type):
         """Returns the set input_format handler for the given content_type"""
@@ -294,9 +292,11 @@ class HTTPInterfaceAPI(InterfaceAPI):
             else:
                 not_found_handler = partial(self.version_router, api_version=False,
                                             versions=self.not_found_handlers, not_found=default_not_found)
+                not_found_handler.interface = True
 
         if not_found_handler:
             falcon_api.add_sink(not_found_handler)
+            not_found_handler
             self._not_found = not_found_handler
 
         for url, extra_sink in self.sinks.items():
@@ -334,6 +334,8 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self._startup_handlers = []
 
         self.startup_handlers.append(handler)
+
+HTTPInterfaceAPI.base_404.interface = True
 
 
 class CLIInterfaceAPI(InterfaceAPI):

@@ -493,7 +493,7 @@ class HTTP(Interface):
         return self.interface.function(**parameters)
 
     def render_content(self, content, request, response, **kwargs):
-        if hasattr(content, 'interface') and (content.interface or hasattr(content.interface, 'http')):
+        if hasattr(content, 'interface') and (content.interface is True or hasattr(content.interface, 'http')):
             if content.interface is True:
                 content(request, response, api_version=None, **kwargs)
             else:
