@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import os
 import sys
 from unittest import mock
 
@@ -30,6 +31,8 @@ import hug
 
 api = hug.API(__name__)
 module = sys.modules[__name__]
+test_directory = os.path.dirname(os.path.realpath(__file__))
+base_directory = os.path.realpath(os.path.join(test_directory, '..'))
 
 # Fix flake8 undefined names (F821)
 __hug__ = __hug__  # noqa
@@ -544,7 +547,7 @@ def test_stream_return():
     """Test to ensure that its valid for a hug API endpoint to return a stream"""
     @hug.get(output=hug.output_format.text)
     def test():
-        return open('README.md', 'rb')
+        return open(os.path.join(base_directory, 'README.md'), 'rb')
 
     assert 'hug' in hug.test.get(api, 'test').data
 
@@ -863,7 +866,7 @@ def test_cli_file_return():
     """Test to ensure that its possible to return a file stream from a CLI"""
     @hug.cli()
     def test():
-        return open('README.md', 'rb')
+        return open(os.path.join(base_directory, 'README.md'), 'rb')
 
     assert 'hug' in hug.test.cli(test)
 
@@ -929,7 +932,7 @@ def test_static_file_support():
     """Test to ensure static file routing works as expected"""
     @hug.static('/static')
     def my_static_dirs():
-        return ('', )
+        return (base_directory, )
 
     assert 'hug' in hug.test.get(api, '/static/README.md').data
     assert 'Index' in hug.test.get(api, '/static/tests/data').data
