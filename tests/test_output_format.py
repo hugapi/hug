@@ -29,9 +29,7 @@ import pytest
 
 import hug
 
-
-test_directory = os.path.dirname(os.path.realpath(__file__))
-base_directory = os.path.realpath(os.path.join(test_directory, '..'))
+from .constants import BASE_DIRECTORY
 
 
 def test_text():
@@ -44,7 +42,7 @@ def test_html():
     """Ensure that it's possible to output a Hug API method as HTML"""
     hug.output_format.html("<html>Hello World!</html>") == "<html>Hello World!</html>"
     hug.output_format.html(str(1)) == "1"
-    with open(os.path.join(base_directory, 'README.md'), 'rb') as html_file:
+    with open(os.path.join(BASE_DIRECTORY, 'README.md'), 'rb') as html_file:
         assert hasattr(hug.output_format.html(html_file), 'read')
 
     class FakeHTMLWithRender():
@@ -84,7 +82,7 @@ def test_json():
     data = [Decimal(1.5), Decimal("155.23"), Decimal("1234.25")]
     assert hug.input_format.json(BytesIO(hug.output_format.json(data))) == ["1.5", "155.23", "1234.25"]
 
-    with open(os.path.join(base_directory, 'README.md'), 'rb') as json_file:
+    with open(os.path.join(BASE_DIRECTORY, 'README.md'), 'rb') as json_file:
         assert hasattr(hug.output_format.json(json_file), 'read')
 
     assert hug.input_format.json(BytesIO(hug.output_format.json(b'\x9c'))) == 'nA=='
@@ -118,7 +116,7 @@ def test_json_camelcase():
 
 def test_image():
     """Ensure that it's possible to output images with hug"""
-    logo_path = os.path.join(base_directory, 'artwork', 'logo.png')
+    logo_path = os.path.join(BASE_DIRECTORY, 'artwork', 'logo.png')
     assert hasattr(hug.output_format.png_image(logo_path, hug.Response()), 'read')
     with open(logo_path, 'rb') as image_file:
         assert hasattr(hug.output_format.png_image(image_file, hug.Response()), 'read')
@@ -146,7 +144,7 @@ def test_file():
     class FakeResponse(object):
         pass
 
-    logo_path = os.path.join(base_directory, 'artwork', 'logo.png')
+    logo_path = os.path.join(BASE_DIRECTORY, 'artwork', 'logo.png')
     fake_response = FakeResponse()
     assert hasattr(hug.output_format.file(logo_path, fake_response), 'read')
     assert fake_response.content_type == 'image/png'
@@ -158,7 +156,7 @@ def test_file():
 
 def test_video():
     """Ensure that it's possible to output videos with hug"""
-    gif_path = os.path.join(base_directory, 'artwork', 'example.gif')
+    gif_path = os.path.join(BASE_DIRECTORY, 'artwork', 'example.gif')
     assert hasattr(hug.output_format.mp4_video(gif_path, hug.Response()), 'read')
     with open(gif_path, 'rb') as image_file:
         assert hasattr(hug.output_format.mp4_video(image_file, hug.Response()), 'read')
