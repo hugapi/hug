@@ -47,8 +47,8 @@ def authenticator(function):
             request.context['user'] = result
             return True
 
+        authenticate.__doc__ = function.__doc__
         return authenticate
-    wrapper.__doc__ = function.__doc__
     return wrapper
 
 
