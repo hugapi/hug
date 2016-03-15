@@ -13,9 +13,11 @@ Getting hug setup for local development
 The first step when contributing to any project is getting it setup on your local machine, hug aims to make this as simple as possible.
 
 Account Requirements:
+
 - [A valid GitHub account](https://github.com/join)
 
 Base System Requirements:
+
 - Python3.3+
 - Python3-venv (included w/ most Python3 installations but some Ubuntu systems require that it be installed separately)
 - bash or a bash compatible shell (should be auto-installed on Linux / Mac)
