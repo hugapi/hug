@@ -49,6 +49,6 @@ def temporary(location):
     to(location, falcon.HTTP_307)
 
 
-def not_found():
+def not_found(*args, **kwargs):
     """Redirects request handling to the not found render"""
     raise falcon.HTTPNotFound()
