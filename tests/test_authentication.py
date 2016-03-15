@@ -49,6 +49,7 @@ def test_basic_auth():
     token = b'Basic ' + b64encode('{0}:{1}'.format('Tim', 'Wrong password').encode('utf8'))
     assert '401' in hug.test.get(api, 'hello_world', headers={'Authorization': token}).status
 
+
 def test_api_key():
     """Test the included api_key based header to ensure it works as expected to allow X-Api-Key based authentication"""
     @hug.authentication.api_key
@@ -63,3 +64,9 @@ def test_api_key():
     assert hug.test.get(api, 'hello_world', headers={'X-Api-Key': 'Bacon'}).data == 'Hello world!'
     assert '401' in hug.test.get(api, 'hello_world').status
     assert '401' in hug.test.get(api, 'hello_world', headers={'X-Api-Key': 'Invalid'}).status
+
+
+def test_documentation_carry_over():
+    """Test to ensure documentation correctly carries over - to address issue #252"""
+    authentication = hug.authentication.basic(hug.authentication.verify('User1', 'mypassword'))
+    assert authentication.__doc__ == 'Basic HTTP Authentication'
