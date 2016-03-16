@@ -115,7 +115,7 @@ in addition to `hug.http` hug includes convience decorators for all common HTTP 
  - `parse_body`: If `True` and the format of the request body matches one known by hug, hug will run the specified input formatter on the request body before passing it as an argument to the routed function. Defaults to `True`.
  - `on_invalid`: A transformation function to run outputed data through, only if the request fails validation. Defaults to the endpoints specified general transform function, can be set to not run at all by setting to `None`.
  - `output_invalid`: Specifies an output format to attach to the endpoint only on the case that validation fails. Defaults to the endpoints specified output format.
- - `raise_on_invalid`: If set to true, instead of collecting validation errors in a dictionry, hug will simply raise them as they occur.
+ - `raise_on_invalid`: If set to true, instead of collecting validation errors in a dictionary, hug will simply raise them as they occur.
 
 
 CLI Routing
