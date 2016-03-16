@@ -19,14 +19,12 @@ Using a router as a decorator
 
 The most basic use case is to simply define the route directly above the function you need to expose as a decorator:
 
-```py
-import hug
+    import hug
 
 
-@hug.get('/home')
-def root():
-    return 'Welcome home!'
-```
+    @hug.get('/home')
+    def root():
+        return 'Welcome home!'
 
 This is clear, explicit, and obvious. As such, this is recommended for most basic APIs.
 
@@ -36,35 +34,33 @@ Declaring a router separate from a function
 Sometimes, in more complex use-cases, it's necessary to define routing separate from where the code itself is defined.
 hug aims to make this as easy and intuitive as it can be:
 
-```py
-# internal.py
+Internal API:
+
+    # internal.py
 
 
-def root():
-    return 'Welcome home!'
-```
+    def root():
+        return 'Welcome home!'
 
-```py
-# external.py
-import hug
+External API:
 
-import external
+    # external.py
+    import hug
 
-router = hug.route.API(__name__)
-router.get('/home')(external.root)
-```
+    import external
+
+    router = hug.route.API(__name__)
+    router.get('/home')(external.root)
 
 Or, alternatively:
 
-```py
-# external.py
-import hug
+    # external.py
+    import hug
 
-import external
+    import external
 
-api = hug.API(__name__)
-hug.get('/home', api=api)(external.root)
-```
+    api = hug.API(__name__)
+    hug.get('/home', api=api)(external.root)
 
 Chaining routers for easy re-use
 ===================
@@ -74,22 +70,20 @@ For instance: if you decide you want every route to return the 404 page when a v
 require validation for a collection of routes. hug makes this extreamly simple by allowing all routes to be chained
 and reused:
 
-```py
-import hug
+    import hug
 
-api = hug.get(on_invalid=hug.redirect.not_found)
-
-
-@api.urls('/do-math', examples='number_1=1&number_2=2')
-def math(number_1: hug.types.number, number_2: hug.types.number):
-    return number_1 + number_2
+    api = hug.get(on_invalid=hug.redirect.not_found)
 
 
-@api
-def happy_birthday(name, age: hug.types.number):
-    """Says happy birthday to a user"""
-    return "Happy {age} Birthday {name}!".format(**locals())
-```
+    @api.urls('/do-math', examples='number_1=1&number_2=2')
+    def math(number_1: hug.types.number, number_2: hug.types.number):
+        return number_1 + number_2
+
+
+    @api
+    def happy_birthday(name, age: hug.types.number):
+        """Says happy birthday to a user"""
+        return "Happy {age} Birthday {name}!".format(**locals())
 
 It's important to note that to chain you simply call the argument you would normally pass in to the routers init function
 as a method on the existing router. Then you pass in any additional parameters you would like to override as **kwargs - as
