@@ -29,7 +29,7 @@ Ideally, hug extensions should be built in the same manner as hug itself. This m
 
 Registering your extension
 =========
-Once you have finished developing and testing your extension, you can help increase others ability to discover it by registering it. The first place an extension should be registered is on PYPI, just like any other Python Package. In addition to that you can add your extension to the list of extensions on hug's github wiki: https://github.com/timothycrosley/hug/wiki/Hug-Extensions
+Once you have finished developing and testing your extension, you can help increase others ability to discover it by registering it. The first place an extension should be registered is on PYPI, just like any other Python Package. In addition to that you can add your extension to the list of extensions on hug's [github wiki](https://github.com/timothycrosley/hug/wiki/Hug-Extensions).
 
 Thank you
 =========
