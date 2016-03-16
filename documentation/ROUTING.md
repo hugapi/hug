@@ -128,10 +128,10 @@ Any endpoint can also be exposed to the command line as well, using `@hug.cli`:
   - `doc`: Documentation to provide to users of this command line tool. Defaults to the functions doc string.
 
 
-LocalRouter
+Local Routing
 ===================
 
-By default all hug APIs are already valid local APIs. However, sometimes it can be useful to apply type annotations and/or directives to local use as well:
+By default all hug APIs are already valid local APIs. However, sometimes it can be useful to apply type annotations and/or directives to local use as well. For these cases hug provides `@hug.local`:
 
  - `validate`: Apply type anntations to local use of the function. Defaults to `True`
  - `directives`: Apply directives to local use of the function. Defaults to `True`
