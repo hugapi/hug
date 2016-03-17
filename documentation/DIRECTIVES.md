@@ -76,6 +76,8 @@ Independ of what interface a directive is being ran through, the following key w
  - `interface` - the interface that the directive is being ran through. Useful for conditionally injecting different data via the decorator depending on the interface it is being called through, as demonstrated at the bottom of this section
  - `api` - the API singleton associated with this endpoint
 
+Interface Example:
+
     @directive()
     def my_directive(default=None, interface=None, **kwargs):
         if interface == hug.interface.CLI:
