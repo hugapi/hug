@@ -1,7 +1,7 @@
 hug output formats
 ===================
 
-Every endpoint that is exposed to via an external interface will need to output the data returned in a standard format that users of the interface will be able to understand.
+Every endpoint that is exposed via an external facing interface will need to output the data returned in a standard format that users of the interface will be able to understand.
 
 The default output format for all hug APIs is JSON unless you explicitly specify a different default output_format:
 
