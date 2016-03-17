@@ -57,15 +57,15 @@ class Timer(object):
 
 
 @_built_in_directive
-def module(default=None, module=None, **kwargs):
+def module(default=None, api=None, **kwargs):
     """Returns the module that is running this hug API function"""
-    return module if module else default
+    return api.module if api else default
 
 
 @_built_in_directive
-def api(default=None, module=None, **kwargs):
+def api(default=None, api=None, **kwargs):
     """Returns the api instance in which this API function is being ran"""
-    return getattr(module, '__hug__', default)
+    return api if api else default
 
 
 @_built_in_directive

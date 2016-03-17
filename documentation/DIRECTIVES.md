@@ -44,4 +44,61 @@ hug provides a handful of directives for commonly needed attributes:
  - hug.directives.user (hug_user): Passes along the user object associated with the request
  - hug.directives.CurrentAPI (hug_current_api): Passes along a smart version aware API caller, to enable calling other functions within your API with reissurence the correct function is being called for the version of the API being requested
 
+Building custom directives
+===================
 
+hug provides the `@hug.directive()` to enable creation of new directives. It takes one argument: apply_globally which defaults to False.
+If you set this parameter to True the hug directive will be automatically made available as a magic `hug_` argument on all endpoints outside of just your defined API. This is not a concern if your applying directives via type annotation.
+
+The most basic directive will simply take an optional default value, and **kwargs:
+
+    @hug.directive()
+    def basic(default=False, **kwargs):
+        return str(default) + ' there!'
+
+
+This directive could then be used like this:
+
+    @hug.local()
+    def endpoint(hug_basic='hi'):
+        return hug_basic
+
+    assert endpoint() == 'hi there!'
+
+It's important to always accept **kwargs for directive functions as each interface get's to decide it's own set of
+key word arguments to send to the directive, which can then be used to pull-in information for the directive.
+
+Common directive key word parameters
+===================
+
+Independ of what interface a directive is being ran through, the following key word arguments will be passed to it:
+
+ - `interface` - the interface that the directive is being ran through. Useful for conditionally injecting different data via the decorator depending on the interface it is being called through:
+
+    @directive()
+    def my_directive(default=None, interface=None, **kwargs):
+        if interface == hug.interface.CLI:
+            return 'CLI specific'
+        elif interface == hug.interface.HTTP:
+            return 'HTTP specific'
+        elif interface == hug.interface.Local:
+            return 'Local'
+
+        return 'unknown'
+ - `api` - the API singleton associated with this endpoint
+
+HTTP directive key word parameters
+===================
+
+Directives are passed the following additional keyword parameters when they are being ran through an HTTP interface:
+
+ - `response`: The HTTP response object that will be returned for this request
+ - `request`: The HTTP request object that caused this interface to be called
+ - `api_version`: The version of the endpoint being hit
+
+CLI directive key word parameters
+===================
+
+Directives get one additional argument when they are being ran through a command line interface:
+
+ - `argparse`: The argparse instance created to parse command line arguments
