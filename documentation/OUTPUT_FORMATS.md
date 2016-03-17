@@ -54,15 +54,14 @@ hug provides a large catolog of built in output formats that can be used to buil
  - `hug.output_format.image(format)`: Outputs an image (of the specified format)
     - There are convience calls in the form `hug.output_format.{FORMAT}_image for the following image types: 'png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
                'cur', 'dcx', 'fli', 'flc', 'gbr', 'gd', 'ico', 'icns', 'imt', 'iptc', 'naa', 'mcidas', 'mpo', 'pcd',
-               'psd', 'sgi', 'tga', 'wal', 'xpm', and 'svg'
-    - Automatically works on returned file names, streams, or objects that produce an image on read, save, or render
+               'psd', 'sgi', 'tga', 'wal', 'xpm', and 'svg'.
+    Automatically works on returned file names, streams, or objects that produce an image on read, save, or render
 
  - `hug.output_format.video(video_type, video_mime, doc)`: Streams a video back to the user in the specified format
-    - There are convience calls in the form `hug.output_format.{FORMAT}_video for the following video types: 'flv', 'mp4', 'm3u8', 'ts', '3gp', 'mov', 'avi', and 'wmv'
-    - Automatically works on returned file names, streams, or objects that produce a video on read, save, or render
+    - There are convience calls in the form `hug.output_format.{FORMAT}_video for the following video types: 'flv', 'mp4', 'm3u8', 'ts', '3gp', 'mov', 'avi', and 'wmv'.
+    Automatically works on returned file names, streams, or objects that produce a video on read, save, or render
 
- - `hug.output_format.file`: Will dynamically determine and stream a file based on its content
-    - Automatically works on returned file names and streams
+ - `hug.output_format.file`: Will dynamically determine and stream a file based on its content. Automatically works on returned file names and streams
 
  - `hug.output_format.on_content_type(handlers={content_type: output_format}, default=None)`: Dynamically changes the output format based on the request content type
  - `hug.output_format.suffix(handlers={suffix: output_format}, default=None)`: Dynamically changes the output format based on a suffix at the end of the requested path
