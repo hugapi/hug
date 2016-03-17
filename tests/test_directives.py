@@ -139,7 +139,7 @@ def test_session_directive():
     def session_data(hug_session):
         return hug_session
 
-    assert session_data() == None
+    assert session_data() is None
     assert hug.test.get(api, 'session_data').data == {'test': 'data'}
 
 
