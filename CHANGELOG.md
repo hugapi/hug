@@ -12,7 +12,7 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
-### 2.0.0 (in development)
+### 2.0.0
 - Adds the concept of chain-able routing decorators
 - Adds built-in static file handling support via a `@hug.static` decorator (thanks @BrandonHoffman!)
 - Adds a directive to enable directly accessing the user object from any API call (thanks @ianthetechie)
