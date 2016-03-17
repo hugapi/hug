@@ -114,6 +114,7 @@ def test_current_api():
     with pytest.raises(AttributeError):
         hug.test.get(api, 'v3/version_call_tester').data
 
+
 def test_user():
     """Ensure that it's possible to get the current authenticated user based on a directive"""
     user = 'test_user'
@@ -125,6 +126,21 @@ def test_user():
 
     token = b64encode('{0}:{1}'.format(user, password).encode('utf8')).decode('utf8')
     assert hug.test.get(api, 'authenticated_hello', headers={'Authorization': 'Basic {0}'.format(token)}).data == user
+
+
+def test_session_directive():
+    """Ensure that it's possible to retrieve the session withing a request using the built-in session directive"""
+    @hug.request_middleware()
+    def add_session(request, response):
+        request.context['session'] = {'test': 'data'}
+
+    @hug.local()
+    @hug.get()
+    def session_data(hug_session):
+        return hug_session
+
+    assert session_data() == None
+    assert hug.test.get(api, 'session_data').data == {'test': 'data'}
 
 
 def test_named_directives():

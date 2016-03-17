@@ -1,8 +1,8 @@
-"""hug/_version.py
+"""tests/constants.py.
 
-Defines hug version information
+Provides constants for the test runner.
 
-Copyright (C) 2016  Timothy Edmund Crosley
+Copyright (C) 2016 Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -19,6 +19,9 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from __future__ import absolute_import
 
-current = "2.0.0"
+import os
+
+
+TEST_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+BASE_DIRECTORY = os.path.realpath(os.path.join(TEST_DIRECTORY, '..'))

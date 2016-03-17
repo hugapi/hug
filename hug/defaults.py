@@ -38,5 +38,7 @@ directives = {
     'module': hug.directives.module,
     'current_api': hug.directives.CurrentAPI,
     'api_version': hug.directives.api_version,
-    'user': hug.directives.user
+    'user': hug.directives.user,
+    'session': hug.directives.session,
+    'documentation': hug.directives.documentation
 }

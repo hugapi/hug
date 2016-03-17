@@ -1,4 +1,4 @@
-![HUG](https://raw.github.com/timothycrosley/hug/develop/artwork/logo.png)
+[![HUG](https://raw.github.com/timothycrosley/hug/develop/artwork/logo.png)](http://hug.rest)
 ===================
 
 [![PyPI version](https://badge.fury.io/py/hug.svg)](http://badge.fury.io/py/hug)
@@ -7,26 +7,28 @@
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/hug/)
 [![Join the chat at https://gitter.im/timothycrosley/hug](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/timothycrosley/hug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Hug aims to make developing Python driven APIs as simple as possible, but no simpler. As a result, it drastically simplifies Python API development.
+NOTE: For more in-depth documentation visit [hug's website](http://www.hug.rest)
 
-Hug's Design Objectives:
+hug aims to make developing Python driven APIs as simple as possible, but no simpler. As a result, it drastically simplifies Python API development.
+
+hug's Design Objectives:
 
 - Make developing a Python driven API as succinct as a written definition.
 - The framework should encourage code that self-documents.
 - It should be fast. Never should a developer feel the need to look somewhere else for performance reasons.
-- Writing tests for APIs written on-top of Hug should be easy and intuitive.
+- Writing tests for APIs written on-top of hug should be easy and intuitive.
 - Magic done once, in an API framework, is better than pushing the problem set to the user of the API framework.
 - Be the basis for next generation Python APIs, embracing the latest technology.
 
-As a result of these goals Hug is Python3+ only and uses Falcon under the cover to quickly handle requests.
+As a result of these goals hug is Python3+ only and uses Falcon under the cover to quickly handle requests.
 
 [![HUG Hello World Example](https://raw.github.com/timothycrosley/hug/develop/artwork/example.gif)](https://github.com/timothycrosley/hug/blob/develop/examples/hello_world.py)
 
 
-Installing Hug
+Installing hug
 ===================
 
-Installing Hug is as simple as:
+Installing hug is as simple as:
 
 ```bash
 pip3 install hug --upgrade
@@ -41,7 +43,7 @@ Basic Example API
 `happy_birthday.py`
 
 ```py
-"""A basic (single function) API written using Hug"""
+"""A basic (single function) API written using hug"""
 import hug
 
 
@@ -57,10 +59,10 @@ To run the example:
 hug -f happy_birthday.py
 ```
 
-Then you can access the example from `localhost:8000/happy_birthday?name=Hug&age=1` Or access the documentation for your API from `localhost:8000/documentation`
+Then you can access the example from `localhost:8000/happy_birthday?name=hug&age=1` Or access the documentation for your API from `localhost:8000/documentation`
 
 
-Versioning with Hug
+Versioning with hug
 ===================
 
 `versioning_example.py`
@@ -87,13 +89,13 @@ hug -f versioning_example.py
 
 Then you can access the example from `localhost:8000/v1/echo?text=Hi` / `localhost:8000/v2/echo?text=Hi` Or access the documentation for your API from `localhost:8000`
 
-Note: versioning in Hug automatically supports both the version header as well as direct URL based specification.
+Note: versioning in hug automatically supports both the version header as well as direct URL based specification.
 
 
-Testing Hug APIs
+Testing hug APIs
 ===================
 
-Hug's `http` method decorators don't modify your original functions. This makes testing Hug APIs as simple as testing any other Python functions. Additionally, this means interacting with your API functions in other Python code is as straight forward as calling Python only API functions. Additionally, Hug makes it easy to test the full Python stack of your API by using the `hug.test` module:
+hug's `http` method decorators don't modify your original functions. This makes testing hug APIs as simple as testing any other Python functions. Additionally, this means interacting with your API functions in other Python code is as straight forward as calling Python only API functions. Additionally, hug makes it easy to test the full Python stack of your API by using the `hug.test` module:
 
 ```py
 import hug
@@ -103,10 +105,10 @@ hug.test.get(happy_birthday, 'happy_birthday', {'name': 'Timothy', 'age': 25}) #
 ```
 
 
-Running Hug with other WSGI based servers
+Running hug with other WSGI based servers
 ===================
 
-Hug exposes a `__hug_wsgi__` magic method on every API module automatically. Running your Hug based API on any standard wsgi server should be as simple as pointing it to `module_name`: `__hug_wsgi__`.
+hug exposes a `__hug_wsgi__` magic method on every API module automatically. Running your hug based API on any standard wsgi server should be as simple as pointing it to `module_name`: `__hug_wsgi__`.
 
 For Example:
 
@@ -114,23 +116,23 @@ For Example:
 uwsgi --http 0.0.0.0:8000 --wsgi-file examples/hello_world.py --callable __hug_wsgi__
 ```
 
-To run the hello world Hug example API.
+To run the hello world hug example API.
 
 
-Building Blocks of a Hug API
+Building Blocks of a hug API
 ===================
 
-When Building an API using the Hug framework you'll use the following concepts:
+When Building an API using the hug framework you'll use the following concepts:
 
 **METHOD Decorators** `get`, `post`, `update`, etc HTTP method decorators that expose your Python function as an API while keeping your Python method unchanged
 
 ```py
-@hug.get() # <- Is the Hug METHOD decorator
+@hug.get() # <- Is the hug METHOD decorator
 def hello_world():
     return "Hello"
 ```
 
-Hug uses the structure of the function you decorate to automatically generate documentation for users of your API. Hug always passes a request, response, and api_version variable to your function if they are defined params in your function definition.
+hug uses the structure of the function you decorate to automatically generate documentation for users of your API. hug always passes a request, response, and api_version variable to your function if they are defined params in your function definition.
 
 **Type Annotations** functions that optionally are attached to your methods arguments to specify how the argument is validated and converted into a Python type
 
@@ -140,7 +142,7 @@ def math(number_1:int, number_2:int): #The :int after both arguments is the Type
     return number_1 + number_2
 ```
 
-Type annotations also feed into Hug's automatic documentation generation to let users of your API know what data to supply.
+Type annotations also feed into hug's automatic documentation generation to let users of your API know what data to supply.
 
 
 **Directives** functions that get executed with the request / response data based on being requested as an argument in your api_function.
@@ -212,7 +214,7 @@ def my_input_formatter(data):
 Input formatters are mapped based on the `content_type` of the request data, and only perform basic parsing. More detailed parsing should be done by the Type Annotations present on your `api_function`
 
 
-**Middleware** functions that get called for every request a Hug API processes
+**Middleware** functions that get called for every request a hug API processes
 
 ```py
 @hug.request_middleware()
@@ -234,7 +236,7 @@ __hug__.http.add_middleware(MiddlewareObject())
 Splitting APIs over multiple files
 ===================
 
-Hug enables you to organize large projects in any manner you see fit. You can import any module that contains Hug decorated functions (request handling, directives, type handlers, etc) and extend your base API with that module.
+hug enables you to organize large projects in any manner you see fit. You can import any module that contains hug decorated functions (request handling, directives, type handlers, etc) and extend your base API with that module.
 
 For example:
 
@@ -273,15 +275,15 @@ __hug__.extend(something, '/something')
 ```
 
 
-Configuring Hug 404
+Configuring hug 404
 ===================
 
-By default, Hug returns an auto generated API spec when a user tries to access an endpoint that isn't defined. If you would not like to return this spec you can turn off 404 documentation:
+By default, hug returns an auto generated API spec when a user tries to access an endpoint that isn't defined. If you would not like to return this spec you can turn off 404 documentation:
 
 From the command line application:
 
 ```bash
-hug -nd -f {file} #nd flag tells Hug not to generate documentation on 404
+hug -nd -f {file} #nd flag tells hug not to generate documentation on 404
 ```
 
 Additionally, you can easily create a custom 404 handler using the `hug.not_found` decorator:
@@ -292,7 +294,7 @@ def not_found_handler():
     return "Not Found"
 ```
 
-This decorator works in the same manner as the Hug HTTP method decorators, and is even version aware:
+This decorator works in the same manner as the hug HTTP method decorators, and is even version aware:
 
 ```py
 @hug.not_found(versions=1)
@@ -305,7 +307,7 @@ def not_found_handler():
 ```
 
 
-Why Hug?
+Why hug?
 ===================
 
 HUG simply stands for Hopefully Useful Guide. This represents the projects goal to help guide developers into creating well written and intuitive APIs.

@@ -244,7 +244,8 @@ class Local(Interface):
                 if parameter in kwargs:
                     continue
                 arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
-                kwargs[parameter] = directive(*arguments, module=self.api.module, api_version=self.version)
+                kwargs[parameter] = directive(*arguments, api=self.api, api_version=self.version,
+                                              interface=self)
 
         if not getattr(self, 'skip_validation', False):
             errors = self.validate(kwargs)
@@ -355,7 +356,8 @@ class CLI(Interface):
         pass_to_function = vars(self.parser.parse_known_args()[0])
         for option, directive in self.directives.items():
             arguments = (self.defaults[option], ) if option in self.defaults else ()
-            pass_to_function[option] = directive(*arguments, module=self.api.module)
+            pass_to_function[option] = directive(*arguments, api=self.api, argparse=self.parser,
+                                                 interface=self)
 
         if getattr(self, 'validate_function', False):
             errors = self.validate_function(pass_to_function)
@@ -427,7 +429,7 @@ class HTTP(Interface):
         for parameter, directive in self.directives.items():
             arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
             input_parameters[parameter] = directive(*arguments, response=response, request=request,
-                                                    module=self.api.module, api_version=api_version)
+                                                    api=self.api, api_version=api_version, interface=self)
 
         return input_parameters
 
