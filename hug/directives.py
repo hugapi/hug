@@ -84,6 +84,18 @@ def documentation(default=None, api_version=None, module=None, **kwargs):
 
 
 @_built_in_directive
+def session(context_name='session', request=None, **kwargs):
+    """Returns the session associated with the current request"""
+    return request and request.context.get(context_name, None)
+
+
+@_built_in_directive
+def user(default=None, request=None, **kwargs):
+    """Returns the current logged in user"""
+    return request and request.context.get('user', None) or default
+
+
+@_built_in_directive
 class CurrentAPI(object):
     """Returns quick access to all api functions on the current version of the api"""
     __slots__ = ('api_version', 'api')
@@ -106,8 +118,3 @@ class CurrentAPI(object):
             function = partial(function, hug_current_api=self)
 
         return function
-
-@_built_in_directive
-def user(default=None, request=None, **kwargs):
-    """Returns the current logged in user"""
-    return request.context.get('user')
