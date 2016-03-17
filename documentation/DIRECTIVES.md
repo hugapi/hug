@@ -85,6 +85,7 @@ Independ of what interface a directive is being ran through, the following key w
             return 'Local'
 
         return 'unknown'
+
  - `api` - the API singleton associated with this endpoint
 
 HTTP directive key word parameters
