@@ -1,8 +1,8 @@
-"""hug/exceptions.py
+"""tests/test_store.py.
 
-Defines the custom exceptions that are part of, and support
+Tests to ensure that the native stores work correctly.
 
-Copyright (C) 2016  Timothy Edmund Crosley
+Copyright (C) 2016 Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -19,20 +19,33 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from __future__ import absolute_import
+import pytest
+
+from hug.exceptions import StoreKeyNotFound
+from hug.store import InMemoryStore
 
 
-class InvalidTypeData(Exception):
-    """Should be raised when data passed in doesn't match a types expectations"""
-    def __init__(self, message, reasons=None):
-        self.message = message
-        self.reasons = reasons
+stores_to_test = [
+    InMemoryStore()
+]
 
 
-class StoreKeyNotFound(Exception):
-    """Should be raised when a store key has not been found inside a store"""
+@pytest.mark.parametrize('store', stores_to_test)
+def test_stores_generically(store):
+    key = 'test-key'
+    data = {
+        'user': 'foo',
+        'authenticated': False
+    }
 
+    # Key should not exist
+    assert not store.exists(key)
 
-class SessionNotFound(StoreKeyNotFound):
-    """Should be raised when a session ID has not been found inside a session store"""
-    pass
+    # Set key with custom data, verify the key exists and expect correct data to be returned
+    store.set(key, data)
+    assert store.exists(key)
+    assert store.get(key) == data
+
+    # Expect exception if unknown session key was requested
+    with pytest.raises(StoreKeyNotFound):
+        store.get('unknown')
