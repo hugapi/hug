@@ -33,7 +33,8 @@ Remember that you can also always use route chaining to specify an output format
 
 Finally, it's perfectly valid for an output format to in essence be a collection of other output format's that get conditionally used. For example using the built in suffix output format:
 
-    suffix_output = hug.output_format.suffix({'.js': hug.output_format.json, '.html':hug.output_format.html})
+    suffix_output = hug.output_format.suffix({'.js': hug.output_format.json,
+                                              '.html':hug.output_format.html})
 
     @hug.get(('my_endpoint.js', 'my_endoint.html'), output=suffix_output)
     def my_endpoint():
