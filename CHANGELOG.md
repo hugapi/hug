@@ -13,7 +13,7 @@ Changelog
 =========
 
 ### 2.0.1
-- Add in-memory session store_true
+- Add in-memory data / session store for testing
 - Default hug.use.HTTP to communicate over JSON body
 
 ### 2.0.0
