@@ -23,6 +23,7 @@ from falcon.request import SimpleCookie
 import hug
 from hug.exceptions import SessionNotFound
 from hug.middleware import LogMiddleware, SessionMiddleware
+from hug.store import InMemoryStore
 
 api = hug.API(__name__)
 
@@ -31,22 +32,6 @@ __hug__ = __hug__  # noqa
 
 
 def test_session_middleware():
-    class TestSessionStore(object):
-        def __init__(self):
-            self.sessions = {}
-
-        def get(self, sid):
-            data = self.sessions.get(sid, None)
-            if data is None:
-                raise SessionNotFound
-            return data
-
-        def exists(self, sid):
-            return sid in self.sessions
-
-        def set(self, sid, data):
-            self.sessions[sid] = data
-
     @hug.get()
     def count(request):
         session = request.context['session']
@@ -59,7 +44,7 @@ def test_session_middleware():
         return {morsel.key: morsel.value for morsel in simple_cookie.values()}
 
     # Add middleware
-    session_store = TestSessionStore()
+    session_store = InMemoryStore()
     middleware = SessionMiddleware(session_store, cookie_name='test-sid')
     __hug__.http.add_middleware(middleware)
 
@@ -70,20 +55,20 @@ def test_session_middleware():
     # Assert session cookie has been set and session exists in session store
     assert 'test-sid' in cookies
     sid = cookies['test-sid']
-    assert sid in session_store.sessions
-    assert session_store.sessions[sid] == {'counter': 1}
+    assert session_store.exists(sid)
+    assert session_store.get(sid) == {'counter': 1}
 
     # Assert session persists throughout the requests
     headers = {'Cookie': 'test-sid={}'.format(sid)}
     assert hug.test.get(api, '/count', headers=headers).data == 2
-    assert session_store.sessions[sid] == {'counter': 2}
+    assert session_store.get(sid) == {'counter': 2}
 
     # Assert a non-existing session cookie gets ignored
     headers = {'Cookie': 'test-sid=foobarfoo'}
     response = hug.test.get(api, '/count', headers=headers)
     cookies = get_cookies(response)
     assert response.data == 1
-    assert 'foobarfoo' not in session_store.sessions
+    assert not session_store.exists('foobarfoo')
     assert cookies['test-sid'] != 'foobarfoo'
 
 

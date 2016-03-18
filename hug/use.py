@@ -95,7 +95,7 @@ class HTTP(Service):
     __slots__ = ('endpoint', 'session', 'json_transport')
 
     def __init__(self, endpoint, auth=None, version=None, headers=empty.dict, timeout=None, raise_on=(500, ),
-                 json_transport=False, **kwargs):
+                 json_transport=True, **kwargs):
         super().__init__(timeout=timeout, raise_on=raise_on, version=version, **kwargs)
         self.endpoint = endpoint
         self.session = requests.Session()

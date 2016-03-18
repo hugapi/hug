@@ -29,6 +29,10 @@ class InvalidTypeData(Exception):
         self.reasons = reasons
 
 
-class SessionNotFound(Exception):
+class StoreKeyNotFound(Exception):
+    """Should be raised when a store key has not been found inside a store"""
+
+
+class SessionNotFound(StoreKeyNotFound):
     """Should be raised when a session ID has not been found inside a session store"""
     pass

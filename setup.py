@@ -88,7 +88,7 @@ except (IOError, ImportError, OSError, RuntimeError):
    readme = ''
 
 setup(name='hug',
-      version='2.0.0',
+      version='2.0.1',
       description='A Python framework that makes developing APIs as simple as possible, but no simpler.',
       long_description=readme,
       author='Timothy Crosley',
