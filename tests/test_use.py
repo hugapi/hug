@@ -176,11 +176,6 @@ class TestSocket(object):
         assert self.tcp_service.connection.sockopts == {(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
                                                        (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)}
 
-    def test_request(self):
-        """Test to ensure requesting data from a socket service works as expected"""
-        data = self.tcp_service.request(message='GET / HTTP/1.0\r\n\r\n', timeout=60).data.read()
-        assert b' '.join(data.split()[:2]) == b'HTTP/1.0 200'
-
     def test_datagram_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
         packet = struct.pack("!HHHHHH", 0x0001, 0x0100, 1, 0, 0, 0)

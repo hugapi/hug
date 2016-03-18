@@ -3,4 +3,5 @@ include = hug/*.py
 exclude_lines = def hug
                 def serve
                 sys.stdout.buffer.write
+                class Socket
 
