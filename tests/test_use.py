@@ -92,26 +92,25 @@ class TestService(object):
 
 class TestHTTP(object):
     """Test to ensure the HTTP Service object enables pulling data from external HTTP services"""
-    service = use.HTTP('http://www.google.com/', raise_on=404)
-    json_service = use.HTTP('http://www.google.com/', raise_on=404, transport_json=True)
+    service = use.HTTP('http://www.google.com/', raise_on=(404, 400))
+    url_service = use.HTTP('http://www.google.com/', raise_on=(404, 400), json_transport=False)
 
     def test_init(self):
         """Test to ensure HTTP service instantiation populates expected attributes"""
         assert self.service.endpoint == 'http://www.google.com/'
-        assert self.service.raise_on == (404, )
+        assert self.service.raise_on == (404, 400)
 
     def test_request(self):
         """Test so ensure the HTTP service can successfully be used to pull data from an external service"""
-        response = self.service.request('GET', 'search', query='api')
-        assert response
-        assert response.data
-
-        response = self.json_service.request('GET', 'search', query='api')
+        response = self.url_service.request('GET', 'search', query='api')
         assert response
         assert response.data
 
         with pytest.raises(requests.HTTPError):
-            self.service.request('GET', 'not_found', query='api')
+            response = self.service.request('GET', 'search', query='api')
+
+        with pytest.raises(requests.HTTPError):
+            self.url_service.request('GET', 'not_found', query='api')
 
 
 class TestLocal(object):
