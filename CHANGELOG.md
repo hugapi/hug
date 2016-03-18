@@ -12,6 +12,10 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
+### 2.0.1
+- Add in-memory session store_true
+- Default hug.use.HTTP to communicate over JSON body
+
 ### 2.0.0
 - Adds the concept of chain-able routing decorators
 - Adds built-in static file handling support via a `@hug.static` decorator (thanks @BrandonHoffman!)
