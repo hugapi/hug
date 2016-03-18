@@ -21,6 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import struct
+import socket
 
 import pytest
 import requests
@@ -137,8 +138,7 @@ class TestLocal(object):
 
 class TestSocket(object):
     """Test to ensure the Socket Service object enables sending/receiving data from arbitrary server/port sockets"""
-    import socket
-    tcp_service = use.Socket(connect_to=('www.purple.com', 80), proto='tcp', timeout=60)
+    tcp_service = use.Socket(connect_to=('www.google.com', 80), proto='tcp', timeout=60)
     udp_service = use.Socket(connect_to=('8.8.8.8', 53), proto='udp', timeout=60)
 
     def test_init(self):
@@ -157,7 +157,7 @@ class TestSocket(object):
         assert self.tcp_service.datagrams == ('udp', 'unix_dgram')
 
     def test_connection(self):
-        assert self.tcp_service.connection.connect_to == ('www.purple.com', 80)
+        assert self.tcp_service.connection.connect_to == ('www.google.com', 80)
         assert self.tcp_service.connection.proto == 'tcp'
         assert self.tcp_service.connection.sockopts == set()
 
@@ -167,19 +167,19 @@ class TestSocket(object):
 
     def test_connection_sockopts_unit(self):
         self.tcp_service.connection.sockopts.clear()
-        self.tcp_service.setsockopt(self.socket.SOL_SOCKET, self.socket.SO_KEEPALIVE, 1)
-        assert self.tcp_service.connection.sockopts == {(self.socket.SOL_SOCKET, self.socket.SO_KEEPALIVE, 1)}
+        self.tcp_service.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        assert self.tcp_service.connection.sockopts == {(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)}
 
     def test_connection_sockopts_batch(self):
-        self.tcp_service.setsockopt(((self.socket.SOL_SOCKET, self.socket.SO_KEEPALIVE, 1),
-                                 (self.socket.SOL_SOCKET, self.socket.SO_REUSEADDR, 1)))
-        assert self.tcp_service.connection.sockopts == {(self.socket.SOL_SOCKET, self.socket.SO_KEEPALIVE, 1),
-                                                       (self.socket.SOL_SOCKET, self.socket.SO_REUSEADDR, 1)}
+        self.tcp_service.setsockopt(((socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
+                                 (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)))
+        assert self.tcp_service.connection.sockopts == {(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
+                                                       (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)}
 
     def test_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
-        data = self.tcp_service.request(message='GET / HTTP/1.0\r\n\r\n', timeout=30).data.read()
-        assert b' '.join(data.split()[:2]) == b'HTTP/1.1 200'
+        data = self.tcp_service.request(message='GET / HTTP/1.0\r\n\r\n', timeout=60).data.read()
+        assert b' '.join(data.split()[:2]) == b'HTTP/1.0 200'
 
     def test_datagram_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
