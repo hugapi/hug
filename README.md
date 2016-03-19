@@ -34,7 +34,7 @@ Installing hug is as simple as:
 pip3 install hug --upgrade
 ```
 
-Ideally, within a virtual environment.
+Ideally, within a [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
 
 Basic Example API
