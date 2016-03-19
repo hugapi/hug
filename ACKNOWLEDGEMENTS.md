@@ -36,6 +36,7 @@ Documenters
 - Matt Caldwell (@mattcaldwell)
 - berdario (@berdario)
 - Cory Taylor (@coryandrewtaylor)
+- James C. (@Jammy4312)
 
 --------------------------------------------
 
