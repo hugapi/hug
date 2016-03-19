@@ -65,9 +65,8 @@ You can access the example in your browser at: `localhost:8000/happy_birthday?na
 Versioning with hug
 ===================
 
-`versioning_example.py`
-
 ```py
+# filename: versioning_example.py
 """A simple example of a hug API call with versioning"""
 import hug
 
