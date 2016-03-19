@@ -72,3 +72,27 @@ If you simply want to perform additional conversion after a base type is finishe
         """My new documentation"""
         if value != 42:
             raise ValueError('Value is not the answer to everything.')
+
+
+Marshmallow integration
+=======================
+
+[Marshmallow](https://marshmallow.readthedocs.org/en/latest/) is an advanced serialization, deserialization, and validation library. Hug supports using marshmallow fields and schemas as input types.
+
+Here is a simple example of an API that does datetime addition.
+
+
+    import datetime as dt
+
+    import hug
+    from marshmallow import fields
+    from marshmallow.validate import Range
+
+
+    @hug.get('/dateadd', examples="value=1973-04-10&addend=63")
+    def dateadd(value: fields.DateTime(),
+                addend: fields.Int(validate=Range(min=1))):
+        """Add a value to a date."""
+        delta = dt.timedelta(days=addend)
+        result = value + delta
+        return {'result': result}
