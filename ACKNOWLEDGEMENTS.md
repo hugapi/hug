@@ -37,6 +37,7 @@ Documenters
 - berdario (@berdario)
 - Cory Taylor (@coryandrewtaylor)
 - James C. (@Jammy4312)
+- Ally Weir (@allyjweir)
 
 --------------------------------------------
 
