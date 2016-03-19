@@ -1,11 +1,11 @@
 Type annotations in hug
-===================
+=======================
 
 hug leverages Python3 type annotations for validation and API specification. Within the context of hug, annotations should be set to one of 4 things:
 
  - A cast function, built-in, or your own (str, int, etc) that takes a value casts it and then returns it, raising an exception if it is not in a format that can be cast into the desired type
  - A hug type (hug.types.text, hug.types.number, etc.). These are essentially built-in cast functions that provide more contextual information, and good default error messages
- - A Marshmallow type and/or schema. In hug 2.0.0 Marshmallow is a first class citizen in hug, and all fields and schemas defined in this framework can be used in hug directly as type annotations
+ - A [marshmallow](https://marshmallow.readthedocs.org/en/latest/) type and/or schema. In hug 2.0.0 Marshmallow is a first class citizen in hug, and all fields and schemas defined with it can be used in hug as type annotations
  - A string. When a basic Python string is set as the type annotation it is used by hug to generate documentation, but does not get applied during the validation phase
 
 For example:
@@ -17,14 +17,14 @@ For example:
     def hello(first_name: hug.types.text, last_name: 'Family Name', age: int):
         print("Hi {0} {1}!".format(first_name, last_name)
 
-Is a valid hug endpoint.
+is a valid hug endpoint.
 
-Anytime a type annotation raises an exception during casting of a type it is seen as a failure, otherwise the cast is assumed succesfull with the returned type replacing the passed in parameter. By default all errors are collected in an errors dictionary and returned as the output of the endpoint before the routed function ever gets called. To change how errors are returned you can transform them via the `on_invalid` route option, and specify a specific output format for errors by specifying the `output_invalid` route option. Or, if you prefer, you can keep hug from handling the validation errors at all by passing in `raise_on_invalid=True` to the route.
+Any time a type annotation raises an exception during casting of a type, it is seen as a failure. Otherwise the cast is assumed successful with the returned type replacing the passed-in parameter. By default, all errors are collected in an errors dictionary and returned as the output of the endpoint before the routed function ever gets called. To change how errors are returned you can transform them via the `on_invalid` route option, and specify a specific output format for errors by specifying the `output_invalid` route option. Or, if you prefer, you can keep hug from handling the validation errors at all by passing in `raise_on_invalid=True` to the route.
 
 Built in hug types
-===================
+==================
 
-hug provides several built in types for common API use cases:
+hug provides several built-in types for common API use cases:
 
  - `number`: Validates that a whole number was passed in
  - `float_number`: Validates that a valid floating point number was passed in
@@ -44,10 +44,10 @@ hug provides several built in types for common API use cases:
  - `length(lower, upper, convert=text)`: Accepts a a value that is withing a specific length limit
  - `shorter_than(limit, convert=text)`: Accepts a text value shorter than the specified length limit
  - `longer_than(limit, convert=text)`: Accepts a value up to the specified limit
- - `cutt_off(limit, convert=text)`: Cuts off the provided value at the specified index
+ - `cut_off(limit, convert=text)`: Cuts off the provided value at the specified index
 
 Extending and creating new hug types
-===================
+====================================
 
 The most obvious way to extend a hug type is to simply inherit from the base type defined in `hug.types` and then override `__call__` to override how the cast function, or override `__init__` to override what parameters the type takes:
 
