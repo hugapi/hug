@@ -47,3 +47,8 @@ class InMemoryStore:
     def set(self, key, data):
         """Set data object for given store key."""
         self._data[key] = data
+
+    def delete(self, key):
+        """Delete data for given store key."""
+        if key in self._data:
+            del self._data[key]

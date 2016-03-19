@@ -49,3 +49,7 @@ def test_stores_generically(store):
     # Expect exception if unknown session key was requested
     with pytest.raises(StoreKeyNotFound):
         store.get('unknown')
+
+    # Delete key
+    store.delete(key)
+    assert not store.exists(key)
