@@ -20,7 +20,7 @@ hug's Design Objectives:
 - Magic done once, in an API framework, is better than pushing the problem set to the user of the API framework.
 - Be the basis for next generation Python APIs, embracing the latest technology.
 
-As a result of these goals hug is Python3+ only and uses Falcon under the cover to quickly handle requests.
+As a result of these goals, hug is Python 3+ only and built upon [Falcon's](https://github.com/falconry/falcon) high performance HTTP library
 
 [![HUG Hello World Example](https://raw.github.com/timothycrosley/hug/develop/artwork/example.gif)](https://github.com/timothycrosley/hug/blob/develop/examples/hello_world.py)
 
