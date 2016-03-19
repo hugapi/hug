@@ -1,5 +1,5 @@
 Routing in hug
-===================
+==============
 
 The most basic function of any framework meant to enable external interaction with an API, is routing how the external
 interaction will correspond to internal function calls and business logic. hug provides flexible and powerful routers
@@ -15,7 +15,7 @@ And, while hug uses functions in most of its examples, it supports applying rout
 and enable automatic argument supplying via directives.
 
 Using a router as a decorator
-===================
+=============================
 
 The most basic use case is to simply define the route directly above the function you need to expose as a decorator:
 
@@ -29,7 +29,7 @@ The most basic use case is to simply define the route directly above the functio
 This is clear, explicit, and obvious. As such, this is recommended for most basic APIs.
 
 Declaring a router separate from a function
-===================
+===========================================
 
 Sometimes, in more complex use-cases, it's necessary to define routing separate from where the code itself is defined.
 hug aims to make this as easy and intuitive as it can be:
@@ -63,7 +63,7 @@ Or, alternatively:
     hug.get('/home', api=api)(external.root)
 
 Chaining routers for easy re-use
-===================
+================================
 
 A very common scenerio when using hug routers, because they are so powerful, is duplication between routers.
 For instance: if you decide you want every route to return the 404 page when a validation error occurs or you want to
@@ -90,7 +90,7 @@ as a method on the existing router. Then you pass in any additional parameters y
 shown in the math example above.
 
 Common router parameters
-===================
+========================
 
 There are a few parameters that are shared between all router types, as they are globaly applicable to all currently supported interfaces:
 
@@ -100,9 +100,9 @@ There are a few parameters that are shared between all router types, as they are
  - `requires`: A list or single function that must all return `True` for the function to execute when called via this interface (commonly used for authentication)
 
 HTTP Routers
-===================
+============
 
-in addition to `hug.http` hug includes convience decorators for all common HTTP METHODS (`hug.connect`, `hug.delete`, `hug.get`, `hug.head`, `hug.options`, `hug.patch`, `hug.post`, `hug.put`, `hug.get_post` and `hug.trace`). These methods are functionally the same as calling `@hug.http(accept=(METHOD, )) and are otherwise identical to the http router.
+in addition to `hug.http` hug includes convience decorators for all common HTTP METHODS (`hug.connect`, `hug.delete`, `hug.get`, `hug.head`, `hug.options`, `hug.patch`, `hug.post`, `hug.put`, `hug.get_post` and `hug.trace`). These methods are functionally the same as calling `@hug.http(accept=(METHOD, ))` and are otherwise identical to the http router.
 
  - `urls`: A list of or a single URL that should be routed to the function. Supports defining variables withing the URL that will automatically be passed to the function when `{}` notation is found in the URL: `/website/{page}`. Defaults to the name of the function being routed to.
  - `accept`: A list of or a single HTTP METHOD value to accept. Defaults to all common HTTP methods.
@@ -119,25 +119,25 @@ in addition to `hug.http` hug includes convience decorators for all common HTTP 
 
 
 CLI Routing
-===================
+===========
 
 Any endpoint can also be exposed to the command line as well, using `@hug.cli`:
 
-  - `name`: The name that should execute the command from the command line. Defaults to the name of the function being routed
-  - `version`: The optional version associated with this command line application
+  - `name`: The name that should execute the command from the command line. Defaults to the name of the function being routed.
+  - `version`: The optional version associated with this command line application.
   - `doc`: Documentation to provide to users of this command line tool. Defaults to the functions doc string.
 
 
 Local Routing
-===================
+=============
 
 By default all hug APIs are already valid local APIs. However, sometimes it can be useful to apply type annotations and/or directives to local use as well. For these cases hug provides `@hug.local`:
 
- - `validate`: Apply type anntations to local use of the function. Defaults to `True`
- - `directives`: Apply directives to local use of the function. Defaults to `True`
- - `version`: Specify a version of the API for local use. If versions are being used, this generally should be the latest supported
+ - `validate`: Apply type annotations to local use of the function. Defaults to `True`.
+ - `directives`: Apply directives to local use of the function. Defaults to `True`.
+ - `version`: Specify a version of the API for local use. If versions are being used, this generally should be the latest supported.
  - `on_invalid`: A transformation function to run outputed data through, only if the request fails validation. Defaults to the endpoints specified general transform function, can be set to not run at all by setting to `None`.
  - `output_invalid`: Specifies an output format to attach to the endpoint only on the case that validation fails. Defaults to the endpoints specified output format.
- - `raise_on_invalid`: If set to true, instead of collecting validation errors in a dictionry, hug will simply raise them as they occur.
+ - `raise_on_invalid`: If set to `True`, instead of collecting validation errors in a dictionry, hug will simply raise them as they occur.
 
-NOTE: unlike all other routers, this does modify the function in place
+NOTE: unlike all other routers, this modifies the function in-place
