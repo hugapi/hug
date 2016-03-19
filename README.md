@@ -37,12 +37,12 @@ pip3 install hug --upgrade
 Ideally, within a [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
 
-Basic Example API
+Getting Started
 ===================
-
-`happy_birthday.py`
+Build an example API with a simple endpoint in just a few lines.
 
 ```py
+# filename: happy_birthday.py
 """A basic (single function) API written using hug"""
 import hug
 
@@ -53,13 +53,13 @@ def happy_birthday(name, age:hug.types.number=1):
     return "Happy {age} Birthday {name}!".format(**locals())
 ```
 
-To run the example:
+To run, from the command line type:
 
 ```bash
 hug -f happy_birthday.py
 ```
 
-Then you can access the example from `localhost:8000/happy_birthday?name=hug&age=1` Or access the documentation for your API from `localhost:8000/documentation`
+You can access the example in your browser at: `localhost:8000/happy_birthday?name=hug&age=1`. Then check out the documentation for your API at `localhost:8000/documentation`
 
 
 Versioning with hug
