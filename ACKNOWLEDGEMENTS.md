@@ -35,6 +35,7 @@ Documenters
 - Sven-Hendrik Haase (@svenstaro)
 - Matt Caldwell (@mattcaldwell)
 - berdario (@berdario)
+- Cory Taylor (@coryandrewtaylor)
 
 --------------------------------------------
 
