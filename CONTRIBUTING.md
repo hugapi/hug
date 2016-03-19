@@ -5,8 +5,8 @@ Want your contributions to be warmly welcomed and acknowledged?
 Want a free project t-shirt to show you're a contributor?
 Welcome! You have found the right place.
 
-hug is quickly growing and needs awesome contributors like *you* to help the project reach its full potential.
-From reporting issues, writing documentation, implementing new features, fixing bugs, creating logos, to providing additional usage examples - any contribution you can provide will be greatly appreciated and acknowledged.
+hug is growing quickly and needs awesome contributors like *you* to help the project reach its full potential.
+From reporting issues, writing documentation, implementing new features, fixing bugs and creating logos to providing additional usage examples - any contribution you can provide will be greatly appreciated and acknowledged.
 
 Getting hug set up for local development
 =========
@@ -19,7 +19,7 @@ Account Requirements:
 Base System Requirements:
 
 - Python3.3+
-- Python3-venv (included w/ most Python3 installations but some Ubuntu systems require that it be installed separately)
+- Python3-venv (included with most Python3 installations but some Ubuntu systems require that it be installed separately)
 - bash or a bash compatible shell (should be auto-installed on Linux / Mac)
 - [autoenv](https://github.com/kennethreitz/autoenv) (optional)
 
@@ -31,7 +31,7 @@ Once you have verified that you system matches the base requirements you can sta
 3. `cd hug`
     - If you have autoenv set-up correctly, simply press Y and then wait for the environment to be set up for you.
     - If you don't have autoenv set-up, run `source .env` to set up the local environment. You will need to run this script every time you want to work on the project - though it will not cause the entire set up process to re-occur.
-4. Run `test` to verify your everything is set up correctly. If the tests all pass, you have succesfully set up hug for local development! If not, you can ask for help diagnosing the error [here](https://gitter.im/timothycrosley/hug).
+4. Run `test` to verify your everything is set up correctly. If the tests all pass, you have successfully set up hug for local development! If not, you can ask for help diagnosing the error [here](https://gitter.im/timothycrosley/hug).
 
 Making a contribution
 =========
@@ -55,11 +55,11 @@ Getting a free t-shirt
 
 Once you have finished contributing to the project, send your mailing address and shirt size to timothy.crosley@gmail.com, with the title hug Shirt for @$GITHUB_USER_NAME.
 
-When the project has reached 100 contributers, I will be sending every one of the original hundred contributers a t-shirt to commemorate their awesome work.
+When the project has reached 100 contributors, I will be sending every one of the original hundred contributors a t-shirt to commemorate their awesome work.
 
 Thank you!
 =========
-I can not tell you how thankful I am for the hard work done by hug contributers like you. hug could not be the exciting and useful framework it is today without your help.
+I can not tell you how thankful I am for the hard work done by hug contributors like you. hug could not be the exciting and useful framework it is today without your help.
 
 Thank you!
 
