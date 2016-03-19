@@ -135,59 +135,58 @@ class TestLocal(object):
         with pytest.raises(requests.HTTPError):
             assert self.service.get('exception')
 
+if getattr(socket, 'AF_UNIX', False):
+    class TestSocket(object):
+        """Test to ensure the Socket Service object enables sending/receiving data from arbitrary server/port sockets"""
+        tcp_service = use.Socket(connect_to=('www.google.com', 80), proto='tcp', timeout=60)
+        udp_service = use.Socket(connect_to=('8.8.8.8', 53), proto='udp', timeout=60)
 
-class TestSocket(object):
-    """Test to ensure the Socket Service object enables sending/receiving data from arbitrary server/port sockets"""
-    tcp_service = use.Socket(connect_to=('www.google.com', 80), proto='tcp', timeout=60)
-    udp_service = use.Socket(connect_to=('8.8.8.8', 53), proto='udp', timeout=60)
+        def test_init(self):
+            """Test to ensure the Socket service instantiation populates the expected attributes"""
+            assert isinstance(self.tcp_service, use.Service)
 
-    def test_init(self):
-        """Test to ensure the Socket service instantiation populates the expected attributes"""
-        assert isinstance(self.tcp_service, use.Service)
+        def test_protocols(self):
+            """Test to ensure all supported protocols are present"""
+            protocols = sorted(['tcp', 'udp', 'unix_stream', 'unix_dgram'])
+            assert sorted(self.tcp_service.protocols) == protocols
 
-    def test_protocols(self):
-        """Test to ensure all supported protocols are present"""
-        protocols = sorted(['tcp', 'udp', 'unix_stream', 'unix_dgram'])
-        assert sorted(self.tcp_service.protocols) == protocols
+        def test_streams(self):
+            assert self.tcp_service.streams == ('tcp', 'unix_stream')
 
-    def test_streams(self):
-        assert self.tcp_service.streams == ('tcp', 'unix_stream')
+        def test_datagrams(self):
+            assert self.tcp_service.datagrams == ('udp', 'unix_dgram')
 
-    def test_datagrams(self):
-        assert self.tcp_service.datagrams == ('udp', 'unix_dgram')
+        def test_connection(self):
+            assert self.tcp_service.connection.connect_to == ('www.google.com', 80)
+            assert self.tcp_service.connection.proto == 'tcp'
+            assert self.tcp_service.connection.sockopts == set()
 
-    def test_connection(self):
-        assert self.tcp_service.connection.connect_to == ('www.google.com', 80)
-        assert self.tcp_service.connection.proto == 'tcp'
-        assert self.tcp_service.connection.sockopts == set()
+        def test_settimeout(self):
+            self.tcp_service.settimeout(60)
+            assert self.tcp_service.timeout == 60
 
-    def test_settimeout(self):
-        self.tcp_service.settimeout(60)
-        assert self.tcp_service.timeout == 60
+        def test_connection_sockopts_unit(self):
+            self.tcp_service.connection.sockopts.clear()
+            self.tcp_service.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+            assert self.tcp_service.connection.sockopts == {(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)}
 
-    def test_connection_sockopts_unit(self):
-        self.tcp_service.connection.sockopts.clear()
-        self.tcp_service.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        assert self.tcp_service.connection.sockopts == {(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)}
+        def test_connection_sockopts_batch(self):
+            self.tcp_service.setsockopt(((socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
+                                    (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)))
+            assert self.tcp_service.connection.sockopts == {(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
+                                                        (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)}
 
-    def test_connection_sockopts_batch(self):
-        self.tcp_service.setsockopt(((socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
-                                 (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)))
-        assert self.tcp_service.connection.sockopts == {(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
-                                                       (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)}
+        def test_datagram_request(self):
+            """Test to ensure requesting data from a socket service works as expected"""
+            packet = struct.pack("!HHHHHH", 0x0001, 0x0100, 1, 0, 0, 0)
+            for name in ('www', 'google', 'com'):
+                header = b"!b"
+                header += bytes(str(len(name)), "utf-8") + b"s"
+                query = struct.pack(header, len(name), name.encode('utf-8'))
+                packet = packet + query
 
-    def test_datagram_request(self):
-        """Test to ensure requesting data from a socket service works as expected"""
-        packet = struct.pack("!HHHHHH", 0x0001, 0x0100, 1, 0, 0, 0)
-        for name in ('www', 'google', 'com'):
-            header = b"!b"
-            header += bytes(str(len(name)), "utf-8") + b"s"
-            query = struct.pack(header, len(name), name.encode('utf-8'))
-            packet = packet + query
-
-        dns_query = packet + struct.pack("!bHH", 0, 1, 1)
-        assert len(self.udp_service.request(dns_query.decode("utf-8"), buffer_size=4096).data.read()) > 0
-
+            dns_query = packet + struct.pack("!bHH", 0, 1, 1)
+            assert len(self.udp_service.request(dns_query.decode("utf-8"), buffer_size=4096).data.read()) > 0
 
 
 @hug.get()
