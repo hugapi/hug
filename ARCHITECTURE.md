@@ -14,13 +14,13 @@ into hug have and will continue to support this goal.
 
 This central concept also frees hug to rely on the fastest and best of breed components for every interface it supports:
 
-- Falcon is leveraged when exposing to HTTP for it's impressive performance at this task
-- Argparse is leveraged when exposing to CLI for the clean consistent interaction it enables from the command line
+- [Falcon](https://github.com/falconry/falcon) is leveraged when exposing to HTTP for it's impressive performance at this task
+- [Argparse](https://docs.python.org/3/library/argparse.html) is leveraged when exposing to CLI for the clean consistent interaction it enables from the command line
 
 
 What this looks like in practice - an illustrative example
 ===================
-Let's say I have a very simple python API I've built to add 2 numbers together. I call my invention `addition`.
+Let's say I have a very simple Python API I've built to add 2 numbers together. I call my invention `addition`.
 Trust me, this is legit. It's trademarked and everything:
 
     """A simple API to enable adding two numbers together"""
@@ -81,7 +81,7 @@ It turns out, the problems and thoughts that go into defining a clean well docum
 
 What happened internally as I exposed my API to new interfaces?
 ===================
-A few things hapen when you wrapped that first function for external use, with hug.cli():
+A few things happen when you wrapped that first function for external use, with hug.cli():
 
 -   hug created a singleton hug.API object on your module to keep track of all interfaces that exist within the module
     - This is referable by `__hug__` or `hug.API(__name__)`
@@ -140,7 +140,7 @@ the base Python function.
     - All of hug's built-in directives are defined in hug/directives.py
 - Requires: hug requirements allow you to specify requirements that must be met only for specified interfaces.
     `@hug.get(requires=hug.authentication.basic(hug.authentication.verify('User1', 'mypassword')))`
-    - Causes the HTTP method to only succesfully call the Python function if User1 is logged in
+    - Causes the HTTP method to only successfully call the Python function if User1 is logged in
     - requirements are currently highly focused on authentication, and all existing require functions are defined in hug/authentication.py
 - Transformations: hug transformations enable changing the result of a function but only for the specified interface
     `@hug.get(transform=str)`
@@ -155,8 +155,8 @@ the base Python function.
 
 Switching from using a hug API over one interface to another
 ===================
-hug does it's best to also solve the other side of the coin: that is how APIs are used.
-Naturally, native Python will always be the fastest, however HTTP can provide attractive auto updating
+hug does its best to also solve the other side of the coin: that is how APIs are used.
+While native Python will always be the fastest, HTTP can provide attractive auto updating
 and clear responsibility separation benefits. You can interact with hug APIs via hug.use.[interface] if the ability
 to switch between these is a high priority for you. The code that enables this is found in `hug/use.py` and should be
 kept in mind if working on adding an additional interface for hug, or changing how hug calls functions.
@@ -165,7 +165,7 @@ Feel free to update or request more info :)
 ===================
 I tried my best to highlight where important functionality in the hug project lives via this Architecture document, as well as
 explain the reasoning behind it. However, this document is certainly not complete! If you encounter anything you would like to be
-expanded upon or explained in detail here, please either let me know or modify the document so everyone can get a good walk through of hugs architecture.
+expanded upon or explained in detail here, please either let me know or modify the document so everyone can get a good walkthrough of hug's architecture.
 
 Thanks!
 
