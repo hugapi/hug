@@ -149,7 +149,12 @@ class TestSocket(object):
     def test_protocols(self):
         """Test to ensure all supported protocols are present"""
         protocols = sorted(['tcp', 'udp', 'unix_stream', 'unix_dgram'])
-        assert sorted(self.tcp_service.protocols) == protocols
+        if self.on_unix:
+            assert sorted(self.tcp_service.protocols) == protocols
+        else:
+            protocols.remove('unix_stream')
+            protocols.remove('unix_dgram')
+            assert sorted(self.tcp_service.protocols) == protocols
 
     def test_streams(self):
         if self.on_unix:
