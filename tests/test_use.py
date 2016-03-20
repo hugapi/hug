@@ -163,6 +163,15 @@ class TestSocket(object):
         else:
             assert self.tcp_service.datagrams == {'udp'}
 
+    def test_inet(self):
+        assert self.tcp_service.inet == {'tcp', 'udp'}
+
+    def test_unix(self):
+        if self.on_unix:
+            assert self.tcp_service.unix == {'unix_stream', 'unix_dgram'}
+        else:
+            assert self.tcp_service.unix == set()
+
     def test_connection(self):
         assert self.tcp_service.connection.connect_to == ('www.google.com', 80)
         assert self.tcp_service.connection.proto == 'tcp'
