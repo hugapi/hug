@@ -138,6 +138,7 @@ class TestLocal(object):
 
 class TestSocket(object):
     """Test to ensure the Socket Service object enables sending/receiving data from arbitrary server/port sockets"""
+    on_unix = getattr(socket, 'AF_UNIX', False)
     tcp_service = use.Socket(connect_to=('www.google.com', 80), proto='tcp', timeout=60)
     udp_service = use.Socket(connect_to=('8.8.8.8', 53), proto='udp', timeout=60)
 
@@ -151,10 +152,16 @@ class TestSocket(object):
         assert sorted(self.tcp_service.protocols) == protocols
 
     def test_streams(self):
-        assert self.tcp_service.streams == ('tcp', 'unix_stream')
+        if self.on_unix:
+            assert self.tcp_service.streams == {'tcp', 'unix_stream'}
+        else:
+            assert self.tcp_service.streams == {'tcp'}
 
     def test_datagrams(self):
-        assert self.tcp_service.datagrams == ('udp', 'unix_dgram')
+        if self.on_unix:
+            assert self.tcp_service.datagrams == {'udp', 'unix_dgram'}
+        else:
+            assert self.tcp_service.datagrams == {'udp'}
 
     def test_connection(self):
         assert self.tcp_service.connection.connect_to == ('www.google.com', 80)
