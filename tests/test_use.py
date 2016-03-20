@@ -158,22 +158,22 @@ class TestSocket(object):
 
     def test_streams(self):
         if self.on_unix:
-            assert self.tcp_service.streams == {'tcp', 'unix_stream'}
+            assert self.tcp_service.streams == set(('tcp', 'unix_stream',))
         else:
-            assert self.tcp_service.streams == {'tcp'}
+            assert self.tcp_service.streams == set(('tcp',))
 
     def test_datagrams(self):
         if self.on_unix:
-            assert self.tcp_service.datagrams == {'udp', 'unix_dgram'}
+            assert self.tcp_service.datagrams == set(('udp', 'unix_dgram',))
         else:
-            assert self.tcp_service.datagrams == {'udp'}
+            assert self.tcp_service.datagrams == set(('udp',))
 
     def test_inet(self):
-        assert self.tcp_service.inet == {'tcp', 'udp'}
+        assert self.tcp_service.inet == set(('tcp', 'udp',))
 
     def test_unix(self):
         if self.on_unix:
-            assert self.tcp_service.unix == {'unix_stream', 'unix_dgram'}
+            assert self.tcp_service.unix == set(('unix_stream', 'unix_dgram',))
         else:
             assert self.tcp_service.unix == set()
 
