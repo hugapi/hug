@@ -158,29 +158,29 @@ class TestSocket(object):
 
     def test_streams(self):
         if self.on_unix:
-            assert self.tcp_service.streams == set(('tcp', 'unix_stream',))
+            assert set(self.tcp_service.streams) == set(('tcp', 'unix_stream', ))
         else:
-            assert self.tcp_service.streams == set(('tcp',))
+            assert set(self.tcp_service.streams) == set(('tcp', ))
 
     def test_datagrams(self):
         if self.on_unix:
-            assert self.tcp_service.datagrams == set(('udp', 'unix_dgram',))
+            assert set(self.tcp_service.datagrams) == set(('udp', 'unix_dgram', ))
         else:
-            assert self.tcp_service.datagrams == set(('udp',))
+            assert set(self.tcp_service.datagrams) == set(('udp', ))
 
     def test_inet(self):
-        assert self.tcp_service.inet == set(('tcp', 'udp',))
+        assert set(self.tcp_service.inet) == set(('tcp', 'udp', ))
 
     def test_unix(self):
         if self.on_unix:
-            assert self.tcp_service.unix == set(('unix_stream', 'unix_dgram',))
+            assert set(self.tcp_service.unix) == set(('unix_stream', 'unix_dgram', ))
         else:
-            assert self.tcp_service.unix == set()
+            assert set(self.tcp_service.unix) == set()
 
     def test_connection(self):
         assert self.tcp_service.connection.connect_to == ('www.google.com', 80)
         assert self.tcp_service.connection.proto == 'tcp'
-        assert self.tcp_service.connection.sockopts == set()
+        assert set(self.tcp_service.connection.sockopts) == set()
 
     def test_settimeout(self):
         self.tcp_service.settimeout(60)
@@ -195,7 +195,7 @@ class TestSocket(object):
         self.tcp_service.setsockopt(((socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
                                  (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)))
         assert self.tcp_service.connection.sockopts == {(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
-                                                       (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)}
+                                                        (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)}
 
     def test_datagram_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
@@ -208,7 +208,6 @@ class TestSocket(object):
 
         dns_query = packet + struct.pack("!bHH", 0, 1, 1)
         assert len(self.udp_service.request(dns_query.decode("utf-8"), buffer_size=4096).data.read()) > 0
-
 
 
 @hug.get()
