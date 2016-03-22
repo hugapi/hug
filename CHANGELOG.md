@@ -11,6 +11,8 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.0.3
+- Fixes hug.use module on Windows
 
 ### 2.0.2
 - Work-around bug that was keeping hug from working on Windows machines
