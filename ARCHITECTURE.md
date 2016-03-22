@@ -1,10 +1,10 @@
 The guiding thought behind the architecture
-===================
+===========================================
 hug is the cleanest way to create HTTP REST APIs on Python3.
 It consistently benchmarks among the top 3 performing web frameworks for Python, handily beating out Flask and Django.
 For almost every common Web API task the code written to accomplish it in hug is a small fraction of what is required in other Frameworks.
 
-However, it's important to note, hug is not a Web API Framework. OK -- that certainly is a function it performs. And exceptionally well at that.
+However, it's important to note, hug is not a Web API Framework. OK--that certainly is a function it performs. And exceptionally well at that.
 But at its core, hug is a framework for exposing idiomatically correct and standard internal Python APIs externally.
 A framework to allow developers and architects to define logic and structure once, and then cleanly expose it over other means.
 
@@ -14,13 +14,14 @@ into hug have and will continue to support this goal.
 
 This central concept also frees hug to rely on the fastest and best of breed components for every interface it supports:
 
-- Falcon is leveraged when exposing to HTTP for it's impressive performance at this task
-- Argparse is leveraged when exposing to CLI for the clean consistent interaction it enables from the command line
+- [Falcon](https://github.com/falconry/falcon) is leveraged when exposing to HTTP for it's impressive performance at this task
+- [Argparse](https://docs.python.org/3/library/argparse.html) is leveraged when exposing to CLI for the clean consistent interaction it enables from the command line
 
 
 What this looks like in practice - an illustrative example
-===================
-Let's say I have a very simple python API I've built to add 2 numbers together. I call my invention `addition`.
+===========================================
+
+Let's say I have a very simple Python API I've built to add 2 numbers together. I call my invention `addition`.
 Trust me, this is legit. It's trademarked and everything:
 
     """A simple API to enable adding two numbers together"""
@@ -80,12 +81,13 @@ All my original unit tests continue to pass and my code coverage remains at 100%
 It turns out, the problems and thoughts that go into defining a clean well documented API for internal use greatly mirror those that are required to expose an API for external use. hug recognizes this and enables cleanly reusing the documentation, requirements, and structure of internal APIs for external use. This also encourages easier to use and well documented internal APIs: a major win/win.
 
 What happened internally as I exposed my API to new interfaces?
-===================
-A few things hapen when you wrapped that first function for external use, with hug.cli():
+===========================================
+
+A few things happen when you wrapped that first function for external use, with hug.cli():
 
 -   hug created a singleton hug.API object on your module to keep track of all interfaces that exist within the module
     - This is referable by `__hug__` or `hug.API(__name__)`
--   a new hug.interface.CLI() object was created and attached to `add.interface.cli`
+-   a new `hug.interface.CLI()` object was created and attached to `add.interface.cli`
     - This interface fully encapsulates the logic needed to expose `add` as a command line tool
     - NOTE: all supported ways to expose a function via hug can be found in `hug/interface.py`
 -   the original Python `add` function is returned unmodified (with exception to the `.interface.cli` property addition)
@@ -93,7 +95,7 @@ A few things hapen when you wrapped that first function for external use, with h
 Then when I extended my API to run as HTTP service the same basic pattern was followed:
 
 -   hug saw that the singleton already existed
--   a new hug.interface.HTTP() object was created and attached to `add.interface.http`
+-   a new `hug.interface.HTTP()` object was created and attached to `add.interface.http`
     - This interface encapsulates the logic needed to expose the `add` command as an HTTP service
     - The new HTTP interface handler is registered to the API singleton
 -   the original Python `add` function is returned unmodified (with exception to the `.interface.http` property addition)
@@ -109,7 +111,8 @@ When I run `hug -f add.py` the hug runner looks for the
 It then uses this new Falcon API to directly handle incoming HTTP requests.
 
 Where does the code live for these core pieces?
-===================
+===========================================
+
 While hug has a lot of modules that enable it to provide a great depth of functionality, everything accomplished above,
 and that is core to hug, lives in only a few:
 
@@ -126,7 +129,8 @@ Beyond these there is one additional internal utility library that enables hug t
 This module provides utility functions that enable hugs routers to determine what arguments a function takes and in what form.
 
 Enabling interfaces to improve upon internal functions
-===================
+===========================================
+
 hug provides several mechanisms to enable your exposed interfaces to have additional capabilities not defined by
 the base Python function.
 
@@ -140,7 +144,7 @@ the base Python function.
     - All of hug's built-in directives are defined in hug/directives.py
 - Requires: hug requirements allow you to specify requirements that must be met only for specified interfaces.
     `@hug.get(requires=hug.authentication.basic(hug.authentication.verify('User1', 'mypassword')))`
-    - Causes the HTTP method to only succesfully call the Python function if User1 is logged in
+    - Causes the HTTP method to only successfully call the Python function if User1 is logged in
     - requirements are currently highly focused on authentication, and all existing require functions are defined in hug/authentication.py
 - Transformations: hug transformations enable changing the result of a function but only for the specified interface
     `@hug.get(transform=str)`
@@ -154,18 +158,20 @@ the base Python function.
     - The default assumption for output_formatting is JSON
 
 Switching from using a hug API over one interface to another
-===================
-hug does it's best to also solve the other side of the coin: that is how APIs are used.
-Naturally, native Python will always be the fastest, however HTTP can provide attractive auto updating
+===========================================
+
+hug does its best to also solve the other side of the coin: that is how APIs are used.
+While native Python will always be the fastest, HTTP can provide attractive auto updating
 and clear responsibility separation benefits. You can interact with hug APIs via hug.use.[interface] if the ability
 to switch between these is a high priority for you. The code that enables this is found in `hug/use.py` and should be
 kept in mind if working on adding an additional interface for hug, or changing how hug calls functions.
 
 Feel free to update or request more info :)
-===================
+===========================================
+
 I tried my best to highlight where important functionality in the hug project lives via this Architecture document, as well as
 explain the reasoning behind it. However, this document is certainly not complete! If you encounter anything you would like to be
-expanded upon or explained in detail here, please either let me know or modify the document so everyone can get a good walk through of hugs architecture.
+expanded upon or explained in detail here, please either let me know or modify the document so everyone can get a good walkthrough of hug's architecture.
 
 Thanks!
 

@@ -1,0 +1,6 @@
+-r common.txt
+flake8==2.5.4
+isort==4.2.2
+marshmallow==2.6.0
+pytest==2.9.0
+wheel==0.29.0
