@@ -209,8 +209,6 @@ class TestSocket(object):
         dns_query = packet + struct.pack("!bHH", 0, 1, 1)
         assert len(self.udp_service.request(dns_query.decode("utf-8"), buffer_size=4096).data.read()) > 0
 
->>>>>>> 429ad086837f6f9c99118445b67128e05b1ab1e0
-
 
 @hug.get()
 def hello_world():
