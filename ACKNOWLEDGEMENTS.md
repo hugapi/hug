@@ -36,6 +36,10 @@ Documenters
 - Matt Caldwell (@mattcaldwell)
 - berdario (@berdario)
 - Cory Taylor (@coryandrewtaylor)
+- James C. (@Jammy4312)
+- Ally Weir (@allyjweir)
+- Steven Loria (@sloria)
+- Patrick Abeya (@wombat2k)
 
 --------------------------------------------
 
