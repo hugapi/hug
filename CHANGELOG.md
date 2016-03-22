@@ -11,6 +11,9 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.0.4
+- Fixes documentation on PyPI website
+
 ### 2.0.3
 - Fixes hug.use module on Windows
 
