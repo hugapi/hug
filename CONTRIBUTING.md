@@ -1,6 +1,6 @@
 Contributing to hug
 =========
-Looking for a growing and useful open source Project to contribute to?
+Looking for a growing and useful open source project to contribute to?
 Want your contributions to be warmly welcomed and acknowledged?
 Want a free project t-shirt to show you're a contributor?
 Welcome! You have found the right place.
