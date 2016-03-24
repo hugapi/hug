@@ -3,6 +3,7 @@
 
 [![PyPI version](https://badge.fury.io/py/hug.svg)](http://badge.fury.io/py/hug)
 [![Build Status](https://travis-ci.org/timothycrosley/hug.svg?branch=master)](https://travis-ci.org/timothycrosley/hug)
+[![Windows Build Status](https://ci.appveyor.com/api/projects/status/0h7ynsqrbaxs7hfm/branch/master)](https://ci.appveyor.com/project/TimothyCrosley/hug)
 [![Coverage Status](https://coveralls.io/repos/timothycrosley/hug/badge.svg?branch=master&service=github)](https://coveralls.io/github/timothycrosley/hug?branch=master)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/hug/)
 [![Join the chat at https://gitter.im/timothycrosley/hug](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/timothycrosley/hug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -20,7 +21,7 @@ hug's Design Objectives:
 - Magic done once, in an API framework, is better than pushing the problem set to the user of the API framework.
 - Be the basis for next generation Python APIs, embracing the latest technology.
 
-As a result of these goals hug is Python3+ only and uses Falcon under the cover to quickly handle requests.
+As a result of these goals, hug is Python 3+ only and built upon [Falcon's](https://github.com/falconry/falcon) high performance HTTP library
 
 [![HUG Hello World Example](https://raw.github.com/timothycrosley/hug/develop/artwork/example.gif)](https://github.com/timothycrosley/hug/blob/develop/examples/hello_world.py)
 
@@ -34,15 +35,15 @@ Installing hug is as simple as:
 pip3 install hug --upgrade
 ```
 
-Ideally, within a virtual environment.
+Ideally, within a [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
 
-Basic Example API
+Getting Started
 ===================
-
-`happy_birthday.py`
+Build an example API with a simple endpoint in just a few lines.
 
 ```py
+# filename: happy_birthday.py
 """A basic (single function) API written using hug"""
 import hug
 
@@ -53,21 +54,20 @@ def happy_birthday(name, age:hug.types.number=1):
     return "Happy {age} Birthday {name}!".format(**locals())
 ```
 
-To run the example:
+To run, from the command line type:
 
 ```bash
 hug -f happy_birthday.py
 ```
 
-Then you can access the example from `localhost:8000/happy_birthday?name=hug&age=1` Or access the documentation for your API from `localhost:8000/documentation`
+You can access the example in your browser at: `localhost:8000/happy_birthday?name=hug&age=1`. Then check out the documentation for your API at `localhost:8000/documentation`
 
 
 Versioning with hug
 ===================
 
-`versioning_example.py`
-
 ```py
+# filename: versioning_example.py
 """A simple example of a hug API call with versioning"""
 import hug
 

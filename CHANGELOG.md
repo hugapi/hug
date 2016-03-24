@@ -11,6 +11,15 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.0.4
+- Fixes documentation on PyPI website
+
+### 2.0.3
+- Fixes hug.use module on Windows
+
+### 2.0.2
+- Work-around bug that was keeping hug from working on Windows machines
+- Introduced a delete method to the abstract hug store module
 
 ### 2.0.1
 - Add in-memory data / session store for testing

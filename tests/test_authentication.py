@@ -21,9 +21,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from base64 import b64encode
 
-import falcon
-import pytest
-
 import hug
 
 api = hug.API(__name__)
@@ -31,6 +28,7 @@ api = hug.API(__name__)
 
 def test_basic_auth():
     """Test to ensure hug provides basic_auth handler works as expected"""
+
     @hug.get(requires=hug.authentication.basic(hug.authentication.verify('Tim', 'Custom password')))
     def hello_world():
         return 'Hello world!'
@@ -52,6 +50,7 @@ def test_basic_auth():
 
 def test_api_key():
     """Test the included api_key based header to ensure it works as expected to allow X-Api-Key based authentication"""
+
     @hug.authentication.api_key
     def api_key_authentication(api_key):
         if api_key == 'Bacon':
@@ -64,6 +63,26 @@ def test_api_key():
     assert hug.test.get(api, 'hello_world', headers={'X-Api-Key': 'Bacon'}).data == 'Hello world!'
     assert '401' in hug.test.get(api, 'hello_world').status
     assert '401' in hug.test.get(api, 'hello_world', headers={'X-Api-Key': 'Invalid'}).status
+
+
+def test_token_auth():
+    """Test JSON Web Token"""
+    #generated with jwt.encode({'user': 'Timothy','data':'my data'}, 'super-secret-key-please-change', algorithm='HS256')
+    precomptoken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoibXkgZGF0YSIsInVzZXIiOiJUaW1vdGh5In0.' \
+                   '8QqzQMJUTq0Dq7vHlnDjdoCKFPDAlvxGCpc_8XF41nI'
+
+    @hug.authentication.token
+    def token_authentication(token):
+        if token == precomptoken:
+            return 'Timothy'
+
+    @hug.get(requires=token_authentication)
+    def hello_world():
+        return 'Hello World!'
+
+    assert hug.test.get(api, 'hello_world', headers={'Authorization': precomptoken}).data == 'Hello World!'
+    assert '401' in hug.test.get(api, 'hello_world').status
+    assert '401' in hug.test.get(api, 'hello_world', headers={'Authorization': 'eyJhbGci'}).status
 
 
 def test_documentation_carry_over():
