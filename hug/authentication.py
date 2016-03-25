@@ -118,9 +118,9 @@ def token(request, response, verify_user, **kwargs):
             return False
     return None
 
+
 def verify(user, password):
     """Returns a simple verification callback that simply verifies that the users and password match that provided"""
-
     def verify_user(user_name, user_password):
         if user_name == user and user_password == password:
             return user_name
