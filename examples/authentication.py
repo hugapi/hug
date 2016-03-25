@@ -1,5 +1,4 @@
 '''A basic example of authentication requests within a hug API'''
-
 import hug
 import jwt
 
