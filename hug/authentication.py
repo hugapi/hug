@@ -125,5 +125,4 @@ def verify(user, password):
         if user_name == user and user_password == password:
             return user_name
         return False
-
     return verify_user
