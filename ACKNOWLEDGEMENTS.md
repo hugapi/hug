@@ -23,6 +23,7 @@ Code Contributors
 - Ian Wagner (@ianthetechie)
 - Erwin Haasnoot (@ErwinHaasnoot)
 - Kirk Leon Guerrero (@kirklg)
+- Ergo_ (@johnlam)
 
 Documenters
 ===================
@@ -40,6 +41,7 @@ Documenters
 - Ally Weir (@allyjweir)
 - Steven Loria (@sloria)
 - Patrick Abeya (@wombat2k)
+- Ergo_ (@johnlam)
 
 --------------------------------------------
 

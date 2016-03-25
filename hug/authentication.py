@@ -33,6 +33,7 @@ def authenticator(function):
     The verify_user function passed in should accept an API key and return a user object to
     store in the request context if authentication succeeded.
     """
+
     def wrapper(verify_user):
         def authenticate(request, response, **kwargs):
             result = function(request, response, verify_user, **kwargs)
@@ -49,6 +50,7 @@ def authenticator(function):
 
         authenticate.__doc__ = function.__doc__
         return authenticate
+
     return wrapper
 
 
@@ -67,7 +69,6 @@ def basic(request, response, verify_user, **kwargs):
     except ValueError:
         raise HTTPUnauthorized('Authentication Error',
                                'Authentication header is improperly formed')
-
 
     if auth_type.lower() == 'basic':
         try:
@@ -100,6 +101,22 @@ def api_key(request, response, verify_user, **kwargs):
             return False
     else:
         return None
+
+
+@authenticator
+def token(request, response, verify_user, **kwargs):
+    """Token verification
+
+     Checks for the Authorization header and verifies using the verify_user function
+    """
+    token = request.get_header('Authorization')
+    if token:
+        verified_token = verify_user(token)
+        if verified_token:
+            return verified_token
+        else:
+            return False
+    return None
 
 
 def verify(user, password):

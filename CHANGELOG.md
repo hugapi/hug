@@ -11,6 +11,9 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.0.5 - 2.0.6
+- Adds built-in support for token based authentication
+
 ### 2.0.4
 - Fixes documentation on PyPI website
 
