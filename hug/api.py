@@ -414,7 +414,6 @@ class API(object, metaclass=ModuleSingleton):
             self._cli = CLIInterfaceAPI(self)
         return self._cli
 
-
     def extend(self, api, route=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         api = API(api)
