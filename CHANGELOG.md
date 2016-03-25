@@ -11,6 +11,9 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.0.7
+- Added convience `put_post` router to enable easier usage of the common `@hug.get('url/', ('PUT', 'POST"))` pattern
+
 ### 2.0.5 - 2.0.6
 - Adds built-in support for token based authentication
 
