@@ -107,7 +107,7 @@ def api_key(request, response, verify_user, **kwargs):
 def token(request, response, verify_user, **kwargs):
     """Token verification
 
-     Checks for the Authorization header and verifies using the verify_user function
+    Checks for the Authorization header and verifies using the verify_user function
     """
     token = request.get_header('Authorization')
     if token:
