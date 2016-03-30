@@ -271,7 +271,7 @@ Or alternatively - for cases like this - where only one module is being included
 
 ```py
 #alternatively
-__hug__.extend(something, '/something')
+hug.API(__name__).extend(something, '/something')
 ```
 
 
