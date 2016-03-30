@@ -42,6 +42,7 @@ Documenters
 - Steven Loria (@sloria)
 - Patrick Abeya (@wombat2k)
 - Ergo_ (@johnlam)
+- Adeel Khan (@adeel)
 
 --------------------------------------------
 
