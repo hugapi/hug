@@ -11,6 +11,9 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.1.0 (in Development)
+- Updated base Falcon requirement to the latest: 1.0.0
+
 ### 2.0.7
 - Added convience `put_post` router to enable easier usage of the common `@hug.get('url/', ('PUT', 'POST"))` pattern
 - When passing lists or tuples to the hug http testing methods, they will now correctly be handled as multiple values
