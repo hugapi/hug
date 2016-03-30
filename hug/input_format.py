@@ -34,8 +34,9 @@ def separate_encoding(content_type, default=None):
     encoding = default
     if content_type and ";" in content_type:
         content_type, rest = content_type.split(";", 1)
-        charset = RE_CHARSET.search(rest).groupdict()
-        encoding = charset.get('charset', encoding).strip()
+        charset = RE_CHARSET.search(rest)
+        if charset:
+            encoding = charset.groupdict().get('charset', encoding).strip()
 
     return (content_type, encoding)
 
