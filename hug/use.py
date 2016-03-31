@@ -243,7 +243,7 @@ class Socket(Service):
 
     def _dgram_send_and_receive(self, _socket, message, buffer_size=4096, *args):
         """User Datagram Protocol sender and receiver"""
-        _socket.sendto(message.encode('utf-8'), self.connection.connect_to)
+        _socket.send(message.encode('utf-8'))
         data, address = _socket.recvfrom(buffer_size)
         return BytesIO(data)
 
