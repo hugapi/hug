@@ -24,6 +24,7 @@ Code Contributors
 - Erwin Haasnoot (@ErwinHaasnoot)
 - Kirk Leon Guerrero (@kirklg)
 - Ergo_ (@johnlam)
+- Rodrigue Cloutier (@rodcloutier)
 
 Documenters
 ===================
