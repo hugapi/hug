@@ -25,7 +25,7 @@ import argparse
 import os
 import sys
 from collections import OrderedDict
-from functools import wraps
+from functools import wraps, lru_cache
 
 import falcon
 from falcon import HTTP_BAD_REQUEST
@@ -584,3 +584,25 @@ class HTTP(Interface):
             doc['outputs']['type'] = self.output_doc
 
         return doc
+
+    @lru_cache()
+    def urls(self, version=None):
+        """Returns all URLS that are mapped to this interface"""
+        urls = []
+        for url, methods in self.api.http.routes.items():
+            for method, versions in methods.items():
+                for interface_version, interface in versions.items():
+                    if interface_version == version and interface == self:
+                        if not url in urls:
+                            urls.append(('/v{0}'.format(version) if version else '') + url)
+        return urls
+
+    def url(self, version=None, **kwargs):
+        """Returns the first matching URL found for the specified arguments"""
+        for url in self.urls(version):
+            if [key for key in kwargs.keys() if not '{' + key + '}' in url]:
+                continue
+
+            return url.format(**kwargs)
+
+        raise KeyError('URL that takes all provided parameters not found')
