@@ -22,6 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import absolute_import
 
 import argparse
+import inspect
 import os
 import sys
 from collections import OrderedDict
@@ -40,12 +41,41 @@ from hug.input_format import separate_encoding
 from hug.types import MarshmallowSchema, Multiple, OneOf, SmartBoolean, Text, text
 
 
+try:
+    import asyncio
+
+    if sys.version_info >= (3, 4, 4):
+        ensure_future = asyncio.ensure_future
+    else:
+        ensure_future = asyncio.async
+
+    def asyncio_call(function, *args, **kwargs):
+        loop = asyncio.get_event_loop()
+        f = ensure_future(function(*args, **kwargs), loop=loop)
+        loop.run_until_complete(f)
+        return f.result()
+
+    asyncio_iscoroutinefunction = asyncio.iscoroutinefunction
+
+except ImportError:  # pragma: no cover
+
+    def asyncio_iscoroutinefunction(function):
+        return False
+
+    def asyncio_call(*args, **kwargs):
+        raise NotImplementedError()
+
+
 class Interfaces(object):
     """Defines the per-function singleton applied to hugged functions defining common data needed by all interfaces"""
 
     def __init__(self, function):
         self.spec = getattr(function, 'original', function)
-        self.function = function
+        self._function = function
+
+        self.iscoroutine = asyncio_iscoroutinefunction(self.spec)
+        if self.iscoroutine:
+            self.spec = getattr(self.spec, '__wrapped__', self.spec)
 
         self.takes_kargs = introspect.takes_kargs(self.spec)
         self.takes_kwargs = introspect.takes_kwargs(self.spec)
@@ -59,7 +89,7 @@ class Interfaces(object):
             self.defaults[self.parameters[-(index + 1)]] = default
 
         self.required = self.parameters[:-(len(self.spec.__defaults__ or ())) or None]
-        if introspect.is_method(self.spec):
+        if introspect.is_method(self.spec) or introspect.is_method(function):
             self.required = self.required[1:]
             self.parameters = self.parameters[1:]
 
@@ -79,6 +109,16 @@ class Interfaces(object):
                 transformer = transformer.deserialize
 
             self.input_transformations[name] = transformer
+
+    @property
+    def arguments(self):
+        return introspect.arguments(self._function)
+
+    def __call__(self, *args, **kwargs):
+        if not self.iscoroutine:
+            return self._function(*args, **kwargs)
+
+        return asyncio_call(self._function, *args, **kwargs)
 
 
 class Interface(object):
@@ -158,7 +198,7 @@ class Interface(object):
 
         for require in self.interface.required:
             if not require in input_parameters:
-                errors[require] = "Required parameter not supplied"
+                errors[require] = "Required parameter '{}' not supplied".format(require)
         if not errors and getattr(self, 'validate_function', False):
             errors = self.validate_function(input_parameters)
         return errors
@@ -256,7 +296,7 @@ class Local(Interface):
                 outputs = getattr(self, 'invalid_outputs', self.outputs)
                 return outputs(errors) if outputs else errors
 
-        result = self.interface.function(**kwargs)
+        result = self.interface(**kwargs)
         if self.transform:
             result = self.transform(result)
         return self.outputs(result) if self.outputs else result
@@ -366,9 +406,9 @@ class CLI(Interface):
 
         if hasattr(self.interface, 'karg'):
             karg_values = pass_to_function.pop(self.interface.karg, ())
-            result = self.interface.function(*karg_values, **pass_to_function)
+            result = self.interface(*karg_values, **pass_to_function)
         else:
-            result = self.interface.function(**pass_to_function)
+            result = self.interface(**pass_to_function)
 
         return self.output(result)
 
@@ -492,7 +532,7 @@ class HTTP(Interface):
         if not self.interface.takes_kwargs:
             parameters = {key: value for key, value in parameters.items() if key in self.parameters}
 
-        return self.interface.function(**parameters)
+        return self.interface(**parameters)
 
     def render_content(self, content, request, response, **kwargs):
         if hasattr(content, 'interface') and (content.interface is True or hasattr(content.interface, 'http')):
