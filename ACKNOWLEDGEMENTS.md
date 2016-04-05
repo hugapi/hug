@@ -25,6 +25,7 @@ Code Contributors
 - Kirk Leon Guerrero (@kirklg)
 - Ergo_ (@johnlam)
 - Rodrigue Cloutier (@rodcloutier)
+- KhanhIceTea (@khanhicetea)
 
 Documenters
 ===================
