@@ -149,7 +149,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self.add_middleware(middleware)
 
         for startup_handler in (http_api.startup_handlers or ()):
-            self.add_startup_handler(startup_handler)\
+            self.add_startup_handler(startup_handler)
 
         for version, handler in getattr(http_api, '_exception_handlers', {}).items():
             for exception_type, exception_handler in handler.items():
