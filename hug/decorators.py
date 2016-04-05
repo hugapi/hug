@@ -64,7 +64,7 @@ def default_input_format(content_type='application/json', apply_globally=False):
     return decorator
 
 
-def directive(apply_globally=True):
+def directive(apply_globally=False):
     """A decorator that registers a single hug directive"""
     def decorator(directive_method):
         if apply_globally:

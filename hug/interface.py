@@ -25,7 +25,7 @@ import argparse
 import os
 import sys
 from collections import OrderedDict
-from functools import wraps
+from functools import wraps, lru_cache
 
 import falcon
 from falcon import HTTP_BAD_REQUEST
@@ -244,7 +244,8 @@ class Local(Interface):
                 if parameter in kwargs:
                     continue
                 arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
-                kwargs[parameter] = directive(*arguments, module=self.api.module, api_version=self.version)
+                kwargs[parameter] = directive(*arguments, api=self.api, api_version=self.version,
+                                              interface=self)
 
         if not getattr(self, 'skip_validation', False):
             errors = self.validate(kwargs)
@@ -355,7 +356,8 @@ class CLI(Interface):
         pass_to_function = vars(self.parser.parse_known_args()[0])
         for option, directive in self.directives.items():
             arguments = (self.defaults[option], ) if option in self.defaults else ()
-            pass_to_function[option] = directive(*arguments, module=self.api.module)
+            pass_to_function[option] = directive(*arguments, api=self.api, argparse=self.parser,
+                                                 interface=self)
 
         if getattr(self, 'validate_function', False):
             errors = self.validate_function(pass_to_function)
@@ -427,7 +429,7 @@ class HTTP(Interface):
         for parameter, directive in self.directives.items():
             arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
             input_parameters[parameter] = directive(*arguments, response=response, request=request,
-                                                    module=self.api.module, api_version=api_version)
+                                                    api=self.api, api_version=api_version, interface=self)
 
         return input_parameters
 
@@ -493,7 +495,7 @@ class HTTP(Interface):
         return self.interface.function(**parameters)
 
     def render_content(self, content, request, response, **kwargs):
-        if hasattr(content, 'interface') and (content.interface or hasattr(content.interface, 'http')):
+        if hasattr(content, 'interface') and (content.interface is True or hasattr(content.interface, 'http')):
             if content.interface is True:
                 content(request, response, api_version=None, **kwargs)
             else:
@@ -582,3 +584,25 @@ class HTTP(Interface):
             doc['outputs']['type'] = self.output_doc
 
         return doc
+
+    @lru_cache()
+    def urls(self, version=None):
+        """Returns all URLS that are mapped to this interface"""
+        urls = []
+        for url, methods in self.api.http.routes.items():
+            for method, versions in methods.items():
+                for interface_version, interface in versions.items():
+                    if interface_version == version and interface == self:
+                        if not url in urls:
+                            urls.append(('/v{0}'.format(version) if version else '') + url)
+        return urls
+
+    def url(self, version=None, **kwargs):
+        """Returns the first matching URL found for the specified arguments"""
+        for url in self.urls(version):
+            if [key for key in kwargs.keys() if not '{' + key + '}' in url]:
+                continue
+
+            return url.format(**kwargs)
+
+        raise KeyError('URL that takes all provided parameters not found')

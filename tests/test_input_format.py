@@ -40,3 +40,10 @@ def test_json_underscore():
     """Ensure that camelCase keys can be converted into under_score for easier use within Python"""
     test_data = BytesIO(b'{"CamelCase": {"becauseWeCan": "ValueExempt"}}')
     assert hug.input_format.json_underscore(test_data) == {'camel_case': {'because_we_can': 'ValueExempt'}}
+
+
+def test_separate_encoding():
+    """Test to ensure separating out encodings from content_types works as expected"""
+    assert hug.input_format.separate_encoding('text/html; charset=utf8') == ('text/html', 'utf8')
+    assert hug.input_format.separate_encoding('text/html', 'default') == ('text/html', 'default')
+    assert hug.input_format.separate_encoding('text/html; chset=malformatted') == ('text/html', None)

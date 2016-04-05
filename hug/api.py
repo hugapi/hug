@@ -95,9 +95,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
     @property
     def not_found(self):
         """Returns the active not found handler"""
-        handler = getattr(self, '_not_found', self.base_404)
-        handler.interface = True
-        return handler
+        return getattr(self, '_not_found', self.base_404)
 
     def input_format(self, content_type):
         """Returns the set input_format handler for the given content_type"""
@@ -151,7 +149,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self.add_middleware(middleware)
 
         for startup_handler in (http_api.startup_handlers or ()):
-            self.add_startup_handler(startup_handler)\
+            self.add_startup_handler(startup_handler)
 
         for version, handler in getattr(http_api, '_exception_handlers', {}).items():
             for exception_type, exception_handler in handler.items():
@@ -183,7 +181,8 @@ class HTTPInterfaceAPI(InterfaceAPI):
         version_dict = OrderedDict()
         versions = self.versions
         versions_list = list(versions)
-        versions_list.remove(None)
+        if None in versions_list:
+            versions_list.remove(None)
         if api_version is None and len(versions_list) > 0:
             api_version = max(versions_list)
             documentation['version'] = api_version
@@ -294,9 +293,11 @@ class HTTPInterfaceAPI(InterfaceAPI):
             else:
                 not_found_handler = partial(self.version_router, api_version=False,
                                             versions=self.not_found_handlers, not_found=default_not_found)
+                not_found_handler.interface = True
 
         if not_found_handler:
             falcon_api.add_sink(not_found_handler)
+            not_found_handler
             self._not_found = not_found_handler
 
         for url, extra_sink in self.sinks.items():
@@ -335,6 +336,8 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         self.startup_handlers.append(handler)
 
+HTTPInterfaceAPI.base_404.interface = True
+
 
 class CLIInterfaceAPI(InterfaceAPI):
     """Defines the CLI interface specific API"""
@@ -355,7 +358,7 @@ class CLIInterfaceAPI(InterfaceAPI):
 
     def __str__(self):
         return "{0}\n\nAvailable Commands:{1}\n".format(self.api.module.__doc__ or self.api.module.__name__,
-                                                        "\n\n\t- " + "\n- ".join(self.commands.keys()))
+                                                        "\n\n\t- " + "\n\t- ".join(self.commands.keys()))
 
 
 class ModuleSingleton(type):
@@ -411,7 +414,6 @@ class API(object, metaclass=ModuleSingleton):
         if not hasattr(self, '_cli'):
             self._cli = CLIInterfaceAPI(self)
         return self._cli
-
 
     def extend(self, api, route=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""

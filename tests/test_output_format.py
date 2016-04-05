@@ -23,10 +23,13 @@ from collections import namedtuple
 from datetime import datetime
 from decimal import Decimal
 from io import BytesIO
+import os
 
 import pytest
 
 import hug
+
+from .constants import BASE_DIRECTORY
 
 
 def test_text():
@@ -39,7 +42,7 @@ def test_html():
     """Ensure that it's possible to output a Hug API method as HTML"""
     hug.output_format.html("<html>Hello World!</html>") == "<html>Hello World!</html>"
     hug.output_format.html(str(1)) == "1"
-    with open('README.md', 'rb') as html_file:
+    with open(os.path.join(BASE_DIRECTORY, 'README.md'), 'rb') as html_file:
         assert hasattr(hug.output_format.html(html_file), 'read')
 
     class FakeHTMLWithRender():
@@ -79,7 +82,7 @@ def test_json():
     data = [Decimal(1.5), Decimal("155.23"), Decimal("1234.25")]
     assert hug.input_format.json(BytesIO(hug.output_format.json(data))) == ["1.5", "155.23", "1234.25"]
 
-    with open('README.md', 'rb') as json_file:
+    with open(os.path.join(BASE_DIRECTORY, 'README.md'), 'rb') as json_file:
         assert hasattr(hug.output_format.json(json_file), 'read')
 
     assert hug.input_format.json(BytesIO(hug.output_format.json(b'\x9c'))) == 'nA=='
@@ -113,8 +116,9 @@ def test_json_camelcase():
 
 def test_image():
     """Ensure that it's possible to output images with hug"""
-    assert hasattr(hug.output_format.png_image('artwork/logo.png', hug.Response()), 'read')
-    with open('artwork/logo.png', 'rb') as image_file:
+    logo_path = os.path.join(BASE_DIRECTORY, 'artwork', 'logo.png')
+    assert hasattr(hug.output_format.png_image(logo_path, hug.Response()), 'read')
+    with open(logo_path, 'rb') as image_file:
         assert hasattr(hug.output_format.png_image(image_file, hug.Response()), 'read')
 
     assert hug.output_format.png_image('Not Existent', hug.Response()) is None
@@ -140,10 +144,11 @@ def test_file():
     class FakeResponse(object):
         pass
 
+    logo_path = os.path.join(BASE_DIRECTORY, 'artwork', 'logo.png')
     fake_response = FakeResponse()
-    assert hasattr(hug.output_format.file('artwork/logo.png', fake_response), 'read')
+    assert hasattr(hug.output_format.file(logo_path, fake_response), 'read')
     assert fake_response.content_type == 'image/png'
-    with open('artwork/logo.png', 'rb') as image_file:
+    with open(logo_path, 'rb') as image_file:
         hasattr(hug.output_format.file(image_file, fake_response), 'read')
 
     assert not hasattr(hug.output_format.file('NON EXISTENT FILE', fake_response), 'read')
@@ -151,8 +156,9 @@ def test_file():
 
 def test_video():
     """Ensure that it's possible to output videos with hug"""
-    assert hasattr(hug.output_format.mp4_video('artwork/example.gif', hug.Response()), 'read')
-    with open('artwork/example.gif', 'rb') as image_file:
+    gif_path = os.path.join(BASE_DIRECTORY, 'artwork', 'example.gif')
+    assert hasattr(hug.output_format.mp4_video(gif_path, hug.Response()), 'read')
+    with open(gif_path, 'rb') as image_file:
         assert hasattr(hug.output_format.mp4_video(image_file, hug.Response()), 'read')
 
     assert hug.output_format.mp4_video('Not Existent', hug.Response()) is None

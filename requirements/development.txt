@@ -1,6 +1,6 @@
 -r common.txt
 Cython==0.23.4
-flake8==2.4.1
+flake8==2.5.4
 frosted==1.4.1
 ipython==4.1.1
 isort==4.2.2

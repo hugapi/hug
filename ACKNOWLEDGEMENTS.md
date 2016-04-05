@@ -23,6 +23,10 @@ Code Contributors
 - Ian Wagner (@ianthetechie)
 - Erwin Haasnoot (@ErwinHaasnoot)
 - Kirk Leon Guerrero (@kirklg)
+- Ergo_ (@johnlam)
+- Rodrigue Cloutier (@rodcloutier)
+- KhanhIceTea (@khanhicetea)
+- Prashant Sinha (@PrashntS)
 
 Documenters
 ===================
@@ -35,6 +39,13 @@ Documenters
 - Sven-Hendrik Haase (@svenstaro)
 - Matt Caldwell (@mattcaldwell)
 - berdario (@berdario)
+- Cory Taylor (@coryandrewtaylor)
+- James C. (@Jammy4312)
+- Ally Weir (@allyjweir)
+- Steven Loria (@sloria)
+- Patrick Abeya (@wombat2k)
+- Ergo_ (@johnlam)
+- Adeel Khan (@adeel)
 
 --------------------------------------------
 

@@ -11,8 +11,34 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.1.0 (in Development)
+- Updated base Falcon requirement to the latest: 1.0.0
+- Fixed issues with certain non-standard content-type values causing an exception
+- Fixed a bug producing documentation when versioning is used, and there are no routes that apply accros versions
+- Added support for getting URL from hug function
 
-### 2.0.0 (in development)
+### 2.0.7
+- Added convience `put_post` router to enable easier usage of the common `@hug.get('url/', ('PUT', 'POST"))` pattern
+- When passing lists or tuples to the hug http testing methods, they will now correctly be handled as multiple values
+
+### 2.0.5 - 2.0.6
+- Adds built-in support for token based authentication
+
+### 2.0.4
+- Fixes documentation on PyPI website
+
+### 2.0.3
+- Fixes hug.use module on Windows
+
+### 2.0.2
+- Work-around bug that was keeping hug from working on Windows machines
+- Introduced a delete method to the abstract hug store module
+
+### 2.0.1
+- Add in-memory data / session store for testing
+- Default hug.use.HTTP to communicate over JSON body
+
+### 2.0.0
 - Adds the concept of chain-able routing decorators
 - Adds built-in static file handling support via a `@hug.static` decorator (thanks @BrandonHoffman!)
 - Adds a directive to enable directly accessing the user object from any API call (thanks @ianthetechie)

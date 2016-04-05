@@ -136,6 +136,9 @@ for method in HTTP_METHODS:
 get_post = partial(http, accept=('GET', 'POST'))
 get_post.__doc__ = "Exposes a Python method externally under both the HTTP POST and GET methods"
 
+put_post = partial(http, accept=('PUT', 'POST'))
+put_post.__doc__ = "Exposes a Python method externally under both the HTTP POST and PUT methods"
+
 object = Object()
 
 # DEPRECATED: for backwords compatibility with hug 1.x.x

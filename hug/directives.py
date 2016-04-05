@@ -57,15 +57,15 @@ class Timer(object):
 
 
 @_built_in_directive
-def module(default=None, module=None, **kwargs):
+def module(default=None, api=None, **kwargs):
     """Returns the module that is running this hug API function"""
-    return module if module else default
+    return api.module if api else default
 
 
 @_built_in_directive
-def api(default=None, module=None, **kwargs):
+def api(default=None, api=None, **kwargs):
     """Returns the api instance in which this API function is being ran"""
-    return getattr(module, '__hug__', default)
+    return api if api else default
 
 
 @_built_in_directive
@@ -81,6 +81,18 @@ def documentation(default=None, api_version=None, module=None, **kwargs):
     api = getattr(module, '__hug__', None)
     if api:
         return api.http.documentation(base_url="", api_version=api_version)
+
+
+@_built_in_directive
+def session(context_name='session', request=None, **kwargs):
+    """Returns the session associated with the current request"""
+    return request and request.context.get(context_name, None)
+
+
+@_built_in_directive
+def user(default=None, request=None, **kwargs):
+    """Returns the current logged in user"""
+    return request and request.context.get('user', None) or default
 
 
 @_built_in_directive
@@ -106,8 +118,3 @@ class CurrentAPI(object):
             function = partial(function, hug_current_api=self)
 
         return function
-
-@_built_in_directive
-def user(default=None, request=None, **kwargs):
-    """Returns the current logged in user"""
-    return request.context.get('user')

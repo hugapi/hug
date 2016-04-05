@@ -44,7 +44,8 @@ def call(method, api_or_module, url, body='', headers=None, **params):
         headers = {} if headers is None else headers
         headers.setdefault('content-type', 'application/json')
 
-    result = api(create_environ(path=url, method=method, headers=headers, query_string=urlencode(params), body=body),
+    result = api(create_environ(path=url, method=method, headers=headers, query_string=urlencode(params, True),
+                                body=body),
                  response)
     if result:
         try:
