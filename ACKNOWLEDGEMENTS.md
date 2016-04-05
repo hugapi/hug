@@ -26,6 +26,7 @@ Code Contributors
 - Ergo_ (@johnlam)
 - Rodrigue Cloutier (@rodcloutier)
 - KhanhIceTea (@khanhicetea)
+- Prashant Sinha (@PrashntS)
 
 Documenters
 ===================
