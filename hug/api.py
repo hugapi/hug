@@ -181,7 +181,8 @@ class HTTPInterfaceAPI(InterfaceAPI):
         version_dict = OrderedDict()
         versions = self.versions
         versions_list = list(versions)
-        versions_list.remove(None)
+        if None in versions_list:
+            versions_list.remove(None)
         if api_version is None and len(versions_list) > 0:
             api_version = max(versions_list)
             documentation['version'] = api_version
