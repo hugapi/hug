@@ -14,6 +14,7 @@ Changelog
 ### 2.1.0 (in Development)
 - Updated base Falcon requirement to the latest: 1.0.0
 - Fixed issues with certain non-standard content-type values causing an exception
+- Fixed a bug producing documentation when versioning is used, and there are no routes that apply accros versions
 - Added support for getting URL from hug function
 
 ### 2.0.7
