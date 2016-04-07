@@ -307,6 +307,31 @@ def not_found_handler():
 ```
 
 
+Asyncio support
+===============
+
+When using the `get` and `cli` method decorator on coroutines, hug will schedule
+the execution of the coroutine.
+
+Using asyncio coroutine decorator
+```py
+@hug.get()
+@asyncio.coroutine
+def hello_world():
+    return "Hello"
+```
+
+Using Python 3.5 async keyword.
+```py
+@hug.get()
+async def hello_world():
+    return "Hello"
+```
+
+NOTE: Hug is running on top Falcon which is not an asynchronous server. Even if using
+asyncio, requests will still be processed synchronously.
+
+
 Why hug?
 ===================
 

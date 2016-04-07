@@ -21,6 +21,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
+try:  # pragma: no cover
+    import asyncio
+
+    asyncio_iscoroutinefunction = asyncio.iscoroutinefunction
+
+except ImportError:  # pragma: no cover
+
+    def asyncio_iscoroutinefunction(function):
+        return False
+
+import inspect
 from types import MethodType
 
 
@@ -34,16 +45,34 @@ def arguments(function, extra_arguments=0):
     if not hasattr(function, '__code__'):
         return ()
 
+    if asyncio_iscoroutinefunction(function):
+        signature = inspect.signature(function)
+        if extra_arguments:
+            excluded_types = ()
+        else:
+            excluded_types = (inspect.Parameter.VAR_KEYWORD, inspect.Parameter.VAR_POSITIONAL)
+        return [p.name for p in signature.parameters.values() if p.kind not in excluded_types]
+
     return function.__code__.co_varnames[:function.__code__.co_argcount + extra_arguments]
 
 
 def takes_kwargs(function):
     """Returns True if the supplied function takes keyword arguments"""
+    if asyncio_iscoroutinefunction(function):
+        signature = inspect.signature(function)
+        return any(p for p in signature.parameters.values()
+                   if p.kind == inspect.Parameter.VAR_KEYWORD)
+
     return bool(function.__code__.co_flags & 0x08)
 
 
 def takes_kargs(function):
     """Returns True if the supplied functions takes extra non-keyword arguments"""
+    if asyncio_iscoroutinefunction(function):
+        signature = inspect.signature(function)
+        return any(p for p in signature.parameters.values()
+                   if p.kind == inspect.Parameter.VAR_POSITIONAL)
+
     return bool(function.__code__.co_flags & 0x04)
 
 
