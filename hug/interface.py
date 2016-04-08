@@ -45,9 +45,9 @@ try:
     import asyncio
 
     if sys.version_info >= (3, 4, 4):
-        ensure_future = asyncio.ensure_future
+        ensure_future = asyncio.ensure_future  # pragma: no cover
     else:
-        ensure_future = asyncio.async
+        ensure_future = asyncio.async  # pragma: no cover
 
     def asyncio_call(function, *args, **kwargs):
         loop = asyncio.get_event_loop()
