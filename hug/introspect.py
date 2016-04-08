@@ -59,7 +59,7 @@ def arguments(function, extra_arguments=0):
 def takes_kwargs(function):
     """Returns True if the supplied function takes keyword arguments"""
     if asyncio_iscoroutinefunction(function):
-        signature = inspect.signature(function)
+        signature = inspect.signature(function)  # pragma: no cover
         return any(p for p in signature.parameters.values()
                    if p.kind == inspect.Parameter.VAR_KEYWORD)
 
