@@ -45,7 +45,7 @@ def arguments(function, extra_arguments=0):
     if not hasattr(function, '__code__'):
         return ()
 
-    if asyncio_iscoroutinefunction(function):
+    if asyncio_iscoroutinefunction(function):  # pragma: no cover
         signature = inspect.signature(function)
         if extra_arguments:
             excluded_types = ()
@@ -58,8 +58,8 @@ def arguments(function, extra_arguments=0):
 
 def takes_kwargs(function):
     """Returns True if the supplied function takes keyword arguments"""
-    if asyncio_iscoroutinefunction(function):
-        signature = inspect.signature(function)  # pragma: no cover
+    if asyncio_iscoroutinefunction(function):   # pragma: no cover
+        signature = inspect.signature(function)
         return any(p for p in signature.parameters.values()
                    if p.kind == inspect.Parameter.VAR_KEYWORD)
 
@@ -68,7 +68,7 @@ def takes_kwargs(function):
 
 def takes_kargs(function):
     """Returns True if the supplied functions takes extra non-keyword arguments"""
-    if asyncio_iscoroutinefunction(function):
+    if asyncio_iscoroutinefunction(function):   # pragma: no cover
         signature = inspect.signature(function)
         return any(p for p in signature.parameters.values()
                    if p.kind == inspect.Parameter.VAR_POSITIONAL)
