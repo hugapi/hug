@@ -47,3 +47,15 @@ class TestHTTP(object):
 
         with pytest.raises(KeyError):
             namer.interface.http.url(version=10)
+
+
+class TestLocal(object):
+    """Test to ensure hug.interface.Local functionality works as expected"""
+
+    def test_local_method(self):
+        class MyObject(object):
+            @hug.local()
+            def my_method(self, argument_1: hug.types.number):
+                return argument_1
+
+        assert MyObject.my_method(10) == 10
