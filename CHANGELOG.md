@@ -15,6 +15,7 @@ Changelog
 - Updated base Falcon requirement to the latest: 1.0.0
 - Added native support for using asyncio methods (Thanks @rodcloutier!)
 - Added support for getting URL from hug function
+- Added support for using `hug.local()` on methods in addition to functions
 - Fixed issues with certain non-standard content-type values causing an exception
 - Fixed a bug producing documentation when versioning is used, and there are no routes that apply accros versions
 
