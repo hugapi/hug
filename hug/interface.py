@@ -25,7 +25,7 @@ import argparse
 import os
 import sys
 from collections import OrderedDict
-from functools import wraps, lru_cache
+from functools import wraps, lru_cache, partial
 
 import falcon
 from falcon import HTTP_BAD_REQUEST
@@ -104,11 +104,12 @@ class Interfaces(object):
 
             self.input_transformations[name] = transformer
 
-    def __call__(self, *args, **kwargs):
-        if not self.is_coroutine:
-            return self._function(*args, **kwargs)
+    def __call__(__hug_internal_self, *args, **kwargs):
+        """"Calls the wrapped function, uses __hug_internal_self incase self is passed in as a kwarg from the wrapper"""
+        if not __hug_internal_self.is_coroutine:
+            return __hug_internal_self._function(*args, **kwargs)
 
-        return asyncio_call(self._function, *args, **kwargs)
+        return asyncio_call(__hug_internal_self._function, *args, **kwargs)
 
 
 class Interface(object):
@@ -241,14 +242,6 @@ class Local(Interface):
     """Defines the Interface responsible for exposing functions locally"""
     __slots__ = ('skip_directives', 'skip_validation', 'version')
 
-    @property
-    def __name__(self):
-        return self.interface.spec.__name__
-
-    @property
-    def __module__(self):
-        return self.interface.spec.__module__
-
     def __init__(self, route, function):
         super().__init__(route, function)
         self.version = route.get('version', None)
@@ -259,14 +252,26 @@ class Local(Interface):
 
         self.interface.local = self
 
-    def __call__(self, *kargs, **kwargs):
+    def __get__(self, instance, kind):
+        """Support instance methods"""
+        return partial(self.__call__, instance) if instance else self.__call__
+
+    @property
+    def __name__(self):
+        return self.interface.spec.__name__
+
+    @property
+    def __module__(self):
+        return self.interface.spec.__module__
+
+    def __call__(self, *args, **kwargs):
         """Defines how calling the function locally should be handled"""
         for requirement in self.requires:
             lacks_requirement = self.check_requirements()
             if lacks_requirement:
                 return self.outputs(lacks_requirement) if self.outputs else lacks_requirement
 
-        for index, argument in enumerate(kargs):
+        for index, argument in enumerate(args):
             kwargs[self.parameters[index]] = argument
 
         if not getattr(self, 'skip_directives', False):

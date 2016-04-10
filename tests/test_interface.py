@@ -58,4 +58,5 @@ class TestLocal(object):
             def my_method(self, argument_1: hug.types.number):
                 return argument_1
 
-        assert MyObject.my_method(10) == 10
+        instance = MyObject()
+        assert instance.my_method(10) == 10
