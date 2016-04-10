@@ -21,16 +21,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
-try:  # pragma: no cover
-    import asyncio
-
-    asyncio_iscoroutinefunction = asyncio.iscoroutinefunction
-
-except ImportError:  # pragma: no cover
-
-    def asyncio_iscoroutinefunction(function):
-        return False
-
 import inspect
 from types import MethodType
 
@@ -39,39 +29,42 @@ def is_method(function):
     """Returns True if the passed in function is identified as a method (NOT a function)"""
     return isinstance(function, MethodType)
 
+def is_coroutine(function):
+    """Returns True if the passed in function is a coroutine"""
+    return function.__code__.co_flags & 0x0080 or getattr(function, '_is_coroutine', False)
 
 def arguments(function, extra_arguments=0):
     """Returns the name of all arguments a function takes"""
     if not hasattr(function, '__code__'):
         return ()
 
-    if asyncio_iscoroutinefunction(function):  # pragma: no cover
-        signature = inspect.signature(function)
-        if extra_arguments:
-            excluded_types = ()
-        else:
-            excluded_types = (inspect.Parameter.VAR_KEYWORD, inspect.Parameter.VAR_POSITIONAL)
-        return [p.name for p in signature.parameters.values() if p.kind not in excluded_types]
+    """#if asyncio_iscoroutinefunction(function):  # pragma: no cover
+        #signature = inspect.signature(function)
+        #if extra_arguments:
+            #excluded_types = ()
+        #else:
+            #excluded_types = (inspect.Parameter.VAR_KEYWORD, inspect.Parameter.VAR_POSITIONAL)
+        #return [p.name for p in signature.parameters.values() if p.kind not in excluded_types]"""
 
     return function.__code__.co_varnames[:function.__code__.co_argcount + extra_arguments]
 
 
 def takes_kwargs(function):
     """Returns True if the supplied function takes keyword arguments"""
-    if asyncio_iscoroutinefunction(function):   # pragma: no cover
-        signature = inspect.signature(function)
-        return any(p for p in signature.parameters.values()
-                   if p.kind == inspect.Parameter.VAR_KEYWORD)
+    """#if asyncio_iscoroutinefunction(function):   # pragma: no cover
+        #signature = inspect.signature(function)
+        #return any(p for p in signature.parameters.values()
+                   #if p.kind == inspect.Parameter.VAR_KEYWORD)"""
 
     return bool(function.__code__.co_flags & 0x08)
 
 
 def takes_kargs(function):
     """Returns True if the supplied functions takes extra non-keyword arguments"""
-    if asyncio_iscoroutinefunction(function):   # pragma: no cover
-        signature = inspect.signature(function)
-        return any(p for p in signature.parameters.values()
-                   if p.kind == inspect.Parameter.VAR_POSITIONAL)
+    """#if asyncio_iscoroutinefunction(function):   # pragma: no cover
+        #signature = inspect.signature(function)
+        #return any(p for p in signature.parameters.values()
+                   #if p.kind == inspect.Parameter.VAR_POSITIONAL)"""
 
     return bool(function.__code__.co_flags & 0x04)
 
