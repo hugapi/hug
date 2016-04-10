@@ -454,4 +454,3 @@ class URLRouter(HTTPRouter):
     def prefixes(self, *prefixes, **overrides):
         """Sets the prefixes supported by the route"""
         return self.where(prefixes=prefixes, **overrides)
-

@@ -31,7 +31,6 @@ import hug
 
 from .constants import BASE_DIRECTORY
 
-
 api = hug.API(__name__)
 module = sys.modules[__name__]
 

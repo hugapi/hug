@@ -25,7 +25,7 @@ import argparse
 import os
 import sys
 from collections import OrderedDict
-from functools import wraps, lru_cache, partial
+from functools import lru_cache, partial, wraps
 
 import falcon
 from falcon import HTTP_BAD_REQUEST

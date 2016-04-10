@@ -23,7 +23,6 @@ import asyncio
 
 import hug
 
-
 loop = asyncio.get_event_loop()
 api = hug.API(__name__)
 
