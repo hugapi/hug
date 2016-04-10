@@ -22,7 +22,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import absolute_import
 
 import argparse
-import inspect
 import os
 import sys
 from collections import OrderedDict
@@ -40,7 +39,6 @@ from hug.exceptions import InvalidTypeData
 from hug.input_format import separate_encoding
 from hug.types import MarshmallowSchema, Multiple, OneOf, SmartBoolean, Text, text
 
-
 try:
     import asyncio
 
@@ -51,16 +49,11 @@ try:
 
     def asyncio_call(function, *args, **kwargs):
         loop = asyncio.get_event_loop()
-        f = ensure_future(function(*args, **kwargs), loop=loop)
-        loop.run_until_complete(f)
-        return f.result()
-
-    asyncio_iscoroutinefunction = asyncio.iscoroutinefunction
+        function = ensure_future(function(*args, **kwargs), loop=loop)
+        loop.run_until_complete(function)
+        return function.result()
 
 except ImportError:  # pragma: no cover
-
-    def asyncio_iscoroutinefunction(function):
-        return False
 
     def asyncio_call(*args, **kwargs):
         raise NotImplementedError()
@@ -71,10 +64,11 @@ class Interfaces(object):
 
     def __init__(self, function):
         self.spec = getattr(function, 'original', function)
+        self.arguments = introspect.arguments(function)
         self._function = function
 
-        self.iscoroutine = asyncio_iscoroutinefunction(self.spec)
-        if self.iscoroutine:
+        self.is_coroutine = introspect.is_coroutine(self.spec)
+        if self.is_coroutine:
             self.spec = getattr(self.spec, '__wrapped__', self.spec)
 
         self.takes_kargs = introspect.takes_kargs(self.spec)
@@ -110,12 +104,8 @@ class Interfaces(object):
 
             self.input_transformations[name] = transformer
 
-    @property
-    def arguments(self):
-        return introspect.arguments(self._function)
-
     def __call__(self, *args, **kwargs):
-        if not self.iscoroutine:
+        if not self.is_coroutine:
             return self._function(*args, **kwargs)
 
         return asyncio_call(self._function, *args, **kwargs)
