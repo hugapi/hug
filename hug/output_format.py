@@ -225,7 +225,7 @@ def file(data, response):
         response.status = HTTP_NOT_FOUND
         return 'File not found!'
 
-    response.content_type = mimetypes.guess_type(name, None)[0]
+    response.content_type = mimetypes.guess_type(name, None)[0] or 'application/octet-stream'
     return data
 
 
