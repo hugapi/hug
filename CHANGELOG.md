@@ -19,6 +19,7 @@ Changelog
 - Added a default mime-type for static file endpoints (`application/octet-stream`)
 - Fixed issues with certain non-standard content-type values causing an exception
 - Fixed a bug producing documentation when versioning is used, and there are no routes that apply accros versions
+- Fixed a bug in the `hug_documentation` directive
 
 ### 2.0.7
 - Added convience `put_post` router to enable easier usage of the common `@hug.get('url/', ('PUT', 'POST"))` pattern
