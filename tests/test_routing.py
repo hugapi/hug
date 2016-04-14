@@ -295,6 +295,18 @@ class TestURLRouter(TestHTTPRouter):
         """Test to ensure the HTTP METHOD can be set to accept all on the fly"""
         assert self.route.call().route['accept'] == hug.HTTP_METHODS
 
+    def test_http(self):
+        """Test to ensure the HTTP METHOD can be set to accept all on the fly"""
+        assert self.route.http().route['accept'] == hug.HTTP_METHODS
+
+    def test_get_post(self):
+        """Test to ensure the HTTP METHOD can be set to GET & POST in one call"""
+        return self.route.get_post().route['accept'] == ('GET', 'POST')
+
+    def test_put_post(self):
+        """Test to ensure the HTTP METHOD can be set to PUT & POST in one call"""
+        return self.route.put_post().route['accept'] == ('PUT', 'POST')
+
     def test_examples(self):
         """Test to ensure examples can be modified on the fly"""
         assert self.route.examples('none').route['examples'] == ('none', )

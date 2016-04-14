@@ -443,6 +443,18 @@ class URLRouter(HTTPRouter):
         """Sets the acceptable HTTP method to all known"""
         return self.where(accept=HTTP_METHODS, **overrides)
 
+    def http(self, **overrides):
+        """Sets the acceptable HTTP method to all known"""
+        return self.where(accept=HTTP_METHODS, **overrides)
+
+    def get_post(self, **overrides):
+        """Exposes a Python method externally under both the HTTP POST and GET methods"""
+        return self.where(accept=('GET', 'POST'), **overrides)
+
+    def put_post(self, **overrides):
+        """Exposes a Python method externally under both the HTTP POST and PUT methods"""
+        return self.where(accept=('PUT', 'POST'), **overrides)
+
     def examples(self, *examples, **overrides):
         """Sets the examples that the route should use"""
         return self.where(examples=examples, **overrides)
