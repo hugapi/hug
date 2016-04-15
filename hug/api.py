@@ -385,7 +385,7 @@ class ModuleSingleton(type):
 
 class API(object, metaclass=ModuleSingleton):
     """Stores the information necessary to expose API calls within this module externally"""
-    __slots__ = ('module', '_directives', '_http', '_cli')
+    __slots__ = ('module', '_directives', '_http', '_cli', '_context')
 
     def __init__(self, module):
         self.module = module
@@ -414,6 +414,12 @@ class API(object, metaclass=ModuleSingleton):
         if not hasattr(self, '_cli'):
             self._cli = CLIInterfaceAPI(self)
         return self._cli
+
+    @property
+    def context(self):
+        if not hasattr(self, '_context'):
+            self._context = {}
+        return self._context
 
     def extend(self, api, route=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
