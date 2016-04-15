@@ -17,6 +17,7 @@ Changelog
 - Added support for getting URL from hug function
 - Added support for using `hug.local()` on methods in addition to functions
 - Added a default mime-type for static file endpoints (`application/octet-stream`)
+- Added initial `hug.API(__name__).context` dictionary as a safe place to store global per-thread state (such as database connections)
 - Fixed issues with certain non-standard content-type values causing an exception
 - Fixed a bug producing documentation when versioning is used, and there are no routes that apply accros versions
 - Fixed a bug in the `hug_documentation` directive
