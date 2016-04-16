@@ -1,0 +1,10 @@
+Cython==0.24
+bobo
+bottle
+cherrypy
+falcon
+flask
+muffin
+pyramid
+hug
+gunicorn
