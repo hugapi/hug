@@ -2,14 +2,16 @@
 
 output="Test results:\n"
 
-for app in bobo_test falcon_test cherrypy_test pyramid_test hug_test flask_test bottle_test;
+for app in hug_test falcon_test flask_test bobo_test cherrypy_test pyramid_test  bottle_test;
 do
     echo "TEST: $app"
+    killall gunicorn
+    fuser -k 8000/tcp
     gunicorn -w 2 $app:app &
-    sleep 2
+    sleep 5
     ab -n 1000 -c 5 http://localhost:8000/text
-    sleep 2
-    ab_out=`ab -n 5000 -c 5 http://localhost:8000/text`
+    sleep 5
+    ab_out=`ab -n 20000 -c 5 http://localhost:8000/text`
     killall gunicorn
     rps=`echo "$ab_out" | grep "Requests per second"`
     crs=`echo "$ab_out" | grep "Complete requests"`

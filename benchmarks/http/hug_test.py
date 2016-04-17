@@ -6,4 +6,4 @@ def text():
     return 'Hello, World!'
 
 
-app = __hug_wsgi__
+app = hug.API(__name__).http.server()
