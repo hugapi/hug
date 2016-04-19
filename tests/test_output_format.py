@@ -210,6 +210,27 @@ def test_on_content_type():
         formatter('hi', request, response)
 
 
+def test_on_accept():
+    """Ensure that it's possible to route the output type format by the requests stated accept header"""
+    formatter = hug.output_format.on_accept({'application/json': hug.output_format.json,
+                                             'text/plain': hug.output_format.text})
+
+    class FakeRequest(object):
+        accept = 'application/json'
+
+    request = FakeRequest()
+    response = FakeRequest()
+    converted = hug.input_format.json(formatter(BytesIO(hug.output_format.json({'name': 'name'})), request, response))
+    assert converted == {'name': 'name'}
+
+    request.content_type = 'text/plain'
+    assert formatter('hi', request, response) == b'hi'
+
+    with pytest.raises(hug.HTTPNotAcceptable):
+        request.content_type = 'undefined; always'
+        formatter('hi', request, response)
+
+
 def test_suffix():
     """Ensure that it's possible to route the output type format by the suffix of the requested URL"""
     formatter = hug.output_format.suffix({'.js': hug.output_format.json, '.html': hug.output_format.text})
