@@ -30,12 +30,14 @@ from datetime import date, datetime
 from decimal import Decimal
 from functools import wraps
 from io import BytesIO
+import re
 
 import falcon
 from falcon import HTTP_NOT_FOUND
 
 from hug import introspect
 from hug.format import camelcase, content_type
+from operator import itemgetter
 
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
                'cur', 'dcx', 'fli', 'flc', 'gbr', 'gd', 'ico', 'icns', 'imt', 'iptc', 'naa', 'mcidas', 'mpo', 'pcd',
@@ -43,6 +45,7 @@ IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'p
 
 VIDEO_TYPES = (('flv', 'video/x-flv'), ('mp4', 'video/mp4'), ('m3u8', 'application/x-mpegURL'), ('ts', 'video/MP2T'),
                ('3gp', 'video/3gpp'), ('mov', 'video/quicktime'), ('avi', 'video/x-msvideo'), ('wmv', 'video/x-ms-wmv'))
+RE_ACCEPT_QUALITY = re.compile("q=(?P<quality>[^;]+)")
 json_converters = {}
 stream = tempfile.NamedTemporaryFile if 'UWSGI_ORIGINAL_PROC_NAME' in os.environ else BytesIO
 
@@ -249,6 +252,49 @@ def on_content_type(handlers, default=None, error='The requested content type do
     output_type.content_type = ', '.join(handlers.keys())
     return output_type
 
+
+def accept_quality(accept, default=1):
+    """Separates out the quality score from the accepted content_type"""
+    quality = default
+    if accept and ";" in accept:
+        accept, rest = accept.split(";", 1)
+        accept_quality = RE_ACCEPT_QUALITY.search(rest)
+        if accept_quality:
+            quality = float(accept_quality.groupdict().get('quality', quality).strip())
+
+    return (quality, accept.strip())
+
+
+def accept(handlers, default=None, error='The requested content type does not match any of those allowed'):
+    """Returns a content in a different format based on the clients defined accepted content type,
+       should pass in a dict with the following format:
+
+            {'[content-type]': action,
+             ...
+            }
+    """
+    def output_type(data, request, response):
+        accept = request.accept
+        if accept in ('', '*', '/'):
+            handler = default or handlers and next(iter(handlers.values()))
+        else:
+            handler = default
+            accepted = [accept_quality(accept_type) for accept_type in accept.split(',')]
+            accepted.sort(key=itemgetter(0))
+            for quality, accepted_content_type in reversed(accepted):
+                if accepted_content_type in handlers:
+                    handler = handlers[accepted_content_type]
+                    break
+
+        if not handler:
+            raise falcon.HTTPNotAcceptable(error)
+
+        response.content_type = handler.content_type
+        return handler(data)
+    output_type.__doc__ = 'Supports any of the following formats: {0}'.format(', '.join(function.__doc__ for function in
+                                                                                        handlers.values()))
+    output_type.content_type = ', '.join(handlers.keys())
+    return output_type
 
 
 def suffix(handlers, default=None, error='The requested suffix does not match any of those allowed'):
