@@ -212,8 +212,8 @@ def test_on_content_type():
 
 def test_on_accept():
     """Ensure that it's possible to route the output type format by the requests stated accept header"""
-    formatter = hug.output_format.on_accept({'application/json': hug.output_format.json,
-                                             'text/plain': hug.output_format.text})
+    formatter = hug.output_format.accept({'application/json': hug.output_format.json,
+                                          'text/plain': hug.output_format.text})
 
     class FakeRequest(object):
         accept = 'application/json'
