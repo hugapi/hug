@@ -39,9 +39,9 @@ def call(method, api_or_module, url, body='', headers=None, **params):
     """Simulates a round-trip call against the given API / URL"""
     api = API(api_or_module).http.server()
     response = StartResponseMock()
-    if not isinstance(body, str):
+    headers = {} if headers is None else headers
+    if not isinstance(body, str) and 'json' in headers.get('content-type', 'application/json'):
         body = output_format.json(body)
-        headers = {} if headers is None else headers
         headers.setdefault('content-type', 'application/json')
 
     result = api(create_environ(path=url, method=method, headers=headers, query_string=urlencode(params, True),
