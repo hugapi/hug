@@ -23,6 +23,7 @@ from __future__ import absolute_import
 
 import json as json_converter
 import re
+from urllib.parse import parse_qs as urlencoded_converter
 
 from hug.format import content_type, underscore
 
@@ -70,3 +71,9 @@ def json_underscore(body, encoding='utf-8'):
     The keys in any JSON dict are transformed from camelcase to underscore separated words.
     """
     return _underscore_dict(json(body, encoding=encoding))
+
+
+@content_type('application/x-www-form-urlencoded')
+def urlencoded(body, encoding='utf-8'):
+    """Converts query strings into native Python objects"""
+    return urlencoded_converter(text(body, encoding=encoding))
