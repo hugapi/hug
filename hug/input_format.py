@@ -64,9 +64,9 @@ def _underscore_dict(dictionary):
     return new_dictionary
 
 
-def json_underscore(body):
+def json_underscore(body, encoding='utf-8'):
     """Converts JSON formatted date to native Python objects.
 
     The keys in any JSON dict are transformed from camelcase to underscore separated words.
     """
-    return _underscore_dict(json(body))
+    return _underscore_dict(json(body, encoding=encoding))
