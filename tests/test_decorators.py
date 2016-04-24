@@ -1164,3 +1164,13 @@ def test_cli_api_return():
         return "Success!"
 
     my_cli_command.interface.cli()
+
+
+def test_urlencoded():
+    """Ensure that urlencoded input format works as intended"""
+    @hug.post()
+    def test_url_encoded_post(**kwargs):
+        return kwargs
+
+    test_data = b'foo=baz&foo=bar&name=John+Doe'
+    assert hug.test.post(api, 'test_url_encoded_post', body=test_data, headers={'content-type': 'application/x-www-form-urlencoded'}).data == {'name': ['John Doe'], 'foo': ['baz', 'bar']}
