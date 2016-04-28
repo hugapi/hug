@@ -19,6 +19,7 @@ Changelog
 - Added support for using `hug.local()` on methods in addition to functions
 - Added a default mime-type for static file endpoints (`application/octet-stream`)
 - Added initial `hug.API(__name__).context` dictionary as a safe place to store global per-thread state (such as database connections)
+- Added support for manually specifying API object for all decorators (including middleware / startup) to enable easier plugin interaction
 - Added conditional output format based on Accept request header, as detailed in issue #277
 - Improved how `hug.test` deals with non JSON content types
 - Fixed issues with certain non-standard content-type values causing an exception
