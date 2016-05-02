@@ -25,6 +25,8 @@ import json as json_converter
 import re
 from urllib.parse import parse_qs as urlencoded_converter
 
+from falcon.util.uri import parse_query_string
+
 from hug.format import content_type, underscore
 
 RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
@@ -74,6 +76,6 @@ def json_underscore(body, encoding='utf-8'):
 
 
 @content_type('application/x-www-form-urlencoded')
-def urlencoded(body, encoding='utf-8'):
+def urlencoded(body, encoding='ascii'):
     """Converts query strings into native Python objects"""
-    return urlencoded_converter(text(body, encoding=encoding))
+    return parse_query_string(text(body, encoding=encoding), False)

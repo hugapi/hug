@@ -48,8 +48,8 @@ def test_separate_encoding():
     assert hug.input_format.separate_encoding('text/html', 'default') == ('text/html', 'default')
     assert hug.input_format.separate_encoding('text/html; chset=malformatted') == ('text/html', None)
 
+
 def test_urlencoded():
     """Ensure that urlencoded input format works as intended"""
     test_data = BytesIO(b'foo=baz&foo=bar&name=John+Doe')
-    assert hug.input_format.urlencoded(test_data) == {'name': ['John Doe'], 'foo': ['baz', 'bar']}
-
+    assert hug.input_format.urlencoded(test_data) == {'name': 'John Doe', 'foo': ['baz', 'bar']}
