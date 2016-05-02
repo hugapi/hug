@@ -14,7 +14,7 @@ Changelog
 ### 2.1.0 (in Development)
 - Updated base Falcon requirement to the latest: 1.0.0
 - Added native support for using asyncio methods (Thanks @rodcloutier!)
-- Added initial support for `application/x-www-form-urlencoded` forms (thanks @cog!)
+- Added improved support for `application/x-www-form-urlencoded` forms (thanks @cog!)
 - Added support for getting URL from hug function
 - Added support for using `hug.local()` on methods in addition to functions
 - Added a default mime-type for static file endpoints (`application/octet-stream`)
