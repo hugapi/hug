@@ -19,9 +19,15 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import os
+from cgi import parse_header
 from io import BytesIO
 
+import requests
+
 import hug
+
+from .constants import BASE_DIRECTORY
 
 
 def test_text():
@@ -48,3 +54,11 @@ def test_urlencoded():
     """Ensure that urlencoded input format works as intended"""
     test_data = BytesIO(b'foo=baz&foo=bar&name=John+Doe')
     assert hug.input_format.urlencoded(test_data) == {'name': 'John Doe', 'foo': ['baz', 'bar']}
+
+
+def test_multipart():
+    """Ensure multipart form data works as intended"""
+    with open(os.path.join(BASE_DIRECTORY, 'artwork', 'koala.png'),'rb') as koala:
+        preq = requests.Request('POST', 'http://localhost/', files={'koala': koala}).prepare()
+        koala.seek(0)
+        assert hug.input_format.multipart(BytesIO(preq.body), parse_header(preq.headers['Content-Type'])[1])['koala'] == koala.read()
