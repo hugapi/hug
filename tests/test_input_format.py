@@ -28,6 +28,8 @@ def test_text():
     """Ensure that plain text input format works as intended"""
     test_data = BytesIO(b'{"a": "b"}')
     assert hug.input_format.text(test_data) == '{"a": "b"}'
+    test_data = BytesIO(b'{"a": "b"}')
+    assert hug.input_format.text(test_data, None) == '{"a": "b"}'
 
 
 def test_json():

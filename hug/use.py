@@ -111,7 +111,7 @@ class HTTP(Service):
         data = BytesIO(response.content)
         content_type, ct_params = parse_header(response.headers.get('content-type', ''))
         if content_type in input_format:
-            data = input_format[content_type](data, ct_params.get('charset', 'utf-8'))
+            data = input_format[content_type](data, ct_params or {'charset': 'utf-8'})
 
         if response.status_code in self.raise_on:
             raise requests.HTTPError('{0} {1} occured for url: {2}'.format(response.status_code, response.reason, url))
@@ -153,7 +153,7 @@ class Local(Service):
         data = BytesIO(response.data)
         content_type, ct_params = parse_header(response._headers.get('content-type', ''))
         if content_type in input_format:
-            data = input_format[content_type](data, ct_params.get('charset', 'utf-8'))
+            data = input_format[content_type](data, ct_params or {'charset': 'utf-8'})
 
         status_code = int(''.join(re.findall('\d+', response.status)))
         if status_code in self.raise_on:

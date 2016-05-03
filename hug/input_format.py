@@ -31,15 +31,19 @@ from hug.format import content_type, underscore
 
 
 @content_type('text/plain')
-def text(body, encoding='utf-8'):
+def text(body, header_params={'charset': 'utf-8'}):
     """Takes plain text data"""
-    return body.read().decode(encoding)
+    encoding = header_params and header_params.get('charset', None)
+    data = body.read()
+    if encoding:
+        return data.decode(encoding)
+    return data.decode()
 
 
 @content_type('application/json')
-def json(body, encoding='utf-8'):
+def json(body, header_params={'charset': 'utf-8'}):
     """Takes JSON formatted data, converting it into native Python objects"""
-    return json_converter.loads(text(body, encoding=encoding))
+    return json_converter.loads(text(body, header_params=header_params))
 
 
 def _underscore_dict(dictionary):
@@ -53,15 +57,15 @@ def _underscore_dict(dictionary):
     return new_dictionary
 
 
-def json_underscore(body, encoding='utf-8'):
+def json_underscore(body, header_params={'charset': 'utf-8'}):
     """Converts JSON formatted date to native Python objects.
 
     The keys in any JSON dict are transformed from camelcase to underscore separated words.
     """
-    return _underscore_dict(json(body, encoding=encoding))
+    return _underscore_dict(json(body, header_params=header_params))
 
 
 @content_type('application/x-www-form-urlencoded')
-def urlencoded(body, encoding='ascii'):
+def urlencoded(body, header_params={'charset': 'ascii'}):
     """Converts query strings into native Python objects"""
-    return parse_query_string(text(body, encoding=encoding), False)
+    return parse_query_string(text(body, header_params=header_params), False)
