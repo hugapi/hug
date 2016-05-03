@@ -75,7 +75,7 @@ def urlencoded(body, header_params={'charset': 'ascii'}):
 @content_type('multipart/form-data')
 def multipart(body, header_params=None):
     """Converts multipart form data into native Python objects"""
-    if 'boundary' in header_params:
+    if header_params and 'boundary' in header_params:
         if type(header_params['boundary']) is str:
             header_params['boundary'] = header_params['boundary'].encode()
     form = parse_multipart(body, header_params)
