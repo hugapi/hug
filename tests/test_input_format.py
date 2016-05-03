@@ -42,13 +42,6 @@ def test_json_underscore():
     assert hug.input_format.json_underscore(test_data) == {'camel_case': {'because_we_can': 'ValueExempt'}}
 
 
-def test_separate_encoding():
-    """Test to ensure separating out encodings from content_types works as expected"""
-    assert hug.input_format.separate_encoding('text/html; charset=utf8') == ('text/html', 'utf8')
-    assert hug.input_format.separate_encoding('text/html', 'default') == ('text/html', 'default')
-    assert hug.input_format.separate_encoding('text/html; chset=malformatted') == ('text/html', None)
-
-
 def test_urlencoded():
     """Ensure that urlencoded input format works as intended"""
     test_data = BytesIO(b'foo=baz&foo=bar&name=John+Doe')
