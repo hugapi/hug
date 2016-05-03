@@ -49,11 +49,11 @@ def any(*validators):
     return validate_any
 
 
-def contains_one_of(*fields, **kwargs):
+def contains_one_of(*fields):
     """Enables ensuring that one of multiple optional fields is set"""
     message = 'Must contain any one of the following fields: {0}'.format(', '.join(fields))
 
-    def check_contains(endpoint_fields):
+    def check_contains(endpoint_fields, **kwargs):
         for field in fields:
             if field in endpoint_fields:
                 return
