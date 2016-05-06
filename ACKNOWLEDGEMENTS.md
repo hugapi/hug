@@ -47,6 +47,7 @@ Documenters
 - Patrick Abeya (@wombat2k)
 - Ergo_ (@johnlam)
 - Adeel Khan (@adeel)
+- Benjamin Williams (@benjaminjosephw)
 
 --------------------------------------------
 
