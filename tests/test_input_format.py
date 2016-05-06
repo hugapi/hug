@@ -19,15 +19,23 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import os
+from cgi import parse_header
 from io import BytesIO
 
+import requests
+
 import hug
+
+from .constants import BASE_DIRECTORY
 
 
 def test_text():
     """Ensure that plain text input format works as intended"""
     test_data = BytesIO(b'{"a": "b"}')
     assert hug.input_format.text(test_data) == '{"a": "b"}'
+    test_data = BytesIO(b'{"a": "b"}')
+    assert hug.input_format.text(test_data, None) == '{"a": "b"}'
 
 
 def test_json():
@@ -42,14 +50,15 @@ def test_json_underscore():
     assert hug.input_format.json_underscore(test_data) == {'camel_case': {'because_we_can': 'ValueExempt'}}
 
 
-def test_separate_encoding():
-    """Test to ensure separating out encodings from content_types works as expected"""
-    assert hug.input_format.separate_encoding('text/html; charset=utf8') == ('text/html', 'utf8')
-    assert hug.input_format.separate_encoding('text/html', 'default') == ('text/html', 'default')
-    assert hug.input_format.separate_encoding('text/html; chset=malformatted') == ('text/html', None)
-
-
 def test_urlencoded():
     """Ensure that urlencoded input format works as intended"""
     test_data = BytesIO(b'foo=baz&foo=bar&name=John+Doe')
     assert hug.input_format.urlencoded(test_data) == {'name': 'John Doe', 'foo': ['baz', 'bar']}
+
+
+def test_multipart():
+    """Ensure multipart form data works as intended"""
+    with open(os.path.join(BASE_DIRECTORY, 'artwork', 'koala.png'),'rb') as koala:
+        preq = requests.Request('POST', 'http://localhost/', files={'koala': koala}).prepare()
+        koala.seek(0)
+        assert hug.input_format.multipart(BytesIO(preq.body), parse_header(preq.headers['Content-Type'])[1])['koala'] == koala.read()

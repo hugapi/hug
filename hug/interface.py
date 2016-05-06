@@ -24,6 +24,7 @@ from __future__ import absolute_import
 import argparse
 import os
 import sys
+from cgi import parse_header
 from collections import OrderedDict
 from functools import lru_cache, partial, wraps
 
@@ -36,7 +37,6 @@ import hug.output_format
 import hug.types as types
 from hug import introspect
 from hug.exceptions import InvalidTypeData
-from hug.input_format import separate_encoding
 from hug.types import MarshmallowSchema, Multiple, OneOf, SmartBoolean, Text, text
 
 try:
@@ -444,10 +444,10 @@ class HTTP(Interface):
         input_parameters.update(request.params)
         if self.parse_body and request.content_length is not None:
             body = request.stream
-            content_type, encoding = separate_encoding(request.content_type)
+            content_type, ct_params = parse_header(request.content_type)
             body_formatter = body and self.api.http.input_format(content_type)
             if body_formatter:
-                body = body_formatter(body, encoding) if encoding is not None else body_formatter(body)
+                body = body_formatter(body, ct_params) if ct_params else body_formatter(body)
             if 'body' in self.parameters:
                 input_parameters['body'] = body
             if isinstance(body, dict):

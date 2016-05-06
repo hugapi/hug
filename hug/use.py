@@ -23,6 +23,7 @@ from __future__ import absolute_import
 
 import re
 import socket
+from cgi import parse_header
 from collections import namedtuple
 from io import BytesIO
 from queue import Queue
@@ -33,7 +34,6 @@ import requests
 import hug._empty as empty
 from hug.api import API
 from hug.defaults import input_format
-from hug.input_format import separate_encoding
 
 Response = namedtuple('Response', ('data', 'status_code', 'headers'))
 Request = namedtuple('Request', ('content_length', 'stream', 'params'))
@@ -109,9 +109,9 @@ class HTTP(Service):
         response = self.session.request(method, self.endpoint + url.format(url_params), headers=headers, **kwargs)
 
         data = BytesIO(response.content)
-        (content_type, encoding) = separate_encoding(response.headers.get('content-type', ''), 'utf-8')
+        content_type, ct_params = parse_header(response.headers.get('content-type', ''))
         if content_type in input_format:
-            data = input_format[content_type](data, encoding)
+            data = input_format[content_type](data, ct_params or {'charset': 'utf-8'})
 
         if response.status_code in self.raise_on:
             raise requests.HTTPError('{0} {1} occured for url: {2}'.format(response.status_code, response.reason, url))
@@ -151,9 +151,9 @@ class Local(Service):
             interface.render_content(interface.call_function(**params), request, response)
 
         data = BytesIO(response.data)
-        (content_type, encoding) = separate_encoding(response._headers.get('content-type', ''), 'utf-8')
+        content_type, ct_params = parse_header(response._headers.get('content-type', ''))
         if content_type in input_format:
-            data = input_format[content_type](data, encoding)
+            data = input_format[content_type](data, ct_params or {'charset': 'utf-8'})
 
         status_code = int(''.join(re.findall('\d+', response.status)))
         if status_code in self.raise_on:
