@@ -169,6 +169,16 @@ class TestHTTPRouter(TestInternalValidation):
         """Test to ensure requirements can be added on the fly"""
         assert self.route.requires(('values', )).route['requires'] == ('love', 'values')
 
+    def test_doesnt_require(self):
+        """Ensure requirements can be selectively removed on the fly"""
+        assert self.route.doesnt_require('love').route['requires'] == ()
+        assert self.route.doesnt_require('values').route['requires'] == ('love', )
+
+        route = self.route.requires(('values', ))
+        assert route.doesnt_require('love').route['requires'] == ('values', )
+        assert route.doesnt_require('values').route['requires'] == ('love', )
+        assert route.doesnt_require(('values', 'love')).route['requires'] == ()
+
     def test_parameters(self):
         """Test to ensure the parameters can be replaced on the fly"""
         assert self.route.parameters(('one', 'two')).route['parameters'] == ('one', 'two')
