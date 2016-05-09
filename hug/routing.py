@@ -75,6 +75,10 @@ class Router(object):
         """Adds additional requirements to the specified route"""
         return self.where(requires=tuple(self.route.get('requires', ())) + tuple(requirements), **overrides)
 
+    def doesnt_require(self, requirements, **overrides):
+        """Removes individual requirements while keeping all other defined ones within a route"""
+        pass
+
     def where(self, **overrides):
         """Creates a new route, based on the current route, with the specified overrided values"""
         route_data = self.route.copy()
