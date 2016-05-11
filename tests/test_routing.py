@@ -171,13 +171,13 @@ class TestHTTPRouter(TestInternalValidation):
 
     def test_doesnt_require(self):
         """Ensure requirements can be selectively removed on the fly"""
-        assert self.route.doesnt_require('love').route['requires'] == ()
+        assert self.route.doesnt_require('love').route.get('requires', ()) == ()
         assert self.route.doesnt_require('values').route['requires'] == ('love', )
 
         route = self.route.requires(('values', ))
         assert route.doesnt_require('love').route['requires'] == ('values', )
         assert route.doesnt_require('values').route['requires'] == ('love', )
-        assert route.doesnt_require(('values', 'love')).route['requires'] == ()
+        assert route.doesnt_require(('values', 'love')).route.get('requires', ()) == ()
 
     def test_parameters(self):
         """Test to ensure the parameters can be replaced on the fly"""

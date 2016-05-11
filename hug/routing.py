@@ -77,8 +77,8 @@ class Router(object):
 
     def doesnt_require(self, requirements, **overrides):
         """Removes individual requirements while keeping all other defined ones within a route"""
-        return self.where(requires=tuple(set(requirements if type(requirements) in (list, tuple) else (requirements, )).
-                    difference(self.route.get('requires', ()))))
+        return self.where(requires=tuple(set(self.route.get('requires', ())).difference(requirements if
+                                                            type(requirements) in (list, tuple) else (requirements, ))))
 
     def where(self, **overrides):
         """Creates a new route, based on the current route, with the specified overrided values"""
