@@ -1185,9 +1185,8 @@ def test_multipart():
         return kwargs
 
     with open(os.path.join(BASE_DIRECTORY, 'artwork', 'logo.png'),'rb') as logo:
-        preq = requests.Request('POST', 'http://localhost/', files={'logo': logo}).prepare()
+        prepared_request = requests.Request('POST', 'http://localhost/', files={'logo': logo}).prepare()
         logo.seek(0)
         output = json.loads(hug.defaults.output_format({'logo': logo.read()}).decode('utf8'))
-        assert hug.test.post(api, 'test_multipart_post',
-                             body=preq.body,
-                             headers=preq.headers).data == output
+        assert hug.test.post(api, 'test_multipart_post',  body=prepared_request.body,
+                             headers=prepared_request.headers).data == output
