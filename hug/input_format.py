@@ -79,7 +79,7 @@ def multipart(body, header_params=None):
         if type(header_params['boundary']) is str:
             header_params['boundary'] = header_params['boundary'].encode()
     form = parse_multipart(body, header_params)
-    for k, v in form.items():
-        if type(v) is list and len(v) is 1:
-            form[k] = v[0]
+    for key, value in form.items():
+        if type(value) is list and len(value) is 1:
+            form[key] = value[0]
     return form
