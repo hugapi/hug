@@ -11,7 +11,7 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
-### 2.1.0 (in Development)
+### 2.1.0
 - Updated base Falcon requirement to the latest: 1.0.0
 - Added native support for using asyncio methods (Thanks @rodcloutier!)
 - Added improved support for `application/x-www-form-urlencoded` forms (thanks @cag!)
