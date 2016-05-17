@@ -24,6 +24,10 @@ Code Contributors
 - Erwin Haasnoot (@ErwinHaasnoot)
 - Kirk Leon Guerrero (@kirklg)
 - Ergo_ (@johnlam)
+- Rodrigue Cloutier (@rodcloutier)
+- KhanhIceTea (@khanhicetea)
+- Prashant Sinha (@PrashntS)
+- Alan Lu (@cag)
 
 Documenters
 ===================
@@ -42,6 +46,8 @@ Documenters
 - Steven Loria (@sloria)
 - Patrick Abeya (@wombat2k)
 - Ergo_ (@johnlam)
+- Adeel Khan (@adeel)
+- Benjamin Williams (@benjaminjosephw)
 
 --------------------------------------------
 

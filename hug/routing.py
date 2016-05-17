@@ -75,6 +75,11 @@ class Router(object):
         """Adds additional requirements to the specified route"""
         return self.where(requires=tuple(self.route.get('requires', ())) + tuple(requirements), **overrides)
 
+    def doesnt_require(self, requirements, **overrides):
+        """Removes individual requirements while keeping all other defined ones within a route"""
+        return self.where(requires=tuple(set(self.route.get('requires', ())).difference(requirements if
+                                                            type(requirements) in (list, tuple) else (requirements, ))))
+
     def where(self, **overrides):
         """Creates a new route, based on the current route, with the specified overrided values"""
         route_data = self.route.copy()
@@ -443,6 +448,18 @@ class URLRouter(HTTPRouter):
         """Sets the acceptable HTTP method to all known"""
         return self.where(accept=HTTP_METHODS, **overrides)
 
+    def http(self, **overrides):
+        """Sets the acceptable HTTP method to all known"""
+        return self.where(accept=HTTP_METHODS, **overrides)
+
+    def get_post(self, **overrides):
+        """Exposes a Python method externally under both the HTTP POST and GET methods"""
+        return self.where(accept=('GET', 'POST'), **overrides)
+
+    def put_post(self, **overrides):
+        """Exposes a Python method externally under both the HTTP POST and PUT methods"""
+        return self.where(accept=('PUT', 'POST'), **overrides)
+
     def examples(self, *examples, **overrides):
         """Sets the examples that the route should use"""
         return self.where(examples=examples, **overrides)
@@ -454,4 +471,3 @@ class URLRouter(HTTPRouter):
     def prefixes(self, *prefixes, **overrides):
         """Sets the prefixes supported by the route"""
         return self.where(prefixes=prefixes, **overrides)
-

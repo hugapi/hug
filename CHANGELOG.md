@@ -11,6 +11,29 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.1.0 (in Development)
+- Updated base Falcon requirement to the latest: 1.0.0
+- Added native support for using asyncio methods (Thanks @rodcloutier!)
+- Added improved support for `application/x-www-form-urlencoded` forms (thanks @cag!)
+- Added initial support for `multipart/form-data`
+- Added support for getting URL from hug function
+- Added support for using `hug.local()` on methods in addition to functions
+- Added a default mime-type for static file endpoints (`application/octet-stream`)
+- Added initial `hug.API(__name__).context` dictionary as a safe place to store global per-thread state (such as database connections)
+- Added support for manually specifying API object for all decorators (including middleware / startup) to enable easier plugin interaction
+- Added support for selectively removing requirements per endpoint
+- Added conditional output format based on Accept request header, as detailed in issue #277
+- Improved how `hug.test` deals with non JSON content types
+- Fixed issues with certain non-standard content-type values causing an exception
+- Fixed a bug producing documentation when versioning is used, and there are no routes that apply accros versions
+- Fixed a bug in the `hug_documentation` directive
+- Breaking Changes
+    - Input formats no longer get passed `encoding` but instead get passed `charset` along side all other set content type parameters
+
+### 2.0.7
+- Added convience `put_post` router to enable easier usage of the common `@hug.get('url/', ('PUT', 'POST"))` pattern
+- When passing lists or tuples to the hug http testing methods, they will now correctly be handled as multiple values
+
 ### 2.0.5 - 2.0.6
 - Adds built-in support for token based authentication
 

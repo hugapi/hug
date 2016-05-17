@@ -149,7 +149,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self.add_middleware(middleware)
 
         for startup_handler in (http_api.startup_handlers or ()):
-            self.add_startup_handler(startup_handler)\
+            self.add_startup_handler(startup_handler)
 
         for version, handler in getattr(http_api, '_exception_handlers', {}).items():
             for exception_type, exception_handler in handler.items():
@@ -181,7 +181,8 @@ class HTTPInterfaceAPI(InterfaceAPI):
         version_dict = OrderedDict()
         versions = self.versions
         versions_list = list(versions)
-        versions_list.remove(None)
+        if None in versions_list:
+            versions_list.remove(None)
         if api_version is None and len(versions_list) > 0:
             api_version = max(versions_list)
             documentation['version'] = api_version
@@ -384,7 +385,7 @@ class ModuleSingleton(type):
 
 class API(object, metaclass=ModuleSingleton):
     """Stores the information necessary to expose API calls within this module externally"""
-    __slots__ = ('module', '_directives', '_http', '_cli')
+    __slots__ = ('module', '_directives', '_http', '_cli', '_context')
 
     def __init__(self, module):
         self.module = module
@@ -414,6 +415,11 @@ class API(object, metaclass=ModuleSingleton):
             self._cli = CLIInterfaceAPI(self)
         return self._cli
 
+    @property
+    def context(self):
+        if not hasattr(self, '_context'):
+            self._context = {}
+        return self._context
 
     def extend(self, api, route=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""

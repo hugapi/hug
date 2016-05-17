@@ -5,7 +5,7 @@ Every endpoint that is exposed through an externally facing interface will need 
 
 The default output format for all hug APIs is JSON. However, you may explicitly specify a different default output_format:
 
-    hug.API(__name__).output_format = hug.output_format.html
+    hug.API(__name__).http.output_format = hug.output_format.html
 
 or:
 

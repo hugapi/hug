@@ -23,33 +23,24 @@ from __future__ import absolute_import
 
 import json as json_converter
 import re
+from cgi import parse_multipart
+from urllib.parse import parse_qs as urlencoded_converter
+
+from falcon.util.uri import parse_query_string
 
 from hug.format import content_type, underscore
 
-RE_CHARSET = re.compile("charset=(?P<charset>[^;]+)")
-
-
-def separate_encoding(content_type, default=None):
-    """Separates out the encoding from the content_type and returns both in a tuple (content_type, encoding)"""
-    encoding = default
-    if content_type and ";" in content_type:
-        content_type, rest = content_type.split(";", 1)
-        charset = RE_CHARSET.search(rest).groupdict()
-        encoding = charset.get('charset', encoding).strip()
-
-    return (content_type, encoding)
-
 
 @content_type('text/plain')
-def text(body, encoding='utf-8'):
+def text(body, charset='utf-8'):
     """Takes plain text data"""
-    return body.read().decode(encoding)
+    return body.read().decode(charset)
 
 
 @content_type('application/json')
-def json(body, encoding='utf-8'):
+def json(body, charset='utf-8'):
     """Takes JSON formatted data, converting it into native Python objects"""
-    return json_converter.loads(text(body, encoding=encoding))
+    return json_converter.loads(text(body, charset=charset))
 
 
 def _underscore_dict(dictionary):
@@ -63,9 +54,28 @@ def _underscore_dict(dictionary):
     return new_dictionary
 
 
-def json_underscore(body):
+def json_underscore(body, charset='utf-8'):
     """Converts JSON formatted date to native Python objects.
 
     The keys in any JSON dict are transformed from camelcase to underscore separated words.
     """
-    return _underscore_dict(json(body))
+    return _underscore_dict(json(body, charset=charset))
+
+
+@content_type('application/x-www-form-urlencoded')
+def urlencoded(body, charset='ascii'):
+    """Converts query strings into native Python objects"""
+    return parse_query_string(text(body, charset=charset), False)
+
+
+@content_type('multipart/form-data')
+def multipart(body, **header_params):
+    """Converts multipart form data into native Python objects"""
+    if header_params and 'boundary' in header_params:
+        if type(header_params['boundary']) is str:
+            header_params['boundary'] = header_params['boundary'].encode()
+    form = parse_multipart(body, header_params)
+    for key, value in form.items():
+        if type(value) is list and len(value) is 1:
+            form[key] = value[0]
+    return form

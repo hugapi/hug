@@ -31,6 +31,12 @@ class TestAPI(object):
         """Test to ensure there can only be one hug API per module"""
         assert hug.API(__name__) == api
 
+    def test_context(self):
+        """Test to ensure the hug singleton provides a global modifiable context"""
+        assert not hasattr(hug.API(__name__), '_context')
+        assert hug.API(__name__).context == {}
+        assert hasattr(hug.API(__name__), '_context')
+
 
 def test_from_object():
     """Test to ensure it's possible to rechieve an API singleton from an arbitrary object"""

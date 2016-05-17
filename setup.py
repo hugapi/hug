@@ -88,7 +88,7 @@ except (IOError, ImportError, OSError, RuntimeError):
    readme = ''
 
 setup(name='hug',
-      version='2.0.6',
+      version='2.1.0',
       description='A Python framework that makes developing APIs as simple as possible, but no simpler.',
       long_description=readme,
       author='Timothy Crosley',
@@ -102,7 +102,7 @@ setup(name='hug',
       },
       packages=['hug'],
       requires=['falcon', 'requests'],
-      install_requires=['falcon==0.3.0', 'requests'],
+      install_requires=['falcon==1.0.0', 'requests'],
       cmdclass=cmdclass,
       ext_modules=ext_modules,
       keywords='Web, Python, Python3, Refactoring, REST, Framework, RPC',

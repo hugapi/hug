@@ -21,12 +21,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
+import inspect
 from types import MethodType
 
 
 def is_method(function):
     """Returns True if the passed in function is identified as a method (NOT a function)"""
     return isinstance(function, MethodType)
+
+
+def is_coroutine(function):
+    """Returns True if the passed in function is a coroutine"""
+    return function.__code__.co_flags & 0x0080 or getattr(function, '_is_coroutine', False)
 
 
 def arguments(function, extra_arguments=0):

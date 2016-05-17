@@ -73,7 +73,7 @@ def test_api():
 
 def test_documentation():
     """Test documentation directive"""
-    assert 'handlers' in hug.directives.documentation(module=api.module)
+    assert 'handlers' in hug.directives.documentation(api=api)
 
 
 def test_api_version():

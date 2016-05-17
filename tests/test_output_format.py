@@ -19,11 +19,11 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import os
 from collections import namedtuple
 from datetime import datetime
 from decimal import Decimal
 from io import BytesIO
-import os
 
 import pytest
 
@@ -208,6 +208,44 @@ def test_on_content_type():
     with pytest.raises(hug.HTTPNotAcceptable):
         request.content_type = 'undefined; always'
         formatter('hi', request, response)
+
+
+def test_accept():
+    """Ensure that it's possible to route the output type format by the requests stated accept header"""
+    formatter = hug.output_format.accept({'application/json': hug.output_format.json,
+                                          'text/plain': hug.output_format.text})
+
+    class FakeRequest(object):
+        accept = 'application/json'
+
+    request = FakeRequest()
+    response = FakeRequest()
+    converted = hug.input_format.json(formatter(BytesIO(hug.output_format.json({'name': 'name'})), request, response))
+    assert converted == {'name': 'name'}
+
+    request.accept = 'text/plain'
+    assert formatter('hi', request, response) == b'hi'
+
+    request.accept = 'application/json, text/plain; q=0.5'
+    assert formatter('hi', request, response) == b'"hi"'
+
+    request.accept = 'text/plain; q=0.5, application/json'
+    assert formatter('hi', request, response) == b'"hi"'
+
+    request.accept = 'application/json;q=0.4,text/plain; q=0.5'
+    assert formatter('hi', request, response) == b'hi'
+
+    request.accept = '*'
+    assert formatter('hi', request, response) in [b'"hi"', b'hi']
+
+    request.accept = 'undefined; always'
+    with pytest.raises(hug.HTTPNotAcceptable):
+        formatter('hi', request, response)
+
+
+    formatter = hug.output_format.accept({'application/json': hug.output_format.json,
+                                          'text/plain': hug.output_format.text}, hug.output_format.json)
+    assert formatter('hi', request, response) == b'"hi"'
 
 
 def test_suffix():

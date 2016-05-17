@@ -169,6 +169,16 @@ class TestHTTPRouter(TestInternalValidation):
         """Test to ensure requirements can be added on the fly"""
         assert self.route.requires(('values', )).route['requires'] == ('love', 'values')
 
+    def test_doesnt_require(self):
+        """Ensure requirements can be selectively removed on the fly"""
+        assert self.route.doesnt_require('love').route.get('requires', ()) == ()
+        assert self.route.doesnt_require('values').route['requires'] == ('love', )
+
+        route = self.route.requires(('values', ))
+        assert route.doesnt_require('love').route['requires'] == ('values', )
+        assert route.doesnt_require('values').route['requires'] == ('love', )
+        assert route.doesnt_require(('values', 'love')).route.get('requires', ()) == ()
+
     def test_parameters(self):
         """Test to ensure the parameters can be replaced on the fly"""
         assert self.route.parameters(('one', 'two')).route['parameters'] == ('one', 'two')
@@ -294,6 +304,18 @@ class TestURLRouter(TestHTTPRouter):
     def test_call(self):
         """Test to ensure the HTTP METHOD can be set to accept all on the fly"""
         assert self.route.call().route['accept'] == hug.HTTP_METHODS
+
+    def test_http(self):
+        """Test to ensure the HTTP METHOD can be set to accept all on the fly"""
+        assert self.route.http().route['accept'] == hug.HTTP_METHODS
+
+    def test_get_post(self):
+        """Test to ensure the HTTP METHOD can be set to GET & POST in one call"""
+        return self.route.get_post().route['accept'] == ('GET', 'POST')
+
+    def test_put_post(self):
+        """Test to ensure the HTTP METHOD can be set to PUT & POST in one call"""
+        return self.route.put_post().route['accept'] == ('PUT', 'POST')
 
     def test_examples(self):
         """Test to ensure examples can be modified on the fly"""

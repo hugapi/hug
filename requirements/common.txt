@@ -1,2 +1,2 @@
-falcon==0.3.0
+falcon==1.0.0
 requests==2.9.1

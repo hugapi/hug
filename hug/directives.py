@@ -75,10 +75,9 @@ def api_version(default=None, api_version=None, **kwargs):
 
 
 @_built_in_directive
-def documentation(default=None, api_version=None, module=None, **kwargs):
+def documentation(default=None, api_version=None, api=None, **kwargs):
     """returns documentation for the current api"""
     api_version = default or api_version
-    api = getattr(module, '__hug__', None)
     if api:
         return api.http.documentation(base_url="", api_version=api_version)
 
@@ -111,7 +110,7 @@ class CurrentAPI(object):
         if not function:
             raise AttributeError('API Function {0} not found'.format(name))
 
-        accepts = introspect.arguments(function.interface.function)
+        accepts = function.interface.arguments
         if 'hug_api_version' in accepts:
             function = partial(function, hug_api_version=self.api_version)
         if 'hug_current_api' in accepts:

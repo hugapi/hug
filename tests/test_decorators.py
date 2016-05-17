@@ -19,18 +19,19 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import json
 import os
 import sys
 from unittest import mock
 
 import falcon
 import pytest
+import requests
 from falcon.testing import StartResponseMock, create_environ
 
 import hug
 
 from .constants import BASE_DIRECTORY
-
 
 api = hug.API(__name__)
 module = sys.modules[__name__]
@@ -1165,3 +1166,27 @@ def test_cli_api_return():
         return "Success!"
 
     my_cli_command.interface.cli()
+
+
+def test_urlencoded():
+    """Ensure that urlencoded input format works as intended"""
+    @hug.post()
+    def test_url_encoded_post(**kwargs):
+        return kwargs
+
+    test_data = b'foo=baz&foo=bar&name=John+Doe'
+    assert hug.test.post(api, 'test_url_encoded_post', body=test_data, headers={'content-type': 'application/x-www-form-urlencoded'}).data == {'name': 'John Doe', 'foo': ['baz', 'bar']}
+
+
+def test_multipart():
+    """Ensure that multipart input format works as intended"""
+    @hug.post()
+    def test_multipart_post(**kwargs):
+        return kwargs
+
+    with open(os.path.join(BASE_DIRECTORY, 'artwork', 'logo.png'),'rb') as logo:
+        prepared_request = requests.Request('POST', 'http://localhost/', files={'logo': logo}).prepare()
+        logo.seek(0)
+        output = json.loads(hug.defaults.output_format({'logo': logo.read()}).decode('utf8'))
+        assert hug.test.post(api, 'test_multipart_post',  body=prepared_request.body,
+                             headers=prepared_request.headers).data == output

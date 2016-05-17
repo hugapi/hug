@@ -33,7 +33,7 @@ import requests
 import hug._empty as empty
 from hug.api import API
 from hug.defaults import input_format
-from hug.input_format import separate_encoding
+from hug.format import parse_content_type
 
 Response = namedtuple('Response', ('data', 'status_code', 'headers'))
 Request = namedtuple('Request', ('content_length', 'stream', 'params'))
@@ -109,9 +109,9 @@ class HTTP(Service):
         response = self.session.request(method, self.endpoint + url.format(url_params), headers=headers, **kwargs)
 
         data = BytesIO(response.content)
-        (content_type, encoding) = separate_encoding(response.headers.get('content-type', ''), 'utf-8')
+        content_type, content_params = parse_content_type(response.headers.get('content-type', ''))
         if content_type in input_format:
-            data = input_format[content_type](data, encoding)
+            data = input_format[content_type](data, **content_params)
 
         if response.status_code in self.raise_on:
             raise requests.HTTPError('{0} {1} occured for url: {2}'.format(response.status_code, response.reason, url))
@@ -151,9 +151,9 @@ class Local(Service):
             interface.render_content(interface.call_function(**params), request, response)
 
         data = BytesIO(response.data)
-        (content_type, encoding) = separate_encoding(response._headers.get('content-type', ''), 'utf-8')
+        content_type, content_params = parse_content_type(response._headers.get('content-type', ''))
         if content_type in input_format:
-            data = input_format[content_type](data, encoding)
+            data = input_format[content_type](data, **content_params)
 
         status_code = int(''.join(re.findall('\d+', response.status)))
         if status_code in self.raise_on:
@@ -243,7 +243,7 @@ class Socket(Service):
 
     def _dgram_send_and_receive(self, _socket, message, buffer_size=4096, *args):
         """User Datagram Protocol sender and receiver"""
-        _socket.sendto(message.encode('utf-8'), self.connection.connect_to)
+        _socket.send(message.encode('utf-8'))
         data, address = _socket.recvfrom(buffer_size)
         return BytesIO(data)
 

@@ -27,6 +27,8 @@ output_format = hug.output_format.json
 
 input_format = {
     'application/json': hug.input_format.json,
+    'application/x-www-form-urlencoded': hug.input_format.urlencoded,
+    'multipart/form-data': hug.input_format.multipart,
     'text/plain': hug.input_format.text,
     'text/css': hug.input_format.text,
     'text/html': hug.input_format.text
