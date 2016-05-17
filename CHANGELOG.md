@@ -27,6 +27,8 @@ Changelog
 - Fixed issues with certain non-standard content-type values causing an exception
 - Fixed a bug producing documentation when versioning is used, and there are no routes that apply accros versions
 - Fixed a bug in the `hug_documentation` directive
+- Breaking Changes
+    - Input formats no longer get passed `encoding` but instead get passed `charset` along side all other set content type parameters
 
 ### 2.0.7
 - Added convience `put_post` router to enable easier usage of the common `@hug.get('url/', ('PUT', 'POST"))` pattern
