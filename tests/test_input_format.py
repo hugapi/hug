@@ -34,8 +34,6 @@ def test_text():
     """Ensure that plain text input format works as intended"""
     test_data = BytesIO(b'{"a": "b"}')
     assert hug.input_format.text(test_data) == '{"a": "b"}'
-    test_data = BytesIO(b'{"a": "b"}')
-    assert hug.input_format.text(test_data, None) == '{"a": "b"}'
 
 
 def test_json():
@@ -59,6 +57,8 @@ def test_urlencoded():
 def test_multipart():
     """Ensure multipart form data works as intended"""
     with open(os.path.join(BASE_DIRECTORY, 'artwork', 'koala.png'),'rb') as koala:
-        preq = requests.Request('POST', 'http://localhost/', files={'koala': koala}).prepare()
+        prepared_request = requests.Request('POST', 'http://localhost/', files={'koala': koala}).prepare()
         koala.seek(0)
-        assert hug.input_format.multipart(BytesIO(preq.body), parse_header(preq.headers['Content-Type'])[1])['koala'] == koala.read()
+        file_content = hug.input_format.multipart(BytesIO(prepared_request.body),
+                                                  **parse_header(prepared_request.headers['Content-Type'])[1])['koala']
+        assert file_content == koala.read()
