@@ -32,13 +32,13 @@ from hug.format import content_type, underscore
 
 
 @content_type('text/plain')
-def text(body, charset='utf-8'):
+def text(body, charset='utf-8', **kwargs):
     """Takes plain text data"""
     return body.read().decode(charset)
 
 
 @content_type('application/json')
-def json(body, charset='utf-8'):
+def json(body, charset='utf-8', **kwargs):
     """Takes JSON formatted data, converting it into native Python objects"""
     return json_converter.loads(text(body, charset=charset))
 
@@ -54,7 +54,7 @@ def _underscore_dict(dictionary):
     return new_dictionary
 
 
-def json_underscore(body, charset='utf-8'):
+def json_underscore(body, charset='utf-8', **kwargs):
     """Converts JSON formatted date to native Python objects.
 
     The keys in any JSON dict are transformed from camelcase to underscore separated words.
@@ -63,7 +63,7 @@ def json_underscore(body, charset='utf-8'):
 
 
 @content_type('application/x-www-form-urlencoded')
-def urlencoded(body, charset='ascii'):
+def urlencoded(body, charset='ascii', **kwargs):
     """Converts query strings into native Python objects"""
     return parse_query_string(text(body, charset=charset), False)
 
