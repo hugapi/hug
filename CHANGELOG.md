@@ -13,6 +13,7 @@ Changelog
 =========
 ### 2.1.2
 - Fixed an issue with sharing exception handlers accross multiple modules (Thanks @soloman1124)
+- Fixed how single direction (response / request) middlewares are bounded to work when code is Cython compiled
 
 ### 2.1.1
 - Hot-fix release to ensure input formats don't die with unexpected parameters
