@@ -9,4 +9,4 @@ def cli(name: 'The name', age: hug.types.number):
 
 
 if __name__ == '__main__':
-    cli.cli()
+    cli.interface.cli()
