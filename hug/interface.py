@@ -50,7 +50,8 @@ try:
     def asyncio_call(function, *args, **kwargs):
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            return await function(*args, **kwargs)
+            return function(*args, **kwargs)
+
         function = ensure_future(function(*args, **kwargs), loop=loop)
         loop.run_until_complete(function)
         return function.result()
