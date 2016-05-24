@@ -49,6 +49,7 @@ Documenters
 - Ergo_ (@johnlam)
 - Adeel Khan (@adeel)
 - Benjamin Williams (@benjaminjosephw)
+- @gdw2
 
 --------------------------------------------
 
