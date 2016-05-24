@@ -111,6 +111,7 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
     if Observer and RegexMatchingEventHandler:
         class APIReloadingEventHandler(RegexMatchingEventHandler):
             nonlocal httpd
+
             def on_any_event(self, event):
                 nonlocal httpd
                 importlib.reload(api_module)

@@ -26,39 +26,12 @@ import sys
 from collections import OrderedDict, namedtuple
 from functools import partial
 from itertools import chain
-from wsgiref.simple_server import make_server
 
 import falcon
 from falcon import HTTP_METHODS
 
 import hug.defaults
 import hug.output_format
-from hug._version import current
-
-
-INTRO = """
-/#######################################################################\\
-          `.----``..-------..``.----.
-         :/:::::--:---------:--::::://.
-        .+::::----##/-/oo+:-##----:::://
-        `//::-------/oosoo-------::://.       ##    ##  ##    ##    #####
-          .-:------./++o/o-.------::-`   ```  ##    ##  ##    ##  ##
-             `----.-./+o+:..----.     `.:///. ########  ##    ## ##
-   ```        `----.-::::::------  `.-:::://. ##    ##  ##    ## ##   ####
-  ://::--.``` -:``...-----...` `:--::::::-.`  ##    ##  ##   ##   ##    ##
-  :/:::::::::-:-     `````      .:::::-.`     ##    ##    ####     ######
-   ``.--:::::::.                .:::.`
-         ``..::.                .::         EMBRACE THE APIs OF THE FUTURE
-             ::-                .:-
-             -::`               ::-                   VERSION {0}
-             `::-              -::`
-              -::-`           -::-
-\########################################################################/
-
- Copyright (C) 2016 Timothy Edmund Crosley
- Under the MIT License
-
-""".format(current)
 
 
 class InterfaceAPI(object):
@@ -208,18 +181,6 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         documentation['handlers'] = version_dict
         return documentation
-
-    def serve(self, port=8000, no_documentation=False):
-        """Runs the basic hug development server against this API"""
-        if no_documentation:
-            api = self.server(None)
-        else:
-            api = self.server()
-
-        print(INTRO)
-        httpd = make_server('', port, api)
-        print("Serving on port {0}...".format(port))
-        httpd.serve_forever()
 
     @staticmethod
     def base_404(request, response, *kargs, **kwargs):
