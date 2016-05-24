@@ -37,6 +37,21 @@ def test_basic_call_async():
     assert loop.run_until_complete(hello_world()) == "Hello World!"
 
 
+def tested_nested_basic_call_async():
+    """Test to ensure the most basic call still works if applied to a method"""
+    @hug.call()
+    async def hello_world(self=None):
+        return await nested_hello_world()
+
+    @hug.local()
+    async def nested_hello_world(self=None):
+        return "Hello World!"
+
+    assert hello_world.interface.http
+    assert loop.run_until_complete(hello_world()) == "Hello World!"
+    assert hug.test.get(api, '/hello_world').data == "Hello World!"
+
+
 def test_basic_call_on_method_async():
     """Test to ensure the most basic call still works if applied to a method"""
     class API(object):
@@ -44,23 +59,6 @@ def test_basic_call_on_method_async():
         @hug.call()
         async def hello_world(self=None):
             return "Hello World!"
-
-    api_instance = API()
-    assert api_instance.hello_world.interface.http
-    assert loop.run_until_complete(api_instance.hello_world()) == "Hello World!"
-    assert hug.test.get(api, '/hello_world').data == "Hello World!"
-
-
-def test_nested_call_on_method_async():
-    """Test to ensure the most basic call still works if applied to a method"""
-    class API(object):
-
-        @hug.call()
-        async def hello_world(self=None):
-            return "Hello World!"
-
-        @hug.local()
-        async def
 
     api_instance = API()
     assert api_instance.hello_world.interface.http
