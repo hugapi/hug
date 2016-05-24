@@ -28,6 +28,7 @@ Code Contributors
 - KhanhIceTea (@khanhicetea)
 - Prashant Sinha (@PrashntS)
 - Alan Lu (@cag)
+- Soloman Weng (@soloman1124)
 
 Documenters
 ===================

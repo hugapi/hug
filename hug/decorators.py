@@ -90,8 +90,14 @@ def request_middleware(api=None):
     """Registers a middleware function that will be called on every request"""
     def decorator(middleware_method):
         apply_to_api = hug.API(api) if api else hug.api.from_object(middleware_method)
-        middleware_method.__self__ = middleware_method
-        apply_to_api.http.add_middleware(namedtuple('MiddlewareRouter', ('process_request', ))(middleware_method))
+
+        class MiddlewareRouter(object):
+            __slots__ = ()
+
+            def process_request(self, request, response):
+                return middleware_method(request, response)
+
+        apply_to_api.http.add_middleware(MiddlewareRouter())
         return middleware_method
     return decorator
 
@@ -100,8 +106,14 @@ def response_middleware(api=None):
     """Registers a middleware function that will be called on every response"""
     def decorator(middleware_method):
         apply_to_api = hug.API(api) if api else hug.api.from_object(middleware_method)
-        middleware_method.__self__ = middleware_method
-        apply_to_api.http.add_middleware(namedtuple('MiddlewareRouter', ('process_response', ))(middleware_method))
+
+        class MiddlewareRouter(object):
+            __slots__ = ()
+
+            def process_response(self, request, response, resource):
+                return middleware_method(request, response, resource)
+
+        apply_to_api.http.add_middleware(MiddlewareRouter())
         return middleware_method
     return decorator
 
