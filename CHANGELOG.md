@@ -11,6 +11,9 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.1.3
+- Fixed nested async calls so that they reuse the same loop
+
 ### 2.1.2
 - Fixed an issue with sharing exception handlers accross multiple modules (Thanks @soloman1124)
 - Fixed how single direction (response / request) middlewares are bounded to work when code is Cython compiled

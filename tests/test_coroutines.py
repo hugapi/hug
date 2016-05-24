@@ -28,7 +28,7 @@ api = hug.API(__name__)
 
 
 def test_basic_call_coroutine():
-    """ The most basic Happy-Path test for Hug APIs using async """
+    """The most basic Happy-Path test for Hug APIs using async"""
     @hug.call()
     @asyncio.coroutine
     def hello_world():
@@ -37,8 +37,22 @@ def test_basic_call_coroutine():
     assert loop.run_until_complete(hello_world()) == "Hello World!"
 
 
-def test_basic_call_on_method_coroutine():
+def test_nested_basic_call_coroutine():
+    """The most basic Happy-Path test for Hug APIs using async"""
+    @hug.call()
+    @asyncio.coroutine
+    def hello_world():
+        return asyncio.async(nested_hello_world())
 
+    @hug.local()
+    @asyncio.coroutine
+    def nested_hello_world():
+        return "Hello World!"
+
+    assert loop.run_until_complete(hello_world()) == "Hello World!"
+
+
+def test_basic_call_on_method_coroutine():
     """Test to ensure the most basic call still works if applied to a method"""
     class API(object):
 
@@ -54,7 +68,7 @@ def test_basic_call_on_method_coroutine():
 
 
 def test_basic_call_on_method_through_api_instance_coroutine():
-
+    """Test to ensure the most basic call still works if applied to a method"""
     class API(object):
 
         def hello_world(self):
@@ -72,7 +86,7 @@ def test_basic_call_on_method_through_api_instance_coroutine():
 
 
 def test_basic_call_on_method_registering_without_decorator_coroutine():
-
+    """Test to ensure instance method calling via async works as expected"""
     class API(object):
 
         def __init__(self):
