@@ -132,4 +132,4 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
             httpd.server_close()
     except KeyboardInterrupt:
         print()
-        print('Goodbye')
+        print('hug: goodbye')
