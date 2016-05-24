@@ -21,13 +21,47 @@ OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import absolute_import
 
 import importlib
+import inspect
 import os
 import sys
+from wsgiref.simple_server import make_server
+
+try:
+    from watchdog.observers import Observer
+    from watchdog.events import RegexMatchingEventHandler
+except ImportError:
+    Observer = None
+    RegexMatchingEventHandler = None
 
 from hug._version import current
 from hug.api import API
 from hug.route import cli
 from hug.types import boolean, number
+
+
+INTRO = """
+/########################################################################\\
+          `.----``..-------..``.----.
+         :/:::::--:---------:--::::://.
+        .+::::----##/-/oo+:-##----:::://
+        `//::-------/oosoo-------::://.       ##    ##  ##    ##    #####
+          .-:------./++o/o-.------::-`   ```  ##    ##  ##    ##  ##
+             `----.-./+o+:..----.     `.:///. ########  ##    ## ##
+   ```        `----.-::::::------  `.-:::://. ##    ##  ##    ## ##   ####
+  ://::--.``` -:``...-----...` `:--::::::-.`  ##    ##  ##   ##   ##    ##
+  :/:::::::::-:-     `````      .:::::-.`     ##    ##    ####     ######
+   ``.--:::::::.                .:::.`
+         ``..::.                .::         EMBRACE THE APIs OF THE FUTURE
+             ::-                .:-
+             -::`               ::-                   VERSION {0}
+             `::-              -::`
+              -::-`           -::-
+\########################################################################/
+
+ Copyright (C) 2016 Timothy Edmund Crosley
+ Under the MIT License
+
+""".format(current)
 
 
 @cli(version=current)
@@ -59,4 +93,43 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         api.cli.commands[command]()
         return
 
-    API(api_module).http.serve(port, no_404_documentation)
+    print(INTRO)
+    httpd = None
+
+    def start_httpd_service():
+        nonlocal httpd
+        api = API(api_module)
+        if no_404_documentation:
+            server = api.http.server(None)
+        else:
+            server = api.http.server()
+
+        httpd = make_server('', port, server)
+        print("Starting server on port {0}...".format(port))
+        httpd.serve_forever()
+
+    if Observer and RegexMatchingEventHandler:
+        class APIReloadingEventHandler(RegexMatchingEventHandler):
+            nonlocal httpd
+            def on_any_event(self, event):
+                nonlocal httpd
+                importlib.reload(api_module)
+                print()
+                print('*** Module {} reloaded ***'.format(api_module.__name__))
+                if httpd:
+                    httpd.shutdown()
+
+        src_file = os.path.abspath(inspect.getsourcefile(api_module))
+        # TODO: make this observer more accurate
+        observer = Observer()
+        event_handler = APIReloadingEventHandler(regexes=[r'.*\.py$'])
+        path = os.path.dirname(src_file)
+        observer.schedule(event_handler, path, recursive=True)
+        observer.start()
+
+    try:
+        while True:
+            start_httpd_service()
+    except KeyboardInterrupt:
+        print()
+        print('Goodbye')
