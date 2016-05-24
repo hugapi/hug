@@ -26,13 +26,6 @@ import os
 import sys
 from wsgiref.simple_server import make_server
 
-try:
-    from watchdog.observers import Observer
-    from watchdog.events import RegexMatchingEventHandler
-except ImportError:
-    Observer = None
-    RegexMatchingEventHandler = None
-
 from hug._version import current
 from hug.api import API
 from hug.route import cli
@@ -108,7 +101,10 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         print("Starting server on port {0}...".format(port))
         httpd.serve_forever()
 
-    if Observer and RegexMatchingEventHandler:
+    try:
+        from watchdog.observers import Observer
+        from watchdog.events import RegexMatchingEventHandler
+
         class APIReloadingEventHandler(RegexMatchingEventHandler):
             nonlocal httpd
 
@@ -127,6 +123,8 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         path = os.path.dirname(src_file)
         observer.schedule(event_handler, path, recursive=True)
         observer.start()
+    except ImportError:
+        pass
 
     try:
         while True:
