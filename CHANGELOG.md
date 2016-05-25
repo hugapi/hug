@@ -13,6 +13,7 @@ Changelog
 =========
 ### 2.1.3
 - Fixed nested async calls so that they reuse the same loop
+- Added HTTP method named (get, post, etc) routers to the API router to be consistent with documentation
 
 ### 2.1.2
 - Fixed an issue with sharing exception handlers accross multiple modules (Thanks @soloman1124)
