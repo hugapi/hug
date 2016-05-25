@@ -9,7 +9,7 @@ Notable Bug Reporters
 - Eirik Rye (@eirikrye)
 - Matteo Bertini (@naufraghi)
 - Erwin Haasnoot (@ErwinHaasnoot)
-- @ariscn
+- Aris Pikeas (@pikeas)
 
 Code Contributors
 ===================
