@@ -127,6 +127,8 @@ class API(object):
         kwargs['api'] = self.api
         return Object(*kargs, **kwargs)
 
+    def get(self, *karg, **kwargs)
+
 
 for method in HTTP_METHODS:
     method_handler = partial(http, accept=(method, ))
