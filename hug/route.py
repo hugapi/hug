@@ -130,9 +130,8 @@ class API(object):
     def get(self, *karg, **kwargs):
         """Builds a new GET HTTP route that is registered to this API"""
         kwargs['api'] = self.api
-        kwargs['method'] = 'GET'
+        kwargs['accept'] = ('GET', )
         return http(*kargs, **kwargs)
-
 
 
 for method in HTTP_METHODS:
