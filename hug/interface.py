@@ -445,7 +445,7 @@ class HTTP(Interface):
     def gather_parameters(self, request, response, api_version=None, **input_parameters):
         """Gathers and returns all parameters that will be used for this endpoint"""
         input_parameters.update(request.params)
-        if self.parse_body and request.content_length is not None:
+        if self.parse_body and request.content_length:
             body = request.stream
             content_type, content_params = parse_content_type(request.content_type)
             body_formatter = body and self.api.http.input_format(content_type)
