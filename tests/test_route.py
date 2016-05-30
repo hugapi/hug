@@ -98,6 +98,18 @@ class TestAPIRouter(object):
         """Test to ensure you can dynamically create a URL route attached to a hug API"""
         assert self.router.urls('/hi/').route == URLRouter('/hi/', api=api).route
 
+    def test_route_http(self):
+        """Test to ensure you can dynamically create an HTTP route attached to a hug API"""
+        assert self.router.http('/hi/').route == URLRouter('/hi/', api=api).route
+
+    def test_method_routes(self):
+        """Test to ensure you can dynamically create an HTTP route attached to a hug API"""
+        for method in hug.HTTP_METHODS:
+            assert getattr(self.router, method.lower())('/hi/').route['accept'] == (method, )
+
+        assert self.router.get_post('/hi/').route['accept'] == ('GET', 'POST')
+        assert self.router.put_post('/hi/').route['accept'] == ('PUT', 'POST')
+
     def test_not_found(self):
         """Test to ensure you can dynamically create a Not Found route attached to a hug API"""
         assert self.router.not_found().route == NotFoundRouter(api=api).route
