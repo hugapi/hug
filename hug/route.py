@@ -133,6 +133,12 @@ class API(object):
         kwargs['accept'] = ('GET', )
         return http(*kargs, **kwargs)
 
+    def post(self, *karg, **kwargs):
+        """Builds a new POST HTTP route that is registered to this API"""
+        kwargs['api'] = self.api
+        kwargs['accept'] = ('POST', )
+        return http(*kargs, **kwargs)
+
 
 for method in HTTP_METHODS:
     method_handler = partial(http, accept=(method, ))
