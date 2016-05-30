@@ -12,6 +12,7 @@ Ideally, within a virtual environment.
 Changelog
 =========
 ### 2.2.0 (In development)
+- Defaults asyncio event loop to uvloop automatically if it is installed
 - Fixed nested async calls so that they reuse the same loop
 - Added HTTP method named (get, post, etc) routers to the API router to be consistent with documentation
 - Added smart handling of empty JSON content (issue #300)
