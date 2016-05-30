@@ -92,10 +92,17 @@ class API(object):
             api = hug.api.API(api)
         self.api = api
 
-    def urls(self, *kargs, **kwargs):
-        """Starts the process of building a new URL route linked to this API instance"""
+    def http(self, *kargs, **kwargs):
+        """Starts the process of building a new HTTP route linked to this API instance"""
         kwargs['api'] = self.api
         return http(*kargs, **kwargs)
+
+    def urls(self, *kargs, **kwargs):
+        """DEPRECATED: for backwords compatibility with < hug 2.2.0. `API.http` should be used instead.
+
+           Starts the process of building a new URL HTTP route linked to this API instance
+        """
+        return self.http(*kargs, **kwargs)
 
     def not_found(self, *kargs, **kwargs):
         """Defines the handler that should handle not found requests against this API"""
@@ -127,16 +134,70 @@ class API(object):
         kwargs['api'] = self.api
         return Object(*kargs, **kwargs)
 
-    def get(self, *karg, **kwargs):
+    def get(self, *kargs, **kwargs):
         """Builds a new GET HTTP route that is registered to this API"""
         kwargs['api'] = self.api
         kwargs['accept'] = ('GET', )
         return http(*kargs, **kwargs)
 
-    def post(self, *karg, **kwargs):
+    def post(self, *kargs, **kwargs):
         """Builds a new POST HTTP route that is registered to this API"""
         kwargs['api'] = self.api
         kwargs['accept'] = ('POST', )
+        return http(*kargs, **kwargs)
+
+    def put(self, *kargs, **kwargs):
+        """Builds a new PUT HTTP route that is registered to this API"""
+        kwargs['api'] = self.api
+        kwargs['accept'] = ('PUT', )
+        return http(*kargs, **kwargs)
+
+    def delete(self, *kargs, **kwargs):
+        """Builds a new DELETE HTTP route that is registered to this API"""
+        kwargs['api'] = self.api
+        kwargs['accept'] = ('DELETE', )
+        return http(*kargs, **kwargs)
+
+    def connect(self, *kargs, **kwargs):
+        """Builds a new CONNECT HTTP route that is registered to this API"""
+        kwargs['api'] = self.api
+        kwargs['accept'] = ('CONNECT', )
+        return http(*kargs, **kwargs)
+
+    def head(self, *kargs, **kwargs):
+        """Builds a new HEAD HTTP route that is registered to this API"""
+        kwargs['api'] = self.api
+        kwargs['accept'] = ('HEAD', )
+        return http(*kargs, **kwargs)
+
+    def options(self, *kargs, **kwargs):
+        """Builds a new OPTIONS HTTP route that is registered to this API"""
+        kwargs['api'] = self.api
+        kwargs['accept'] = ('OPTIONS', )
+        return http(*kargs, **kwargs)
+
+    def patch(self, *kargs, **kwargs):
+        """Builds a new PATCH HTTP route that is registered to this API"""
+        kwargs['api'] = self.api
+        kwargs['accept'] = ('PATCH', )
+        return http(*kargs, **kwargs)
+
+    def trace(self, *kargs, **kwargs):
+        """Builds a new TRACE HTTP route that is registered to this API"""
+        kwargs['api'] = self.api
+        kwargs['accept'] = ('TRACE', )
+        return http(*kargs, **kwargs)
+
+    def get_post(self, *kargs, **kwargs):
+        """Builds a new GET or POST HTTP route that is registered to this API"""
+        kwargs['api'] = self.api
+        kwargs['accept'] = ('GET', 'POST')
+        return http(*kargs, **kwargs)
+
+    def put_post(self, *kargs, **kwargs):
+        """Builds a new PUT or POST HTTP route that is registered to this API"""
+        kwargs['api'] = self.api
+        kwargs['accept'] = ('PUT', 'POST')
         return http(*kargs, **kwargs)
 
 
