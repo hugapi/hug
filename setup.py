@@ -103,6 +103,9 @@ setup(name='hug',
       packages=['hug'],
       requires=['falcon', 'requests'],
       install_requires=['falcon==1.0.0', 'requests'],
+      extras_require={
+          'reloadfiles': ['watchdog']
+      },
       cmdclass=cmdclass,
       ext_modules=ext_modules,
       keywords='Web, Python, Python3, Refactoring, REST, Framework, RPC',

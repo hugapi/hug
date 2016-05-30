@@ -37,6 +37,12 @@ pip3 install hug --upgrade
 
 Ideally, within a [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
+You can also install hug with the reloadfiles extra, which will enable the development server to reload APIs when their source files change:
+
+```bash
+pip3 install hug[reloadfiles] --upgrade
+```
+
 
 Getting Started
 ===================
