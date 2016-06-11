@@ -30,6 +30,7 @@ Code Contributors
 - Prashant Sinha (@PrashntS)
 - Alan Lu (@cag)
 - Soloman Weng (@soloman1124)
+- Evan Owen (@thatGuy0923)
 
 Documenters
 ===================
