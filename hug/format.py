@@ -32,7 +32,7 @@ UNDERSCORE = (re.compile('(.)([A-Z][a-z]+)'), re.compile('([a-z0-9])([A-Z])'))
 
 def parse_content_type(content_type):
     """Separates out the parameters from the content_type and returns both in a tuple (content_type, parameters)"""
-    if ';' in content_type:
+    if content_type is not None and ';' in content_type:
         return parse_header(content_type)
     return (content_type, empty.dict)
 
