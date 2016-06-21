@@ -123,13 +123,14 @@ def reqresp_middleware(api=None):
         apply_to_api = hug.API(api) if api else hug.api.from_object(middleware_generator)
 
         class MiddlewareRouter(object):
-            __slots__ = ()
+            __slots__ = ('gen', )
+
+            def process_request(self, request, response):
+                self.gen = middleware_generator(request)
+                return self.gen.__next__()
 
             def process_response(self, request, response, resource):
-                return middleware_generator(request).next()
-
-            def process_request(self, response, resource):
-                return middleware_generator.send(response, resource)
+                return self.gen.send((response, resource))
 
         apply_to_api.http.add_middleware(MiddlewareRouter())
         return middleware_generator
