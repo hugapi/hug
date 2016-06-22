@@ -32,16 +32,16 @@ hug provides several built-in types for common API use cases:
  - `uuid`: Validates that the provided value is a valid UUID
  - `text`: Validates that the provided value is a single string parameter
  - `multiple`: Ensures the parameter is passed in as a list (even if only one value is passed in)
- - `boolean`: A basic niave HTTP style boolean where no value passed in is seen as `False` and any value passed in (even if its `false`) is seen as `True`
+ - `boolean`: A basic naive HTTP style boolean where no value passed in is seen as `False` and any value passed in (even if its `false`) is seen as `True`
  - `smart_boolean`: A smarter, but more computentionally expensive, boolean that checks the content of the value for common true / false formats (true, True, t, 1) or (false, False, f, 0)
- - `delimeted_list(delimiter)`: splits up the passed in value based on the provided delimeter and then passes it to the function as a list
+ - `delimeted_list(delimiter)`: splits up the passed in value based on the provided delimiter and then passes it to the function as a list
  - `one_of(values)`: Validates that the passed in value is one of those specified
  - `mapping(dict_of_passed_in_to_desired_values)`: Like `one_of`, but with a dictionary of acceptable values, to converted value.
  - `multi(types)`: Allows passing in multiple acceptable types for a parameter, short circuiting on the first acceptable one
  - `in_range(lower, upper, convert=number)`: Accepts a number within a lower and upper bound of acceptable values
  - `less_than(limit, convert=number)`: Accepts a number within a lower and upper bound of acceptable values
  - `greater_than(minimum, convert=number)`: Accepts a value above a given minimum
- - `length(lower, upper, convert=text)`: Accepts a a value that is withing a specific length limit
+ - `length(lower, upper, convert=text)`: Accepts a a value that is within a specific length limit
  - `shorter_than(limit, convert=text)`: Accepts a text value shorter than the specified length limit
  - `longer_than(limit, convert=text)`: Accepts a value up to the specified limit
  - `cut_off(limit, convert=text)`: Cuts off the provided value at the specified index
