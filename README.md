@@ -63,6 +63,48 @@ hug -f happy_birthday.py
 You can access the example in your browser at: `localhost:8000/happy_birthday?name=hug&age=1`. Then check out the documentation for your API at `localhost:8000/documentation`
 
 
+Using Docker
+===================
+If you like to develop in Docker and keep your system clean, you can do that but you'll need to first install [Docker Compose](https://docs.docker.com/compose/install/).
+
+Once you've done that, you'll need to `cd` into the `docker` directory and run the web server (Gunicorn) specified in `./docker/gunicorn/Dockerfile`, after which you can preview the output of your API in the browser on your host machine.
+
+```bash
+$ cd ./docker
+# This will run Gunicorn on port 8000 of the Docker container.
+$ docker-compose up gunicorn
+
+# From the host machine, find your Dockers IP address.
+# For Windows & Mac:
+$ docker-machine ip default
+
+# For Linux:
+$ ifconfig docker0 | grep 'inet' | cut -d: -f2 | awk '{ print $1}' | head -n1
+```
+
+By default, the IP is 172.17.0.1. Assuming that's the IP you see, as well, you would then go to `http://172.17.0.1:8000/` in your browser to view your API.
+
+You can also log into a Docker container that you can consider your work space. This workspace has Python and Pip installed so you can use those tools within Docker. If you need to test the CLI interface, for example, you would use this.
+
+```bash
+$ docker-compose run workspace bash
+```
+
+On your Docker `workspace` container, the `./docker/templates` directory on your host computer is mounted to `/src` in the Docker container. This is specified under `services` > `app` of `./docker/docker-compose.yml`.
+
+```bash
+bash-4.3# cd /src
+bash-4.3# tree
+.
+├── __init__.py
+└── handlers
+    ├── birthday.py
+    └── hello.py
+
+1 directory, 3 files
+```
+
+
 Versioning with hug
 ===================
 
