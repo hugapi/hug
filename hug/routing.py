@@ -183,7 +183,7 @@ class HTTPRouter(InternalValidation):
     __slots__ = ()
 
     def __init__(self, versions=None, parse_body=False, parameters=None, defaults={}, status=None,
-                 response_headers=None, **kwargs):
+                 response_headers=None, private=False, **kwargs):
         super().__init__(**kwargs)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
         if parse_body:
@@ -196,6 +196,8 @@ class HTTPRouter(InternalValidation):
             self.route['status'] = status
         if response_headers:
             self.route['response_headers'] = response_headers
+        if private:
+            self.route['private'] = private
 
     def versions(self, supported, **overrides):
         """Sets the versions that this route should be compatiable with"""

@@ -56,6 +56,11 @@ def test_basic_documentation():
         """Annotations defined with strings should be documentation only"""
         pass
 
+    @hug.get(private=True)
+    def private():
+        """Hidden from documentation"""
+        pass
+
     documentation = api.http.documentation()
     assert 'test_documentation' in documentation['overview']
 
@@ -65,6 +70,7 @@ def test_basic_documentation():
     assert not '/birthday' in documentation['handlers']
     assert '/noop' in documentation['handlers']
     assert '/string_docs' in documentation['handlers']
+    assert not '/private' in documentation['handlers']
 
     assert documentation['handlers']['/hello_world']['GET']['usage'] == "Returns hello world"
     assert documentation['handlers']['/hello_world']['GET']['examples'] == ["/hello_world"]
