@@ -415,7 +415,7 @@ class HTTP(Interface):
     """Defines the interface responsible for wrapping functions and exposing them via HTTP based on the route"""
     __slots__ = ('_params_for_outputs', '_params_for_invalid_outputs', '_params_for_transform', 'on_invalid',
                  '_params_for_on_invalid', 'set_status', 'response_headers', 'transform', 'input_transformations',
-                 'examples', 'wrapped', 'catch_exceptions', 'parse_body')
+                 'examples', 'wrapped', 'catch_exceptions', 'parse_body', 'private')
     AUTO_INCLUDE = {'request', 'response'}
 
     def __init__(self, route, function, catch_exceptions=True):
@@ -425,6 +425,7 @@ class HTTP(Interface):
         self.set_status = route.get('status', False)
         self.response_headers = tuple(route.get('response_headers', {}).items())
         self.outputs = route.get('output', self.api.http.output_format)
+        self.private = 'private' in route
 
         self._params_for_outputs = introspect.takes_arguments(self.outputs, *self.AUTO_INCLUDE)
         self._params_for_transform = introspect.takes_arguments(self.transform, *self.AUTO_INCLUDE)
