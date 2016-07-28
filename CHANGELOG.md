@@ -13,11 +13,13 @@ Changelog
 =========
 ### 2.2.0 (In development)
 - Defaults asyncio event loop to uvloop automatically if it is installed
-- Fixed nested async calls so that they reuse the same loop
+- Added support for making endpoints `private` to enforce lack of automatic documentation creation for them.
 - Added HTTP method named (get, post, etc) routers to the API router to be consistent with documentation
 - Added smart handling of empty JSON content (issue #300)
+- Fixed nested async calls so that they reuse the same loop
 - Fixed TypeError being raised incorrectly when no content-type is specified (issue #330)
 - Fixed issues with multi-part requests (issue #329)
+- Fixed documentation output to exclude `api_version` and `body`
 
 ### 2.1.2
 - Fixed an issue with sharing exception handlers accross multiple modules (Thanks @soloman1124)
