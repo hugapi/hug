@@ -195,7 +195,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
         for url, methods in self.routes.items():
             for method, method_versions in methods.items():
                 for version, handler in method_versions.items():
-                    if handler.private:
+                    if getattr(handler, 'private', False):
                         continue
                     if version is None:
                         applies_to = versions
