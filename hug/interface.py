@@ -222,6 +222,7 @@ class Interface(object):
         doc['outputs']['format'] = self.outputs.__doc__
         doc['outputs']['content_type'] = self.outputs.content_type
         parameters = [param for param in self.parameters if not param in ('request', 'response', 'self')
+                                                        and not param in ('api_version', 'body')
                                                         and not param.startswith('hug_')
                                                         and not hasattr(param, 'directive')]
         if parameters:
