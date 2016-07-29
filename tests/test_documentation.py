@@ -108,9 +108,15 @@ def test_basic_documentation():
     def unversioned():
         return 'Hello'
 
+    @hug.get(versions=False)
+    def noversions():
+        pass
+
     versioned_doc = api.http.documentation()
     assert 'versions' in versioned_doc
     assert 1 in versioned_doc['versions']
+    assert 2 in versioned_doc['versions']
+    assert False not in versioned_doc['versions']
     assert '/unversioned' in versioned_doc['handlers']
     assert '/echo' in versioned_doc['handlers']
     assert '/test' in versioned_doc['handlers']

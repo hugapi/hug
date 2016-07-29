@@ -185,6 +185,8 @@ class HTTPInterfaceAPI(InterfaceAPI):
         versions_list = list(versions)
         if None in versions_list:
             versions_list.remove(None)
+        if False in versions_list:
+            versions_list.remove(False)
         if api_version is None and len(versions_list) > 0:
             api_version = max(versions_list)
             documentation['version'] = api_version
@@ -279,8 +281,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
         request_version = self.determine_version(request, api_version)
         if request_version:
             request_version = int(request_version)
-        versions.get(request_version, versions.get(None, not_found))(request, response, api_version=api_version,
-                                                                     **kwargs)
+        versions.get(request_version or False, versions.get(None, not_found))(request, response,
+                                                                              api_version=api_version,
+                                                                              **kwargs)
 
     def server(self, default_not_found=True, base_url=None):
         """Returns a WSGI compatible API server for the given Hug API module"""
