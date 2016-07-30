@@ -16,6 +16,7 @@ Changelog
 - Added support for making endpoints `private` to enforce lack of automatic documentation creation for them.
 - Added HTTP method named (get, post, etc) routers to the API router to be consistent with documentation
 - Added smart handling of empty JSON content (issue #300)
+- Added ability to have explicitly unversioned API endpoints using `version=False`.
 - Fixed nested async calls so that they reuse the same loop
 - Fixed TypeError being raised incorrectly when no content-type is specified (issue #330)
 - Fixed issues with multi-part requests (issue #329)
