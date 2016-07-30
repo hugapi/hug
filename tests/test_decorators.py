@@ -713,6 +713,16 @@ def test_extending_api_with_exception_handler():
     assert hug.test.get(api, '/fake_simple/exception').data == 'it works!'
 
 
+def test_extending_api_with_base_url():
+    """Test to ensure it's possible to extend the current API with a specified base URL"""
+    @hug.extend_api('/fake', base_url='/api')
+    def extend_with():
+        import tests.module_fake
+        return (tests.module_fake, )
+
+    assert hug.test.get(api, '/api/v1/fake/made_up_api').data
+
+
 def test_cli():
     """Test to ensure the CLI wrapper works as intended"""
     @hug.cli('command', '1.0.0', output=str)
