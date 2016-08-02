@@ -32,6 +32,7 @@ Code Contributors
 - Soloman Weng (@soloman1124)
 - Evan Owen (@thatGuy0923)
 - @gemedet
+- Garrett Squire (@gsquire)
 
 Documenters
 ===================
