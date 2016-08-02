@@ -21,6 +21,7 @@ from __future__ import absolute_import
 
 import logging
 import uuid
+from datetime import datetime
 
 
 class SessionMiddleware(object):
@@ -86,10 +87,17 @@ class LogMiddleware(object):
     def __init__(self, logger=None):
         self.logger = logger if logger is not None else logging.getLogger('hug')
 
+    def _generate_combined_log(self, request, response):
+        """Given a request/response pair, generate a logging format similar to the NGINX combined style."""
+        current_time = datetime.utcnow()
+        return '{0} - - [{1}] {2} {3} {4} {5} {6}'.format(request.remote_addr, current_time, request.method,
+                                                        request.relative_uri, response.status,
+                                                        len(response.data), request.user_agent)
+
     def process_request(self, request, response):
         """Logs the basic endpoint requested"""
         self.logger.info('Requested: {0} {1} {2}'.format(request.method, request.relative_uri, request.content_type))
 
     def process_response(self, request, response, resource):
         """Logs the basic data returned by the API"""
-        self.logger.info('Responded: {0} {1} {2}'.format(response.status, request.relative_uri, response.content_type))
+        self.logger.info(self._generate_combined_log(request, response))
