@@ -629,12 +629,13 @@ class HTTP(Interface):
     def urls(self, version=None):
         """Returns all URLS that are mapped to this interface"""
         urls = []
-        for url, methods in self.api.http.routes.items():
-            for method, versions in methods.items():
-                for interface_version, interface in versions.items():
-                    if interface_version == version and interface == self:
-                        if not url in urls:
-                            urls.append(('/v{0}'.format(version) if version else '') + url)
+        for base_url, routes in self.api.http.routes.items():
+            for url, methods in routes.items():
+                for method, versions in methods.items():
+                    for interface_version, interface in versions.items():
+                        if interface_version == version and interface == self:
+                            if not url in urls:
+                                urls.append(('/v{0}'.format(version) if version else '') + url)
         return urls
 
     def url(self, version=None, **kwargs):
