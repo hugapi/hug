@@ -723,6 +723,21 @@ def test_extending_api_with_base_url():
     assert hug.test.get(api, '/api/v1/fake/made_up_api').data
 
 
+def test_extending_api_with_same_path_under_different_base_url():
+    """Test to ensure it's possible to extend the current API with the same path under a different base URL"""
+    @hug.get()
+    def made_up_hello():
+        return 'hi'
+
+    @hug.extend_api(base_url='/api')
+    def extend_with():
+        import tests.module_fake_simple
+        return (tests.module_fake_simple, )
+
+    assert hug.test.get(api, '/made_up_hello').data == 'hi'
+    assert hug.test.get(api, '/api/made_up_hello').data == 'hello'
+
+
 def test_cli():
     """Test to ensure the CLI wrapper works as intended"""
     @hug.cli('command', '1.0.0', output=str)

@@ -25,6 +25,7 @@ from __future__ import absolute_import
 import os
 import re
 from functools import wraps
+from collections import OrderedDict
 
 import falcon
 from falcon import HTTP_METHODS
@@ -358,6 +359,7 @@ class URLRouter(HTTPRouter):
 
     def __call__(self, api_function):
         api = self.route.get('api', hug.api.from_object(api_function))
+        api.http.routes.setdefault(api.http.base_url, OrderedDict())
         (interface, callable_method) = self._create_interface(api, api_function)
 
         use_examples = self.route.get('examples', ())
@@ -374,7 +376,7 @@ class URLRouter(HTTPRouter):
             for prefix in self.route.get('prefixes', ()):
                 expose.append(prefix + base_url)
             for url in expose:
-                handlers = api.http.routes.setdefault(url, {})
+                handlers = api.http.routes[api.http.base_url].setdefault(url, {})
                 for method in self.route.get('accept', ()):
                     version_mapping = handlers.setdefault(method.upper(), {})
                     for version in self.route['versions']:

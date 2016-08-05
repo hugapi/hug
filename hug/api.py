@@ -135,12 +135,15 @@ class HTTPInterfaceAPI(InterfaceAPI):
         for version in versions:
             self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
 
-    def extend(self, http_api, route=""):
+    def extend(self, http_api, route="", base_url=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         self.versions.update(http_api.versions)
 
-        for item_route, handler in http_api.routes.items():
-            self.routes[route + item_route] = handler
+        for router_base_url, routes in http_api.routes.items():
+            router_base_url = base_url or router_base_url or self.base_url
+            self.routes.setdefault(router_base_url, OrderedDict())
+            for item_route, handler in routes.items():
+                self.routes[router_base_url][route + item_route] = handler
 
         for (url, sink) in http_api.sinks.items():
             self.add_sink(sink, url)
@@ -194,21 +197,22 @@ class HTTPInterfaceAPI(InterfaceAPI):
             documentation['version'] = api_version
         if versions_list:
             documentation['versions'] = versions_list
-        for url, methods in self.routes.items():
-            for method, method_versions in methods.items():
-                for version, handler in method_versions.items():
-                    if getattr(handler, 'private', False):
-                        continue
-                    if version is None:
-                        applies_to = versions
-                    else:
-                        applies_to = (version, )
-                    for version in applies_to:
-                        if api_version and version != api_version:
+        for router_base_url, routes in self.routes.items():
+            for url, methods in routes.items():
+                for method, method_versions in methods.items():
+                    for version, handler in method_versions.items():
+                        if getattr(handler, 'private', False):
                             continue
-                        doc = version_dict.setdefault(url, OrderedDict())
-                        doc[method] = handler.documentation(doc.get(method, None), version=version,
-                                                            base_url=handler.api.http.base_url or base_url, url=url)
+                        if version is None:
+                            applies_to = versions
+                        else:
+                            applies_to = (version, )
+                        for version in applies_to:
+                            if api_version and version != api_version:
+                                continue
+                            doc = version_dict.setdefault(router_base_url + url, OrderedDict())
+                            doc[method] = handler.documentation(doc.get(method, None), version=version,
+                                                                base_url=router_base_url or base_url, url=url)
 
         documentation['handlers'] = version_dict
         return documentation
@@ -310,25 +314,21 @@ class HTTPInterfaceAPI(InterfaceAPI):
         for url, extra_sink in self.sinks.items():
             falcon_api.add_sink(extra_sink, base_url + url)
 
-        for url, methods in self.routes.items():
-            router = {}
-            router_base_url = base_url
+        for router_base_url, routes in self.routes.items():
+            for url, methods in routes.items():
+                router = {}
+                for method, versions in methods.items():
+                    method_function = "on_{0}".format(method.lower())
+                    if len(versions) == 1 and None in versions.keys():
+                        router[method_function] = versions[None]
+                    else:
+                        router[method_function] = partial(self.version_router, versions=versions,
+                                                          not_found=not_found_handler)
 
-            for method, versions in methods.items():
-                method_function = "on_{0}".format(method.lower())
-                if len(versions) == 1 and None in versions.keys():
-                    router[method_function] = versions[None]
-                else:
-                    router[method_function] = partial(self.version_router, versions=versions,
-                                                      not_found=not_found_handler)
-                for version, handler in versions.items():
-                    router_base_url = handler.api.http.base_url or router_base_url
-                    break
-
-            router = namedtuple('Router', router.keys())(**router)
-            falcon_api.add_route(router_base_url + url, router)
-            if self.versions and self.versions != (None, ):
-                falcon_api.add_route(router_base_url + '/v{api_version}' + url, router)
+                router = namedtuple('Router', router.keys())(**router)
+                falcon_api.add_route(router_base_url + url, router)
+                if self.versions and self.versions != (None, ):
+                    falcon_api.add_route(router_base_url + '/v{api_version}' + url, router)
 
         def error_serializer(_, error):
             return (self.output_format.content_type,
@@ -438,9 +438,7 @@ class API(object, metaclass=ModuleSingleton):
         api = API(api)
 
         if hasattr(api, '_http'):
-            if base_url is not None:
-                api.http.base_url = base_url
-            self.http.extend(api.http, route)
+            self.http.extend(api.http, route, base_url)
 
         for directive in getattr(api, '_directives', {}).values():
             self.add_directive(directive)
