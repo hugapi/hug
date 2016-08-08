@@ -1092,6 +1092,19 @@ def test_wraps():
     assert result['name'] == "Not telling"
     assert result['took']
 
+    def my_decorator_with_request(function):
+        @hug.wraps(function)
+        def decorated(request, *kargs, **kwargs):
+            kwargs['has_request'] = bool(request)
+            return function(*kargs, **kwargs)
+        return decorated
+
+    @hug.get()
+    @my_decorator_with_request
+    def do_you_have_request(has_request=False):
+        return has_request
+
+    assert hug.test.get(api, 'do_you_have_request').data
 
 
 def test_cli_with_empty_return():
