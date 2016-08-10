@@ -24,8 +24,8 @@ from __future__ import absolute_import
 
 import os
 import re
-from functools import wraps
 from collections import OrderedDict
+from functools import wraps
 
 import falcon
 from falcon import HTTP_METHODS
@@ -304,8 +304,8 @@ class StaticRouter(SinkRouter):
 
         api = self.route.get('api', hug.api.from_object(api_function))
         for base_url in self.route.get('urls', ("/{0}".format(api_function.__name__), )):
-            def read_file(request=None):
-                filename = request.path[len(base_url) + 1:]
+            def read_file(request=None, path=""):
+                filename = path.lstrip("/")
                 for directory in directories:
                     path = os.path.join(directory, filename)
                     if os.path.isdir(path):
