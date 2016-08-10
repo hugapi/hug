@@ -90,6 +90,10 @@ class Interfaces(object):
             self.required = self.required[1:]
             self.parameters = self.parameters[1:]
 
+        self.all_parameters = set(self.parameters)
+        if self.spec is not function:
+            self.all_parameters.update(self.arguments)
+
         self.transform = self.spec.__annotations__.get('return', None)
         self.directives = {}
         self.input_transformations = {}
@@ -122,7 +126,7 @@ class Interface(object):
        A Interface object should be created for every kind of protocal hug supports
     """
     __slots__ = ('interface', 'api', 'defaults', 'parameters', 'required', 'outputs', 'on_invalid', 'requires',
-                 'validate_function', 'transform', 'examples', 'output_doc', 'wrapped', 'directives',
+                 'validate_function', 'transform', 'examples', 'output_doc', 'wrapped', 'directives', 'all_parameters',
                  'raise_on_invalid', 'invalid_outputs')
 
     def __init__(self, route, function):
@@ -142,10 +146,12 @@ class Interface(object):
         if not 'parameters' in route:
             self.defaults = self.interface.defaults
             self.parameters = self.interface.parameters
+            self.all_parameters = self.interface.all_parameters
             self.required = self.interface.required
         else:
             self.defaults = route.get('defaults', {})
             self.parameters = tuple(route['parameters'])
+            self.all_parameters = set(route['parameters'])
             self.required = tuple([parameter for parameter in self.parameters if parameter not in self.defaults])
 
         self.outputs = route.get('output', None)
@@ -453,18 +459,18 @@ class HTTP(Interface):
             body_formatter = body and self.api.http.input_format(content_type)
             if body_formatter:
                 body = body_formatter(body, **content_params)
-            if 'body' in self.parameters:
+            if 'body' in self.all_parameters:
                 input_parameters['body'] = body
             if isinstance(body, dict):
                 input_parameters.update(body)
-        elif 'body' in self.parameters:
+        elif 'body' in self.all_parameters:
             input_parameters['body'] = None
 
-        if 'request' in self.parameters:
+        if 'request' in self.all_parameters:
             input_parameters['request'] = request
-        if 'response' in self.parameters:
+        if 'response' in self.all_parameters:
             input_parameters['response'] = response
-        if 'api_version' in self.parameters:
+        if 'api_version' in self.all_parameters:
             input_parameters['api_version'] = api_version
         for parameter, directive in self.directives.items():
             arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
@@ -530,7 +536,7 @@ class HTTP(Interface):
 
     def call_function(self, **parameters):
         if not self.interface.takes_kwargs:
-            parameters = {key: value for key, value in parameters.items() if key in self.parameters}
+            parameters = {key: value for key, value in parameters.items() if key in self.all_parameters}
 
         return self.interface(**parameters)
 
