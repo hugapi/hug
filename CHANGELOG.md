@@ -18,6 +18,8 @@ Changelog
 - Added smart handling of empty JSON content (issue #300)
 - Added ability to have explicitly unversioned API endpoints using `versions=False`
 - Added support for providing a different base URL when extending an API
+- Added support for sinks when extending API
+- Allows custom decorators to access parameters like request and response, without putting them in the original functions' parameter list.
 - Fixed nested async calls so that they reuse the same loop
 - Fixed TypeError being raised incorrectly when no content-type is specified (issue #330)
 - Fixed issues with multi-part requests (issue #329)
