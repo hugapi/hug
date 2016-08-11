@@ -117,8 +117,10 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self._middleware = []
         self.middleware.append(middleware)
 
-    def add_sink(self, sink, url):
-        self.sinks[url] = sink
+    def add_sink(self, sink, url, base_url=""):
+        base_url = base_url or self.base_url
+        self.sinks.setdefault(base_url, OrderedDict())
+        self.sinks[base_url][url] = sink
 
     def exception_handlers(self, version=None):
         if not hasattr(self, '_exception_handlers'):
@@ -138,15 +140,16 @@ class HTTPInterfaceAPI(InterfaceAPI):
     def extend(self, http_api, route="", base_url=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         self.versions.update(http_api.versions)
+        base_url = base_url or self.base_url
 
         for router_base_url, routes in http_api.routes.items():
-            router_base_url = base_url or router_base_url or self.base_url
-            self.routes.setdefault(router_base_url, OrderedDict())
+            self.routes.setdefault(base_url, OrderedDict())
             for item_route, handler in routes.items():
-                self.routes[router_base_url][route + item_route] = handler
+                self.routes[base_url][route + item_route] = handler
 
-        for (url, sink) in http_api.sinks.items():
-            self.add_sink(sink, url)
+        for sink_base_url, sinks in http_api.sinks.items():
+            for url, sink in sinks.items():
+                self.add_sink(sink, route + url, base_url=base_url)
 
         for middleware in (http_api.middleware or ()):
             self.add_middleware(middleware)
@@ -311,8 +314,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
             not_found_handler
             self._not_found = not_found_handler
 
-        for url, extra_sink in self.sinks.items():
-            falcon_api.add_sink(extra_sink, base_url + url)
+        for sink_base_url, sinks in self.sinks.items():
+            for url, extra_sink in sinks.items():
+                falcon_api.add_sink(extra_sink, sink_base_url + url + '(?P<path>.*)')
 
         for router_base_url, routes in self.routes.items():
             for url, methods in routes.items():
@@ -433,7 +437,7 @@ class API(object, metaclass=ModuleSingleton):
             self._context = {}
         return self._context
 
-    def extend(self, api, route="", base_url=None):
+    def extend(self, api, route="", base_url=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         api = API(api)
 

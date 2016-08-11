@@ -127,7 +127,7 @@ def middleware_class(api=None):
     return decorator
 
 
-def extend_api(route="", api=None, base_url=None):
+def extend_api(route="", api=None, base_url=""):
     """Extends the current api, with handlers from an imported api. Optionally provide a route that prefixes access"""
     def decorator(extend_with):
         apply_to_api = hug.API(api) if api else hug.api.from_object(extend_with)

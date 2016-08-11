@@ -1000,6 +1000,15 @@ def test_sink_support():
 
     assert hug.test.get(api, '/all/the/things').data == '/the/things'
 
+@pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
+def test_sink_support_with_base_url():
+    """Test to ensure sink URL routers work when the API is extended with a specified base URL"""
+    @hug.extend_api('/fake', base_url='/api')
+    def extend_with():
+        import tests.module_fake
+        return (tests.module_fake, )
+
+    assert hug.test.get(api, '/api/fake/all/the/things').data == '/the/things'
 
 def test_cli_with_string_annotation():
     """Test to ensure CLI's work correctly with string annotations"""

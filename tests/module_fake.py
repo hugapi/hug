@@ -59,10 +59,17 @@ def on_startup(api):
     """for testing"""
     return
 
+
 @hug.static()
 def static():
     """for testing"""
     return ('', )
+
+
+@hug.sink('/all')
+def sink(path):
+    """for testing"""
+    return path
 
 
 @hug.exception(FakeException)
