@@ -284,7 +284,7 @@ class SinkRouter(HTTPRouter):
 
 
 class StaticRouter(SinkRouter):
-    """Provides a chainable router that can be used to return static files automtically from a set of directories"""
+    """Provides a chainable router that can be used to return static files automatically from a set of directories"""
     __slots__ = ('route', )
 
     def __init__(self, urls=None, output=hug.output_format.file, cache=False, **kwargs):
