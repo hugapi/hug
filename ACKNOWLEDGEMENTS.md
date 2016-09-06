@@ -33,6 +33,7 @@ Code Contributors
 - Evan Owen (@thatGuy0923)
 - Gemedet (@gemedet)
 - Garrett Squire (@gsquire)
+- Haïkel Guémar (@hguemar)
 
 Documenters
 ===================
