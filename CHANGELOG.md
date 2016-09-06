@@ -44,6 +44,7 @@ Changelog
 - Added support for manually specifying API object for all decorators (including middleware / startup) to enable easier plugin interaction
 - Added support for selectively removing requirements per endpoint
 - Added conditional output format based on Accept request header, as detailed in issue #277
+- Added support for dynamically creating named modules from API names
 - Improved how `hug.test` deals with non JSON content types
 - Fixed issues with certain non-standard content-type values causing an exception
 - Fixed a bug producing documentation when versioning is used, and there are no routes that apply accros versions

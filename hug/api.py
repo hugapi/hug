@@ -26,6 +26,7 @@ import sys
 from collections import OrderedDict, namedtuple
 from functools import partial
 from itertools import chain
+from types import ModuleType
 from wsgiref.simple_server import make_server
 
 import falcon
@@ -385,6 +386,8 @@ class ModuleSingleton(type):
             return module
 
         if type(module) == str:
+            if module not in sys.modules:
+                sys.modules[module] = ModuleType(module)
             module = sys.modules[module]
 
         if not '__hug__' in module.__dict__:
