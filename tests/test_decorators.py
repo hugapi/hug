@@ -1258,3 +1258,23 @@ def test_multipart():
         output = json.loads(hug.defaults.output_format({'logo': logo.read()}).decode('utf8'))
         assert hug.test.post(api, 'test_multipart_post',  body=prepared_request.body,
                              headers=prepared_request.headers).data == output
+
+
+def test_json_null(hug_api):
+    """Test to ensure passing in null within JSON will be seen as None and not allowed by text values"""
+    @hug_api.route.http.post()
+    def test_naive(argument_1):
+        return argument_1
+
+    assert hug.test.post(hug_api, 'test_naive', body='{"argument_1": null}',
+                         headers={'content-type': 'application/json'}).data == None
+
+
+    @hug_api.route.http.post()
+    def test_text_type(argument_1: hug.types.text):
+        return argument_1
+
+
+    assert 'errors' in hug.test.post(hug_api, 'test_text_type', body='{"argument_1": null}',
+                                    headers={'content-type': 'application/json'}).data
+
