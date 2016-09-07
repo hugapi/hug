@@ -49,3 +49,9 @@ class TestAPI(object):
 def test_from_object():
     """Test to ensure it's possible to rechieve an API singleton from an arbitrary object"""
     assert hug.api.from_object(TestAPI) == api
+
+
+def test_api_fixture(hug_api):
+    """Ensure it's possible to dynamically insert a new hug API on demand"""
+    assert isinstance(hug_api, hug.API)
+    assert hug_api != api
