@@ -112,7 +112,7 @@ class Text(Type):
     __slots__ = ()
 
     def __call__(self, value):
-        if type(value) in (list, tuple):
+        if type(value) in (list, tuple) or value is None:
             raise ValueError('Invalid text value provided')
         return str(value)
 

@@ -24,6 +24,7 @@ Changelog
 - Fixed TypeError being raised incorrectly when no content-type is specified (issue #330)
 - Fixed issues with multi-part requests (issue #329)
 - Fixed documentation output to exclude `api_version` and `body`
+- Fixed an issue passing None where a text value was required (issue #341)
 
 ### 2.1.2
 - Fixed an issue with sharing exception handlers accross multiple modules (Thanks @soloman1124)

@@ -4,9 +4,20 @@ from random import randint
 import pytest
 
 import hug
+from collections import namedtuple
+
+Routers = namedtuple('Routers', ['http', 'local', 'cli'])
+
+
+class TestAPI(hug.API):
+    pass
 
 
 @pytest.fixture
 def hug_api():
     """Defines a dependency for and then includes a uniquely identified hug API for a single test case"""
-    return hug.API('fake_api_{}'.format(randint(0, 1000000)))
+    api = TestAPI('fake_api_{}'.format(randint(0, 1000000)))
+    api.route = Routers(hug.routing.URLRouter().api(api),
+                        hug.routing.LocalRouter().api(api),
+                        hug.routing.CLIRouter().api(api))
+    return api
