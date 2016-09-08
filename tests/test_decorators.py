@@ -1278,3 +1278,12 @@ def test_json_null(hug_api):
     assert 'errors' in hug.test.post(hug_api, 'test_text_type', body='{"argument_1": null}',
                                     headers={'content-type': 'application/json'}).data
 
+
+def test_204_with_no_body(hug_api):
+    """Test to ensure returning no body on a 204 statused endpoint works without issue"""
+    @hug_api.route.http.delete()
+    def test_route(response):
+        response.status = hug.HTTP_204
+        return
+
+    assert '204' in hug.test.delete(hug_api, 'test_route').status
