@@ -1291,15 +1291,14 @@ def test_204_with_no_body(hug_api):
 
 def test_output_format_inclusion(hug_api):
     """Test to ensure output format can live in one api but apply to the other"""
-    endpoint_api = hug.API('endpoint_api')
-    @hug.get(api=endpoint_api)
+    @hug.get()
     def my_endpoint():
         return 'hello'
 
     @hug.default_output_format(api=hug_api)
     def mutated_json(data):
-        return {'mutated': data}
+        return hug.output_format.json({'mutated': data})
 
-    hug_api.extend(endpoint_api, '')
+    hug_api.extend(api, '')
 
     assert hug.test.get(hug_api, 'my_endpoint').data == {'mutated': 'hello'}

@@ -66,6 +66,7 @@ class Interfaces(object):
     """Defines the per-function singleton applied to hugged functions defining common data needed by all interfaces"""
 
     def __init__(self, function):
+        self.api = hug.api.from_object(function)
         self.spec = getattr(function, 'original', function)
         self.arguments = introspect.arguments(function)
         self._function = function
@@ -125,12 +126,13 @@ class Interface(object):
 
        A Interface object should be created for every kind of protocal hug supports
     """
-    __slots__ = ('interface', 'api', 'defaults', 'parameters', 'required', 'outputs', 'on_invalid', 'requires',
+    __slots__ = ('interface', '_api', 'defaults', 'parameters', 'required', '_outputs', 'on_invalid', 'requires',
                  'validate_function', 'transform', 'examples', 'output_doc', 'wrapped', 'directives', 'all_parameters',
                  'raise_on_invalid', 'invalid_outputs')
 
     def __init__(self, route, function):
-        self.api = route.get('api', hug.api.from_object(function))
+        if route.get('api', None):
+            self._api = route['api']
         if 'examples' in route:
             self.examples = route['examples']
         if not hasattr(function, 'interface'):
@@ -154,7 +156,9 @@ class Interface(object):
             self.all_parameters = set(route['parameters'])
             self.required = tuple([parameter for parameter in self.parameters if parameter not in self.defaults])
 
-        self.outputs = route.get('output', None)
+        if 'output' in route:
+            self.outputs = route['output']
+
         self.transform = route.get('transform', None)
         if self.transform is None and not isinstance(self.interface.transform, (str, type(None))):
             self.transform = self.interface.transform
@@ -176,6 +180,18 @@ class Interface(object):
         used_directives = set(self.parameters).intersection(defined_directives)
         self.directives = {directive_name: defined_directives[directive_name] for directive_name in used_directives}
         self.directives.update(self.interface.directives)
+
+    @property
+    def api(self):
+        return getattr(self, '_api', self.interface.api)
+
+    @property
+    def outputs(self):
+        return getattr(self, '_outputs', None)
+
+    @outputs.setter
+    def outputs(self, outputs):
+        self._outputs = outputs  # pragma: no cover - generally re-implemented by sub classes
 
     def validate(self, input_parameters):
         """Runs all set type transformers / validators against the provided input parameters and returns any errors"""
@@ -313,7 +329,6 @@ class CLI(Interface):
     def __init__(self, route, function):
         super().__init__(route, function)
         self.interface.cli = self
-        self.outputs = route.get('output', hug.output_format.text)
 
         used_options = {'h', 'help'}
         nargs_set = self.interface.takes_kargs
@@ -377,6 +392,14 @@ class CLI(Interface):
 
         self.api.cli.commands[route.get('name', self.interface.spec.__name__)] = self
 
+    @property
+    def outputs(self):
+        return getattr(self, '_outputs', hug.output_format.text)
+
+    @outputs.setter
+    def outputs(self, outputs):
+        self._outputs = outputs
+
     def output(self, data):
         """Outputs the provided data using the transformations and output format specified for this CLI endpoint"""
         if self.transform:
@@ -431,7 +454,6 @@ class HTTP(Interface):
         self.parse_body = 'parse_body' in route
         self.set_status = route.get('status', False)
         self.response_headers = tuple(route.get('response_headers', {}).items())
-        self.outputs = route.get('output', self.api.http.output_format)
         self.private = 'private' in route
 
         self._params_for_outputs = introspect.takes_arguments(self.outputs, *self.AUTO_INCLUDE)
@@ -478,6 +500,14 @@ class HTTP(Interface):
                                                     api=self.api, api_version=api_version, interface=self)
 
         return input_parameters
+
+    @property
+    def outputs(self):
+        return getattr(self, '_outputs', self.api.http.output_format)
+
+    @outputs.setter
+    def outputs(self, outputs):
+        self._outputs = outputs
 
     def transform_data(self, data, request=None, response=None):
         """Runs the transforms specified on this endpoint with the provided data, returning the data modified"""

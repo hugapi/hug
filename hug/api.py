@@ -146,6 +146,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
         for router_base_url, routes in http_api.routes.items():
             self.routes.setdefault(base_url, OrderedDict())
             for item_route, handler in routes.items():
+                for method, versions in handler.items():
+                    for version, function in versions.items():
+                        function.interface.api = self.api
                 self.routes[base_url][route + item_route] = handler
 
         for sink_base_url, sinks in http_api.sinks.items():
