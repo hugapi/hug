@@ -327,6 +327,15 @@ def test_not_found():
     assert result.status == falcon.HTTP_NOT_FOUND
 
 
+def test_not_found_with_extended_api():
+    """Test to ensure the not_found decorator works correctly when the API is extended"""
+    @hug.extend_api()
+    def extend_with():
+        import tests.module_fake
+        return (tests.module_fake, )
+
+    assert hug.test.get(api, '/does_not_exist/yet').data is True
+
 def test_versioning():
     """Ensure that Hug correctly routes API functions based on version"""
     @hug.get('/echo')
