@@ -20,6 +20,7 @@ Changelog
 - Added support for providing a different base URL when extending an API
 - Added support for sinks when extending API
 - Allows custom decorators to access parameters like request and response, without putting them in the original functions' parameter list.
+- Fixed not found handlers not being imported when extending an API
 - Fixed API extending support of extra features like input_format.
 - Fixed nested async calls so that they reuse the same loop
 - Fixed TypeError being raised incorrectly when no content-type is specified (issue #330)
