@@ -171,6 +171,10 @@ class HTTPInterfaceAPI(InterfaceAPI):
             if not input_format in getattr(self, '_input_format', {}):
                 self.set_input_format(input_format, input_format_handler)
 
+        for version, handler in http_api.not_found_handlers.items():
+            if version not in self.not_found_handlers:
+                self.set_not_found_handler(handler, version)
+
     @property
     def not_found_handlers(self):
         return getattr(self, '_not_found_handlers', {})
