@@ -1311,3 +1311,14 @@ def test_output_format_inclusion(hug_api):
     hug_api.extend(api, '')
 
     assert hug.test.get(hug_api, 'my_endpoint').data == {'mutated': 'hello'}
+
+
+def test_api_pass_along(hug_api):
+    """Test to ensure the correct API instance is passed along using API directive"""
+    @hug.get()
+    def takes_api(hug_api):
+        return hug_api.__name__
+
+    hug_api.__name__ = "Test API"
+    hug_api.extend(api, '')
+    assert hug.test.get(hug_api, 'takes_api').data == hug_api.__name__
