@@ -36,6 +36,10 @@ from hug.routing import StaticRouter as static
 from hug.routing import URLRouter as http
 
 
+class CLIObject(cli):
+    pass
+
+
 class Object(http):
     """Defines a router for classes and objects"""
 
