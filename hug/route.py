@@ -37,6 +37,7 @@ from hug.routing import URLRouter as http
 
 
 class CLIObject(cli):
+    """Defines a router for objects intended to be exposed to the command line"""
     pass
 
 
