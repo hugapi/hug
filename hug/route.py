@@ -36,11 +36,6 @@ from hug.routing import StaticRouter as static
 from hug.routing import URLRouter as http
 
 
-class CLIObject(cli):
-    """Defines a router for objects intended to be exposed to the command line"""
-    pass
-
-
 class Object(http):
     """Defines a router for classes and objects"""
 
@@ -49,9 +44,9 @@ class Object(http):
 
     def __call__(self, method_or_class):
         if isinstance(method_or_class, (MethodType, FunctionType)):
-            routes = getattr(method_or_class, '_hug_routes', [])
+            routes = getattr(method_or_class, '_hug_http_routes', [])
             routes.append(self.route)
-            method_or_class._hug_routes = routes
+            method_or_class._hug_http_routes = routes
             return method_or_class
 
         instance = method_or_class
@@ -60,7 +55,7 @@ class Object(http):
 
         for argument in dir(instance):
             argument = getattr(instance, argument, None)
-            routes = getattr(argument, '_hug_routes', None)
+            routes = getattr(argument, '_hug_http_routes', None)
             if routes:
                 for route in routes:
                     http(**self.where(**route).route)(argument)
@@ -86,6 +81,37 @@ class Object(http):
                         http(**router.accept(method).route)(handler)
             return class_definition
         return decorator
+
+
+class CLIObject(cli):
+    """Defines a router for objects intended to be exposed to the command line"""
+    def __init__(self, name=None, version=None, doc=None, api=None, **kwargs):
+        super().__init__(**kwargs)
+        self.api = hug.api.API((name or self.__name__) if api is None else api)
+
+    @property
+    def cli(self):
+        return self.api.cli
+
+    def __call__(self, method_or_class):
+        if isinstance(method_or_class, (MethodType, FunctionType)):
+            routes = getattr(method_or_class, '_hug_cli_routes', [])
+            routes.append(self.route)
+            method_or_class._hug_cli_routes = routes
+            return method_or_class
+
+        instance = method_or_class
+        if isinstance(method_or_class, type):
+            instance = method_or_class()
+
+        for argument in dir(instance):
+            argument = getattr(instance, argument, None)
+            routes = getattr(argument, '_hug_cli_routes', None)
+            if routes:
+                for route in routes:
+                    cli(**self.where(**route).route)(argument)
+
+        return method_or_class
 
 
 class API(object):
@@ -218,6 +244,7 @@ put_post = partial(http, accept=('PUT', 'POST'))
 put_post.__doc__ = "Exposes a Python method externally under both the HTTP POST and PUT methods"
 
 object = Object()
+cli_object = CLIObject()
 
 # DEPRECATED: for backwords compatibility with hug 1.x.x
 call = http
