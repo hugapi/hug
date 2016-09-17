@@ -85,9 +85,10 @@ class Object(http):
 
 class CLIObject(cli):
     """Defines a router for objects intended to be exposed to the command line"""
+
     def __init__(self, name=None, version=None, doc=None, api=None, **kwargs):
         super().__init__(**kwargs)
-        self.api = hug.api.API((name or self.__name__) if api is None else api)
+        self.route['api'] = self.api = hug.api.API((name or self.__class__.__name__) if api is None else api)
 
     @property
     def cli(self):
@@ -109,8 +110,10 @@ class CLIObject(cli):
             routes = getattr(argument, '_hug_cli_routes', None)
             if routes:
                 for route in routes:
+                    print(self.where(**route).route)
                     cli(**self.where(**route).route)(argument)
 
+        instance.__class__.cli = self.cli
         return method_or_class
 
 
@@ -244,7 +247,7 @@ put_post = partial(http, accept=('PUT', 'POST'))
 put_post.__doc__ = "Exposes a Python method externally under both the HTTP POST and PUT methods"
 
 object = Object()
-cli_object = CLIObject()
+cli_object = CLIObject
 
 # DEPRECATED: for backwords compatibility with hug 1.x.x
 call = http
