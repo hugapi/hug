@@ -110,7 +110,6 @@ class CLIObject(cli):
             routes = getattr(argument, '_hug_cli_routes', None)
             if routes:
                 for route in routes:
-                    print(self.where(**route).route)
                     cli(**self.where(**route).route)(argument)
 
         instance.__class__.cli = self.cli
