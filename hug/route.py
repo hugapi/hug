@@ -86,13 +86,13 @@ class Object(http):
 class CLIObject(cli):
     """Defines a router for objects intended to be exposed to the command line"""
 
-    def __init__(self, name=None, version=None, doc=None, api=None, **kwargs):
-        super().__init__(**kwargs)
-        self.route['api'] = self.api = hug.api.API((name or self.__class__.__name__) if api is None else api)
+    def __init__(self, name=None, version=None, doc=None, **kwargs):
+        super().__init__(version=version, doc=doc, **kwargs)
+        self.name = name
 
     @property
     def cli(self):
-        return self.api.cli
+        return getattr(self.route.get('api', None), 'cli', None)
 
     def __call__(self, method_or_class):
         if isinstance(method_or_class, (MethodType, FunctionType)):
@@ -105,6 +105,8 @@ class CLIObject(cli):
         if isinstance(method_or_class, type):
             instance = method_or_class()
 
+        if not 'api' in self.route:
+            self.route['api'] = hug.api.API(self.name or  self.__class__.__name__)
         for argument in dir(instance):
             argument = getattr(instance, argument, None)
             routes = getattr(argument, '_hug_cli_routes', None)
