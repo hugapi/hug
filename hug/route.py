@@ -73,7 +73,7 @@ class Object(http):
             for method in HTTP_METHODS:
                 handler = getattr(instance, method.lower(), None)
                 if handler:
-                    routes = getattr(handler, '_hug_routes', None)
+                    routes = getattr(handler, '_hug_http_routes', None)
                     if routes:
                         for route in routes:
                             http(**router.accept(method).where(**route).route)(handler)
