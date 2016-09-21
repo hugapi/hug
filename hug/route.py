@@ -106,7 +106,7 @@ class CLIObject(cli):
             instance = method_or_class()
 
         if not 'api' in self.route:
-            self.route['api'] = hug.api.API(self.name or  self.__class__.__name__)
+            self.route['api'] = hug.api.API(self.name or self.__class__.__name__)
         for argument in dir(instance):
             argument = getattr(instance, argument, None)
             routes = getattr(argument, '_hug_cli_routes', None)

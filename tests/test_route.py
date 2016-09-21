@@ -73,6 +73,27 @@ def test_routing_class_based_method_view_with_sub_routing():
     assert hug.test.post(api, 'home').data == 'bye'
 
 
+class TestCLIObject(object):
+    """A set of tests to ensure CLI class based routing works as intended"""
+
+    def test_commands(self):
+        """Basic operation test"""
+        @hug.cli_object(name='git', version='1.0.0')
+        class GIT(object):
+            """An example of command like calls via an Object"""
+
+            @hug.cli_object()
+            def push(self, branch='master'):
+                return 'Pushing {}'.format(branch)
+
+            @hug.cli_object()
+            def pull(self, branch='master'):
+                return 'Pulling {}'.format(branch)
+
+        assert 'token' in hug.test.cli(GIT.push, branch='token')
+        assert 'another token' in hug.test.cli(GIT.pull, branch='another token')
+
+
 def test_routing_instance():
     """Test to ensure its possible to route a class after it is instanciated"""
     class EndPoint(object):
