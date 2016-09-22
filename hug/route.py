@@ -55,10 +55,14 @@ class Object(http):
 
         for argument in dir(instance):
             argument = getattr(instance, argument, None)
-            routes = getattr(argument, '_hug_http_routes', None)
-            if routes:
-                for route in routes:
-                    http(**self.where(**route).route)(argument)
+
+            http_routes = getattr(handler, '_hug_http_routes', ())
+            for route in http_routes:
+                http(**router.accept(method).where(**route).route)(handler)
+
+            cli_routes = getattr(argument, '_hug_cli_routes', ())
+            for route in cli_routes:
+                cli(**router.accept(method).where(**route).route)(handler)
 
         return method_or_class
 
@@ -73,48 +77,23 @@ class Object(http):
             for method in HTTP_METHODS:
                 handler = getattr(instance, method.lower(), None)
                 if handler:
-                    routes = getattr(handler, '_hug_http_routes', None)
-                    if routes:
-                        for route in routes:
+                    http_routes = getattr(handler, '_hug_http_routes', ())
+                    cli_routes = getattr(argument, '_hug_cli_routes', ())
+                    if http_routes or cli_routes:
+                        for route in http_routes:
                             http(**router.accept(method).where(**route).route)(handler)
+                        for route in cli_routes:
+                            cli(**router.accept(method).where(**route).route)(handler)
                     else:
                         http(**router.accept(method).route)(handler)
             return class_definition
         return decorator
 
-
-class CLIObject(cli):
-    """Defines a router for objects intended to be exposed to the command line"""
-
-    def __init__(self, name=None, version=None, doc=None, **kwargs):
-        super().__init__(version=version, doc=doc, **kwargs)
-        self.name = name
-
-    @property
-    def cli(self):
-        return getattr(self.route.get('api', None), 'cli', None)
-
-    def __call__(self, method_or_class):
-        if isinstance(method_or_class, (MethodType, FunctionType)):
-            routes = getattr(method_or_class, '_hug_cli_routes', [])
-            routes.append(self.route)
-            method_or_class._hug_cli_routes = routes
-            return method_or_class
-
-        instance = method_or_class
-        if isinstance(method_or_class, type):
-            instance = method_or_class()
-
-        if not 'api' in self.route:
-            self.route['api'] = hug.api.API(self.name or self.__class__.__name__)
-        for argument in dir(instance):
-            argument = getattr(instance, argument, None)
-            routes = getattr(argument, '_hug_cli_routes', None)
-            if routes:
-                for route in routes:
-                    cli(**self.where(**route).route)(argument)
-
-        instance.__class__.cli = self.cli
+    def cli(self, method):
+        """Registers a method on an Object as a CLI route"""
+        routes = getattr(method_or_class, '_hug_cli_routes', [])
+        routes.append(self.route)
+        method_or_class._hug_cli_routes = routes
         return method_or_class
 
 
