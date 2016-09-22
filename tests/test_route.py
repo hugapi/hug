@@ -73,25 +73,39 @@ def test_routing_class_based_method_view_with_sub_routing():
     assert hug.test.post(api, 'home').data == 'bye'
 
 
-class TestCLIObject(object):
-    """A set of tests to ensure CLI class based routing works as intended"""
+def test_routing_class_with_cli_commands():
+    """Basic operation test"""
+    @hug.object(name='git', version='1.0.0')
+    class GIT(object):
+        """An example of command like calls via an Object"""
 
-    def test_commands(self):
-        """Basic operation test"""
-        @hug.object(name='git', version='1.0.0')
-        class GIT(object):
-            """An example of command like calls via an Object"""
+        @hug.object.cli
+        def push(self, branch='master'):
+            return 'Pushing {}'.format(branch)
 
-            @hug.object.cli
-            def push(self, branch='master'):
-                return 'Pushing {}'.format(branch)
+        @hug.object.cli
+        def pull(self, branch='master'):
+            return 'Pulling {}'.format(branch)
 
-            @hug.object.cli
-            def pull(self, branch='master'):
-                return 'Pulling {}'.format(branch)
+    assert 'token' in hug.test.cli(GIT.push, branch='token')
+    assert 'another token' in hug.test.cli(GIT.pull, branch='another token')
 
-        assert 'token' in hug.test.cli(GIT.push, branch='token')
-        assert 'another token' in hug.test.cli(GIT.pull, branch='another token')
+
+def test_routing_class_based_method_view_with_cli_routing():
+    """Test creating class based routers using method mappings exposing cli endpoints"""
+    @hug.object.http_methods()
+    class EndPoint(object):
+
+        @hug.object.cli
+        def get(self):
+            return 'hi there!'
+
+        def post(self):
+            return 'bye'
+
+    assert hug.test.get(api, 'endpoint').data == 'hi there!'
+    assert hug.test.post(api, 'endpoint').data == 'bye'
+    assert hug.test.cli(EndPoint.get) == 'hi there!'
 
 
 def test_routing_instance():

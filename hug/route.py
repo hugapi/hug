@@ -42,7 +42,10 @@ class Object(http):
     def __init__(self, urls=None, accept=HTTP_METHODS, output=None, **kwargs):
         super().__init__(urls=urls, accept=accept, output=output, **kwargs)
 
-    def __call__(self, method_or_class):
+    def __call__(self, method_or_class=None, **kwargs):
+        if not method_or_class and kwargs:
+            return self.where(**kwargs)
+
         if isinstance(method_or_class, (MethodType, FunctionType)):
             routes = getattr(method_or_class, '_hug_http_routes', [])
             routes.append(self.route)
@@ -56,13 +59,13 @@ class Object(http):
         for argument in dir(instance):
             argument = getattr(instance, argument, None)
 
-            http_routes = getattr(handler, '_hug_http_routes', ())
+            http_routes = getattr(argument, '_hug_http_routes', ())
             for route in http_routes:
-                http(**router.accept(method).where(**route).route)(handler)
+                http(**self.where(**route).route)(argument)
 
             cli_routes = getattr(argument, '_hug_cli_routes', ())
             for route in cli_routes:
-                cli(**router.accept(method).where(**route).route)(handler)
+                cli(**self.where(**route).route)(argument)
 
         return method_or_class
 
@@ -78,23 +81,25 @@ class Object(http):
                 handler = getattr(instance, method.lower(), None)
                 if handler:
                     http_routes = getattr(handler, '_hug_http_routes', ())
-                    cli_routes = getattr(argument, '_hug_cli_routes', ())
-                    if http_routes or cli_routes:
+                    if http_routes:
                         for route in http_routes:
                             http(**router.accept(method).where(**route).route)(handler)
-                        for route in cli_routes:
-                            cli(**router.accept(method).where(**route).route)(handler)
                     else:
                         http(**router.accept(method).route)(handler)
+
+                    cli_routes = getattr(handler, '_hug_cli_routes', ())
+                    if cli_routes:
+                        for route in cli_routes:
+                            cli(**self.where(**route).route)(handler)
             return class_definition
         return decorator
 
     def cli(self, method):
         """Registers a method on an Object as a CLI route"""
-        routes = getattr(method_or_class, '_hug_cli_routes', [])
+        routes = getattr(method, '_hug_cli_routes', [])
         routes.append(self.route)
-        method_or_class._hug_cli_routes = routes
-        return method_or_class
+        method._hug_cli_routes = routes
+        return method
 
 
 class API(object):
@@ -227,7 +232,6 @@ put_post = partial(http, accept=('PUT', 'POST'))
 put_post.__doc__ = "Exposes a Python method externally under both the HTTP POST and PUT methods"
 
 object = Object()
-cli_object = CLIObject
 
 # DEPRECATED: for backwords compatibility with hug 1.x.x
 call = http

@@ -40,7 +40,7 @@ from hug.api import API
 from hug.decorators import (default_input_format, default_output_format, directive, extend_api,
                             middleware_class, request_middleware, response_middleware, startup, wraps)
 from hug.route import (call, cli, connect, delete, exception, get, get_post, head, http, local,
-                       not_found, object, cli_object, options, patch, post, put, sink, static, trace)
+                       not_found, object, options, patch, post, put, sink, static, trace)
 from hug.types import create as type
 
 from hug import development_runner # isort:skip
