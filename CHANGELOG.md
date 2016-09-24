@@ -20,6 +20,7 @@ Changelog
 - Added support for providing a different base URL when extending an API
 - Added support for sinks when extending API
 - Added support for object based CLI handlers
+- Added support for excluding exceptions from being handled
 - Allows custom decorators to access parameters like request and response, without putting them in the original functions' parameter list
 - Fixed not found handlers not being imported when extending an API
 - Fixed API extending support of extra features like input_format
