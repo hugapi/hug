@@ -324,9 +324,10 @@ class ExceptionRouter(HTTPRouter):
     """Provides a chainable router that can be used to route exceptions thrown during request handling"""
     __slots__ = ()
 
-    def __init__(self, exceptions=(Exception, ), output=None, **kwargs):
+    def __init__(self, exceptions=(Exception, ), exclude=(), output=None, **kwargs):
         super().__init__(output=output, **kwargs)
         self.route['exceptions'] = (exceptions, ) if not isinstance(exceptions, (list, tuple)) else exceptions
+        self.route['exclude'] = (exclude, ), if not isinstance(exclude, (list, tuple)) else exclude
 
     def __call__(self, api_function):
         api = self.route.get('api', hug.api.from_object(api_function))
