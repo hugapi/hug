@@ -334,9 +334,13 @@ class ExceptionRouter(HTTPRouter):
         (interface, callable_method) = self._create_interface(api, api_function, catch_exceptions=False)
         for version in self.route['versions']:
             for exception in self.route['exceptions']:
-                api.http.add_exception_handler(exception, interface, version)
+                api.http.add_exception_handler(exception, exclude, interface, version)
 
         return callable_method
+
+    def _create_interface(self, api, api_function, catch_exceptions=False):
+        interface = hug.interface.ExceptionRaised(self.route, api_function, catch_exceptions)
+        return (interface, api_function)
 
 
 class URLRouter(HTTPRouter):

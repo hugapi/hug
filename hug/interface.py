@@ -684,3 +684,14 @@ class HTTP(Interface):
             return url.format(**kwargs)
 
         raise KeyError('URL that takes all provided parameters not found')
+
+
+class ExceptionRaised(HTTP):
+    """Defines the interface responsible for taking and transforming exceptions that occur during processing"""
+    __slots__ = ('handle', 'exclude')
+
+    def __init__(self, route, *kargs, **kwargs):
+        self.handle = route['exceptions']
+        self.exclude = route['exclude']
+        super().__init__(route, *kargs, **kwargs)
+
