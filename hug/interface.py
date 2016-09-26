@@ -629,6 +629,7 @@ class HTTP(Interface):
             return self.api.http.not_found(request, response, **kwargs)
         except exception_types as exception:
             handler = None
+            if type(exception) in exclude:
             if type(exception) in exception_types:
                 handler = self.api.http.exception_handlers(api_version)[type(exception)]
             else:
