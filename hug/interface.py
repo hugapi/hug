@@ -632,8 +632,8 @@ class HTTP(Interface):
             if type(exception) in exception_types:
                 handlers = self.api.http.exception_handlers(api_version)[type(exception)]
                 for handler in handlers:
-                    for exclude in handle.excludes:
-                        # Check here
+                    if isinstance(exception, handler.excludes):
+                        continue
             else:
                 for exception_type, exception_handler in \
                   tuple(self.api.http.exception_handlers(api_version).items())[::-1]:
