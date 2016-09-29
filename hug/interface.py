@@ -629,16 +629,20 @@ class HTTP(Interface):
             return self.api.http.not_found(request, response, **kwargs)
         except exception_types as exception:
             handler = None
-            if type(exception) in exception_types:
-                handlers = self.api.http.exception_handlers(api_version)[type(exception)]
-                for handler in handlers:
-                    if isinstance(exception, handler.excludes):
-                        continue
+            exception_type = type(exception)
+            if exception_type in exception_types:
+                handler = self.api.http.exception_handlers(api_version)[exception_type][0]
             else:
-                for exception_type, exception_handler in \
+                for match_exception_type, exception_handlers in \
                   tuple(self.api.http.exception_handlers(api_version).items())[::-1]:
-                    if isinstance(exception, exception_type):
-                        handler = exception_handler
+                    if isinstance(exception, match_exception_type):
+                        for potential_handler in exception_handler:
+                             if not isinstance(exception, handler.excludes):
+                                handler = potential_handler
+
+            if not handler:
+                raise exception_type
+
             handler(request=request, response=response, exception=exception, **kwargs)
 
     def documentation(self, add_to=None, version=None, base_url="", url=""):
