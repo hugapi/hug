@@ -1322,3 +1322,8 @@ def test_api_pass_along(hug_api):
     hug_api.__name__ = "Test API"
     hug_api.extend(api, '')
     assert hug.test.get(hug_api, 'takes_api').data == hug_api.__name__
+
+
+def test_exception_excludes(hug_api):
+    """Test to ensure it's possible to add excludes to exception routers"""
+    pass
