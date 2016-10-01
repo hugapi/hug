@@ -1326,4 +1326,17 @@ def test_api_pass_along(hug_api):
 
 def test_exception_excludes(hug_api):
     """Test to ensure it's possible to add excludes to exception routers"""
-    pass
+    class MyValueError(ValueError):
+        pass
+
+    @hug.exception(Exception)
+    def base_exception_handler():
+        pass
+
+    @hug.exception(ValueError, excludes=MyValueError)
+    def base_exception_handler():
+        pass
+
+    @hug.get()
+    def my_handler()
+        raise MyValueError()
