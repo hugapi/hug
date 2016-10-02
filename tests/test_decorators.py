@@ -1331,12 +1331,19 @@ def test_exception_excludes(hug_api):
 
     @hug.exception(Exception)
     def base_exception_handler():
-        pass
+        return 'base exception handler'
 
     @hug.exception(ValueError, excludes=MyValueError)
     def base_exception_handler():
-        pass
+        return 'special exception handler'
 
     @hug.get()
     def my_handler()
         raise MyValueError()
+
+    @hug.get()
+    def my_second_handler()
+        raise ValueError('reason')
+
+    hug.test.get(api, 'my_handler').data == 'base_exception_handler'
+    hug.test.get(api, 'my_second_handler').data == 'special exception handler'
