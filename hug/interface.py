@@ -636,7 +636,7 @@ class HTTP(Interface):
                 for match_exception_type, exception_handlers in \
                   tuple(self.api.http.exception_handlers(api_version).items())[::-1]:
                     if isinstance(exception, match_exception_type):
-                        for potential_handler in exception_handler:
+                        for potential_handler in exception_handlers:
                              if not isinstance(exception, handler.excludes):
                                 handler = potential_handler
 
