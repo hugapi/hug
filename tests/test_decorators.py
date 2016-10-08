@@ -1329,21 +1329,30 @@ def test_exception_excludes(hug_api):
     class MyValueError(ValueError):
         pass
 
-    @hug.exception(Exception)
+    class MySecondValueError(ValueError):
+        pass
+
+    @hug.exception(Exception, exclude=MySecondValueError, api=hug_api)
     def base_exception_handler(exception):
         return 'base exception handler'
 
-    @hug.exception(ValueError, excludes=MyValueError)
+    @hug.exception(ValueError, exclude=(MyValueError, MySecondValueError), api=hug_api)
     def base_exception_handler(exception):
         return 'special exception handler'
 
-    @hug.get()
+    @hug.get(api=hug_api)
     def my_handler():
         raise MyValueError()
 
-    @hug.get()
+    @hug.get(api=hug_api)
     def my_second_handler():
         raise ValueError('reason')
 
-    hug.test.get(api, 'my_handler').data == 'base_exception_handler'
-    hug.test.get(api, 'my_second_handler').data == 'special exception handler'
+    @hug.get(api=hug_api)
+    def my_third_handler():
+        raise MySecondValueError()
+
+    assert hug.test.get(hug_api, 'my_handler').data == 'base exception handler'
+    assert hug.test.get(hug_api, 'my_second_handler').data == 'special exception handler'
+    with pytest.raises(MySecondValueError):
+        assert hug.test.get(hug_api, 'my_third_handler').data
