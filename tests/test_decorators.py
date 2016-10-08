@@ -1345,14 +1345,14 @@ def test_exception_excludes(hug_api):
         raise MyValueError()
 
     @hug.get(api=hug_api)
-    def my_second_handler():
+    def fall_through_handler():
         raise ValueError('reason')
 
     @hug.get(api=hug_api)
-    def my_third_handler():
+    def full_through_to_raise():
         raise MySecondValueError()
 
     assert hug.test.get(hug_api, 'my_handler').data == 'base exception handler'
-    assert hug.test.get(hug_api, 'my_second_handler').data == 'special exception handler'
+    assert hug.test.get(hug_api, 'fall_through_handler').data == 'special exception handler'
     with pytest.raises(MySecondValueError):
-        assert hug.test.get(hug_api, 'my_third_handler').data
+        assert hug.test.get(hug_api, 'full_through_to_raise').data
