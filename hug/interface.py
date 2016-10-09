@@ -629,13 +629,20 @@ class HTTP(Interface):
             return self.api.http.not_found(request, response, **kwargs)
         except exception_types as exception:
             handler = None
-            if type(exception) in exception_types:
-                handler = self.api.http.exception_handlers(api_version)[type(exception)]
+            exception_type = type(exception)
+            if exception_type in exception_types:
+                handler = self.api.http.exception_handlers(api_version)[exception_type][0]
             else:
-                for exception_type, exception_handler in \
+                for match_exception_type, exception_handlers in \
                   tuple(self.api.http.exception_handlers(api_version).items())[::-1]:
-                    if isinstance(exception, exception_type):
-                        handler = exception_handler
+                    if isinstance(exception, match_exception_type):
+                        for potential_handler in exception_handlers:
+                             if not isinstance(exception, potential_handler.exclude):
+                                handler = potential_handler
+
+            if not handler:
+                raise exception_type
+
             handler(request=request, response=response, exception=exception, **kwargs)
 
     def documentation(self, add_to=None, version=None, base_url="", url=""):
@@ -683,3 +690,14 @@ class HTTP(Interface):
             return url.format(**kwargs)
 
         raise KeyError('URL that takes all provided parameters not found')
+
+
+class ExceptionRaised(HTTP):
+    """Defines the interface responsible for taking and transforming exceptions that occur during processing"""
+    __slots__ = ('handle', 'exclude')
+
+    def __init__(self, route, *kargs, **kwargs):
+        self.handle = route['exceptions']
+        self.exclude = route['exclude']
+        super().__init__(route, *kargs, **kwargs)
+

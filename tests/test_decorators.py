@@ -1322,3 +1322,37 @@ def test_api_pass_along(hug_api):
     hug_api.__name__ = "Test API"
     hug_api.extend(api, '')
     assert hug.test.get(hug_api, 'takes_api').data == hug_api.__name__
+
+
+def test_exception_excludes(hug_api):
+    """Test to ensure it's possible to add excludes to exception routers"""
+    class MyValueError(ValueError):
+        pass
+
+    class MySecondValueError(ValueError):
+        pass
+
+    @hug.exception(Exception, exclude=MySecondValueError, api=hug_api)
+    def base_exception_handler(exception):
+        return 'base exception handler'
+
+    @hug.exception(ValueError, exclude=(MyValueError, MySecondValueError), api=hug_api)
+    def base_exception_handler(exception):
+        return 'special exception handler'
+
+    @hug.get(api=hug_api)
+    def my_handler():
+        raise MyValueError()
+
+    @hug.get(api=hug_api)
+    def fall_through_handler():
+        raise ValueError('reason')
+
+    @hug.get(api=hug_api)
+    def full_through_to_raise():
+        raise MySecondValueError()
+
+    assert hug.test.get(hug_api, 'my_handler').data == 'base exception handler'
+    assert hug.test.get(hug_api, 'fall_through_handler').data == 'special exception handler'
+    with pytest.raises(MySecondValueError):
+        assert hug.test.get(hug_api, 'full_through_to_raise').data

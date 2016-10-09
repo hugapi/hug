@@ -136,7 +136,8 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self._exception_handlers = {}
 
         for version in versions:
-            self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
+            placement = self._exception_handlers.setdefault(version, OrderedDict())
+            placement[exception_type] = (error_handler, ) + placement.get(exception_type, tuple())
 
     def extend(self, http_api, route="", base_url=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
