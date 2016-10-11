@@ -427,6 +427,9 @@ class CLI(Interface):
             pass_to_function[option] = directive(*arguments, api=self.api, argparse=self.parser,
                                                  interface=self)
 
+        if self.takes_kwargs:
+            # update pass to function here
+
         if getattr(self, 'validate_function', False):
             errors = self.validate_function(pass_to_function)
             if errors:
