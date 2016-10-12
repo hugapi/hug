@@ -331,7 +331,7 @@ class CLI(Interface):
         self.interface.cli = self
 
         used_options = {'h', 'help'}
-        nargs_set = self.interface.takes_kargs
+        nargs_set = self.interface.takes_kargs or self.interface.takes_kwargs
         self.parser = argparse.ArgumentParser(description=route.get('doc', self.interface.spec.__doc__))
         if 'version' in route:
             self.parser.add_argument('-v', '--version', action='version',
