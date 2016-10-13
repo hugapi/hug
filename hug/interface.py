@@ -329,6 +329,12 @@ class CLI(Interface):
     def __init__(self, route, function):
         super().__init__(route, function)
         self.interface.cli = self
+        use_parameters = self.interface.parameters.copy()
+        self.additional_options = getattr(self.interface, 'karg', None)
+        if self.interface.takes_kwargs and not self.interface.takes_kwargs:
+            self.additional_options = '_additional_options'
+            use_parameters.append('_additional_options')
+
 
         used_options = {'h', 'help'}
         nargs_set = self.interface.takes_kargs or self.interface.takes_kwargs
@@ -381,7 +387,7 @@ class CLI(Interface):
             elif kwargs.get('action', None) == 'store_true':
                 kwargs.pop('action', None) == 'store_true'
 
-            if option == getattr(self.interface, 'karg', None) or ():
+            if option == self.additional_options:
                 kwargs['nargs'] = '*'
             elif not nargs_set and kwargs.get('action', None) == 'append' and not option in self.interface.defaults:
                 kwargs['nargs'] = '*'
@@ -435,8 +441,14 @@ class CLI(Interface):
             if errors:
                 return self.output(errors)
 
-        if hasattr(self.interface, 'karg'):
-            karg_values = pass_to_function.pop(self.interface.karg, ())
+        if self.additional_options:
+            additional_options = pass_to_function.pop(self.additional_options, ())
+            if self.interface.takes_kwargs:
+                for option in additional_options:
+                    if option.startswith('--'):
+                        add_options_to = option[2:]
+                        self.pass_to_function.set_default
+                    elif add_
             result = self.interface(*karg_values, **pass_to_function)
         else:
             result = self.interface(**pass_to_function)
