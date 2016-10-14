@@ -433,9 +433,6 @@ class CLI(Interface):
             pass_to_function[option] = directive(*arguments, api=self.api, argparse=self.parser,
                                                  interface=self)
 
-        if self.takes_kwargs:
-            # update pass to function here
-
         if getattr(self, 'validate_function', False):
             errors = self.validate_function(pass_to_function)
             if errors:
@@ -444,11 +441,26 @@ class CLI(Interface):
         if self.additional_options:
             additional_options = pass_to_function.pop(self.additional_options, ())
             if self.interface.takes_kwargs:
-                for option in additional_options:
+                add_options_to = None
+                kargs = []
+                for index, option in enumerate(additional_options):
                     if option.startswith('--'):
+                        if add_options_to:
+                            value == self.pass_to_function[add_options_to]
+                            if len(value) == 1:
+                                self.pass_to_function[add_options_to] = value[0]
+                            elif value == []:
+                                self.pass_to_function[add_options_to] = True
                         add_options_to = option[2:]
-                        self.pass_to_function.set_default
-                    elif add_
+                        self.pass_to_function.set_default(add_options_to, [])
+                        added_options.add(add_options_to)
+                    elif add_options_to:
+                        self.pass_to_function[add_options_to].append(option)
+                    else:
+                        kargs.append(option)
+            else:
+                kargs = additional_options
+
             result = self.interface(*karg_values, **pass_to_function)
         else:
             result = self.interface(**pass_to_function)
