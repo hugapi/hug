@@ -329,7 +329,7 @@ class CLI(Interface):
     def __init__(self, route, function):
         super().__init__(route, function)
         self.interface.cli = self
-        use_parameters = self.interface.parameters.copy()
+        use_parameters = list(self.interface.parameters)
         self.additional_options = getattr(self.interface, 'karg', None)
         if self.interface.takes_kwargs and not self.interface.takes_kwargs:
             self.additional_options = '_additional_options'
@@ -446,14 +446,13 @@ class CLI(Interface):
                 for index, option in enumerate(additional_options):
                     if option.startswith('--'):
                         if add_options_to:
-                            value == self.pass_to_function[add_options_to]
+                            value = self.pass_to_function[add_options_to]
                             if len(value) == 1:
                                 self.pass_to_function[add_options_to] = value[0]
                             elif value == []:
                                 self.pass_to_function[add_options_to] = True
                         add_options_to = option[2:]
                         self.pass_to_function.set_default(add_options_to, [])
-                        added_options.add(add_options_to)
                     elif add_options_to:
                         self.pass_to_function[add_options_to].append(option)
                     else:
@@ -461,7 +460,7 @@ class CLI(Interface):
             else:
                 kargs = additional_options
 
-            result = self.interface(*karg_values, **pass_to_function)
+            result = self.interface(*kargs, **pass_to_function)
         else:
             result = self.interface(**pass_to_function)
 
