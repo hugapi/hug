@@ -438,9 +438,12 @@ class CLI(Interface):
 
         if self.additional_options:
             additional_options = pass_to_function.pop(self.additional_options, ())
+            args = []
+            for requirement in self.required:
+                if requirement in pass_to_function:
+                    args.append(pass_to_function.pop(requirement))
             if self.interface.takes_kwargs:
                 add_options_to = None
-                args = []
                 for index, option in enumerate(additional_options):
                     if option.startswith('--'):
                         if add_options_to:
@@ -456,7 +459,7 @@ class CLI(Interface):
                     else:
                         args.append(option)
             else:
-                args = additional_options
+                args.extend(additional_options)
 
             result = self.interface(*args, **pass_to_function)
         else:

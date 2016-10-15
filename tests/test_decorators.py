@@ -939,6 +939,9 @@ def test_cli_kwargs():
         return [required_argument, named_argument, args, kwargs]
 
     assert hug.test.cli(takes_all_the_things, 'hi!') == ['hi!', False, (), {}]
+    assert hug.test.cli(takes_all_the_things, 'hi!', named_argument='there') == ['hi!', 'there', (), {}]
+    assert hug.test.cli(takes_all_the_things, 'hi!', 'extra', '--arguments', 'can', '--happen', '--all', 'the', 'tim') \
+                             == ['hi!', 'there', ('extra'), {'arguments': 'can', 'happen': True, 'all': ['the', 'tim']}]
 
 
 def test_local_type_annotation():
