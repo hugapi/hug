@@ -932,6 +932,15 @@ def test_cli_file_return():
     assert 'hug' in hug.test.cli(test)
 
 
+def test_cli_kwargs():
+    """Test to ensure cli commands can correctly handle **kwargs"""
+    @hug.cli()
+    def takes_all_the_things(required_argument, named_argument=False, *kargs, **kwargs):
+        return [required_argument, named_argument, kargs, kwargs]
+
+    assert hug.test.cli(takes_all_the_things, 'hi!', named_argument=True) == ['hi', True, [], {}]
+
+
 def test_local_type_annotation():
     """Test to ensure local type annotation works as expected"""
     @hug.local(raise_on_invalid=True)

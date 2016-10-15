@@ -75,12 +75,15 @@ class Interfaces(object):
         if self.is_coroutine:
             self.spec = getattr(self.spec, '__wrapped__', self.spec)
 
-        self.takes_kargs = introspect.takes_kargs(self.spec)
+        self.takes_args = introspect.takes_args(self.spec)
         self.takes_kwargs = introspect.takes_kwargs(self.spec)
 
-        self.parameters = introspect.arguments(self.spec, 1 if self.takes_kargs else 0)
-        if self.takes_kargs:
-            self.karg = self.parameters[-1]
+        self.parameters = list(introspect.arguments(self.spec.__code__.co_varnames, self.takes_kwargs + self.takes_args))
+        if self.takes_kwargs:
+            self.kwarg = self.parameters[0]
+        if self.takes_args:
+            self.arg = self.parameters.pop(-1)
+        self.parameters = tuple(self.parameters)
 
         self.defaults = {}
         for index, default in enumerate(reversed(self.spec.__defaults__ or ())):
@@ -330,14 +333,13 @@ class CLI(Interface):
         super().__init__(route, function)
         self.interface.cli = self
         use_parameters = list(self.interface.parameters)
-        self.additional_options = getattr(self.interface, 'karg', None)
-        if self.interface.takes_kwargs and not self.interface.takes_kwargs:
-            self.additional_options = '_additional_options'
-            use_parameters.append('_additional_options')
+        self.additional_options = getattr(self.interface, 'arg', getattr(self.interface, 'kwarg', False))
+        if self.additional_options:
+            use_parameters.append(self.additional_options)
 
 
         used_options = {'h', 'help'}
-        nargs_set = self.interface.takes_kargs or self.interface.takes_kwargs
+        nargs_set = self.interface.takes_args or self.interface.takes_kwargs
         self.parser = argparse.ArgumentParser(description=route.get('doc', self.interface.spec.__doc__))
         if 'version' in route:
             self.parser.add_argument('-v', '--version', action='version',
@@ -345,11 +347,11 @@ class CLI(Interface):
                                                          route['version']))
             used_options.update(('v', 'version'))
 
-        for option in self.interface.parameters:
+        for option in use_parameters:
             if option in self.directives:
                 continue
 
-            if option in self.interface.required:
+            if option in self.interface.required or option == self.additional_options:
                 args = (option, )
             else:
                 short_option = option[0]
@@ -442,7 +444,7 @@ class CLI(Interface):
             additional_options = pass_to_function.pop(self.additional_options, ())
             if self.interface.takes_kwargs:
                 add_options_to = None
-                kargs = []
+                args = []
                 for index, option in enumerate(additional_options):
                     if option.startswith('--'):
                         if add_options_to:
@@ -456,11 +458,11 @@ class CLI(Interface):
                     elif add_options_to:
                         self.pass_to_function[add_options_to].append(option)
                     else:
-                        kargs.append(option)
+                        args.append(option)
             else:
-                kargs = additional_options
+                args = additional_options
 
-            result = self.interface(*kargs, **pass_to_function)
+            result = self.interface(*args, **pass_to_function)
         else:
             result = self.interface(**pass_to_function)
 
@@ -722,8 +724,8 @@ class ExceptionRaised(HTTP):
     """Defines the interface responsible for taking and transforming exceptions that occur during processing"""
     __slots__ = ('handle', 'exclude')
 
-    def __init__(self, route, *kargs, **kwargs):
+    def __init__(self, route, *args, **kwargs):
         self.handle = route['exceptions']
         self.exclude = route['exclude']
-        super().__init__(route, *kargs, **kwargs)
+        super().__init__(route, *args, **kwargs)
 

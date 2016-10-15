@@ -48,7 +48,7 @@ def takes_kwargs(function):
     return bool(function.__code__.co_flags & 0x08)
 
 
-def takes_kargs(function):
+def takes_args(function):
     """Returns True if the supplied functions takes extra non-keyword arguments"""
     return bool(function.__code__.co_flags & 0x04)
 
