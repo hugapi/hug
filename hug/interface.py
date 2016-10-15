@@ -78,17 +78,14 @@ class Interfaces(object):
         self.takes_args = introspect.takes_args(self.spec)
         self.takes_kwargs = introspect.takes_kwargs(self.spec)
 
-        self.parameters = list(introspect.arguments(self.spec.__code__.co_varnames, self.takes_kwargs + self.takes_args))
+        self.parameters = list(introspect.arguments(self.spec,
+                                                    self.takes_kwargs + self.takes_args))
         if self.takes_kwargs:
-            self.kwarg = self.parameters[0]
+            self.kwarg = self.parameters.pop(-1)
         if self.takes_args:
             self.arg = self.parameters.pop(-1)
         self.parameters = tuple(self.parameters)
-
-        self.defaults = {}
-        for index, default in enumerate(reversed(self.spec.__defaults__ or ())):
-            self.defaults[self.parameters[-(index + 1)]] = default
-
+        self.defaults = dict(zip(reversed(self.parameters), reversed(self.spec.__defaults__ or ())))
         self.required = self.parameters[:-(len(self.spec.__defaults__ or ())) or None]
         if introspect.is_method(self.spec) or introspect.is_method(function):
             self.required = self.required[1:]
