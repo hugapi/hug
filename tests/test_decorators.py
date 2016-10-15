@@ -938,7 +938,7 @@ def test_cli_kwargs():
     def takes_all_the_things(required_argument, named_argument=False, *args, **kwargs):
         return [required_argument, named_argument, args, kwargs]
 
-    assert hug.test.cli(takes_all_the_things, 'hi!', named_argument=True) == ['hi', True, [], {}]
+    assert hug.test.cli(takes_all_the_things, 'hi!') == ['hi!', False, (), {}]
 
 
 def test_local_type_annotation():

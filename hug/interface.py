@@ -78,8 +78,7 @@ class Interfaces(object):
         self.takes_args = introspect.takes_args(self.spec)
         self.takes_kwargs = introspect.takes_kwargs(self.spec)
 
-        self.parameters = list(introspect.arguments(self.spec,
-                                                    self.takes_kwargs + self.takes_args))
+        self.parameters = list(introspect.arguments(self.spec, self.takes_kwargs + self.takes_args))
         if self.takes_kwargs:
             self.kwarg = self.parameters.pop(-1)
         if self.takes_args:
