@@ -425,7 +425,8 @@ class CLI(Interface):
             if conclusion and conclusion is not True:
                 return self.output(conclusion)
 
-        pass_to_function = vars(self.parser.parse_known_args()[0])
+        known, unknown = self.parser.parse_known_args()
+        pass_to_function = vars(known)
         for option, directive in self.directives.items():
             arguments = (self.defaults[option], ) if option in self.defaults else ()
             pass_to_function[option] = directive(*arguments, api=self.api, argparse=self.parser,
@@ -437,29 +438,25 @@ class CLI(Interface):
                 return self.output(errors)
 
         if self.additional_options:
-            additional_options = pass_to_function.pop(self.additional_options, ())
             args = []
-            for requirement in self.required:
-                if requirement in pass_to_function:
-                    args.append(pass_to_function.pop(requirement))
+            for parameter in self.interface.parameters:
+                if parameter in pass_to_function:
+                    args.append(pass_to_function.pop(parameter))
+            args.extend(pass_to_function.pop(self.additional_options, ()))
             if self.interface.takes_kwargs:
                 add_options_to = None
-                for index, option in enumerate(additional_options):
+                for index, option in enumerate(unknown):
                     if option.startswith('--'):
                         if add_options_to:
-                            value = self.pass_to_function[add_options_to]
+                            value = pass_to_function[add_options_to]
                             if len(value) == 1:
-                                self.pass_to_function[add_options_to] = value[0]
+                                pass_to_function[add_options_to] = value[0]
                             elif value == []:
-                                self.pass_to_function[add_options_to] = True
+                                pass_to_function[add_options_to] = True
                         add_options_to = option[2:]
-                        self.pass_to_function.set_default(add_options_to, [])
+                        pass_to_function.setdefault(add_options_to, [])
                     elif add_options_to:
-                        self.pass_to_function[add_options_to].append(option)
-                    else:
-                        args.append(option)
-            else:
-                args.extend(additional_options)
+                        pass_to_function[add_options_to].append(option)
 
             result = self.interface(*args, **pass_to_function)
         else:
