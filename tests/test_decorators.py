@@ -1028,8 +1028,8 @@ def test_cli_with_string_annotation():
     assert hug.test.cli(test, True)
 
 
-def test_cli_with_kargs():
-    """Test to ensure CLI's work correctly when taking kargs"""
+def test_cli_with_args():
+    """Test to ensure CLI's work correctly when taking args"""
     @hug.cli()
     def test(*values):
         return values
@@ -1079,9 +1079,9 @@ def test_wraps():
     """Test to ensure you can safely apply decorators to hug endpoints by using @hug.wraps"""
     def my_decorator(function):
         @hug.wraps(function)
-        def decorated(*kargs, **kwargs):
+        def decorated(*args, **kwargs):
             kwargs['name'] = 'Timothy'
-            return function(*kargs, **kwargs)
+            return function(*args, **kwargs)
         return decorated
 
     @hug.get()
@@ -1095,9 +1095,9 @@ def test_wraps():
 
     def my_second_decorator(function):
         @hug.wraps(function)
-        def decorated(*kargs, **kwargs):
+        def decorated(*args, **kwargs):
             kwargs['name'] = "Not telling"
-            return function(*kargs, **kwargs)
+            return function(*args, **kwargs)
         return decorated
 
     @hug.get()
@@ -1112,9 +1112,9 @@ def test_wraps():
 
     def my_decorator_with_request(function):
         @hug.wraps(function)
-        def decorated(request, *kargs, **kwargs):
+        def decorated(request, *args, **kwargs):
             kwargs['has_request'] = bool(request)
-            return function(*kargs, **kwargs)
+            return function(*args, **kwargs)
         return decorated
 
     @hug.get()
@@ -1356,3 +1356,15 @@ def test_exception_excludes(hug_api):
     assert hug.test.get(hug_api, 'fall_through_handler').data == 'special exception handler'
     with pytest.raises(MySecondValueError):
         assert hug.test.get(hug_api, 'full_through_to_raise').data
+
+
+def test_cli_kwargs(hug_api):
+    """Test to ensure cli commands can correctly handle **kwargs"""
+    @hug.cli(api=hug_api)
+    def takes_all_the_things(required_argument, named_argument=False, *args, **kwargs):
+        return [required_argument, named_argument, args, kwargs]
+
+    assert hug.test.cli(takes_all_the_things, 'hi!') == ['hi!', False, (), {}]
+    assert hug.test.cli(takes_all_the_things, 'hi!', named_argument='there') == ['hi!', 'there', (), {}]
+    assert hug.test.cli(takes_all_the_things, 'hi!', 'extra', '--arguments', 'can', '--happen', '--all', 'the', 'tim') \
+                             == ['hi!', False, ('extra', ), {'arguments': 'can', 'happen': True, 'all': ['the', 'tim']}]

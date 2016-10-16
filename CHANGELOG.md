@@ -21,6 +21,7 @@ Changelog
 - Added support for sinks when extending API
 - Added support for object based CLI handlers
 - Added support for excluding exceptions from being handled
+- Added support for **kwarg handling within CLI interfaces
 - Allows custom decorators to access parameters like request and response, without putting them in the original functions' parameter list
 - Fixed not found handlers not being imported when extending an API
 - Fixed API extending support of extra features like input_format
@@ -32,7 +33,7 @@ Changelog
 - Fixed an issue passing None where a text value was required (issue #341)
 
 ### 2.1.2
-- Fixed an issue with sharing exception handlers accross multiple modules (Thanks @soloman1124)
+- Fixed an issue with sharing exception handlers across multiple modules (Thanks @soloman1124)
 - Fixed how single direction (response / request) middlewares are bounded to work when code is Cython compiled
 
 ### 2.1.1

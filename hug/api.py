@@ -242,7 +242,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
         httpd.serve_forever()
 
     @staticmethod
-    def base_404(request, response, *kargs, **kwargs):
+    def base_404(request, response, *args, **kwargs):
         """Defines the base 404 handler"""
         response.status = falcon.HTTP_NOT_FOUND
 
@@ -276,7 +276,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
         """Returns a smart 404 page that contains documentation for the written API"""
         base_url = self.base_url if base_url is None else base_url
 
-        def handle_404(request, response, *kargs, **kwargs):
+        def handle_404(request, response, *args, **kwargs):
             url_prefix = self.base_url
             if not url_prefix:
                 url_prefix = request.url[:-1]
@@ -399,11 +399,11 @@ class ModuleSingleton(type):
             module = sys.modules[module]
 
         if not '__hug__' in module.__dict__:
-            def api_auto_instantiate(*kargs, **kwargs):
+            def api_auto_instantiate(*args, **kwargs):
                 if not hasattr(module, '__hug_serving__'):
                     module.__hug_wsgi__ = module.__hug__.http.server()
                     module.__hug_serving__ = True
-                return module.__hug_wsgi__(*kargs, **kwargs)
+                return module.__hug_wsgi__(*args, **kwargs)
 
             module.__hug__ = super().__call__(module, *args, **kwargs)
             module.__hug_wsgi__ = api_auto_instantiate

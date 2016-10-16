@@ -75,17 +75,16 @@ class Interfaces(object):
         if self.is_coroutine:
             self.spec = getattr(self.spec, '__wrapped__', self.spec)
 
-        self.takes_kargs = introspect.takes_kargs(self.spec)
+        self.takes_args = introspect.takes_args(self.spec)
         self.takes_kwargs = introspect.takes_kwargs(self.spec)
 
-        self.parameters = introspect.arguments(self.spec, 1 if self.takes_kargs else 0)
-        if self.takes_kargs:
-            self.karg = self.parameters[-1]
-
-        self.defaults = {}
-        for index, default in enumerate(reversed(self.spec.__defaults__ or ())):
-            self.defaults[self.parameters[-(index + 1)]] = default
-
+        self.parameters = list(introspect.arguments(self.spec, self.takes_kwargs + self.takes_args))
+        if self.takes_kwargs:
+            self.kwarg = self.parameters.pop(-1)
+        if self.takes_args:
+            self.arg = self.parameters.pop(-1)
+        self.parameters = tuple(self.parameters)
+        self.defaults = dict(zip(reversed(self.parameters), reversed(self.spec.__defaults__ or ())))
         self.required = self.parameters[:-(len(self.spec.__defaults__ or ())) or None]
         if introspect.is_method(self.spec) or introspect.is_method(function):
             self.required = self.required[1:]
@@ -329,9 +328,14 @@ class CLI(Interface):
     def __init__(self, route, function):
         super().__init__(route, function)
         self.interface.cli = self
+        use_parameters = list(self.interface.parameters)
+        self.additional_options = getattr(self.interface, 'arg', getattr(self.interface, 'kwarg', False))
+        if self.additional_options:
+            use_parameters.append(self.additional_options)
+
 
         used_options = {'h', 'help'}
-        nargs_set = self.interface.takes_kargs
+        nargs_set = self.interface.takes_args or self.interface.takes_kwargs
         self.parser = argparse.ArgumentParser(description=route.get('doc', self.interface.spec.__doc__))
         if 'version' in route:
             self.parser.add_argument('-v', '--version', action='version',
@@ -339,11 +343,11 @@ class CLI(Interface):
                                                          route['version']))
             used_options.update(('v', 'version'))
 
-        for option in self.interface.parameters:
+        for option in use_parameters:
             if option in self.directives:
                 continue
 
-            if option in self.interface.required:
+            if option in self.interface.required or option == self.additional_options:
                 args = (option, )
             else:
                 short_option = option[0]
@@ -381,7 +385,7 @@ class CLI(Interface):
             elif kwargs.get('action', None) == 'store_true':
                 kwargs.pop('action', None) == 'store_true'
 
-            if option == getattr(self.interface, 'karg', None) or ():
+            if option == self.additional_options:
                 kwargs['nargs'] = '*'
             elif not nargs_set and kwargs.get('action', None) == 'append' and not option in self.interface.defaults:
                 kwargs['nargs'] = '*'
@@ -421,7 +425,8 @@ class CLI(Interface):
             if conclusion and conclusion is not True:
                 return self.output(conclusion)
 
-        pass_to_function = vars(self.parser.parse_known_args()[0])
+        known, unknown = self.parser.parse_known_args()
+        pass_to_function = vars(known)
         for option, directive in self.directives.items():
             arguments = (self.defaults[option], ) if option in self.defaults else ()
             pass_to_function[option] = directive(*arguments, api=self.api, argparse=self.parser,
@@ -432,9 +437,28 @@ class CLI(Interface):
             if errors:
                 return self.output(errors)
 
-        if hasattr(self.interface, 'karg'):
-            karg_values = pass_to_function.pop(self.interface.karg, ())
-            result = self.interface(*karg_values, **pass_to_function)
+        if self.additional_options:
+            args = []
+            for parameter in self.interface.parameters:
+                if parameter in pass_to_function:
+                    args.append(pass_to_function.pop(parameter))
+            args.extend(pass_to_function.pop(self.additional_options, ()))
+            if self.interface.takes_kwargs:
+                add_options_to = None
+                for index, option in enumerate(unknown):
+                    if option.startswith('--'):
+                        if add_options_to:
+                            value = pass_to_function[add_options_to]
+                            if len(value) == 1:
+                                pass_to_function[add_options_to] = value[0]
+                            elif value == []:
+                                pass_to_function[add_options_to] = True
+                        add_options_to = option[2:]
+                        pass_to_function.setdefault(add_options_to, [])
+                    elif add_options_to:
+                        pass_to_function[add_options_to].append(option)
+
+            result = self.interface(*args, **pass_to_function)
         else:
             result = self.interface(**pass_to_function)
 
@@ -696,8 +720,8 @@ class ExceptionRaised(HTTP):
     """Defines the interface responsible for taking and transforming exceptions that occur during processing"""
     __slots__ = ('handle', 'exclude')
 
-    def __init__(self, route, *kargs, **kwargs):
+    def __init__(self, route, *args, **kwargs):
         self.handle = route['exceptions']
         self.exclude = route['exclude']
-        super().__init__(route, *kargs, **kwargs)
+        super().__init__(route, *args, **kwargs)
 
