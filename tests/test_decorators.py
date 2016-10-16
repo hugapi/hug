@@ -932,18 +932,6 @@ def test_cli_file_return():
     assert 'hug' in hug.test.cli(test)
 
 
-def test_cli_kwargs():
-    """Test to ensure cli commands can correctly handle **kwargs"""
-    @hug.cli()
-    def takes_all_the_things(required_argument, named_argument=False, *args, **kwargs):
-        return [required_argument, named_argument, args, kwargs]
-
-    assert hug.test.cli(takes_all_the_things, 'hi!') == ['hi!', False, (), {}]
-    assert hug.test.cli(takes_all_the_things, 'hi!', named_argument='there') == ['hi!', 'there', (), {}]
-    assert hug.test.cli(takes_all_the_things, 'hi!', 'extra', '--arguments', 'can', '--happen', '--all', 'the', 'tim') \
-                             == ['hi!', False, ('extra', ), {'arguments': 'can', 'happen': True, 'all': ['the', 'tim']}]
-
-
 def test_local_type_annotation():
     """Test to ensure local type annotation works as expected"""
     @hug.local(raise_on_invalid=True)
@@ -1368,3 +1356,15 @@ def test_exception_excludes(hug_api):
     assert hug.test.get(hug_api, 'fall_through_handler').data == 'special exception handler'
     with pytest.raises(MySecondValueError):
         assert hug.test.get(hug_api, 'full_through_to_raise').data
+
+
+def test_cli_kwargs(hug_api):
+    """Test to ensure cli commands can correctly handle **kwargs"""
+    @hug.cli(api=hug_api)
+    def takes_all_the_things(required_argument, named_argument=False, *args, **kwargs):
+        return [required_argument, named_argument, args, kwargs]
+
+    assert hug.test.cli(takes_all_the_things, 'hi!') == ['hi!', False, (), {}]
+    assert hug.test.cli(takes_all_the_things, 'hi!', named_argument='there') == ['hi!', 'there', (), {}]
+    assert hug.test.cli(takes_all_the_things, 'hi!', 'extra', '--arguments', 'can', '--happen', '--all', 'the', 'tim') \
+                             == ['hi!', False, ('extra', ), {'arguments': 'can', 'happen': True, 'all': ['the', 'tim']}]
