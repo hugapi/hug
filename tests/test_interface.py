@@ -48,6 +48,15 @@ class TestHTTP(object):
         with pytest.raises(KeyError):
             namer.interface.http.url(version=10)
 
+    def test_gather_parameters(self):
+        """Test to ensure gathering parameters works in the expected way"""
+        @hug.get()
+        def my_example_api(body):
+            return body
+
+        assert hug.test.get(__hug__, 'my_example_api', body='',
+                            headers={'content-type': 'application/json'}).data == None
+
 
 class TestLocal(object):
     """Test to ensure hug.interface.Local functionality works as expected"""

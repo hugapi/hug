@@ -11,8 +11,29 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.2.0
+- Defaults asyncio event loop to uvloop automatically if it is installed
+- Added support for making endpoints `private` to enforce lack of automatic documentation creation for them.
+- Added HTTP method named (get, post, etc) routers to the API router to be consistent with documentation
+- Added smart handling of empty JSON content (issue #300)
+- Added ability to have explicitly unversioned API endpoints using `versions=False`
+- Added support for providing a different base URL when extending an API
+- Added support for sinks when extending API
+- Added support for object based CLI handlers
+- Added support for excluding exceptions from being handled
+- Added support for **kwarg handling within CLI interfaces
+- Allows custom decorators to access parameters like request and response, without putting them in the original functions' parameter list
+- Fixed not found handlers not being imported when extending an API
+- Fixed API extending support of extra features like input_format
+- Fixed issue with API directive not working with extension feature
+- Fixed nested async calls so that they reuse the same loop
+- Fixed TypeError being raised incorrectly when no content-type is specified (issue #330)
+- Fixed issues with multi-part requests (issue #329)
+- Fixed documentation output to exclude `api_version` and `body`
+- Fixed an issue passing None where a text value was required (issue #341)
+
 ### 2.1.2
-- Fixed an issue with sharing exception handlers accross multiple modules (Thanks @soloman1124)
+- Fixed an issue with sharing exception handlers across multiple modules (Thanks @soloman1124)
 - Fixed how single direction (response / request) middlewares are bounded to work when code is Cython compiled
 
 ### 2.1.1
@@ -30,6 +51,7 @@ Changelog
 - Added support for manually specifying API object for all decorators (including middleware / startup) to enable easier plugin interaction
 - Added support for selectively removing requirements per endpoint
 - Added conditional output format based on Accept request header, as detailed in issue #277
+- Added support for dynamically creating named modules from API names
 - Improved how `hug.test` deals with non JSON content types
 - Fixed issues with certain non-standard content-type values causing an exception
 - Fixed a bug producing documentation when versioning is used, and there are no routes that apply accros versions

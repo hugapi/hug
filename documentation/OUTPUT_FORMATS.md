@@ -40,7 +40,7 @@ Finally, an output format may be a collection of different output formats that g
     def my_endpoint():
         return ''
 
-In this case, if the endpoint is accesed via my_endpoint.js, the output type will be JSON; however if it's accesed via my_endoint.html, the output type will be HTML.
+In this case, if the endpoint is accessed via my_endpoint.js, the output type will be JSON; however if it's accessed via my_endoint.html, the output type will be HTML.
 
 Built-in hug output formats
 ===================
@@ -66,7 +66,7 @@ hug provides a large catalog of built-in output formats, which can be used to bu
 
  - `hug.output_format.on_content_type(handlers={content_type: output_format}, default=None)`: Dynamically changes the output format based on the request content type.
  - `hug.output_format.suffix(handlers={suffix: output_format}, default=None)`: Dynamically changes the output format based on a suffix at the end of the requested path.
- - `hug.output_format.prefix(handlers={suffix: output_format}, defualt=None)`: Dynamically changes the output format based on a prefix at the begining of the requested path.
+ - `hug.output_format.prefix(handlers={suffix: output_format}, default=None)`: Dynamically changes the output format based on a prefix at the beginning of the requested path.
 
 Creating a custom output format
 ===================
@@ -82,5 +82,3 @@ A common pattern is to only apply the output format. Validation errors aren't pa
     @hug.output_format.on_valid('file/text')
     def format_as_text_when_valid(data, request=None, response=None):
         return str(content).encode('utf8')
-
-

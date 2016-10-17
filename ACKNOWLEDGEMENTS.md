@@ -9,6 +9,7 @@ Notable Bug Reporters
 - Eirik Rye (@eirikrye)
 - Matteo Bertini (@naufraghi)
 - Erwin Haasnoot (@ErwinHaasnoot)
+- Aris Pikeas (@pikeas)
 
 Code Contributors
 ===================
@@ -29,6 +30,10 @@ Code Contributors
 - Prashant Sinha (@PrashntS)
 - Alan Lu (@cag)
 - Soloman Weng (@soloman1124)
+- Evan Owen (@thatGuy0923)
+- Gemedet (@gemedet)
+- Garrett Squire (@gsquire)
+- Haïkel Guémar (@hguemar)
 
 Documenters
 ===================
@@ -49,6 +54,8 @@ Documenters
 - Ergo_ (@johnlam)
 - Adeel Khan (@adeel)
 - Benjamin Williams (@benjaminjosephw)
+- @gdw2
+- Thierry Colsenet (@ThierryCols)
 
 --------------------------------------------
 

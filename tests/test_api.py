@@ -37,7 +37,21 @@ class TestAPI(object):
         assert hug.API(__name__).context == {}
         assert hasattr(hug.API(__name__), '_context')
 
+    def test_dynamic(self):
+        """Test to ensure it's possible to dynamically create new modules to house APIs based on name alone"""
+        new_api = hug.API('module_created_on_the_fly')
+        assert new_api.module.__name__ == 'module_created_on_the_fly'
+        import module_created_on_the_fly
+        assert module_created_on_the_fly
+        assert module_created_on_the_fly.__hug__ == new_api
+
 
 def test_from_object():
     """Test to ensure it's possible to rechieve an API singleton from an arbitrary object"""
     assert hug.api.from_object(TestAPI) == api
+
+
+def test_api_fixture(hug_api):
+    """Ensure it's possible to dynamically insert a new hug API on demand"""
+    assert isinstance(hug_api, hug.API)
+    assert hug_api != api

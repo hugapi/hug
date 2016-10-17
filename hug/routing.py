@@ -24,6 +24,7 @@ from __future__ import absolute_import
 
 import os
 import re
+from collections import OrderedDict
 from functools import wraps
 
 import falcon
@@ -183,7 +184,7 @@ class HTTPRouter(InternalValidation):
     __slots__ = ()
 
     def __init__(self, versions=None, parse_body=False, parameters=None, defaults={}, status=None,
-                 response_headers=None, **kwargs):
+                 response_headers=None, private=False, **kwargs):
         super().__init__(**kwargs)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
         if parse_body:
@@ -196,6 +197,8 @@ class HTTPRouter(InternalValidation):
             self.route['status'] = status
         if response_headers:
             self.route['response_headers'] = response_headers
+        if private:
+            self.route['private'] = private
 
     def versions(self, supported, **overrides):
         """Sets the versions that this route should be compatiable with"""
@@ -281,7 +284,7 @@ class SinkRouter(HTTPRouter):
 
 
 class StaticRouter(SinkRouter):
-    """Provides a chainable router that can be used to return static files automtically from a set of directories"""
+    """Provides a chainable router that can be used to return static files automatically from a set of directories"""
     __slots__ = ('route', )
 
     def __init__(self, urls=None, output=hug.output_format.file, cache=False, **kwargs):
@@ -301,8 +304,8 @@ class StaticRouter(SinkRouter):
 
         api = self.route.get('api', hug.api.from_object(api_function))
         for base_url in self.route.get('urls', ("/{0}".format(api_function.__name__), )):
-            def read_file(request=None):
-                filename = request.path[len(base_url) + 1:]
+            def read_file(request=None, path=""):
+                filename = path.lstrip("/")
                 for directory in directories:
                     path = os.path.join(directory, filename)
                     if os.path.isdir(path):
@@ -321,9 +324,10 @@ class ExceptionRouter(HTTPRouter):
     """Provides a chainable router that can be used to route exceptions thrown during request handling"""
     __slots__ = ()
 
-    def __init__(self, exceptions=(Exception, ), output=None, **kwargs):
+    def __init__(self, exceptions=(Exception, ), exclude=(), output=None, **kwargs):
         super().__init__(output=output, **kwargs)
         self.route['exceptions'] = (exceptions, ) if not isinstance(exceptions, (list, tuple)) else exceptions
+        self.route['exclude'] = (exclude, ) if not isinstance(exclude, (list, tuple)) else exclude
 
     def __call__(self, api_function):
         api = self.route.get('api', hug.api.from_object(api_function))
@@ -333,6 +337,10 @@ class ExceptionRouter(HTTPRouter):
                 api.http.add_exception_handler(exception, interface, version)
 
         return callable_method
+
+    def _create_interface(self, api, api_function, catch_exceptions=False):
+        interface = hug.interface.ExceptionRaised(self.route, api_function, catch_exceptions)
+        return (interface, api_function)
 
 
 class URLRouter(HTTPRouter):
@@ -356,6 +364,7 @@ class URLRouter(HTTPRouter):
 
     def __call__(self, api_function):
         api = self.route.get('api', hug.api.from_object(api_function))
+        api.http.routes.setdefault(api.http.base_url, OrderedDict())
         (interface, callable_method) = self._create_interface(api, api_function)
 
         use_examples = self.route.get('examples', ())
@@ -372,7 +381,7 @@ class URLRouter(HTTPRouter):
             for prefix in self.route.get('prefixes', ()):
                 expose.append(prefix + base_url)
             for url in expose:
-                handlers = api.http.routes.setdefault(url, {})
+                handlers = api.http.routes[api.http.base_url].setdefault(url, {})
                 for method in self.route.get('accept', ()):
                     version_mapping = handlers.setdefault(method.upper(), {})
                     for version in self.route['versions']:

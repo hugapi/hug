@@ -46,4 +46,12 @@ from hug.types import create as type
 from hug import development_runner # isort:skip
 from hug import defaults  # isort:skip - must be imported last for defaults to have access to all modules
 
+try:  # pragma: no cover - defaulting to uvloop if it is installed
+    import uvloop
+    import asyncio
+
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+except (ImportError, AttributeError):
+    pass
+
 __version__ = current

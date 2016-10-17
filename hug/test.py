@@ -70,11 +70,11 @@ for method in HTTP_METHODS:
     globals()[method.lower()] = tester
 
 
-def cli(method, *kargs, **arguments):
+def cli(method, *args, **arguments):
     """Simulates testing a hug cli method from the command line"""
     collect_output = arguments.pop('collect_output', True)
 
-    command_args = [method.__name__] + list(kargs)
+    command_args = [method.__name__] + list(args)
     for name, values in arguments.items():
         if not isinstance(values, (tuple, list)):
             values = (values, )

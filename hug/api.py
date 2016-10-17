@@ -26,6 +26,7 @@ import sys
 from collections import OrderedDict, namedtuple
 from functools import partial
 from itertools import chain
+from types import ModuleType
 from wsgiref.simple_server import make_server
 
 import falcon
@@ -117,8 +118,10 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self._middleware = []
         self.middleware.append(middleware)
 
-    def add_sink(self, sink, url):
-        self.sinks[url] = sink
+    def add_sink(self, sink, url, base_url=""):
+        base_url = base_url or self.base_url
+        self.sinks.setdefault(base_url, OrderedDict())
+        self.sinks[base_url][url] = sink
 
     def exception_handlers(self, version=None):
         if not hasattr(self, '_exception_handlers'):
@@ -133,17 +136,25 @@ class HTTPInterfaceAPI(InterfaceAPI):
             self._exception_handlers = {}
 
         for version in versions:
-            self._exception_handlers.setdefault(version, OrderedDict())[exception_type] = error_handler
+            placement = self._exception_handlers.setdefault(version, OrderedDict())
+            placement[exception_type] = (error_handler, ) + placement.get(exception_type, tuple())
 
-    def extend(self, http_api, route=""):
+    def extend(self, http_api, route="", base_url=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         self.versions.update(http_api.versions)
+        base_url = base_url or self.base_url
 
-        for item_route, handler in http_api.routes.items():
-            self.routes[route + item_route] = handler
+        for router_base_url, routes in http_api.routes.items():
+            self.routes.setdefault(base_url, OrderedDict())
+            for item_route, handler in routes.items():
+                for method, versions in handler.items():
+                    for version, function in versions.items():
+                        function.interface.api = self.api
+                self.routes[base_url][route + item_route] = handler
 
-        for (url, sink) in http_api.sinks.items():
-            self.add_sink(sink, url)
+        for sink_base_url, sinks in http_api.sinks.items():
+            for url, sink in sinks.items():
+                self.add_sink(sink, route + url, base_url=base_url)
 
         for middleware in (http_api.middleware or ()):
             self.add_middleware(middleware)
@@ -160,6 +171,10 @@ class HTTPInterfaceAPI(InterfaceAPI):
         for input_format, input_format_handler in getattr(http_api, '_input_format', {}).items():
             if not input_format in getattr(self, '_input_format', {}):
                 self.set_input_format(input_format, input_format_handler)
+
+        for version, handler in http_api.not_found_handlers.items():
+            if version not in self.not_found_handlers:
+                self.set_not_found_handler(handler, version)
 
     @property
     def not_found_handlers(self):
@@ -185,6 +200,8 @@ class HTTPInterfaceAPI(InterfaceAPI):
         versions_list = list(versions)
         if None in versions_list:
             versions_list.remove(None)
+        if False in versions_list:
+            versions_list.remove(False)
         if api_version is None and len(versions_list) > 0:
             api_version = max(versions_list)
             documentation['version'] = api_version
@@ -192,19 +209,22 @@ class HTTPInterfaceAPI(InterfaceAPI):
             documentation['version'] = api_version
         if versions_list:
             documentation['versions'] = versions_list
-        for url, methods in self.routes.items():
-            for method, method_versions in methods.items():
-                for version, handler in method_versions.items():
-                    if version is None:
-                        applies_to = versions
-                    else:
-                        applies_to = (version, )
-                    for version in applies_to:
-                        if api_version and version != api_version:
+        for router_base_url, routes in self.routes.items():
+            for url, methods in routes.items():
+                for method, method_versions in methods.items():
+                    for version, handler in method_versions.items():
+                        if getattr(handler, 'private', False):
                             continue
-                        doc = version_dict.setdefault(url, OrderedDict())
-                        doc[method] = handler.documentation(doc.get(method, None), version=version,
-                                                            base_url=base_url, url=url)
+                        if version is None:
+                            applies_to = versions
+                        else:
+                            applies_to = (version, )
+                        for version in applies_to:
+                            if api_version and version != api_version:
+                                continue
+                            doc = version_dict.setdefault(router_base_url + url, OrderedDict())
+                            doc[method] = handler.documentation(doc.get(method, None), version=version,
+                                                                base_url=router_base_url or base_url, url=url)
 
         documentation['handlers'] = version_dict
         return documentation
@@ -222,7 +242,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
         httpd.serve_forever()
 
     @staticmethod
-    def base_404(request, response, *kargs, **kwargs):
+    def base_404(request, response, *args, **kwargs):
         """Defines the base 404 handler"""
         response.status = falcon.HTTP_NOT_FOUND
 
@@ -256,7 +276,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
         """Returns a smart 404 page that contains documentation for the written API"""
         base_url = self.base_url if base_url is None else base_url
 
-        def handle_404(request, response, *kargs, **kwargs):
+        def handle_404(request, response, *args, **kwargs):
             url_prefix = self.base_url
             if not url_prefix:
                 url_prefix = request.url[:-1]
@@ -277,8 +297,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
         request_version = self.determine_version(request, api_version)
         if request_version:
             request_version = int(request_version)
-        versions.get(request_version, versions.get(None, not_found))(request, response, api_version=api_version,
-                                                                     **kwargs)
+        versions.get(request_version or False, versions.get(None, not_found))(request, response,
+                                                                              api_version=api_version,
+                                                                              **kwargs)
 
     def server(self, default_not_found=True, base_url=None):
         """Returns a WSGI compatible API server for the given Hug API module"""
@@ -302,23 +323,25 @@ class HTTPInterfaceAPI(InterfaceAPI):
             not_found_handler
             self._not_found = not_found_handler
 
-        for url, extra_sink in self.sinks.items():
-            falcon_api.add_sink(extra_sink, base_url + url)
+        for sink_base_url, sinks in self.sinks.items():
+            for url, extra_sink in sinks.items():
+                falcon_api.add_sink(extra_sink, sink_base_url + url + '(?P<path>.*)')
 
-        for url, methods in self.routes.items():
-            router = {}
-            for method, versions in methods.items():
-                method_function = "on_{0}".format(method.lower())
-                if len(versions) == 1 and None in versions.keys():
-                    router[method_function] = versions[None]
-                else:
-                    router[method_function] = partial(self.version_router, versions=versions,
-                                                      not_found=not_found_handler)
+        for router_base_url, routes in self.routes.items():
+            for url, methods in routes.items():
+                router = {}
+                for method, versions in methods.items():
+                    method_function = "on_{0}".format(method.lower())
+                    if len(versions) == 1 and None in versions.keys():
+                        router[method_function] = versions[None]
+                    else:
+                        router[method_function] = partial(self.version_router, versions=versions,
+                                                          not_found=not_found_handler)
 
-            router = namedtuple('Router', router.keys())(**router)
-            falcon_api.add_route(base_url + url, router)
-            if self.versions and self.versions != (None, ):
-                falcon_api.add_route(base_url + '/v{api_version}' + url, router)
+                router = namedtuple('Router', router.keys())(**router)
+                falcon_api.add_route(router_base_url + url, router)
+                if self.versions and self.versions != (None, ):
+                    falcon_api.add_route(router_base_url + '/v{api_version}' + url, router)
 
         def error_serializer(_, error):
             return (self.output_format.content_type,
@@ -371,14 +394,16 @@ class ModuleSingleton(type):
             return module
 
         if type(module) == str:
+            if module not in sys.modules:
+                sys.modules[module] = ModuleType(module)
             module = sys.modules[module]
 
         if not '__hug__' in module.__dict__:
-            def api_auto_instantiate(*kargs, **kwargs):
+            def api_auto_instantiate(*args, **kwargs):
                 if not hasattr(module, '__hug_serving__'):
                     module.__hug_wsgi__ = module.__hug__.http.server()
                     module.__hug_serving__ = True
-                return module.__hug_wsgi__(*kargs, **kwargs)
+                return module.__hug_wsgi__(*args, **kwargs)
 
             module.__hug__ = super().__call__(module, *args, **kwargs)
             module.__hug_wsgi__ = api_auto_instantiate
@@ -423,12 +448,12 @@ class API(object, metaclass=ModuleSingleton):
             self._context = {}
         return self._context
 
-    def extend(self, api, route=""):
+    def extend(self, api, route="", base_url=""):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         api = API(api)
 
         if hasattr(api, '_http'):
-            self.http.extend(api.http, route)
+            self.http.extend(api.http, route, base_url)
 
         for directive in getattr(api, '_directives', {}).values():
             self.add_directive(directive)
