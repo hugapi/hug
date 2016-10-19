@@ -107,11 +107,14 @@ def test_pretty_json():
 
 def test_json_camelcase():
     """Ensure that it's possible to output a Hug API method as camelCased JSON"""
-    test_data = {'under_score': {'values_can': 'Be Converted'}}
+    test_data = {'under_score': 'values_can', 'be_converted': [{'to_camelcase': 'value'}, 'wont_be_convert']}
     output = hug.output_format.json_camelcase(test_data).decode('utf8')
     assert 'underScore' in output
-    assert 'valuesCan' in output
-    assert 'Be Converted' in output
+    assert 'values_can' in output
+    assert 'beConverted' in output
+    assert 'toCamelcase' in output
+    assert 'value' in output
+    assert 'wont_be_convert' in output
 
 
 def test_image():

@@ -141,16 +141,21 @@ def html(content):
     return str(content).encode('utf8')
 
 
-def _camelcase(dictionary):
-    if not isinstance(dictionary, dict):
-        return dictionary
-
-    new_dictionary = {}
-    for key, value in dictionary.items():
-        if isinstance(key, str):
-            key = camelcase(key)
-        new_dictionary[key] = _camelcase(value)
-    return new_dictionary
+def _camelcase(content):
+    if isinstance(content, dict):
+        new_dictionary = {}
+        for key, value in content.items():
+            if isinstance(key, str):
+                key = camelcase(key)
+            new_dictionary[key] = _camelcase(value)
+        return new_dictionary
+    elif isinstance(content, list):
+        new_list = []
+        for element in content:
+            new_list.append(_camelcase(element))
+        return new_list
+    else:
+        return content
 
 
 @content_type('application/json')
