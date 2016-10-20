@@ -34,6 +34,7 @@ Code Contributors
 - Gemedet (@gemedet)
 - Garrett Squire (@gsquire)
 - Haïkel Guémar (@hguemar)
+- Eshin Kunishima (@mikoim)
 
 Documenters
 ===================
