@@ -11,7 +11,7 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
-### 2.2.0
+### 2.2.0 (16th of October, 2016)
 - Defaults asyncio event loop to uvloop automatically if it is installed
 - Added support for making endpoints `private` to enforce lack of automatic documentation creation for them.
 - Added HTTP method named (get, post, etc) routers to the API router to be consistent with documentation
