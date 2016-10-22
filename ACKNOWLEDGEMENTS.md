@@ -35,6 +35,7 @@ Code Contributors
 - Garrett Squire (@gsquire)
 - Haïkel Guémar (@hguemar)
 - Eshin Kunishima (@mikoim)
+- Mike Adams (@mikeadamz)
 
 Documenters
 ===================
