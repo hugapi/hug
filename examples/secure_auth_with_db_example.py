@@ -116,7 +116,7 @@ def add_user(username, password):
 def get_token(authed_user: hug.directives.user):
     """
     Get Job details
-    :param user:
+    :param authed_user:
     :return:
     """
     user_model = Query()
