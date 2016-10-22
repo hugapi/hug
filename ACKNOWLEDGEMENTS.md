@@ -58,6 +58,7 @@ Documenters
 - Benjamin Williams (@benjaminjosephw)
 - @gdw2
 - Thierry Colsenet (@ThierryCols)
+- Shawn Q Jackson (@gt50)
 
 --------------------------------------------
 
