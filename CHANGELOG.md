@@ -32,7 +32,7 @@ Changelog
 - Fixed documentation output to exclude `api_version` and `body`
 - Fixed an issue passing None where a text value was required (issue #341)
 
-### 2.1.2
+### 2.1.2 (18th of May, 2016)
 - Fixed an issue with sharing exception handlers across multiple modules (Thanks @soloman1124)
 - Fixed how single direction (response / request) middlewares are bounded to work when code is Cython compiled
 
