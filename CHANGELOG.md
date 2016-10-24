@@ -11,6 +11,9 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.2.1 - In Progress
+- Added support for passing `raw` arguments into hug.test commands
+
 ### 2.2.0 - Oct 16, 2016
 - Defaults asyncio event loop to uvloop automatically if it is installed
 - Added support for making endpoints `private` to enforce lack of automatic documentation creation for them.
