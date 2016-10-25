@@ -12,7 +12,7 @@ Ideally, within a virtual environment.
 Changelog
 =========
 ### 2.2.1 - In Progress
-- Added support for passing `raw` arguments into hug.test commands
+- Added support for passing `params` dictionary and `query_string` arguments into hug.test.http command for more direct modification of test inputs
 
 ### 2.2.0 - Oct 16, 2016
 - Defaults asyncio event loop to uvloop automatically if it is installed
