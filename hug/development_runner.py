@@ -61,13 +61,12 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         return
     reloader = not no_reloader
     if reloader and not os.environ.get('HUG_CHILD'):
-        print('here')
         try:
             import tempfile
             import subprocess
             import time
             lockfile = None
-            fd, lockfile = tempfile.mkstemp(prefix='bottle.', suffix='.lock')
+            fd, lockfile = tempfile.mkstemp(prefix='hug.', suffix='.lock')
             os.close(fd) # We only need this file to exist. We never write to it
             while os.path.exists(lockfile):
                 args = [sys.executable] + sys.argv
