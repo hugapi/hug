@@ -97,5 +97,3 @@ def test_basic_call_on_method_registering_without_decorator_async():
 
     assert loop.run_until_complete(api_instance.hello_world_method()) == "Hello World!"
     assert hug.test.get(api, '/hello_world_method').data == "Hello World!"
-
-

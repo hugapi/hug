@@ -31,6 +31,11 @@ Code Contributors
 - Alan Lu (@cag)
 - Soloman Weng (@soloman1124)
 - Evan Owen (@thatGuy0923)
+- Gemedet (@gemedet)
+- Garrett Squire (@gsquire)
+- Haïkel Guémar (@hguemar)
+- Eshin Kunishima (@mikoim)
+- Mike Adams (@mikeadamz)
 
 Documenters
 ===================
@@ -52,6 +57,8 @@ Documenters
 - Adeel Khan (@adeel)
 - Benjamin Williams (@benjaminjosephw)
 - @gdw2
+- Thierry Colsenet (@ThierryCols)
+- Shawn Q Jackson (@gt50)
 
 --------------------------------------------
 

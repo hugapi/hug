@@ -1,5 +1,7 @@
-
+"""Configuration for test environment"""
 import sys
+
+from .fixtures import *
 
 collect_ignore = []
 

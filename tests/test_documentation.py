@@ -56,6 +56,11 @@ def test_basic_documentation():
         """Annotations defined with strings should be documentation only"""
         pass
 
+    @hug.get(private=True)
+    def private():
+        """Hidden from documentation"""
+        pass
+
     documentation = api.http.documentation()
     assert 'test_documentation' in documentation['overview']
 
@@ -65,6 +70,7 @@ def test_basic_documentation():
     assert not '/birthday' in documentation['handlers']
     assert '/noop' in documentation['handlers']
     assert '/string_docs' in documentation['handlers']
+    assert not '/private' in documentation['handlers']
 
     assert documentation['handlers']['/hello_world']['GET']['usage'] == "Returns hello world"
     assert documentation['handlers']['/hello_world']['GET']['examples'] == ["/hello_world"]
@@ -102,9 +108,15 @@ def test_basic_documentation():
     def unversioned():
         return 'Hello'
 
+    @hug.get(versions=False)
+    def noversions():
+        pass
+
     versioned_doc = api.http.documentation()
     assert 'versions' in versioned_doc
     assert 1 in versioned_doc['versions']
+    assert 2 in versioned_doc['versions']
+    assert False not in versioned_doc['versions']
     assert '/unversioned' in versioned_doc['handlers']
     assert '/echo' in versioned_doc['handlers']
     assert '/test' in versioned_doc['handlers']
