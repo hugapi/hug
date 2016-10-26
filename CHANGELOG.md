@@ -13,6 +13,7 @@ Changelog
 =========
 ### 2.2.1 - In Progress
 - Added support for passing `params` dictionary and `query_string` arguments into hug.test.http command for more direct modification of test inputs
+- Improved output formats, enabling nested request / response dependent formatters
 
 ### 2.2.0 - Oct 16, 2016
 - Defaults asyncio event loop to uvloop automatically if it is installed
