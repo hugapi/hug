@@ -86,7 +86,7 @@ def json_convert(*kinds):
 
 
 @content_type('application/json')
-def json(content, **kwargs):
+def json(content, request=None, response=None, **kwargs):
     """JSON (Javascript Serialized Object Notation)"""
     if hasattr(content, 'read'):
         return content
@@ -122,7 +122,7 @@ def on_valid(valid_content_type, on_invalid=json):
 
 
 @content_type('text/plain')
-def text(content):
+def text(content, **kwargs):
     """Free form UTF-8 text"""
     if hasattr(content, 'read'):
         return content
@@ -131,7 +131,7 @@ def text(content):
 
 
 @content_type('text/html')
-def html(content):
+def html(content, **kwargs):
     """HTML (Hypertext Markup Language)"""
     if hasattr(content, 'read'):
         return content
@@ -159,21 +159,21 @@ def _camelcase(content):
 
 
 @content_type('application/json')
-def json_camelcase(content):
+def json_camelcase(content, **kwargs):
     """JSON (Javascript Serialized Object Notation) with all keys camelCased"""
-    return json(_camelcase(content))
+    return json(_camelcase(content), **kwargs)
 
 
 @content_type('application/json')
-def pretty_json(content):
+def pretty_json(content, **kwargs):
     """JSON (Javascript Serialized Object Notion) pretty printed and indented"""
-    return json(content, indent=4, separators=(',', ': '))
+    return json(content, indent=4, separators=(',', ': '), **kwargs)
 
 
 def image(image_format, doc=None):
     """Dynamically creates an image type handler for the specified image type"""
     @on_valid('image/{0}'.format(image_format))
-    def image_handler(data):
+    def image_handler(data, **kwargs):
         if hasattr(data, 'read'):
             return data
         elif hasattr(data, 'save'):
@@ -200,7 +200,7 @@ for image_type in IMAGE_TYPES:
 def video(video_type, video_mime, doc=None):
     """Dynamically creates a video type handler for the specified video type"""
     @on_valid(video_mime)
-    def video_handler(data):
+    def video_handler(data, **kwargs):
         if hasattr(data, 'read'):
             return data
         elif hasattr(data, 'save'):
@@ -222,7 +222,7 @@ for (video_type, video_mime) in VIDEO_TYPES:
 
 
 @on_valid('file/dynamic')
-def file(data, response):
+def file(data, response, **kwargs):
     """A dynamically retrieved file"""
     if hasattr(data, 'read'):
         name, data = getattr(data, 'name', ''), data
@@ -251,7 +251,7 @@ def on_content_type(handlers, default=None, error='The requested content type do
             raise falcon.HTTPNotAcceptable(error)
 
         response.content_type = handler.content_type
-        return handler(data)
+        return handler(data, request=request, response=response)
     output_type.__doc__ = 'Supports any of the following formats: {0}'.format(', '.join(function.__doc__ for function in
                                                                                         handlers.values()))
     output_type.content_type = ', '.join(handlers.keys())
@@ -295,7 +295,7 @@ def accept(handlers, default=None, error='The requested content type does not ma
             raise falcon.HTTPNotAcceptable(error)
 
         response.content_type = handler.content_type
-        return handler(data)
+        return handler(data, request=request, response=response)
     output_type.__doc__ = 'Supports any of the following formats: {0}'.format(', '.join(function.__doc__ for function in
                                                                                         handlers.values()))
     output_type.content_type = ', '.join(handlers.keys())
@@ -322,7 +322,7 @@ def suffix(handlers, default=None, error='The requested suffix does not match an
             raise falcon.HTTPNotAcceptable(error)
 
         response.content_type = handler.content_type
-        return handler(data)
+        return handler(data, request=request, response=response)
     output_type.__doc__ = 'Supports any of the following formats: {0}'.format(', '.join(function.__doc__ for function in
                                                                                         handlers.values()))
     output_type.content_type = ', '.join(handlers.keys())
@@ -349,7 +349,7 @@ def prefix(handlers, default=None, error='The requested prefix does not match an
             raise falcon.HTTPNotAcceptable(error)
 
         response.content_type = handler.content_type
-        return handler(data)
+        return handler(data, request=request, response=response)
     output_type.__doc__ = 'Supports any of the following formats: {0}'.format(', '.join(function.__doc__ for function in
                                                                                         handlers.values()))
     output_type.content_type = ', '.join(handlers.keys())
