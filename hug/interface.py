@@ -467,9 +467,9 @@ class CLI(Interface):
 
 class HTTP(Interface):
     """Defines the interface responsible for wrapping functions and exposing them via HTTP based on the route"""
-    __slots__ = ('_params_for_outputs', '_params_for_invalid_outputs', '_params_for_transform', 'on_invalid',
+    __slots__ = ('_params_for_outputs_state', '_params_for_invalid_outputs_state', '_params_for_transform_state',
                  '_params_for_on_invalid', 'set_status', 'response_headers', 'transform', 'input_transformations',
-                 'examples', 'wrapped', 'catch_exceptions', 'parse_body', 'private')
+                 'examples', 'wrapped', 'catch_exceptions', 'parse_body', 'private', 'on_invalid')
     AUTO_INCLUDE = {'request', 'response'}
 
     def __init__(self, route, function, catch_exceptions=True):
@@ -480,12 +480,6 @@ class HTTP(Interface):
         self.response_headers = tuple(route.get('response_headers', {}).items())
         self.private = 'private' in route
 
-        self._params_for_outputs = introspect.takes_arguments(self.outputs, *self.AUTO_INCLUDE)
-        self._params_for_transform = introspect.takes_arguments(self.transform, *self.AUTO_INCLUDE)
-
-        if 'output_invalid' in route:
-            self._params_for_invalid_outputs = introspect.takes_arguments(self.invalid_outputs, *self.AUTO_INCLUDE)
-
         if 'on_invalid' in route:
             self._params_for_on_invalid = introspect.takes_arguments(self.on_invalid, *self.AUTO_INCLUDE)
         elif self.transform:
@@ -495,6 +489,25 @@ class HTTP(Interface):
             self.api.http.versions.update(route['versions'])
 
         self.interface.http = self
+
+    @property
+    def _params_for_outputs(self):
+        if not hasattr(self, '_params_for_outputs_state'):
+            self._params_for_outputs_state = introspect.takes_arguments(self.outputs, *self.AUTO_INCLUDE)
+        return self._params_for_outputs_state
+
+    @property
+    def _params_for_invalid_outputs(self):
+        if not hasattr(self, '_params_for_invalid_outputs_state'):
+            self._params_for_invalid_outputs_state = introspect.takes_arguments(self.invalid_outputs,
+                                                                                *self.AUTO_INCLUDE)
+        return self._params_for_invalid_outputs_state
+
+    @property
+    def _params_for_transform(self):
+        if not hasattr(self, '_params_for_transform_state'):
+            self._params_for_transform_state = introspect.takes_arguments(self.transform, *self.AUTO_INCLUDE)
+        return self._params_for_transform_state
 
     def gather_parameters(self, request, response, api_version=None, **input_parameters):
         """Gathers and returns all parameters that will be used for this endpoint"""
