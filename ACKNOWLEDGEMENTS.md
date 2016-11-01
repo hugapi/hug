@@ -36,6 +36,7 @@ Code Contributors
 - Haïkel Guémar (@hguemar)
 - Eshin Kunishima (@mikoim)
 - Mike Adams (@mikeadamz)
+- Michal Bultrowicz (@butla)
 
 Documenters
 ===================
