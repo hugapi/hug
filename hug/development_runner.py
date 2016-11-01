@@ -33,6 +33,7 @@ from hug.types import boolean, number
 @cli(version=current)
 def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python module that contains a Hug API'=None,
         port: number=8000, no_404_documentation: boolean=False,
+        no_reloader: boolean=False, interval: number=1,
         command: 'Run a command defined in the given module'=None):
     """Hug API Development Server"""
     api_module = None
@@ -58,5 +59,40 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         sys.argv[1:] = sys.argv[(sys.argv.index('-c') if '-c' in sys.argv else sys.argv.index('--command')) + 2:]
         api.cli.commands[command]()
         return
-
-    API(api_module).http.serve(port, no_404_documentation)
+    reloader = not no_reloader
+    if reloader and not os.environ.get('HUG_CHILD'):
+        try:
+            import tempfile
+            import subprocess
+            import time
+            lockfile = None
+            fd, lockfile = tempfile.mkstemp(prefix='hug.', suffix='.lock')
+            os.close(fd) # We only need this file to exist. We never write to it
+            while os.path.exists(lockfile):
+                args = [sys.executable] + sys.argv
+                environ = os.environ.copy()
+                environ['HUG_CHILD'] = 'true'
+                environ['HUG_CHILD'] = lockfile
+                p = subprocess.Popen(args, env=environ)
+                while p.poll() is None: # Busy wait...
+                    os.utime(lockfile, None) # I am alive!
+                    time.sleep(interval)
+                if p.poll() != 3:
+                    if os.path.exists(lockfile):
+                        os.unlink(lockfile)
+                    sys.exit(p.poll())
+        except KeyboardInterrupt:
+            pass
+        finally:
+            if os.path.exists(lockfile):
+                os.unlink(lockfile)
+    if reloader:
+        from . _reloader import FileCheckerThread
+        lockfile = os.environ.get('HUG_CHILD')
+        bgcheck = FileCheckerThread(lockfile, interval)
+        with bgcheck:
+            API(api_module).http.serve(port, no_404_documentation)
+        if bgcheck.status == 'reload':
+            sys.exit(3)
+    else:
+        API(api_module).http.serve(port, no_404_documentation)
