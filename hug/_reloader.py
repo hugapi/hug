@@ -7,15 +7,15 @@ import sys
 import time
 import _thread as thread
 
-class FileCheckerThread(threading.Thread):
-    ''' Interrupt main-thread as soon as a changed module file is detected,
-        the lockfile gets deleted or gets to old. '''
 
+class FileCheckerThread(threading.Thread):
+    """Utility class to interrupt main-thread as soon as a changed module file is detected,
+       the lockfile gets deleted or gets too old.
+    """
     def __init__(self, lockfile, interval):
         threading.Thread.__init__(self)
         self.lockfile, self.interval = lockfile, interval
-        #: Is one of 'reload', 'error' or 'exit'
-        self.status = None
+        self.status = None #: Is one of 'reload', 'error' or 'exit'
 
     def run(self):
         exists = os.path.exists
