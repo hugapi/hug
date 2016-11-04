@@ -167,6 +167,7 @@ def square(value=1, **kwargs):
     return value * value
 
 @hug.get()
+@hug.local()
 def tester(value: square=10):
     return value
 
@@ -182,6 +183,7 @@ def multiply(value=1, **kwargs):
     return value * value
 
 @hug.get()
+@hug.local()
 def tester(hug_multiply=10):
     return hug_multiply
 
