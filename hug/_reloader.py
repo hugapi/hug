@@ -1,11 +1,12 @@
 """hug/_reloader.py
 Taken from Bottle framework
 """
-from collections import namedtuple
 import os.path
-import threading
 import sys
+import threading
 import time
+from collections import namedtuple
+
 import _thread as thread
 
 status = namedtuple('Status', ('ok', 'reload', 'error', 'exit'))(0, 1, 2, 3)
@@ -49,6 +50,6 @@ class FileCheckerThread(threading.Thread):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not self.status:
-            self.status = status.exit # silent exit
+            self.status = status.exit
         self.join()
         return exc_type is not None and issubclass(exc_type, KeyboardInterrupt)

@@ -22,7 +22,10 @@ from __future__ import absolute_import
 
 import importlib
 import os
+import subprocess
 import sys
+import tempfile
+import time
 
 from hug._version import current
 from hug.api import API
@@ -62,9 +65,6 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
     reloader = not no_reloader
     if reloader and not os.environ.get('HUG_CHILD'):
         try:
-            import tempfile
-            import subprocess
-            import time
             lockfile = None
             fd, lockfile = tempfile.mkstemp(prefix='hug.', suffix='.lock')
             os.close(fd) # We only need this file to exist. We never write to it

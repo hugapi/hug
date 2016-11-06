@@ -737,4 +737,3 @@ class ExceptionRaised(HTTP):
         self.handle = route['exceptions']
         self.exclude = route['exclude']
         super().__init__(route, *args, **kwargs)
-
