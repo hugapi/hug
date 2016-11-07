@@ -8,7 +8,7 @@ import sys
 import time
 import _thread as thread
 
-status = namedtuple('Status', ('unset', 'reload', 'error', 'exit'))(None, 1, 2, 3)
+status = namedtuple('Status', ('ok', 'reload', 'error', 'exit'))(0, 1, 2, 3)
 
 
 class FileCheckerThread(threading.Thread):
@@ -18,7 +18,7 @@ class FileCheckerThread(threading.Thread):
     def __init__(self, lockfile, interval):
         threading.Thread.__init__(self)
         self.lockfile, self.interval = lockfile, interval
-        self.status = status.unset
+        self.status = status.ok
 
     def run(self):
         exists = os.path.exists
@@ -39,7 +39,7 @@ class FileCheckerThread(threading.Thread):
                 thread.interrupt_main()
             for path, lmtime in list(files.items()):
                 if not exists(path) or mtime(path) > lmtime:
-                    self.status = status
+                    self.status = status.reload
                     thread.interrupt_main()
                     break
             time.sleep(self.interval)

@@ -1,4 +1,5 @@
-from hug._reloader import FileCheckerThread
+from hug._reloader import FileCheckerThread, status
+
 
 def test_reloader(tmpdir, monkeypatch):
     module_path = tmpdir.join('module.py')
@@ -13,7 +14,7 @@ def test_reloader(tmpdir, monkeypatch):
     checks = FileCheckerThread(lockfile_path, 200)
 
     with checks:
-        assert checks.status is None
+        assert not checks.status
         # module.write('hello!')
 
-    assert checks.status is not None
+    assert checks.status
