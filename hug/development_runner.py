@@ -36,7 +36,7 @@ from hug.types import boolean, number
 @cli(version=current)
 def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python module that contains a Hug API'=None,
         port: number=8000, no_404_documentation: boolean=False,
-        no_reloader: boolean=False, interval: number=1,
+        manual_reload: boolean=False, interval: number=1,
         command: 'Run a command defined in the given module'=None):
     """Hug API Development Server"""
     api_module = None
@@ -62,7 +62,7 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         sys.argv[1:] = sys.argv[(sys.argv.index('-c') if '-c' in sys.argv else sys.argv.index('--command')) + 2:]
         api.cli.commands[command]()
         return
-    reloader = not no_reloader
+    reloader = not manual_reload
     if reloader and not os.environ.get('HUG_CHILD'):
         try:
             lockfile = None
