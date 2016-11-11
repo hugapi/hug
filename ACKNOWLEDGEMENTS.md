@@ -37,6 +37,7 @@ Code Contributors
 - Eshin Kunishima (@mikoim)
 - Mike Adams (@mikeadamz)
 - Michal Bultrowicz (@butla)
+- Bogdan (@spock)
 
 Documenters
 ===================
