@@ -1,4 +1,5 @@
 import hug
+import sys
 
 
 @hug.get()
@@ -7,4 +8,4 @@ def quick():
 
 
 if __name__ == '__main__':
-    __hug__.serve()  # noqa
+    hug.API(sys.modules[__name__]).http.serve()
