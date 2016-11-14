@@ -13,9 +13,11 @@ Changelog
 =========
 ### 2.2.1 - In Progress
 - Falcon requirement upgraded to 1.1.0
+- Enables filtering documentation according to a `base_url`
 - Added support for request / response in a single generator based middleware function
 - Automatic reload support for development runner
 - Added support for passing `params` dictionary and `query_string` arguments into hug.test.http command for more direct modification of test inputs
+- Added support for manual specifying the scheme used in hug.test calls
 - Improved output formats, enabling nested request / response dependent formatters
 - Breaking Changes
     - Sub output formatters functions now need to accept response & request or **kwargs
