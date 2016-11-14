@@ -112,6 +112,11 @@ def test_basic_documentation():
     def noversions():
         pass
 
+    @hug.extend_api('/fake', base_url='/api')
+    def extend_with():
+        import tests.module_fake_simple
+        return (tests.module_fake_simple, )
+
     versioned_doc = api.http.documentation()
     assert 'versions' in versioned_doc
     assert 1 in versioned_doc['versions']
@@ -127,6 +132,10 @@ def test_basic_documentation():
     assert '/unversioned' in specific_version_doc['handlers']
     assert specific_version_doc['handlers']['/unversioned']['GET']['requires'] == ['V1 Docs']
     assert '/test' not in specific_version_doc['handlers']
+
+    specific_base_doc = api.http.documentation(base_url='/api')
+    assert '/echo' not in specific_base_doc['handlers']
+    assert '/fake/made_up_hello' in specific_base_doc['handlers']
 
     handler = api.http.documentation_404()
     response = StartResponseMock()
