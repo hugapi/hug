@@ -35,6 +35,11 @@ def is_coroutine(function):
     return function.__code__.co_flags & 0x0080 or getattr(function, '_is_coroutine', False)
 
 
+def name(function):
+    """Returns the name of a function"""
+    return function.__name__
+
+
 def arguments(function, extra_arguments=0):
     """Returns the name of all arguments a function takes"""
     if not hasattr(function, '__code__'):
