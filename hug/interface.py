@@ -641,7 +641,10 @@ class HTTP(Interface):
 
     def __call__(self, request, response, api_version=None, **kwargs):
         """Call the wrapped function over HTTP pulling information as needed"""
-        api_version = int(api_version) if api_version is not None else api_version
+        if isinstance(api_version, str) and api_version.isdigit():
+            api_version = int(api_version)
+        else:
+            api_version = None
         if not self.catch_exceptions:
             exception_types = ()
         else:
