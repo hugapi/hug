@@ -35,7 +35,7 @@ from hug import output_format
 from hug.api import API
 
 
-def call(method, api_or_module, url, body='', headers=None, params=None, query_string='', **extra_params):
+def call(method, api_or_module, url, body='', headers=None, params=None, query_string='', scheme='http', **kwargs):
     """Simulates a round-trip call against the given API / URL"""
     api = API(api_or_module).http.server()
     response = StartResponseMock()
@@ -45,11 +45,11 @@ def call(method, api_or_module, url, body='', headers=None, params=None, query_s
         headers.setdefault('content-type', 'application/json')
 
     params = params if params else {}
-    params.update(extra_params)
+    params.update(kwargs)
     if params:
         query_string = '{}{}{}'.format(query_string, '&' if query_string else '', urlencode(params, True))
     result = api(create_environ(path=url, method=method, headers=headers, query_string=query_string,
-                                body=body), response)
+                                body=body, scheme=scheme), response)
     if result:
         try:
             response.data = result[0].decode('utf8')

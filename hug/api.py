@@ -187,7 +187,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         self.not_found_handlers[version] = handler
 
-    def documentation(self, base_url=None, api_version=None):
+    def documentation(self, base_url=None, api_version=None, prefix=""):
         """Generates and returns documentation for this API endpoint"""
         documentation = OrderedDict()
         base_url = self.base_url if base_url is None else base_url
@@ -222,9 +222,11 @@ class HTTPInterfaceAPI(InterfaceAPI):
                         for version in applies_to:
                             if api_version and version != api_version:
                                 continue
-                            doc = version_dict.setdefault(router_base_url + url, OrderedDict())
-                            doc[method] = handler.documentation(doc.get(method, None), version=version,
-                                                                base_url=router_base_url or base_url, url=url)
+                            if base_url and router_base_url != base_url:
+                                continue
+                            doc = version_dict.setdefault(url, OrderedDict())
+                            doc[method] = handler.documentation(doc.get(method, None), version=version, prefix=prefix,
+                                                                base_url=router_base_url, url=url)
 
         documentation['handlers'] = version_dict
         return documentation
@@ -277,16 +279,15 @@ class HTTPInterfaceAPI(InterfaceAPI):
         base_url = self.base_url if base_url is None else base_url
 
         def handle_404(request, response, *args, **kwargs):
-            url_prefix = self.base_url
-            if not url_prefix:
-                url_prefix = request.url[:-1]
-                if request.path and request.path != "/":
-                    url_prefix = request.url.split(request.path)[0]
+            url_prefix = request.url[:-1]
+            if request.path and request.path != "/":
+                url_prefix = request.url.split(request.path)[0]
 
             to_return = OrderedDict()
             to_return['404'] = ("The API call you tried to make was not defined. "
                                 "Here's a definition of the API to help you get going :)")
-            to_return['documentation'] = self.documentation(url_prefix, self.determine_version(request, False))
+            to_return['documentation'] = self.documentation(base_url, self.determine_version(request, False),
+                                                            prefix=url_prefix)
             response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
             response.status = falcon.HTTP_NOT_FOUND
             response.content_type = 'application/json'

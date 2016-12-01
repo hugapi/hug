@@ -2,20 +2,24 @@
 Taken from Bottle framework
 """
 import os.path
-import threading
 import sys
+import threading
 import time
+from collections import namedtuple
+
 import _thread as thread
 
-class FileCheckerThread(threading.Thread):
-    ''' Interrupt main-thread as soon as a changed module file is detected,
-        the lockfile gets deleted or gets to old. '''
+status = namedtuple('Status', ('ok', 'reload', 'error', 'exit'))(0, 1, 2, 3)
 
+
+class FileCheckerThread(threading.Thread):
+    """Utility class to interrupt main-thread as soon as a changed module file is detected,
+       the lockfile gets deleted or gets too old.
+    """
     def __init__(self, lockfile, interval):
         threading.Thread.__init__(self)
         self.lockfile, self.interval = lockfile, interval
-        #: Is one of 'reload', 'error' or 'exit'
-        self.status = None
+        self.status = status.ok
 
     def run(self):
         exists = os.path.exists
@@ -32,11 +36,11 @@ class FileCheckerThread(threading.Thread):
         while not self.status:
             if not (exists(self.lockfile)
             or mtime(self.lockfile) < time.time() - self.interval - 5):
-                self.status = 'error'
+                self.status = status.error
                 thread.interrupt_main()
             for path, lmtime in list(files.items()):
                 if not exists(path) or mtime(path) > lmtime:
-                    self.status = 'reload'
+                    self.status = status.reload
                     thread.interrupt_main()
                     break
             time.sleep(self.interval)
@@ -46,6 +50,6 @@ class FileCheckerThread(threading.Thread):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not self.status:
-            self.status = 'exit' # silent exit
+            self.status = status.exit
         self.join()
         return exc_type is not None and issubclass(exc_type, KeyboardInterrupt)

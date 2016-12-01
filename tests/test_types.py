@@ -26,10 +26,10 @@ from decimal import Decimal
 from uuid import UUID
 
 import pytest
+from marshmallow import Schema, fields
 
 import hug
 from hug.exceptions import InvalidTypeData
-from marshmallow import Schema, fields
 
 
 def test_type():

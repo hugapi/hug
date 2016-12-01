@@ -682,7 +682,7 @@ class HTTP(Interface):
 
             handler(request=request, response=response, exception=exception, **kwargs)
 
-    def documentation(self, add_to=None, version=None, base_url="", url=""):
+    def documentation(self, add_to=None, version=None, prefix="", base_url="", url=""):
         """Returns the documentation specific to an HTTP interface"""
         doc = OrderedDict() if add_to is None else add_to
 
@@ -691,7 +691,7 @@ class HTTP(Interface):
             doc['usage'] = usage
 
         for example in self.examples:
-            example_text = "{0}{1}{2}".format(base_url, '/v{0}'.format(version) if version else '', url)
+            example_text = "{0}{1}{2}{3}".format(prefix, base_url, '/v{0}'.format(version) if version else '', url)
             if isinstance(example, str):
                 example_text += "?{0}".format(example)
             doc_examples = doc.setdefault('examples', [])
@@ -737,4 +737,3 @@ class ExceptionRaised(HTTP):
         self.handle = route['exceptions']
         self.exclude = route['exclude']
         super().__init__(route, *args, **kwargs)
-

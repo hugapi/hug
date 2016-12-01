@@ -22,7 +22,10 @@ from __future__ import absolute_import
 
 import importlib
 import os
+import subprocess
 import sys
+import tempfile
+import time
 
 from hug._version import current
 from hug.api import API
@@ -33,7 +36,7 @@ from hug.types import boolean, number
 @cli(version=current)
 def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python module that contains a Hug API'=None,
         port: number=8000, no_404_documentation: boolean=False,
-        no_reloader: boolean=False, interval: number=1,
+        manual_reload: boolean=False, interval: number=1,
         command: 'Run a command defined in the given module'=None):
     """Hug API Development Server"""
     api_module = None
@@ -59,12 +62,9 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         sys.argv[1:] = sys.argv[(sys.argv.index('-c') if '-c' in sys.argv else sys.argv.index('--command')) + 2:]
         api.cli.commands[command]()
         return
-    reloader = not no_reloader
+    reloader = not manual_reload
     if reloader and not os.environ.get('HUG_CHILD'):
         try:
-            import tempfile
-            import subprocess
-            import time
             lockfile = None
             fd, lockfile = tempfile.mkstemp(prefix='hug.', suffix='.lock')
             os.close(fd) # We only need this file to exist. We never write to it
