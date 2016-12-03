@@ -104,7 +104,9 @@ class Interfaces(object):
                 self.directives[name] = transformer
                 continue
 
-            if hasattr(transformer, 'load'):
+            if hasattr(transformer, 'from_string'):
+                transformer = transformer.from_string
+            elif hasattr(transformer, 'load'):
                 transformer = MarshmallowSchema(transformer)
             elif hasattr(transformer, 'deserialize'):
                 transformer = transformer.deserialize
