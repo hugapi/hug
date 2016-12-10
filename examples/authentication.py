@@ -4,7 +4,7 @@ import jwt
 
 # Several authenticators are included in hug/authentication.py. These functions
 # accept a verify_user function, which can be either an included function (such
-# as the basic username/bassword function demonstrated below), or logic of your
+# as the basic username/password function demonstrated below), or logic of your
 # own. Verification functions return an object to store in the request context
 # on successful authentication. Naturally, this is a trivial demo, and a much
 # more robust verification function is recommended. This is for strictly
