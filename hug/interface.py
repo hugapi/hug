@@ -469,7 +469,7 @@ class HTTP(Interface):
     """Defines the interface responsible for wrapping functions and exposing them via HTTP based on the route"""
     __slots__ = ('_params_for_outputs_state', '_params_for_invalid_outputs_state', '_params_for_transform_state',
                  '_params_for_on_invalid', 'set_status', 'response_headers', 'transform', 'input_transformations',
-                 'examples', 'wrapped', 'catch_exceptions', 'parse_body', 'private', 'on_invalid')
+                 'examples', 'wrapped', 'catch_exceptions', 'parse_body', 'private', 'on_invalid', 'inputs')
     AUTO_INCLUDE = {'request', 'response'}
 
     def __init__(self, route, function, catch_exceptions=True):
@@ -479,6 +479,7 @@ class HTTP(Interface):
         self.set_status = route.get('status', False)
         self.response_headers = tuple(route.get('response_headers', {}).items())
         self.private = 'private' in route
+        self.inputs = route.get('inputs', {})
 
         if 'on_invalid' in route:
             self._params_for_on_invalid = introspect.takes_arguments(self.on_invalid, *self.AUTO_INCLUDE)
@@ -515,7 +516,7 @@ class HTTP(Interface):
         if self.parse_body and request.content_length:
             body = request.stream
             content_type, content_params = parse_content_type(request.content_type)
-            body_formatter = body and self.api.http.input_format(content_type)
+            body_formatter = body and self.inputs.get(content_type, self.api.http.input_format(content_type))
             if body_formatter:
                 body = body_formatter(body, **content_params)
             if 'body' in self.all_parameters:
