@@ -148,7 +148,7 @@ class Local(Service):
         if errors:
             interface.render_errors(errors, request, response)
         else:
-            interface.render_content(interface.call_function(**params), request, response)
+            interface.render_content(interface.call_function(params), request, response)
 
         data = BytesIO(response.data)
         content_type, content_params = parse_content_type(response._headers.get('content-type', ''))

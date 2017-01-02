@@ -1300,6 +1300,16 @@ def test_json_null(hug_api):
                                     headers={'content-type': 'application/json'}).data
 
 
+def test_json_self_key(hug_api):
+    """Test to ensure passing in a json with a key named 'self' works as expected"""
+    @hug_api.route.http.post()
+    def test_self_post(body):
+        return body
+
+    assert hug.test.post(hug_api, 'test_self_post', body='{"self": "this"}',
+                         headers={'content-type': 'application/json'}).data == {"self": "this"}
+
+
 def test_204_with_no_body(hug_api):
     """Test to ensure returning no body on a 204 statused endpoint works without issue"""
     @hug_api.route.http.delete()
