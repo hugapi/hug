@@ -679,7 +679,7 @@ class HTTP(Interface):
                                 handler = potential_handler
 
             if not handler:
-                raise exception_type
+                raise exception
 
             handler(request=request, response=response, exception=exception, **kwargs)
 
