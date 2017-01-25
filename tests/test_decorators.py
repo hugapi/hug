@@ -326,6 +326,8 @@ def test_not_found():
     assert result.data == "Not Found"
     assert result.status == falcon.HTTP_NOT_FOUND
 
+    del api.http._not_found_handlers
+
 
 def test_not_found_with_extended_api():
     """Test to ensure the not_found decorator works correctly when the API is extended"""
@@ -636,6 +638,16 @@ def test_input_format():
     assert not hug.test.get(api, 'hello2').data
 
     api.http.set_input_format('application/json', old_format)
+
+
+@pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
+def test_specific_input_format():
+    """Test to ensure the input formatter can be specified"""
+    @hug.get(inputs={'application/json': lambda a: 'formatted'})
+    def hello(body):
+        return body
+
+    assert hug.test.get(api, 'hello', body={'should': 'work'}).data == 'formatted'
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')

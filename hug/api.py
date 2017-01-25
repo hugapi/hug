@@ -321,7 +321,6 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         if not_found_handler:
             falcon_api.add_sink(not_found_handler)
-            not_found_handler
             self._not_found = not_found_handler
 
         for sink_base_url, sinks in self.sinks.items():
