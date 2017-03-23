@@ -109,7 +109,7 @@ in addition to `hug.http` hug includes convience decorators for all common HTTP 
  - `examples`: A list of or a single example set of parameters in URL query param format. For example: `examples="argument_1=x&argument_2=y"`
  - `versions`: A list of or a single integer version of the API this endpoint supports. To support a range of versions the Python builtin range function can be used.
  - `suffixes`: A list of or a single suffix to add to the end of all URLs using this router.
- - `prefixes`: A list of or a single prefix to add to before all URLs using this router.
+ - `prefixes`: A list of or a single prefix to add before all URLs using this router.
  - `response_headers`: An optional dictionary of response headers to set automatically on every request to this endpoint.
   - `status`: An optional status code to automatically apply to the response on every request to this endpoint.
  - `parse_body`: If `True` and the format of the request body matches one known by hug, hug will run the specified input formatter on the request body before passing it as an argument to the routed function. Defaults to `True`.
