@@ -45,14 +45,14 @@ def authenticate_user(username, password):
     :return: authenticated username
     """
     user_model = Query()
-    user = db.search(user_model.username == username)
+    user = db.search(user_model.username == username)[0]
 
     if not user:
         logger.warning("User %s not found", username)
         return False
 
-    if user[0]['password'] == hash_password(password, user[0].get('salt')):
-        return user[0]['username']
+    if user['password'] == hash_password(password, user.get('salt')):
+        return user['username']
 
     return False
 
@@ -65,9 +65,9 @@ def authenticate_key(api_key):
     :return: authenticated username
     """
     user_model = Query()
-    user = db.search(user_model.api_key == api_key)
+    user = db.search(user_model.api_key == api_key)[0]
     if user:
-        return user[0]['username']
+        return user['username']
     return False
 
 """
@@ -120,7 +120,7 @@ def get_token(authed_user: hug.directives.user):
     :return:
     """
     user_model = Query()
-    user = db.search(user_model.username == authed_user)
+    user = db.search(user_model.username == authed_user)[0]
 
     if user:
         out = {
