@@ -602,7 +602,7 @@ class HTTP(Interface):
         else:
             response.data = self.outputs(data, **self._arguments(self._params_for_outputs, request, response))
 
-    def call_function(self, **parameters):
+    def call_function(self, parameters):
         if not self.interface.takes_kwargs:
             parameters = {key: value for key, value in parameters.items() if key in self.all_parameters}
 
@@ -665,7 +665,7 @@ class HTTP(Interface):
             if errors:
                 return self.render_errors(errors, request, response)
 
-            self.render_content(self.call_function(**input_parameters), request, response, **kwargs)
+            self.render_content(self.call_function(input_parameters), request, response, **kwargs)
         except falcon.HTTPNotFound:
             return self.api.http.not_found(request, response, **kwargs)
         except exception_types as exception:
