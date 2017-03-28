@@ -502,6 +502,19 @@ def test_return_modifer():
     assert response.data == ['world', True, True]
 
 
+def test_custom_deserializer_support():
+    """Ensure that custom desirializers work as expected"""
+    class CustomDeserializer(object):
+        def from_string(self, string):
+            return 'custom {}'.format(string)
+
+    @hug.get()
+    def test_custom_deserializer(text: CustomDeserializer()):
+        return text
+
+    assert hug.test.get(api, 'test_custom_deserializer', text='world').data == 'custom world'
+
+
 def test_marshmallow_support():
     """Ensure that you can use Marshmallow style objects to control input and output validation and transformation"""
     class MarshmallowStyleObject(object):
@@ -518,7 +531,7 @@ def test_marshmallow_support():
 
     @hug.get()
     def test_marshmallow_style() -> schema:
-        return "world"
+        return 'world'
 
     assert hug.test.get(api, 'test_marshmallow_style').data == "Dump Success"
     assert test_marshmallow_style() == 'world'
