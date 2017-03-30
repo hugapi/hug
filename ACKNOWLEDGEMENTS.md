@@ -61,6 +61,7 @@ Documenters
 - @gdw2
 - Thierry Colsenet (@ThierryCols)
 - Shawn Q Jackson (@gt50)
+- Bernhard E. Reiter (@bernhardreiter)
 
 --------------------------------------------
 
