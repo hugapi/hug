@@ -117,6 +117,24 @@ def response_middleware(api=None):
         return middleware_method
     return decorator
 
+def reqresp_middleware(api=None):
+    """Registers a middleware function that will be called on every request and response"""
+    def decorator(middleware_generator):
+        apply_to_api = hug.API(api) if api else hug.api.from_object(middleware_generator)
+
+        class MiddlewareRouter(object):
+            __slots__ = ('gen', )
+
+            def process_request(self, request, response):
+                self.gen = middleware_generator(request)
+                return self.gen.__next__()
+
+            def process_response(self, request, response, resource):
+                return self.gen.send((response, resource))
+
+        apply_to_api.http.add_middleware(MiddlewareRouter())
+        return middleware_generator
+    return decorator
 
 def middleware_class(api=None):
     """Registers a middleware class"""

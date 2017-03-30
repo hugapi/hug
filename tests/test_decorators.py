@@ -686,13 +686,24 @@ def test_middleware():
     def proccess_data2(request, response, resource):
         response.set_header('Bacon', 'Yumm')
 
+    @hug.reqresp_middleware()
+    def process_data3(request):
+        request.env['MEET'] = 'Ham'
+        response, resource = yield request
+        response.set_header('Ham', 'Buu!!')
+        yield response
+
     @hug.get()
     def hello(request):
-        return request.env['SERVER_NAME']
+        return [
+            request.env['SERVER_NAME'], 
+            request.env['MEET']
+        ]
 
     result = hug.test.get(api, 'hello')
-    assert result.data == 'Bacon'
+    assert result.data == ['Bacon', 'Ham']
     assert result.headers_dict['Bacon'] == 'Yumm'
+    assert result.headers_dict['Ham'] == 'Buu!!'
 
 
 def test_requires():
