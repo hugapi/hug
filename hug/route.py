@@ -103,7 +103,7 @@ class Object(http):
 
 
 class API(object):
-    """Provides a convient way to route functions to a single API independant of where they live"""
+    """Provides a convient way to route functions to a single API independent of where they live"""
     __slots__ = ('api', )
 
     def __init__(self, api):
