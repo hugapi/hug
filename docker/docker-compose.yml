@@ -1,0 +1,19 @@
+version: '2'
+services:
+    gunicorn:
+        build: ./gunicorn
+        volumes_from:
+            - app
+        ports:
+            - "8000:8000"
+        links:
+            - app
+    app:
+        build: ./app
+        volumes:
+            - ./template/:/src
+    workspace:
+        build: ./workspace
+        volumes_from:
+            - app
+        tty: true

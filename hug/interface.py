@@ -69,6 +69,7 @@ class Interfaces(object):
         self.api = hug.api.from_object(function)
         self.spec = getattr(function, 'original', function)
         self.arguments = introspect.arguments(function)
+        self.name = introspect.name(function)
         self._function = function
 
         self.is_coroutine = introspect.is_coroutine(self.spec)
@@ -86,7 +87,8 @@ class Interfaces(object):
         self.parameters = tuple(self.parameters)
         self.defaults = dict(zip(reversed(self.parameters), reversed(self.spec.__defaults__ or ())))
         self.required = self.parameters[:-(len(self.spec.__defaults__ or ())) or None]
-        if introspect.is_method(self.spec) or introspect.is_method(function):
+        self.is_method = introspect.is_method(self.spec) or introspect.is_method(function)
+        if self.is_method:
             self.required = self.required[1:]
             self.parameters = self.parameters[1:]
 
@@ -426,6 +428,9 @@ class CLI(Interface):
             conclusion = requirement(request=sys.argv, module=self.api.module)
             if conclusion and conclusion is not True:
                 return self.output(conclusion)
+
+        if self.interface.is_method:
+            self.parser.prog = "%s %s" % (self.api.module.__name__, self.interface.name)
 
         known, unknown = self.parser.parse_known_args()
         pass_to_function = vars(known)
