@@ -1036,6 +1036,14 @@ def test_static_file_support():
     assert '404' in hug.test.get(api, '/static/NOT_IN_EXISTANCE.md').status
 
 
+def test_static_jailed():
+    """Test to ensure we can't serve from outside static dir"""
+    @hug.static('/static')
+    def my_static_dirs():
+        return ['tests']
+    assert '404' in hug.test.get(api, '/static/../README.md').status
+
+
 @pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
 def test_sink_support():
     """Test to ensure sink URL routers work as expected"""
