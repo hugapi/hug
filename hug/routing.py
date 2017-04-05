@@ -309,7 +309,7 @@ class StaticRouter(SinkRouter):
             def read_file(request=None, path=""):
                 filename = path.lstrip("/")
                 for directory in directories:
-                    path = os.path.join(directory, filename)
+                    path = os.path.abspath(os.path.join(directory, filename))
                     if not path.startswith(directory):
                         hug.redirect.not_found()
                     if os.path.isdir(path):
