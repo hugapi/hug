@@ -67,6 +67,7 @@ Documenters
 - Bernhard E. Reiter (@bernhardreiter)
 - Adam McCarthy (@mccajm)
 - Sobolev Nikita (@sobolevn)
+- Chris (@ckhrysze)
 
 --------------------------------------------
 
