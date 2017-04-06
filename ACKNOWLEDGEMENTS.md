@@ -41,6 +41,7 @@ Code Contributors
 - @banteg
 - Philip Bjorge (@philipbjorge)
 - Daniel Metz (@danielmmetz)
+- Alessandro Amici (@alexamici)
 
 Documenters
 ===================
