@@ -38,6 +38,7 @@ Code Contributors
 - Mike Adams (@mikeadamz)
 - Michal Bultrowicz (@butla)
 - Bogdan (@spock)
+- @banteg
 
 Documenters
 ===================
