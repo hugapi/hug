@@ -39,6 +39,7 @@ Code Contributors
 - Michal Bultrowicz (@butla)
 - Bogdan (@spock)
 - @banteg
+- Philip Bjorge (@philipbjorge)
 
 Documenters
 ===================
