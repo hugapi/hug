@@ -64,6 +64,7 @@ Documenters
 - Shawn Q Jackson (@gt50)
 - Bernhard E. Reiter (@bernhardreiter)
 - Adam McCarthy (@mccajm)
+- Sobolev Nikita (@sobolevn)
 
 --------------------------------------------
 
