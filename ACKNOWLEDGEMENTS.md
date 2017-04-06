@@ -42,6 +42,7 @@ Code Contributors
 - Philip Bjorge (@philipbjorge)
 - Daniel Metz (@danielmmetz)
 - Alessandro Amici (@alexamici)
+- Trevor Bekolay (@tbekolay)
 
 Documenters
 ===================
