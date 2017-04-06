@@ -63,6 +63,7 @@ Documenters
 - Thierry Colsenet (@ThierryCols)
 - Shawn Q Jackson (@gt50)
 - Bernhard E. Reiter (@bernhardreiter)
+- Adam McCarthy (@mccajm)
 
 --------------------------------------------
 
