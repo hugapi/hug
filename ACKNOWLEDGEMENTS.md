@@ -40,6 +40,7 @@ Code Contributors
 - Bogdan (@spock)
 - @banteg
 - Philip Bjorge (@philipbjorge)
+- Daniel Metz (@danielmmetz)
 
 Documenters
 ===================
