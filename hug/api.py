@@ -291,6 +291,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
             response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
             response.status = falcon.HTTP_NOT_FOUND
             response.content_type = 'application/json'
+        handle_404.interface = True
         return handle_404
 
     def version_router(self, request, response, api_version=None, versions={}, not_found=None, **kwargs):
