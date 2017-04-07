@@ -696,7 +696,7 @@ def test_middleware():
     @hug.get()
     def hello(request):
         return [
-            request.env['SERVER_NAME'], 
+            request.env['SERVER_NAME'],
             request.env['MEET']
         ]
 
@@ -1199,28 +1199,28 @@ def test_adding_headers():
     assert result.headers_dict['name'] == 'Timothy'
 
 
-def test_on_demand_404():
+def test_on_demand_404(hug_api):
     """Test to ensure it's possible to route to a 404 response on demand"""
-    @hug.get()
+    @hug_api.route.http.get()
     def my_endpoint(hug_api):
         return hug_api.http.not_found
 
-    assert '404' in hug.test.get(api, 'my_endpoint').status
+    assert '404' in hug.test.get(hug_api, 'my_endpoint').status
 
 
-    @hug.get()
+    @hug_api.route.http.get()
     def my_endpoint2(hug_api):
         raise hug.HTTPNotFound()
 
-    assert '404' in hug.test.get(api, 'my_endpoint2').status
+    assert '404' in hug.test.get(hug_api, 'my_endpoint2').status
 
-    @hug.get()
+    @hug_api.route.http.get()
     def my_endpoint3(hug_api):
         """Test to ensure base 404 handler works as expected"""
         del hug_api.http._not_found
         return hug_api.http.not_found
 
-    assert '404' in hug.test.get(api, 'my_endpoint3').status
+    assert '404' in hug.test.get(hug_api, 'my_endpoint3').status
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
