@@ -84,6 +84,5 @@ def generate_accepted_kwargs(function, *named_arguments):
             return kwargs
         elif function_takes_arguments:
             return {key: value for key, value in kwargs.items() if key in function_takes_arguments}
-        else:
-            return {}
+        return {}
     return accepted_kwargs
