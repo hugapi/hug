@@ -10,5 +10,5 @@ pytest==3.0.7
 python-coveralls==2.9.0
 tox==2.7.0
 wheel==0.29.0
-pytest-xdist==1.15.0
+pytest-xdist==1.14.0
 marshmallow==2.6.0
