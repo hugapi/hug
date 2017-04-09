@@ -15,6 +15,21 @@ Changelog
 - Falcon requirement upgraded to 1.1.0
 - Enables filtering documentation according to a `base_url`
 - Fixed a vulnerability in the static file router that allows files in parent directory to be accessed
+- Fixed issue #392: Enable posting self in JSON data structure
+- Fixed issue #418: Ensure version passed is a number
+- Added support for endpoint-specific input formatters:
+```python
+def my_input_formatter(data):
+    return ('Results', hug.input_format.json(data))
+
+@hug.get(inputs={'application/json': my_input_formatter})
+def foo():
+    pass
+```
+- Adds support for filtering the documentation according to the base_url
+- Adds support for passing in a custom scheme in hug.test
+- Improved argparser usage message
+- Implemented feature #427: Allow custom argument deserialization together with standard type annotation
 - Improvements to exception handling.
 - Added support for request / response in a single generator based middleware function
 - Automatic reload support for development runner
