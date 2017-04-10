@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
+from multiprocessing import Process
 
 import importlib
 import os
@@ -26,11 +27,16 @@ import subprocess
 import sys
 import tempfile
 import time
+from os.path import exists
 
 from hug._version import current
 from hug.api import API
 from hug.route import cli
 from hug.types import boolean, number
+
+
+def _start_api(api_module, port, no_404_documentation):
+    API(api_module).http.serve(port, no_404_documentation)
 
 
 @cli(version=current)
@@ -62,37 +68,30 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         sys.argv[1:] = sys.argv[(sys.argv.index('-c') if '-c' in sys.argv else sys.argv.index('--command')) + 2:]
         api.cli.commands[command]()
         return
-    reloader = not manual_reload
-    if reloader and not os.environ.get('HUG_CHILD'):
-        try:
-            lockfile = None
-            fd, lockfile = tempfile.mkstemp(prefix='hug.', suffix='.lock')
-            os.close(fd) # We only need this file to exist. We never write to it
-            while os.path.exists(lockfile):
-                args = [sys.executable] + sys.argv
-                environ = os.environ.copy()
-                environ['HUG_CHILD'] = 'true'
-                environ['HUG_CHILD'] = lockfile
-                p = subprocess.Popen(args, env=environ)
-                while p.poll() is None: # Busy wait...
-                    os.utime(lockfile, None) # I am alive!
-                    time.sleep(interval)
-                if p.poll() != 3:
-                    if os.path.exists(lockfile):
-                        os.unlink(lockfile)
-                    sys.exit(p.poll())
-        except KeyboardInterrupt:
-            pass
-        finally:
-            if os.path.exists(lockfile):
-                os.unlink(lockfile)
-    if reloader:
-        from . _reloader import FileCheckerThread
-        lockfile = os.environ.get('HUG_CHILD')
-        bgcheck = FileCheckerThread(lockfile, interval)
-        with bgcheck:
-            API(api_module).http.serve(port, no_404_documentation)
-        if bgcheck.status == 'reload':
-            sys.exit(3)
+
+    if manual_reload:
+        _start_api(api_module, port, no_404_documentation)
     else:
-        API(api_module).http.serve(port, no_404_documentation)
+        is_running = True
+        while is_running:
+            try:
+                running = Process(target=_start_api, args=(api_module, port, no_404_documentation))
+                running.start()
+                files = {}
+                for module in list(sys.modules.values()):
+                    path = getattr(module, '__file__', '')
+                    if path[-4:] in ('.pyo', '.pyc'):
+                        path = path[:-1]
+                    if path and exists(path):
+                        files[path] = os.stat(path).st_mtime
+
+                unchanged = True
+                while unchanged:
+                    for path, last_modified in files.items():
+                        if not exists(path) or os.stat(path).st_mtime > last_modified:
+                            unchanged = False
+                            running.terminate()
+                            break
+                    time.sleep(interval)
+            except KeyboardInterrupt:
+                is_running = False
