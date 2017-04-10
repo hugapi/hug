@@ -2,6 +2,7 @@
 include = hug/*.py
 exclude_lines = def hug
                 def serve
+                def _start_api
                 sys.stdout.buffer.write
                 class Socket
                 pragma: no cover
