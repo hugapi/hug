@@ -35,8 +35,8 @@ from hug.route import cli
 from hug.types import boolean, number
 
 
-def _start_api(api_module, port, no_404_documentation):
-    API(api_module).http.serve(port, no_404_documentation)
+def _start_api(api_module, port, no_404_documentation, show_intro=True):
+    API(api_module).http.serve(port, no_404_documentation, show_intro)
 
 
 @cli(version=current)
@@ -73,9 +73,10 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         _start_api(api_module, port, no_404_documentation)
     else:
         is_running = True
+        ran = False
         while is_running:
             try:
-                running = Process(target=_start_api, args=(api_module, port, no_404_documentation))
+                running = Process(target=_start_api, args=(api_module, port, no_404_documentation, not ran))
                 running.start()
                 files = {}
                 for module in list(sys.modules.values()):
@@ -85,12 +86,19 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
                     if path and exists(path):
                         files[path] = os.stat(path).st_mtime
 
-                unchanged = True
-                while unchanged:
+                changed = False
+                while not changed:
                     for path, last_modified in files.items():
-                        if not exists(path) or os.stat(path).st_mtime > last_modified:
-                            unchanged = False
+                        if not exists(path):
+                            print('\n> Reloading due to file removal: {}'.format(path))
+                            changed = True
+                        elif os.stat(path).st_mtime > last_modified:
+                            print('\n> Reloading due to file change: {}'.format(path))
+                            changed = True
+
+                        if changed:
                             running.terminate()
+                            ran = True
                             break
                     time.sleep(interval)
             except KeyboardInterrupt:
