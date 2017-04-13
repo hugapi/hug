@@ -1184,7 +1184,7 @@ def test_startup():
     def happens_on_startup(api):
         pass
 
-    assert happens_on_startup in api.http.startup_handlers
+    assert happens_on_startup in api.startup_handlers
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
