@@ -1424,9 +1424,10 @@ def test_cli_kwargs(hug_api):
                              == ['hi!', False, ('extra', ), {'arguments': 'can', 'happen': True, 'all': ['the', 'tim']}]
 
 
-def test_api_gets_extra_variables(hug_api):
+def test_api_gets_extra_variables_without_kargs_or_kwargs(hug_api):
     @hug.get(api=hug_api)
     def ensure_params(request, response):
         return request.params
 
-    assert hug.test.get(hug_api, 'ensure_params', {'make': 'it'}).data == {'make': 'it'}
+    assert hug.test.get(hug_api, 'ensure_params', params={'make': 'it'}).data == {'make': 'it'}
+    assert hug.test.get(hug_api, 'ensure_params', hello='world').data == {'hello': 'world'}
