@@ -38,6 +38,8 @@ def foo():
 - Improved output formats, enabling nested request / response dependent formatters
 - Breaking Changes
     - Sub output formatters functions now need to accept response & request or **kwargs
+    - Fixed issue #405: cli and http @hug.startup() differs, not executed for cli, this also means that startup handlers
+      are given an instance of the API and not of the interface.
 
 ### 2.2.0 - Oct 16, 2016
 - Defaults asyncio event loop to uvloop automatically if it is installed
