@@ -424,6 +424,7 @@ class CLI(Interface):
 
     def __call__(self):
         """Calls the wrapped function through the lens of a CLI ran command"""
+        self.api._ensure_started()
         for requirement in self.requires:
             conclusion = requirement(request=sys.argv, module=self.api.module)
             if conclusion and conclusion is not True:

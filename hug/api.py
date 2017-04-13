@@ -75,7 +75,7 @@ class InterfaceAPI(object):
 class HTTPInterfaceAPI(InterfaceAPI):
     """Defines the HTTP interface specific API"""
     __slots__ = ('routes', 'versions', 'base_url', '_output_format', '_input_format', 'versioned', '_middleware',
-                 '_not_found_handlers', '_startup_handlers', 'sinks', '_not_found', '_exception_handlers')
+                 '_not_found_handlers', 'sinks', '_not_found', '_exception_handlers')
 
     def __init__(self, api, base_url=''):
         super().__init__(api)
@@ -158,9 +158,6 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         for middleware in (http_api.middleware or ()):
             self.add_middleware(middleware)
-
-        for startup_handler in (http_api.startup_handlers or ()):
-            self.add_startup_handler(startup_handler)
 
         for version, handler in getattr(self, '_exception_handlers', {}).items():
             for exception_type, exception_handler in handler.items():
@@ -311,8 +308,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
         base_url = self.base_url if base_url is None else base_url
 
         not_found_handler = default_not_found
-        for startup_handler in self.startup_handlers:
-            startup_handler(self)
+        self.api._ensure_started()
         if self.not_found_handlers:
             if len(self.not_found_handlers) == 1 and None in self.not_found_handlers:
                 not_found_handler = self.not_found_handlers[None]
@@ -352,17 +348,6 @@ class HTTPInterfaceAPI(InterfaceAPI):
         falcon_api.set_error_serializer(error_serializer)
         return falcon_api
 
-    @property
-    def startup_handlers(self):
-        return getattr(self, '_startup_handlers', ())
-
-    def add_startup_handler(self, handler):
-        """Adds a startup handler to the hug api"""
-        if not self.startup_handlers:
-            self._startup_handlers = []
-
-        self.startup_handlers.append(handler)
-
 HTTPInterfaceAPI.base_404.interface = True
 
 
@@ -376,6 +361,7 @@ class CLIInterfaceAPI(InterfaceAPI):
 
     def __call__(self, args=None):
         """Routes to the correct command line tool"""
+        self.api._ensure_started()
         args = sys.argv if args is None else args
         if not len(args) > 1 or not args[1] in self.commands:
             print(str(self))
@@ -415,10 +401,11 @@ class ModuleSingleton(type):
 
 class API(object, metaclass=ModuleSingleton):
     """Stores the information necessary to expose API calls within this module externally"""
-    __slots__ = ('module', '_directives', '_http', '_cli', '_context')
+    __slots__ = ('module', '_directives', '_http', '_cli', '_context', '_startup_handlers', 'started')
 
     def __init__(self, module):
         self.module = module
+        self.started = False
 
     def directives(self):
         """Returns all directives applicable to this Hug API"""
@@ -460,6 +447,26 @@ class API(object, metaclass=ModuleSingleton):
 
         for directive in getattr(api, '_directives', {}).values():
             self.add_directive(directive)
+
+        for startup_handler in (api.startup_handlers or ()):
+            self.add_startup_handler(startup_handler)
+
+    def add_startup_handler(self, handler):
+        """Adds a startup handler to the hug api"""
+        if not self.startup_handlers:
+            self._startup_handlers = []
+
+        self.startup_handlers.append(handler)
+
+    def _ensure_started(self):
+        """Marks the API as started and runs all startup handlers"""
+        if not self.started:
+            for startup_handler in self.startup_handlers:
+                startup_handler(self)
+
+    @property
+    def startup_handlers(self):
+        return getattr(self, '_startup_handlers', ())
 
 
 def from_object(obj):
