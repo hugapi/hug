@@ -81,7 +81,7 @@ def startup(api=None):
     """Runs the provided function on startup, passing in an instance of the api"""
     def startup_wrapper(startup_function):
         apply_to_api = hug.API(api) if api else hug.api.from_object(startup_function)
-        apply_to_api.http.add_startup_handler(startup_function)
+        apply_to_api.add_startup_handler(startup_function)
         return startup_function
     return startup_wrapper
 
