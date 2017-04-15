@@ -12,7 +12,7 @@ Ideally, within a virtual environment.
 Changelog
 =========
 ### 2.2.1 - In Progress
-- Falcon requirement upgraded to 1.1.0
+- Falcon requirement upgraded to 1.2.0
 - Enables filtering documentation according to a `base_url`
 - Fixed a vulnerability in the static file router that allows files in parent directory to be accessed
 - Fixed issue #392: Enable posting self in JSON data structure
