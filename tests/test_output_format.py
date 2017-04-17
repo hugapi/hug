@@ -21,7 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import os
 from collections import namedtuple
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from io import BytesIO
 
@@ -55,10 +55,12 @@ def test_html():
 def test_json():
     """Ensure that it's possible to output a Hug API method as JSON"""
     now = datetime.now()
-    test_data = {'text': 'text', 'datetime': now, 'bytes': b'bytes'}
+    one_day = timedelta(days=1)
+    test_data = {'text': 'text', 'datetime': now, 'bytes': b'bytes', 'delta': one_day}
     output = hug.output_format.json(test_data).decode('utf8')
     assert 'text' in output
     assert 'bytes' in output
+    assert str(one_day.total_seconds()) in output
     assert now.isoformat() in output
 
     class NewObject(object):
