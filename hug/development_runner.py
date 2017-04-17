@@ -19,7 +19,6 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
-from multiprocessing import Process
 
 import importlib
 import os
@@ -27,6 +26,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from multiprocessing import Process
 from os.path import exists
 
 from hug._version import current
