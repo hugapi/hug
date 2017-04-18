@@ -377,7 +377,7 @@ class CLIInterfaceAPI(InterfaceAPI):
 class ModuleSingleton(type):
     """Defines the module level __hug__ singleton"""
 
-    def __call__(cls, module, *args, **kwargs):
+    def __call__(cls, module=None, *args, **kwargs):
         if isinstance(module, API):
             return module
 
@@ -385,6 +385,8 @@ class ModuleSingleton(type):
             if module not in sys.modules:
                 sys.modules[module] = ModuleType(module)
             module = sys.modules[module]
+        elif module is None:
+            module = ModuleType('hug_anonymous')
 
         if not '__hug__' in module.__dict__:
             def api_auto_instantiate(*args, **kwargs):
