@@ -17,7 +17,8 @@ Changelog
 - Fixed a vulnerability in the static file router that allows files in parent directory to be accessed
 - Fixed issue #392: Enable posting self in JSON data structure
 - Fixed issue #418: Ensure version passed is a number
-- Added support for exporting timedeltas to JSON as seconds.
+- Implemented issue #437: Added support for anonymous APIs
+- Added support for exporting timedeltas to JSON as seconds
 - Added support for endpoint-specific input formatters:
 ```python
 def my_input_formatter(data):
