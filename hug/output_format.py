@@ -27,7 +27,7 @@ import mimetypes
 import os
 import re
 import tempfile
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from functools import wraps
 from io import BytesIO
@@ -35,7 +35,6 @@ from operator import itemgetter
 
 import falcon
 from falcon import HTTP_NOT_FOUND
-
 from hug import introspect
 from hug.format import camelcase, content_type
 
@@ -69,6 +68,8 @@ def _json_converter(item):
         return list(item)
     elif isinstance(item, Decimal):
         return str(item)
+    elif isinstance(item, timedelta):
+        return item.total_seconds()
 
     raise TypeError("Type not serializable")
 
