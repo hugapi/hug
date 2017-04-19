@@ -402,10 +402,15 @@ class ModuleSingleton(type):
 
 class API(object, metaclass=ModuleSingleton):
     """Stores the information necessary to expose API calls within this module externally"""
-    __slots__ = ('module', '_directives', '_http', '_cli', '_context', '_startup_handlers', 'started')
+    __slots__ = ('module', '_directives', '_http', '_cli', '_context', '_startup_handlers', 'started', 'name', 'doc')
 
-    def __init__(self, module):
-        self.module = module
+    def __init__(self, module=None, name=None, doc=None):
+        if module:
+            self.module = module
+            if name is None:
+                self.name = module.name
+            if doc is None:
+                self.doc = module.doc
         self.started = False
 
     def directives(self):
