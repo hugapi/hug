@@ -187,7 +187,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
         """Generates and returns documentation for this API endpoint"""
         documentation = OrderedDict()
         base_url = self.base_url if base_url is None else base_url
-        overview = self.api.module.__doc__
+        overview = self.api.doc
         if overview:
             documentation['overview'] = overview
 
@@ -370,7 +370,7 @@ class CLIInterfaceAPI(InterfaceAPI):
         self.commands.get(command)()
 
     def __str__(self):
-        return "{0}\n\nAvailable Commands:{1}\n".format(self.api.module.__doc__ or self.api.module.__name__,
+        return "{0}\n\nAvailable Commands:{1}\n".format(self.api.doc, self.api.name,
                                                         "\n\n\t- " + "\n\t- ".join(self.commands.keys()))
 
 
@@ -386,7 +386,7 @@ class ModuleSingleton(type):
                 sys.modules[module] = ModuleType(module)
             module = sys.modules[module]
         elif module is None:
-            module = ModuleType('hug_anonymous')
+            super().__call__(*args, **kwargs)
 
         if not '__hug__' in module.__dict__:
             def api_auto_instantiate(*args, **kwargs):
@@ -404,13 +404,15 @@ class API(object, metaclass=ModuleSingleton):
     """Stores the information necessary to expose API calls within this module externally"""
     __slots__ = ('module', '_directives', '_http', '_cli', '_context', '_startup_handlers', 'started', 'name', 'doc')
 
-    def __init__(self, module=None, name=None, doc=None):
+    def __init__(self, module=None, name='', doc=''):
+        self.name = name
+        self.doc = doc
         if module:
             self.module = module
             if name is None:
-                self.name = module.name
+                self.name = module.__name__ or ''
             if doc is None:
-                self.doc = module.doc
+                self.doc = module.__doc__ or ''
         self.started = False
 
     def directives(self):
