@@ -60,4 +60,7 @@ def test_api_fixture(hug_api):
 def test_anonymous():
     """Ensure it's possible to create anonymous APIs"""
     assert hug.API() != hug.API() != api
-    assert hug.API().module.__name__ == 'hug_anonymous'
+    assert hug.API().module == None
+    assert hug.API().name == ''
+    assert hug.API(name='my_name').name == 'my_name'
+    assert hug.API(doc='Custom documentation').doc == 'Custom documentation'
