@@ -370,7 +370,7 @@ class CLIInterfaceAPI(InterfaceAPI):
         self.commands.get(command)()
 
     def __str__(self):
-        return "{0}\n\nAvailable Commands:{1}\n".format(self.api.doc, self.api.name,
+        return "{0}\n\nAvailable Commands:{1}\n".format(self.api.doc or self.api.name,
                                                         "\n\n\t- " + "\n\t- ".join(self.commands.keys()))
 
 
@@ -386,7 +386,7 @@ class ModuleSingleton(type):
                 sys.modules[module] = ModuleType(module)
             module = sys.modules[module]
         elif module is None:
-            super().__call__(*args, **kwargs)
+            return super().__call__(*args, **kwargs)
 
         if not '__hug__' in module.__dict__:
             def api_auto_instantiate(*args, **kwargs):
@@ -405,14 +405,13 @@ class API(object, metaclass=ModuleSingleton):
     __slots__ = ('module', '_directives', '_http', '_cli', '_context', '_startup_handlers', 'started', 'name', 'doc')
 
     def __init__(self, module=None, name='', doc=''):
-        self.name = name
-        self.doc = doc
+        self.module = module
         if module:
-            self.module = module
-            if name is None:
-                self.name = module.__name__ or ''
-            if doc is None:
-                self.doc = module.__doc__ or ''
+            self.name = name or module.__name__ or ''
+            self.doc = doc or module.__doc__ or ''
+        else:
+            self.name = name
+            self.doc = doc
         self.started = False
 
     def directives(self):
