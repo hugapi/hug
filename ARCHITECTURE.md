@@ -41,7 +41,7 @@ Here's how I modify it to expose it via the command line:
 
 
     @hug.cli()
-    def add(number_1, number_2):
+    def add(number_1: hug.types.number, number_2: hug.types.number):
         """Returns the result of adding number_1 to number_2"""
         return number_1 + number_2
 
@@ -64,7 +64,7 @@ No problem. I'll just expose it over HTTP as well:
 
     @hug.get() # <-- This is the only additional line
     @hug.cli()
-    def add(number_1, number_2):
+    def add(number_1: hug.types.number, number_2: hug.types.number):
         """Returns the result of adding number_1 to number_2"""
         return number_1 + number_2
 
