@@ -17,7 +17,6 @@ Changelog
 - Fixed a vulnerability in the static file router that allows files in parent directory to be accessed
 - Fixed issue #392: Enable posting self in JSON data structure
 - Fixed issue #418: Ensure version passed is a number
-- Fixed issue #432: Improved ease of sub classing simple types
 - Implemented issue #437: Added support for anonymous APIs
 - Added support for exporting timedeltas to JSON as seconds
 - Added support for endpoint-specific input formatters:
@@ -42,6 +41,9 @@ def foo():
 - Improved output formats, enabling nested request / response dependent formatters
 - Breaking Changes
     - Sub output formatters functions now need to accept response & request or **kwargs
+    - Fixed issue #432: Improved ease of sub classing simple types - causes type extensions of types that dont take to __init__
+                        arguments, to automatically return an instanciated type, beaking existing usage that had to instanciate
+                        after the fact
     - Fixed issue #405: cli and http @hug.startup() differs, not executed for cli, this also means that startup handlers
       are given an instance of the API and not of the interface.
 
