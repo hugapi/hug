@@ -41,6 +41,9 @@ def foo():
 - Improved output formats, enabling nested request / response dependent formatters
 - Breaking Changes
     - Sub output formatters functions now need to accept response & request or **kwargs
+    - Fixed issue #432: Improved ease of sub classing simple types - causes type extensions of types that dont take to __init__
+                        arguments, to automatically return an instanciated type, beaking existing usage that had to instanciate
+                        after the fact
     - Fixed issue #405: cli and http @hug.startup() differs, not executed for cli, this also means that startup handlers
       are given an instance of the API and not of the interface.
 

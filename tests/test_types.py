@@ -366,14 +366,13 @@ def test_create_type():
             raise ArithmeticError('Testing different error types')
         return 'hi-' + value
 
-    my_type = prefixed_string()
-    assert my_type('there') == 'hi-there'
+    assert prefixed_string('there') == 'hi-there'
     with pytest.raises(ValueError):
-        my_type([])
+        prefixed_string([])
     with pytest.raises(ValueError):
-        my_type('hi')
+        prefixed_string('hi')
     with pytest.raises(ValueError):
-        my_type('bye')
+        prefixed_string('bye')
 
     @hug.type(extend=hug.types.text, exception_handlers={TypeError: ValueError})
     def prefixed_string(value):
@@ -381,13 +380,11 @@ def test_create_type():
             raise ArithmeticError('Testing different error types')
         return 'hi-' + value
 
-    my_type = prefixed_string()
     with pytest.raises(ArithmeticError):
-        my_type('1+1')
+        prefixed_string('1+1')
 
     @hug.type(extend=hug.types.text)
     def prefixed_string(value):
         return 'hi-' + value
 
-    my_type = prefixed_string()
-    assert my_type('there') == 'hi-there'
+    assert prefixed_string('there') == 'hi-there'

@@ -26,6 +26,7 @@ from decimal import Decimal
 from json import loads as load_json
 
 import hug._empty as empty
+from hug import introspect
 from hug.exceptions import InvalidTypeData
 
 
@@ -36,14 +37,14 @@ class Type(object):
     _hug_type = True
     __slots__ = ()
 
-    def __init__(self, **kwargs):
+    def __init__(self):
         pass
 
     def __call__(self, value):
         raise NotImplementedError('To implement a new type __call__ must be defined')
 
 
-def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type, chain=True):
+def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type, chain=True, auto_instance=True):
     """Creates a new type handler with the specified type-casting handler"""
     extend = extend if type(extend) == type else type(extend)
 
@@ -91,6 +92,10 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
                         return function(value)
 
         NewType.__doc__ = function.__doc__ if doc is None else doc
+        if auto_instance and not (introspect.arguments(NewType.__init__, -1) or
+                                  introspect.takes_kwargs(NewType.__init__) or
+                                  introspect.takes_args(NewType.__init__)):
+            return NewType()
         return NewType
 
     return new_type_handler
@@ -98,7 +103,7 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
 
 def accept(kind, doc=None, error_text=None, exception_handlers=empty.dict):
     """Allows quick wrapping of any Python type cast function for use as a hug type annotation"""
-    return create(doc, error_text, exception_handlers=exception_handlers, chain=False)(kind)()
+    return create(doc, error_text, exception_handlers=exception_handlers, chain=False)(kind)
 
 number = accept(int, 'A Whole number', 'Invalid whole number provided')
 float_number = accept(float, 'A float number', 'Invalid float number provided')
