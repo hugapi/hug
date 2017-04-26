@@ -331,11 +331,11 @@ class CLI(Interface):
     def __init__(self, route, function):
         super().__init__(route, function)
         self.interface.cli = self
+        self.reaffirm_types = {}
         use_parameters = list(self.interface.parameters)
         self.additional_options = getattr(self.interface, 'arg', getattr(self.interface, 'kwarg', False))
         if self.additional_options:
             use_parameters.append(self.additional_options)
-
 
         used_options = {'h', 'help'}
         nargs_set = self.interface.takes_args or self.interface.takes_kwargs
@@ -374,8 +374,10 @@ class CLI(Interface):
                 if transform in (list, tuple) or isinstance(transform, types.Multiple):
                     kwargs['action'] = 'append'
                     kwargs['type'] = Text()
+                    self.reaffirm_types[option] = transform
                 elif transform == bool or isinstance(transform, type(types.boolean)):
                     kwargs['action'] = 'store_true'
+                    self.reaffirm_types[option] = transform
                 elif isinstance(transform, types.OneOf):
                     kwargs['choices'] = transform.values
             elif (option in self.interface.spec.__annotations__ and
@@ -438,6 +440,9 @@ class CLI(Interface):
             arguments = (self.defaults[option], ) if option in self.defaults else ()
             pass_to_function[option] = directive(*arguments, api=self.api, argparse=self.parser,
                                                  interface=self)
+        for field, type_handler in self.reaffirm_types.items():
+            if field in pass_to_function:
+                pass_to_function[field] = type_handler(pass_to_function[field])
 
         if getattr(self, 'validate_function', False):
             errors = self.validate_function(pass_to_function)

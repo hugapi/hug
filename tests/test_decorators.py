@@ -1177,6 +1177,29 @@ def test_cli_with_empty_return():
     assert not hug.test.cli(test_empty_return)
 
 
+def test_cli_with_multiple_ints():
+    """Test to ensure multiple ints work with CLI"""
+    @hug.cli()
+    def test_multiple_cli(ints: hug.types.comma_separated_list):
+        return ints
+
+    assert hug.test.cli(test_multiple_cli, ints='1,2,3') == ['1', '2', '3']
+
+
+    class ListOfInts(hug.types.Multiple):
+        """Only accept a list of numbers."""
+
+        def __call__(self, value):
+            value = super().__call__(value)
+            return [int(number) for number in value]
+
+    @hug.cli()
+    def test_multiple_cli(ints: ListOfInts()=[]):
+        return ints
+
+    assert hug.test.cli(test_multiple_cli, ints=['1', '2', '3']) == [1, 2, 3]
+
+
 def test_startup():
     """Test to ensure hug startup decorators work as expected"""
     @hug.startup()
