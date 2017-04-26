@@ -132,7 +132,7 @@ class Multiple(Type):
         return value if isinstance(value, list) else [value]
 
 
-class DelimitedList(Multiple):
+class DelimitedList(Type):
     """Defines a list type that is formed by delimiting a list with a certain character or set of characters"""
     __slots__ = ('using', )
 
