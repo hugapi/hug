@@ -33,7 +33,7 @@ import hug.api
 import hug.output_format
 import hug.types as types
 from falcon import HTTP_BAD_REQUEST
-from hug._async import ensure_future, asyncio_call
+from hug._async import asyncio_call
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 from hug.format import parse_content_type

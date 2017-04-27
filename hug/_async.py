@@ -43,3 +43,6 @@ except ImportError:  # pragma: no cover
 
     def asyncio_call(*args, **kwargs):
         raise NotImplementedError()
+
+    def ensure_future(*args, **kwargs):
+        raise NotImplementedError()
