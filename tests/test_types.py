@@ -388,3 +388,9 @@ def test_create_type():
         return 'hi-' + value
 
     assert prefixed_string('there') == 'hi-there'
+
+    @hug.type(extend=hug.types.one_of)
+    def numbered(value):
+        return int(value)
+
+    assert numbered(['1', '2', '3'])('1') == 1

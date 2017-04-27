@@ -1206,6 +1206,10 @@ def test_startup():
     def happens_on_startup(api):
         pass
 
+    @hug.startup()
+    async def happens_on_startup(api):
+        pass
+
     assert happens_on_startup in api.startup_handlers
 
 
