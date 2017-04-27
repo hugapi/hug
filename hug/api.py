@@ -28,10 +28,12 @@ from functools import partial
 from itertools import chain
 from types import ModuleType
 from wsgiref.simple_server import make_server
+from hug._async import asyncio, ensure_future
 
 import falcon
 import hug.defaults
 import hug.output_format
+from hug import introspect
 from falcon import HTTP_METHODS
 from hug._version import current
 
@@ -468,8 +470,15 @@ class API(object, metaclass=ModuleSingleton):
     def _ensure_started(self):
         """Marks the API as started and runs all startup handlers"""
         if not self.started:
+            async_handlers = [startup_handler for startup_handler in self.startup_handlers if
+                              introspect.is_coroutine(startup_handler)]
+            if async_handlers:
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(asyncio.gather(*[handler(self) for handler in async_handlers], loop=loop))
+                loop.close()
             for startup_handler in self.startup_handlers:
-                startup_handler(self)
+                if not startup_handler in async_handlers:
+                    startup_handler(self)
 
     @property
     def startup_handlers(self):
