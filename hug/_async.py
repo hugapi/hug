@@ -38,6 +38,8 @@ try:
         loop.run_until_complete(function)
         return function.result()
 
+    coroutine = asyncio.coroutine
+
 except ImportError:  # pragma: no cover
     asyncio = None
 
@@ -46,3 +48,6 @@ except ImportError:  # pragma: no cover
 
     def ensure_future(*args, **kwargs):
         raise NotImplementedError()
+
+    def coroutine(function):
+        return function

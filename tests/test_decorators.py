@@ -26,6 +26,7 @@ from unittest import mock
 
 import falcon
 import hug
+from hug._async import coroutine
 import pytest
 import requests
 from falcon.testing import StartResponseMock, create_environ
@@ -1206,7 +1207,13 @@ def test_startup():
     def happens_on_startup(api):
         pass
 
+    @hug.startup()
+    @coroutine
+    def async_happens_on_startup(api):
+        pass
+
     assert happens_on_startup in api.startup_handlers
+    assert async_happens_on_startup in api.startup_handlers
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
