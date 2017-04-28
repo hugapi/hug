@@ -33,32 +33,12 @@ import hug.api
 import hug.output_format
 import hug.types as types
 from falcon import HTTP_BAD_REQUEST
+from hug._async import asyncio_call
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 from hug.format import parse_content_type
 from hug.types import MarshmallowSchema, Multiple, OneOf, SmartBoolean, Text, text
 
-try:
-    import asyncio
-
-    if sys.version_info >= (3, 4, 4):
-        ensure_future = asyncio.ensure_future  # pragma: no cover
-    else:
-        ensure_future = asyncio.async  # pragma: no cover
-
-    def asyncio_call(function, *args, **kwargs):
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            return function(*args, **kwargs)
-
-        function = ensure_future(function(*args, **kwargs), loop=loop)
-        loop.run_until_complete(function)
-        return function.result()
-
-except ImportError:  # pragma: no cover
-
-    def asyncio_call(*args, **kwargs):
-        raise NotImplementedError()
 
 
 class Interfaces(object):
