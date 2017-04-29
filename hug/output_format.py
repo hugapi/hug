@@ -225,6 +225,10 @@ for (video_type, video_mime) in VIDEO_TYPES:
 @on_valid('file/dynamic')
 def file(data, response, **kwargs):
     """A dynamically retrieved file"""
+    if not data:
+        response.content_type = 'text/plain'
+        return ''
+
     if hasattr(data, 'read'):
         name, data = getattr(data, 'name', ''), data
     elif os.path.isfile(data):
