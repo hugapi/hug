@@ -156,6 +156,7 @@ def test_file():
         hasattr(hug.output_format.file(image_file, fake_response), 'read')
 
     assert not hasattr(hug.output_format.file('NON EXISTENT FILE', fake_response), 'read')
+    assert hug.output_format.file(None, fake_response) == ''
 
 
 def test_video():
