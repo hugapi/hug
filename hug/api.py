@@ -28,13 +28,13 @@ from functools import partial
 from itertools import chain
 from types import ModuleType
 from wsgiref.simple_server import make_server
-from hug._async import asyncio, ensure_future
 
 import falcon
 import hug.defaults
 import hug.output_format
-from hug import introspect
 from falcon import HTTP_METHODS
+from hug import introspect
+from hug._async import asyncio, ensure_future
 from hug._version import current
 
 
@@ -238,9 +238,10 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         if display_intro:
             print(INTRO)
-            httpd = make_server('', port, api)
-            print("Serving on port {0}...".format(port))
-            httpd.serve_forever()
+
+        httpd = make_server('', port, api)
+        print("Serving on port {0}...".format(port))
+        httpd.serve_forever()
 
     @staticmethod
     def base_404(request, response, *args, **kwargs):

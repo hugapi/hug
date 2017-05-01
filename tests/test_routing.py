@@ -259,47 +259,47 @@ class TestURLRouter(TestHTTPRouter):
     def test_get(self):
         """Test to ensure the HTTP METHOD can be set to just GET on the fly"""
         assert self.route.get().route['accept'] == ('GET', )
-        assert self.route.get('url').route['urls'] == ('url', )
+        assert self.route.get('/url').route['urls'] == ('/url', )
 
     def test_delete(self):
         """Test to ensure the HTTP METHOD can be set to just DELETE on the fly"""
         assert self.route.delete().route['accept'] == ('DELETE', )
-        assert self.route.delete('url').route['urls'] == ('url', )
+        assert self.route.delete('/url').route['urls'] == ('/url', )
 
     def test_post(self):
         """Test to ensure the HTTP METHOD can be set to just POST on the fly"""
         assert self.route.post().route['accept'] == ('POST', )
-        assert self.route.post('url').route['urls'] == ('url', )
+        assert self.route.post('/url').route['urls'] == ('/url', )
 
     def test_put(self):
         """Test to ensure the HTTP METHOD can be set to just PUT on the fly"""
         assert self.route.put().route['accept'] == ('PUT', )
-        assert self.route.put('url').route['urls'] == ('url', )
+        assert self.route.put('/url').route['urls'] == ('/url', )
 
     def test_trace(self):
         """Test to ensure the HTTP METHOD can be set to just TRACE on the fly"""
         assert self.route.trace().route['accept'] == ('TRACE', )
-        assert self.route.trace('url').route['urls'] == ('url', )
+        assert self.route.trace('/url').route['urls'] == ('/url', )
 
     def test_patch(self):
         """Test to ensure the HTTP METHOD can be set to just PATCH on the fly"""
         assert self.route.patch().route['accept'] == ('PATCH', )
-        assert self.route.patch('url').route['urls'] == ('url', )
+        assert self.route.patch('/url').route['urls'] == ('/url', )
 
     def test_options(self):
         """Test to ensure the HTTP METHOD can be set to just OPTIONS on the fly"""
         assert self.route.options().route['accept'] == ('OPTIONS', )
-        assert self.route.options('url').route['urls'] == ('url', )
+        assert self.route.options('/url').route['urls'] == ('/url', )
 
     def test_head(self):
         """Test to ensure the HTTP METHOD can be set to just HEAD on the fly"""
         assert self.route.head().route['accept'] == ('HEAD', )
-        assert self.route.head('url').route['urls'] == ('url', )
+        assert self.route.head('/url').route['urls'] == ('/url', )
 
     def test_connect(self):
         """Test to ensure the HTTP METHOD can be set to just CONNECT on the fly"""
         assert self.route.connect().route['accept'] == ('CONNECT', )
-        assert self.route.connect('url').route['urls'] == ('url', )
+        assert self.route.connect('/url').route['urls'] == ('/url', )
 
     def test_call(self):
         """Test to ensure the HTTP METHOD can be set to accept all on the fly"""
