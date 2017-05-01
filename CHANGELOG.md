@@ -20,6 +20,7 @@ Changelog
 - Fixed issue #399: Multiple ints not working correctly for CLI interface
 - Fixed issue #461: Enable async startup methods running in parallel
 - Fixed issue #412: None type return for file output format
+- Fixed issue #464: Class based routing now inherit templated parameters
 - Implemented issue #437: Added support for anonymous APIs
 - Added support for exporting timedeltas to JSON as seconds
 - Added support for endpoint-specific input formatters:
