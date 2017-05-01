@@ -44,7 +44,7 @@ def test_simple_class_based_view():
 
 def test_url_inheritance():
     """Test creating class based routers"""
-    @hug.object.urls('/endpoint', requires=())
+    @hug.object.urls('/endpoint', requires=(), versions=1)
     class MyClass(object):
 
         @hug.object.urls('inherits_base')
@@ -55,8 +55,13 @@ def test_url_inheritance():
         def my_method_two(self):
             return 'bye'
 
-    assert hug.test.get(api, '/endpoint/inherits_base').data == 'hi there!'
-    assert hug.test.post(api, '/ignores_base').data == 'bye'
+        @hug.object.urls('ignore_version', versions=None)
+        def my_method_three(self):
+            return 'what version?'
+
+    assert hug.test.get(api, '/v1/endpoint/inherits_base').data == 'hi there!'
+    assert hug.test.post(api, '/v1/ignores_base').data == 'bye'
+    assert hug.test.get(api, '/endpoint/ignore_version').data == 'what version?'
 
 
 def test_simple_class_based_method_view():
