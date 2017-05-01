@@ -34,6 +34,7 @@ import hug.output_format
 from falcon import HTTP_METHODS
 from hug import introspect
 from hug.exceptions import InvalidTypeData
+from urllib.parse import urljoin
 
 
 class Router(object):
@@ -483,3 +484,17 @@ class URLRouter(HTTPRouter):
     def prefixes(self, *prefixes, **overrides):
         """Sets the prefixes supported by the route"""
         return self.where(prefixes=prefixes, **overrides)
+
+    def where(self, **overrides):
+        if 'urls' in overrides:
+            existing_urls = self.route.get('urls', ())
+            use_urls = []
+            for url in (overrides['urls'], ) if isinstance(overrides['urls'], str) else overrides['urls']:
+                if url.startswith('/') or not existing_urls:
+                    use_urls.append(url)
+                else:
+                    for existing in existing_urls:
+                        use_urls.append(urljoin(existing.rstrip('/') + '/', url))
+            overrides['urls'] = tuple(use_urls)
+
+        return super().where(**overrides)
