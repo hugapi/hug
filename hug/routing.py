@@ -26,6 +26,7 @@ import os
 import re
 from collections import OrderedDict
 from functools import wraps
+from urllib.parse import urljoin
 
 import falcon
 import hug.api
@@ -34,7 +35,6 @@ import hug.output_format
 from falcon import HTTP_METHODS
 from hug import introspect
 from hug.exceptions import InvalidTypeData
-from urllib.parse import urljoin
 
 
 class Router(object):

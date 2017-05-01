@@ -28,13 +28,13 @@ from functools import partial
 from itertools import chain
 from types import ModuleType
 from wsgiref.simple_server import make_server
-from hug._async import asyncio, ensure_future
 
 import falcon
 import hug.defaults
 import hug.output_format
-from hug import introspect
 from falcon import HTTP_METHODS
+from hug import introspect
+from hug._async import asyncio, ensure_future
 from hug._version import current
 
 
