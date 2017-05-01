@@ -238,9 +238,10 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         if display_intro:
             print(INTRO)
-            httpd = make_server('', port, api)
-            print("Serving on port {0}...".format(port))
-            httpd.serve_forever()
+
+        httpd = make_server('', port, api)
+        print("Serving on port {0}...".format(port))
+        httpd.serve_forever()
 
     @staticmethod
     def base_404(request, response, *args, **kwargs):

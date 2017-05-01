@@ -34,6 +34,8 @@ from hug.api import API
 from hug.route import cli
 from hug.types import boolean, number
 
+INIT_MODULES = list(sys.modules.keys())
+
 
 def _start_api(api_module, port, no_404_documentation, show_intro=True):
     API(api_module).http.serve(port, no_404_documentation, show_intro)
@@ -98,6 +100,12 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
 
                         if changed:
                             running.terminate()
+                            for module in [name for name in sys.modules.keys() if name not in INIT_MODULES]:
+                                del(sys.modules[module])
+                            if file:
+                                api_module = importlib.machinery.SourceFileLoader(file.split(".")[0], file).load_module()
+                            elif module:
+                                api_module = importlib.import_module(module)
                             ran = True
                             break
                     time.sleep(interval)
