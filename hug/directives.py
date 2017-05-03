@@ -59,7 +59,7 @@ class Timer(object):
         return str(float(self))
 
     def __repr__(self):
-        return "Timer({})".format(self)
+        return "{}({})".format(self.__class__.__name__, self)
 
 
 @_built_in_directive
