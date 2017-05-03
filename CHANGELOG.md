@@ -34,6 +34,7 @@ def foo():
 ```
 - Adds support for filtering the documentation according to the base_url
 - Adds support for passing in a custom scheme in hug.test
+- Adds str() and repr() support to hug_timer directive
 - Added support for moduleless APIs
 - Improved argparser usage message
 - Implemented feature #427: Allow custom argument deserialization together with standard type annotation
