@@ -55,6 +55,12 @@ class Timer(object):
     def __native_types__(self):
         return self.__float__()
 
+    def __str__(self):
+        return str(float(self))
+
+    def __repr__(self):
+        return "Timer({})".format(self)
+
 
 @_built_in_directive
 def module(default=None, api=None, **kwargs):
