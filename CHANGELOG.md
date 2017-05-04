@@ -33,7 +33,6 @@ def my_input_formatter(data):
 def foo():
     pass
 ```
-- Adds support for filtering the documentation according to the base_url
 - Adds support for passing in a custom scheme in hug.test
 - Adds str() and repr() support to hug_timer directive
 - Added support for moduleless APIs
@@ -42,7 +41,7 @@ def foo():
 - Improvements to exception handling.
 - Added support for request / response in a single generator based middleware function
 - Automatic reload support for development runner
-- Added support for passing `params` dictionary and `qstuery_string` arguments into hug.test.http command for more direct modification of test inputs
+- Added support for passing `params` dictionary and `query_string` arguments into hug.test.http command for more direct modification of test inputs
 - Added support for manual specifying the scheme used in hug.test calls
 - Improved output formats, enabling nested request / response dependent formatters
 - Breaking Changes
