@@ -30,7 +30,11 @@ try:
         ensure_future = asyncio.async  # pragma: no cover
 
     def asyncio_call(function, *args, **kwargs):
-        loop = asyncio.get_event_loop()
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError: # pragma: no cover
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
         if loop.is_running():
             return function(*args, **kwargs)
 
