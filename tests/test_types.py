@@ -25,9 +25,8 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-import pytest
-
 import hug
+import pytest
 from hug.exceptions import InvalidTypeData
 from marshmallow import Schema, fields
 
@@ -367,14 +366,13 @@ def test_create_type():
             raise ArithmeticError('Testing different error types')
         return 'hi-' + value
 
-    my_type = prefixed_string()
-    assert my_type('there') == 'hi-there'
+    assert prefixed_string('there') == 'hi-there'
     with pytest.raises(ValueError):
-        my_type([])
+        prefixed_string([])
     with pytest.raises(ValueError):
-        my_type('hi')
+        prefixed_string('hi')
     with pytest.raises(ValueError):
-        my_type('bye')
+        prefixed_string('bye')
 
     @hug.type(extend=hug.types.text, exception_handlers={TypeError: ValueError})
     def prefixed_string(value):
@@ -382,13 +380,17 @@ def test_create_type():
             raise ArithmeticError('Testing different error types')
         return 'hi-' + value
 
-    my_type = prefixed_string()
     with pytest.raises(ArithmeticError):
-        my_type('1+1')
+        prefixed_string('1+1')
 
     @hug.type(extend=hug.types.text)
     def prefixed_string(value):
         return 'hi-' + value
 
-    my_type = prefixed_string()
-    assert my_type('there') == 'hi-there'
+    assert prefixed_string('there') == 'hi-there'
+
+    @hug.type(extend=hug.types.one_of)
+    def numbered(value):
+        return int(value)
+
+    assert numbered(['1', '2', '3'])('1') == 1

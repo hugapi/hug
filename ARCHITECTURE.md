@@ -41,7 +41,7 @@ Here's how I modify it to expose it via the command line:
 
 
     @hug.cli()
-    def add(number_1, number_2):
+    def add(number_1: hug.types.number, number_2: hug.types.number):
         """Returns the result of adding number_1 to number_2"""
         return number_1 + number_2
 
@@ -64,7 +64,7 @@ No problem. I'll just expose it over HTTP as well:
 
     @hug.get() # <-- This is the only additional line
     @hug.cli()
-    def add(number_1, number_2):
+    def add(number_1: hug.types.number, number_2: hug.types.number):
         """Returns the result of adding number_1 to number_2"""
         return number_1 + number_2
 
@@ -118,7 +118,7 @@ and that is core to hug, lives in only a few:
 
 -   `hug/api.py`: Defines the hug per-module singleton object that keeps track of all registered interfaces, alongside the associated per interface APIs (HTTPInterfaceAPI, CLIInterfaceAPI)
 -   `hug/routing.py`: holds all the data and settings that should be passed to newly created interfaces, and creates the interfaces from that data.
-    - This directly is what powers `hug.get`, `hug.cli, and all other function to interface routers
+    - This directly is what powers `hug.get`, `hug.cli`, and all other function to interface routers
     - Can be seen as a Factory for creating new interfaces
 -   `hug/interface.py`: Defines the actual interfaces that manage external interaction with your function (CLI and HTTP).
 

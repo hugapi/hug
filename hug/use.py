@@ -28,9 +28,8 @@ from io import BytesIO
 from queue import Queue
 
 import falcon
-import requests
-
 import hug._empty as empty
+import requests
 from hug.api import API
 from hug.defaults import input_format
 from hug.format import parse_content_type
@@ -148,7 +147,7 @@ class Local(Service):
         if errors:
             interface.render_errors(errors, request, response)
         else:
-            interface.render_content(interface.call_function(**params), request, response)
+            interface.render_content(interface.call_function(params), request, response)
 
         data = BytesIO(response.data)
         content_type, content_params = parse_content_type(response._headers.get('content-type', ''))

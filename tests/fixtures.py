@@ -1,10 +1,9 @@
 """Defines fixtures that can be used to streamline tests and / or define dependencies"""
+from collections import namedtuple
 from random import randint
 
-import pytest
-
 import hug
-from collections import namedtuple
+import pytest
 
 Routers = namedtuple('Routers', ['http', 'local', 'cli'])
 

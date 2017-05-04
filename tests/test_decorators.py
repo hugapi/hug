@@ -25,11 +25,11 @@ import sys
 from unittest import mock
 
 import falcon
+import hug
 import pytest
 import requests
 from falcon.testing import StartResponseMock, create_environ
-
-import hug
+from hug._async import coroutine
 
 from .constants import BASE_DIRECTORY
 
@@ -326,6 +326,8 @@ def test_not_found():
     assert result.data == "Not Found"
     assert result.status == falcon.HTTP_NOT_FOUND
 
+    del api.http._not_found_handlers
+
 
 def test_not_found_with_extended_api():
     """Test to ensure the not_found decorator works correctly when the API is extended"""
@@ -500,6 +502,19 @@ def test_return_modifer():
     assert response.data == ['world', True, True]
 
 
+def test_custom_deserializer_support():
+    """Ensure that custom desirializers work as expected"""
+    class CustomDeserializer(object):
+        def from_string(self, string):
+            return 'custom {}'.format(string)
+
+    @hug.get()
+    def test_custom_deserializer(text: CustomDeserializer()):
+        return text
+
+    assert hug.test.get(api, 'test_custom_deserializer', text='world').data == 'custom world'
+
+
 def test_marshmallow_support():
     """Ensure that you can use Marshmallow style objects to control input and output validation and transformation"""
     class MarshmallowStyleObject(object):
@@ -516,7 +531,7 @@ def test_marshmallow_support():
 
     @hug.get()
     def test_marshmallow_style() -> schema:
-        return "world"
+        return 'world'
 
     assert hug.test.get(api, 'test_marshmallow_style').data == "Dump Success"
     assert test_marshmallow_style() == 'world'
@@ -639,6 +654,16 @@ def test_input_format():
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
+def test_specific_input_format():
+    """Test to ensure the input formatter can be specified"""
+    @hug.get(inputs={'application/json': lambda a: 'formatted'})
+    def hello(body):
+        return body
+
+    assert hug.test.get(api, 'hello', body={'should': 'work'}).data == 'formatted'
+
+
+@pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
 def test_content_type_with_parameter():
     """Test a Content-Type with parameter as `application/json charset=UTF-8`
     as described in https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7"""
@@ -661,13 +686,24 @@ def test_middleware():
     def proccess_data2(request, response, resource):
         response.set_header('Bacon', 'Yumm')
 
+    @hug.reqresp_middleware()
+    def process_data3(request):
+        request.env['MEET'] = 'Ham'
+        response, resource = yield request
+        response.set_header('Ham', 'Buu!!')
+        yield response
+
     @hug.get()
     def hello(request):
-        return request.env['SERVER_NAME']
+        return [
+            request.env['SERVER_NAME'],
+            request.env['MEET']
+        ]
 
     result = hug.test.get(api, 'hello')
-    assert result.data == 'Bacon'
+    assert result.data == ['Bacon', 'Ham']
     assert result.headers_dict['Bacon'] == 'Yumm'
+    assert result.headers_dict['Ham'] == 'Buu!!'
 
 
 def test_requires():
@@ -1000,6 +1036,14 @@ def test_static_file_support():
     assert '404' in hug.test.get(api, '/static/NOT_IN_EXISTANCE.md').status
 
 
+def test_static_jailed():
+    """Test to ensure we can't serve from outside static dir"""
+    @hug.static('/static')
+    def my_static_dirs():
+        return ['tests']
+    assert '404' in hug.test.get(api, '/static/../README.md').status
+
+
 @pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
 def test_sink_support():
     """Test to ensure sink URL routers work as expected"""
@@ -1134,13 +1178,42 @@ def test_cli_with_empty_return():
     assert not hug.test.cli(test_empty_return)
 
 
+def test_cli_with_multiple_ints():
+    """Test to ensure multiple ints work with CLI"""
+    @hug.cli()
+    def test_multiple_cli(ints: hug.types.comma_separated_list):
+        return ints
+
+    assert hug.test.cli(test_multiple_cli, ints='1,2,3') == ['1', '2', '3']
+
+
+    class ListOfInts(hug.types.Multiple):
+        """Only accept a list of numbers."""
+
+        def __call__(self, value):
+            value = super().__call__(value)
+            return [int(number) for number in value]
+
+    @hug.cli()
+    def test_multiple_cli(ints: ListOfInts()=[]):
+        return ints
+
+    assert hug.test.cli(test_multiple_cli, ints=['1', '2', '3']) == [1, 2, 3]
+
+
 def test_startup():
     """Test to ensure hug startup decorators work as expected"""
     @hug.startup()
     def happens_on_startup(api):
         pass
 
-    assert happens_on_startup in api.http.startup_handlers
+    @hug.startup()
+    @coroutine
+    def async_happens_on_startup(api):
+        pass
+
+    assert happens_on_startup in api.startup_handlers
+    assert async_happens_on_startup in api.startup_handlers
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
@@ -1155,28 +1228,28 @@ def test_adding_headers():
     assert result.headers_dict['name'] == 'Timothy'
 
 
-def test_on_demand_404():
+def test_on_demand_404(hug_api):
     """Test to ensure it's possible to route to a 404 response on demand"""
-    @hug.get()
+    @hug_api.route.http.get()
     def my_endpoint(hug_api):
         return hug_api.http.not_found
 
-    assert '404' in hug.test.get(api, 'my_endpoint').status
+    assert '404' in hug.test.get(hug_api, 'my_endpoint').status
 
 
-    @hug.get()
+    @hug_api.route.http.get()
     def my_endpoint2(hug_api):
         raise hug.HTTPNotFound()
 
-    assert '404' in hug.test.get(api, 'my_endpoint2').status
+    assert '404' in hug.test.get(hug_api, 'my_endpoint2').status
 
-    @hug.get()
+    @hug_api.route.http.get()
     def my_endpoint3(hug_api):
         """Test to ensure base 404 handler works as expected"""
         del hug_api.http._not_found
         return hug_api.http.not_found
 
-    assert '404' in hug.test.get(api, 'my_endpoint3').status
+    assert '404' in hug.test.get(hug_api, 'my_endpoint3').status
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
@@ -1288,6 +1361,16 @@ def test_json_null(hug_api):
                                     headers={'content-type': 'application/json'}).data
 
 
+def test_json_self_key(hug_api):
+    """Test to ensure passing in a json with a key named 'self' works as expected"""
+    @hug_api.route.http.post()
+    def test_self_post(body):
+        return body
+
+    assert hug.test.post(hug_api, 'test_self_post', body='{"self": "this"}',
+                         headers={'content-type': 'application/json'}).data == {"self": "this"}
+
+
 def test_204_with_no_body(hug_api):
     """Test to ensure returning no body on a 204 statused endpoint works without issue"""
     @hug_api.route.http.delete()
@@ -1368,3 +1451,12 @@ def test_cli_kwargs(hug_api):
     assert hug.test.cli(takes_all_the_things, 'hi!', named_argument='there') == ['hi!', 'there', (), {}]
     assert hug.test.cli(takes_all_the_things, 'hi!', 'extra', '--arguments', 'can', '--happen', '--all', 'the', 'tim') \
                              == ['hi!', False, ('extra', ), {'arguments': 'can', 'happen': True, 'all': ['the', 'tim']}]
+
+
+def test_api_gets_extra_variables_without_kargs_or_kwargs(hug_api):
+    @hug.get(api=hug_api)
+    def ensure_params(request, response):
+        return request.params
+
+    assert hug.test.get(hug_api, 'ensure_params', params={'make': 'it'}).data == {'make': 'it'}
+    assert hug.test.get(hug_api, 'ensure_params', hello='world').data == {'hello': 'world'}

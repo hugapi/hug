@@ -55,3 +55,12 @@ def test_api_fixture(hug_api):
     """Ensure it's possible to dynamically insert a new hug API on demand"""
     assert isinstance(hug_api, hug.API)
     assert hug_api != api
+
+
+def test_anonymous():
+    """Ensure it's possible to create anonymous APIs"""
+    assert hug.API() != hug.API() != api
+    assert hug.API().module == None
+    assert hug.API().name == ''
+    assert hug.API(name='my_name').name == 'my_name'
+    assert hug.API(doc='Custom documentation').doc == 'Custom documentation'

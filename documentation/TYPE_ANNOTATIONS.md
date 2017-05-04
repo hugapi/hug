@@ -34,7 +34,7 @@ hug provides several built-in types for common API use cases:
  - `multiple`: Ensures the parameter is passed in as a list (even if only one value is passed in)
  - `boolean`: A basic naive HTTP style boolean where no value passed in is seen as `False` and any value passed in (even if its `false`) is seen as `True`
  - `smart_boolean`: A smarter, but more computentionally expensive, boolean that checks the content of the value for common true / false formats (true, True, t, 1) or (false, False, f, 0)
- - `delimeted_list(delimiter)`: splits up the passed in value based on the provided delimiter and then passes it to the function as a list
+ - `delimited_list(delimiter)`: splits up the passed in value based on the provided delimiter and then passes it to the function as a list
  - `one_of(values)`: Validates that the passed in value is one of those specified
  - `mapping(dict_of_passed_in_to_desired_values)`: Like `one_of`, but with a dictionary of acceptable values, to converted value.
  - `multi(types)`: Allows passing in multiple acceptable types for a parameter, short circuiting on the first acceptable one

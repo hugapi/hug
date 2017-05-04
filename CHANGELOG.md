@@ -11,7 +11,49 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
-### 2.2.0
+### 2.3.0 - May 4, 2017
+- Falcon requirement upgraded to 1.2.0
+- Enables filtering documentation according to a `base_url`
+- Fixed a vulnerability in the static file router that allows files in parent directory to be accessed
+- Fixed issue #392: Enable posting self in JSON data structure
+- Fixed issue #418: Ensure version passed is a number
+- Fixed issue #399: Multiple ints not working correctly for CLI interface
+- Fixed issue #461: Enable async startup methods running in parallel
+- Fixed issue #412: None type return for file output format
+- Fixed issue #464: Class based routing now inherit templated parameters
+- Fixed issue #346: Enable using async routes within threaded server
+- Implemented issue #437: Added support for anonymous APIs
+- Added support for exporting timedeltas to JSON as seconds
+- Added support for endpoint-specific input formatters:
+```python
+def my_input_formatter(data):
+    return ('Results', hug.input_format.json(data))
+
+@hug.get(inputs={'application/json': my_input_formatter})
+def foo():
+    pass
+```
+- Adds support for filtering the documentation according to the base_url
+- Adds support for passing in a custom scheme in hug.test
+- Adds str() and repr() support to hug_timer directive
+- Added support for moduleless APIs
+- Improved argparser usage message
+- Implemented feature #427: Allow custom argument deserialization together with standard type annotation
+- Improvements to exception handling.
+- Added support for request / response in a single generator based middleware function
+- Automatic reload support for development runner
+- Added support for passing `params` dictionary and `qstuery_string` arguments into hug.test.http command for more direct modification of test inputs
+- Added support for manual specifying the scheme used in hug.test calls
+- Improved output formats, enabling nested request / response dependent formatters
+- Breaking Changes
+    - Sub output formatters functions now need to accept response & request or **kwargs
+    - Fixed issue #432: Improved ease of sub classing simple types - causes type extensions of types that dont take to __init__
+                        arguments, to automatically return an instanciated type, beaking existing usage that had to instanciate
+                        after the fact
+    - Fixed issue #405: cli and http @hug.startup() differs, not executed for cli, this also means that startup handlers
+      are given an instance of the API and not of the interface.
+
+### 2.2.0 - Oct 16, 2016
 - Defaults asyncio event loop to uvloop automatically if it is installed
 - Added support for making endpoints `private` to enforce lack of automatic documentation creation for them.
 - Added HTTP method named (get, post, etc) routers to the API router to be consistent with documentation
@@ -32,14 +74,14 @@ Changelog
 - Fixed documentation output to exclude `api_version` and `body`
 - Fixed an issue passing None where a text value was required (issue #341)
 
-### 2.1.2
+### 2.1.2 - May 18, 2016
 - Fixed an issue with sharing exception handlers across multiple modules (Thanks @soloman1124)
 - Fixed how single direction (response / request) middlewares are bounded to work when code is Cython compiled
 
-### 2.1.1
+### 2.1.1 - May 17, 2016
 - Hot-fix release to ensure input formats don't die with unexpected parameters
 
-### 2.1.0
+### 2.1.0 - May 17, 2016
 - Updated base Falcon requirement to the latest: 1.0.0
 - Added native support for using asyncio methods (Thanks @rodcloutier!)
 - Added improved support for `application/x-www-form-urlencoded` forms (thanks @cag!)
@@ -59,28 +101,28 @@ Changelog
 - Breaking Changes
     - Input formats no longer get passed `encoding` but instead get passed `charset` along side all other set content type parameters
 
-### 2.0.7
-- Added convience `put_post` router to enable easier usage of the common `@hug.get('url/', ('PUT', 'POST"))` pattern
+### 2.0.7 - Mar 25, 2016
+- Added convenience `put_post` router to enable easier usage of the common `@hug.get('url/', ('PUT', 'POST"))` pattern
 - When passing lists or tuples to the hug http testing methods, they will now correctly be handled as multiple values
 
-### 2.0.5 - 2.0.6
+### 2.0.5 - 2.0.6 - Mar 25, 2016
 - Adds built-in support for token based authentication
 
-### 2.0.4
+### 2.0.4 - Mar 22, 2016
 - Fixes documentation on PyPI website
 
-### 2.0.3
+### 2.0.3 - Mar 22, 2016
 - Fixes hug.use module on Windows
 
-### 2.0.2
+### 2.0.2 - Mar 18, 2016
 - Work-around bug that was keeping hug from working on Windows machines
 - Introduced a delete method to the abstract hug store module
 
-### 2.0.1
+### 2.0.1 - Mar 18, 2016
 - Add in-memory data / session store for testing
 - Default hug.use.HTTP to communicate over JSON body
 
-### 2.0.0
+### 2.0.0 - Mar 17, 2016
 - Adds the concept of chain-able routing decorators
 - Adds built-in static file handling support via a `@hug.static` decorator (thanks @BrandonHoffman!)
 - Adds a directive to enable directly accessing the user object from any API call (thanks @ianthetechie)
@@ -137,35 +179,35 @@ Changelog
     - run module has been removed, with the functionality moved to hug.API(__name__).http.server() and the terminal functionality
       being moved to hug.development_runner.hug
 
-### 1.9.9
+### 1.9.9 - Dec 15, 2015
 - Hug's json serializer will now automatically convert decimal.Decimal objects during serializationkw
 - Added `in_range`, `greater_than`, and `less_than` types to allow easily limiting values entered into an API
 
-### 1.9.8
+### 1.9.8 - Dec 1, 2015
 - Hug's json serializer will now automatically convert returned (non-list) iterables into json lists
 
-### 1.9.7
+### 1.9.7 - Dec 1, 2015
 - Fixed a bug (issue #115) that caused the command line argument for not auto generating documentation `-nd` to fail
 
-### 1.9.6
+### 1.9.6 - Nov 25, 2015
 - Fixed a bug (issue #112) that caused non-versioned endpoints not to show up in auto-generated documentation, when versioned endpoints are present
 
-### 1.9.5
+### 1.9.5 - Nov 20, 2015
 - Improved cli output, to output nothing if None is returned
 
-### 1.9.3
+### 1.9.3 - Nov 18, 2015
 - Enabled `hug.types.multiple` to be exposed as nargs `*`
 - Fixed a bug that caused a CLI argument when adding an argument starting with `help`
 - Fixed a bug that caused CLI arguments that used `hug.types.multiple` to be parsed as nested lists
 
-### 1.9.2
+### 1.9.2 - Nov 18, 2015
 - Improved boolean type behavior on CLIs
 
-### 1.9.1
+### 1.9.1 - Nov 14, 2015
 - Fixes a bug that caused hug cli clients to occasionally incorrectly require additional arguments
 - Added support for automatically converting non utf8 bytes to base64 during json output
 
-### 1.9.0
+### 1.9.0 - Nov 10, 2015
 - Added initial built-in support for video output formats (Thanks @arpesenti!)
 - Added built-in automatic support for range-requests when streaming files (such as videos)
 - Output formatting functions are now called, even if a stream is returned.
@@ -174,45 +216,45 @@ Changelog
 - If no input format is available, but the body parameter is requested - the body stream is now returned
 - Added support for a generic `file` output formatter that automatically determines the content type for the file
 
-### 1.8.2
+### 1.8.2 - Nov 9, 2015
 - Drastically improved hug performance when dealing with a large number of requests in wsgi mode
 
-### 1.8.1
+### 1.8.1 - Nov 5, 2015
 - Added `json` as a built in hug type to handle urlencoded json data in a request
 - Added `multi` as a built in hug type that will allow a single field to be one of multiple types
 
-### 1.8.0
+### 1.8.0 - Nov 4, 2015
 - Added a `middleware` module make it easier to bundle generally useful middlewares going forward
 - Added a generic / reusable `SessionMiddleware` (Thanks @vortec!)
 
-### 1.7.1
+### 1.7.1 - Nov 4, 2015
 - Fix a bug that caused error messages sourced from exceptions to be double quoted
 
-### 1.7.0
+### 1.7.0 - Nov 3, 2015
 - Auto supply `response` and `request` to output transformations and formats when they are taken as arguments
 - Improved the `smart_boolean` type even further, to allow 0, 1, t, f strings as input
 - Enabled normal boolean type to easily work with cli apps, by having it interact via 'store_true'
 
-### 1.6.5
+### 1.6.5 - Nov 2, 2015
 - Fixed a small spelling error on the `smart_boolean` type
 
-### 1.6.2
+### 1.6.2 - Nov 2, 2015
 - Added a `mapping` type that allows users to quikly map string values to Python types
 - Added a `smart_boolean` type that respects explicit true/false in string values
 
-### 1.6.1
+### 1.6.1 - Oct 30, 2015
 - Added support for overriding parameters via decorator to ease use of **kwargs
 - Added built-in boolean type support
 - Improved testing environment
 
-### 1.6.0
+### 1.6.0 - Oct 13, 2015
 - Adds support for attaching hug routes to method calls
 - Hug is now compiled using Cython (when it is available) for an additional performance boost
 
-### 1.5.1
+### 1.5.1 - Oct 1, 2015
 - Added built-in support for serializing sets
 
-### 1.5.0
+### 1.5.0 - Sep 30, 2015
 - Added built-in support for outputting svg images
 - Added support for rendering images from pygal graphs, or other image framworks that support `render`, automatically
 - Added support for marshmallow powered output transformations
@@ -221,19 +263,19 @@ Changelog
 - Added support for attaching directives to specific named parameters, allowing directives to be used multiple times in a single API call
 - Added support for attaching named directives using only the text name of the directive
 
-### 1.4.0
+### 1.4.0 - Sep 14, 2015
 - Added *args support to hug.cli
 - Added built-in html output support
 - Added multi-api composition example to examples folder
 - Fixed issue #70: error when composing two API modules into a single one without directives
 - Fixed issue #73: README file is incorrectly formatted on PYPI
 
-### 1.3.1
+### 1.3.1 - Sep 8, 2015
 - Fixed string only annotations causing exceptions when used in conjunction with `hug.cli`
 - Fixed return of image file not correctly able to set stream len information / not correctly returning with PIL images
 - Added examples of image loading with hug
 
-### 1.3.0
+### 1.3.0 - Sep 8, 2015
 - Started keeping a log of all changes between releases
 - Added support for quickly exposing functions as cli clients with `hug.cli` decorator
 - Added support for quickly serving up development APIs from withing the module using: `if __name__ == '__main__': __hug__.serve()`

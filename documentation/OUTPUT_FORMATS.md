@@ -53,13 +53,13 @@ hug provides a large catalog of built-in output formats, which can be used to bu
  - `hug.output_format.json_camelcase`: Outputs in the JSON format, but first converts all keys to camelCase to better conform to Javascript coding standards.
  - `hug.output_format.pretty_json`: Outputs in the JSON format, with extra whitespace to improve human readability.
  - `hug.output_format.image(format)`: Outputs an image (of the specified format).
-    - There are convience calls in the form `hug.output_format.{FORMAT}_image for the following image types: 'png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
+    - There are convenience calls in the form `hug.output_format.{FORMAT}_image for the following image types: 'png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
                'cur', 'dcx', 'fli', 'flc', 'gbr', 'gd', 'ico', 'icns', 'imt', 'iptc', 'naa', 'mcidas', 'mpo', 'pcd',
                'psd', 'sgi', 'tga', 'wal', 'xpm', and 'svg'.
     Automatically works on returned file names, streams, or objects that produce an image on read, save, or render.
 
  - `hug.output_format.video(video_type, video_mime, doc)`: Streams a video back to the user in the specified format.
-    - There are convience calls in the form `hug.output_format.{FORMAT}_video for the following video types: 'flv', 'mp4', 'm3u8', 'ts', '3gp', 'mov', 'avi', and 'wmv'.
+    - There are convenience calls in the form `hug.output_format.{FORMAT}_video for the following video types: 'flv', 'mp4', 'm3u8', 'ts', '3gp', 'mov', 'avi', and 'wmv'.
     Automatically works on returned file names, streams, or objects that produce a video on read, save, or render.
 
  - `hug.output_format.file`: Will dynamically determine and stream a file based on its content. Automatically works on returned file names and streams.

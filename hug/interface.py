@@ -28,38 +28,16 @@ from collections import OrderedDict
 from functools import lru_cache, partial, wraps
 
 import falcon
-from falcon import HTTP_BAD_REQUEST
-
 import hug._empty as empty
 import hug.api
 import hug.output_format
 import hug.types as types
+from falcon import HTTP_BAD_REQUEST
 from hug import introspect
+from hug._async import asyncio_call
 from hug.exceptions import InvalidTypeData
 from hug.format import parse_content_type
 from hug.types import MarshmallowSchema, Multiple, OneOf, SmartBoolean, Text, text
-
-try:
-    import asyncio
-
-    if sys.version_info >= (3, 4, 4):
-        ensure_future = asyncio.ensure_future  # pragma: no cover
-    else:
-        ensure_future = asyncio.async  # pragma: no cover
-
-    def asyncio_call(function, *args, **kwargs):
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            return function(*args, **kwargs)
-
-        function = ensure_future(function(*args, **kwargs), loop=loop)
-        loop.run_until_complete(function)
-        return function.result()
-
-except ImportError:  # pragma: no cover
-
-    def asyncio_call(*args, **kwargs):
-        raise NotImplementedError()
 
 
 class Interfaces(object):
@@ -69,6 +47,7 @@ class Interfaces(object):
         self.api = hug.api.from_object(function)
         self.spec = getattr(function, 'original', function)
         self.arguments = introspect.arguments(function)
+        self.name = introspect.name(function)
         self._function = function
 
         self.is_coroutine = introspect.is_coroutine(self.spec)
@@ -86,7 +65,8 @@ class Interfaces(object):
         self.parameters = tuple(self.parameters)
         self.defaults = dict(zip(reversed(self.parameters), reversed(self.spec.__defaults__ or ())))
         self.required = self.parameters[:-(len(self.spec.__defaults__ or ())) or None]
-        if introspect.is_method(self.spec) or introspect.is_method(function):
+        self.is_method = introspect.is_method(self.spec) or introspect.is_method(function)
+        if self.is_method:
             self.required = self.required[1:]
             self.parameters = self.parameters[1:]
 
@@ -104,7 +84,9 @@ class Interfaces(object):
                 self.directives[name] = transformer
                 continue
 
-            if hasattr(transformer, 'load'):
+            if hasattr(transformer, 'from_string'):
+                transformer = transformer.from_string
+            elif hasattr(transformer, 'load'):
                 transformer = MarshmallowSchema(transformer)
             elif hasattr(transformer, 'deserialize'):
                 transformer = transformer.deserialize
@@ -328,11 +310,11 @@ class CLI(Interface):
     def __init__(self, route, function):
         super().__init__(route, function)
         self.interface.cli = self
+        self.reaffirm_types = {}
         use_parameters = list(self.interface.parameters)
         self.additional_options = getattr(self.interface, 'arg', getattr(self.interface, 'kwarg', False))
         if self.additional_options:
             use_parameters.append(self.additional_options)
-
 
         used_options = {'h', 'help'}
         nargs_set = self.interface.takes_args or self.interface.takes_kwargs
@@ -371,8 +353,10 @@ class CLI(Interface):
                 if transform in (list, tuple) or isinstance(transform, types.Multiple):
                     kwargs['action'] = 'append'
                     kwargs['type'] = Text()
+                    self.reaffirm_types[option] = transform
                 elif transform == bool or isinstance(transform, type(types.boolean)):
                     kwargs['action'] = 'store_true'
+                    self.reaffirm_types[option] = transform
                 elif isinstance(transform, types.OneOf):
                     kwargs['choices'] = transform.values
             elif (option in self.interface.spec.__annotations__ and
@@ -420,10 +404,14 @@ class CLI(Interface):
 
     def __call__(self):
         """Calls the wrapped function through the lens of a CLI ran command"""
+        self.api._ensure_started()
         for requirement in self.requires:
             conclusion = requirement(request=sys.argv, module=self.api.module)
             if conclusion and conclusion is not True:
                 return self.output(conclusion)
+
+        if self.interface.is_method:
+            self.parser.prog = "%s %s" % (self.api.module.__name__, self.interface.name)
 
         known, unknown = self.parser.parse_known_args()
         pass_to_function = vars(known)
@@ -431,6 +419,9 @@ class CLI(Interface):
             arguments = (self.defaults[option], ) if option in self.defaults else ()
             pass_to_function[option] = directive(*arguments, api=self.api, argparse=self.parser,
                                                  interface=self)
+        for field, type_handler in self.reaffirm_types.items():
+            if field in pass_to_function:
+                pass_to_function[field] = type_handler(pass_to_function[field])
 
         if getattr(self, 'validate_function', False):
             errors = self.validate_function(pass_to_function)
@@ -467,9 +458,9 @@ class CLI(Interface):
 
 class HTTP(Interface):
     """Defines the interface responsible for wrapping functions and exposing them via HTTP based on the route"""
-    __slots__ = ('_params_for_outputs', '_params_for_invalid_outputs', '_params_for_transform', 'on_invalid',
+    __slots__ = ('_params_for_outputs_state', '_params_for_invalid_outputs_state', '_params_for_transform_state',
                  '_params_for_on_invalid', 'set_status', 'response_headers', 'transform', 'input_transformations',
-                 'examples', 'wrapped', 'catch_exceptions', 'parse_body', 'private')
+                 'examples', 'wrapped', 'catch_exceptions', 'parse_body', 'private', 'on_invalid', 'inputs')
     AUTO_INCLUDE = {'request', 'response'}
 
     def __init__(self, route, function, catch_exceptions=True):
@@ -479,12 +470,7 @@ class HTTP(Interface):
         self.set_status = route.get('status', False)
         self.response_headers = tuple(route.get('response_headers', {}).items())
         self.private = 'private' in route
-
-        self._params_for_outputs = introspect.takes_arguments(self.outputs, *self.AUTO_INCLUDE)
-        self._params_for_transform = introspect.takes_arguments(self.transform, *self.AUTO_INCLUDE)
-
-        if 'output_invalid' in route:
-            self._params_for_invalid_outputs = introspect.takes_arguments(self.invalid_outputs, *self.AUTO_INCLUDE)
+        self.inputs = route.get('inputs', {})
 
         if 'on_invalid' in route:
             self._params_for_on_invalid = introspect.takes_arguments(self.on_invalid, *self.AUTO_INCLUDE)
@@ -496,13 +482,32 @@ class HTTP(Interface):
 
         self.interface.http = self
 
+    @property
+    def _params_for_outputs(self):
+        if not hasattr(self, '_params_for_outputs_state'):
+            self._params_for_outputs_state = introspect.takes_arguments(self.outputs, *self.AUTO_INCLUDE)
+        return self._params_for_outputs_state
+
+    @property
+    def _params_for_invalid_outputs(self):
+        if not hasattr(self, '_params_for_invalid_outputs_state'):
+            self._params_for_invalid_outputs_state = introspect.takes_arguments(self.invalid_outputs,
+                                                                                *self.AUTO_INCLUDE)
+        return self._params_for_invalid_outputs_state
+
+    @property
+    def _params_for_transform(self):
+        if not hasattr(self, '_params_for_transform_state'):
+            self._params_for_transform_state = introspect.takes_arguments(self.transform, *self.AUTO_INCLUDE)
+        return self._params_for_transform_state
+
     def gather_parameters(self, request, response, api_version=None, **input_parameters):
         """Gathers and returns all parameters that will be used for this endpoint"""
         input_parameters.update(request.params)
         if self.parse_body and request.content_length:
             body = request.stream
             content_type, content_params = parse_content_type(request.content_type)
-            body_formatter = body and self.api.http.input_format(content_type)
+            body_formatter = body and self.inputs.get(content_type, self.api.http.input_format(content_type))
             if body_formatter:
                 body = body_formatter(body, **content_params)
             if 'body' in self.all_parameters:
@@ -588,7 +593,7 @@ class HTTP(Interface):
         else:
             response.data = self.outputs(data, **self._arguments(self._params_for_outputs, request, response))
 
-    def call_function(self, **parameters):
+    def call_function(self, parameters):
         if not self.interface.takes_kwargs:
             parameters = {key: value for key, value in parameters.items() if key in self.all_parameters}
 
@@ -628,7 +633,10 @@ class HTTP(Interface):
 
     def __call__(self, request, response, api_version=None, **kwargs):
         """Call the wrapped function over HTTP pulling information as needed"""
-        api_version = int(api_version) if api_version is not None else api_version
+        if isinstance(api_version, str) and api_version.isdigit():
+            api_version = int(api_version)
+        else:
+            api_version = None
         if not self.catch_exceptions:
             exception_types = ()
         else:
@@ -648,7 +656,7 @@ class HTTP(Interface):
             if errors:
                 return self.render_errors(errors, request, response)
 
-            self.render_content(self.call_function(**input_parameters), request, response, **kwargs)
+            self.render_content(self.call_function(input_parameters), request, response, **kwargs)
         except falcon.HTTPNotFound:
             return self.api.http.not_found(request, response, **kwargs)
         except exception_types as exception:
@@ -665,11 +673,11 @@ class HTTP(Interface):
                                 handler = potential_handler
 
             if not handler:
-                raise exception_type
+                raise exception
 
             handler(request=request, response=response, exception=exception, **kwargs)
 
-    def documentation(self, add_to=None, version=None, base_url="", url=""):
+    def documentation(self, add_to=None, version=None, prefix="", base_url="", url=""):
         """Returns the documentation specific to an HTTP interface"""
         doc = OrderedDict() if add_to is None else add_to
 
@@ -678,7 +686,7 @@ class HTTP(Interface):
             doc['usage'] = usage
 
         for example in self.examples:
-            example_text = "{0}{1}{2}".format(base_url, '/v{0}'.format(version) if version else '', url)
+            example_text = "{0}{1}{2}{3}".format(prefix, base_url, '/v{0}'.format(version) if version else '', url)
             if isinstance(example, str):
                 example_text += "?{0}".format(example)
             doc_examples = doc.setdefault('examples', [])
@@ -724,4 +732,3 @@ class ExceptionRaised(HTTP):
         self.handle = route['exceptions']
         self.exclude = route['exclude']
         super().__init__(route, *args, **kwargs)
-

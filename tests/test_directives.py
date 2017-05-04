@@ -21,9 +21,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from base64 import b64encode
 
-import pytest
-
 import hug
+import pytest
 
 api = hug.API(__name__)
 
@@ -42,6 +41,8 @@ def test_timer():
     assert isinstance(timer.start, float)
     assert isinstance(float(timer), float)
     assert isinstance(int(timer), int)
+    assert isinstance(str(timer), str)
+    assert isinstance(repr(timer), str)
     assert float(timer) < timer.start
 
     @hug.get()

@@ -1,6 +1,6 @@
-"""hug/_version.py
+"""hug/_async.py
 
-Defines hug version information
+Defines all required async glue code
 
 Copyright (C) 2016  Timothy Edmund Crosley
 
@@ -19,6 +19,39 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from __future__ import absolute_import
+import sys
 
-current = "2.3.0"
+try:
+    import asyncio
+
+    if sys.version_info >= (3, 4, 4):
+        ensure_future = asyncio.ensure_future  # pragma: no cover
+    else:
+        ensure_future = asyncio.async  # pragma: no cover
+
+    def asyncio_call(function, *args, **kwargs):
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError: # pragma: no cover
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        if loop.is_running():
+            return function(*args, **kwargs)
+
+        function = ensure_future(function(*args, **kwargs), loop=loop)
+        loop.run_until_complete(function)
+        return function.result()
+
+    coroutine = asyncio.coroutine
+
+except ImportError:  # pragma: no cover
+    asyncio = None
+
+    def asyncio_call(*args, **kwargs):
+        raise NotImplementedError()
+
+    def ensure_future(*args, **kwargs):
+        raise NotImplementedError()
+
+    def coroutine(function):
+        return function

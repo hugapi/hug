@@ -21,13 +21,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import os
 from collections import namedtuple
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from io import BytesIO
 
-import pytest
-
 import hug
+import pytest
 
 from .constants import BASE_DIRECTORY
 
@@ -55,10 +54,12 @@ def test_html():
 def test_json():
     """Ensure that it's possible to output a Hug API method as JSON"""
     now = datetime.now()
-    test_data = {'text': 'text', 'datetime': now, 'bytes': b'bytes'}
+    one_day = timedelta(days=1)
+    test_data = {'text': 'text', 'datetime': now, 'bytes': b'bytes', 'delta': one_day}
     output = hug.output_format.json(test_data).decode('utf8')
     assert 'text' in output
     assert 'bytes' in output
+    assert str(one_day.total_seconds()) in output
     assert now.isoformat() in output
 
     class NewObject(object):
@@ -107,11 +108,14 @@ def test_pretty_json():
 
 def test_json_camelcase():
     """Ensure that it's possible to output a Hug API method as camelCased JSON"""
-    test_data = {'under_score': {'values_can': 'Be Converted'}}
+    test_data = {'under_score': 'values_can', 'be_converted': [{'to_camelcase': 'value'}, 'wont_be_convert']}
     output = hug.output_format.json_camelcase(test_data).decode('utf8')
     assert 'underScore' in output
-    assert 'valuesCan' in output
-    assert 'Be Converted' in output
+    assert 'values_can' in output
+    assert 'beConverted' in output
+    assert 'toCamelcase' in output
+    assert 'value' in output
+    assert 'wont_be_convert' in output
 
 
 def test_image():
@@ -152,6 +156,7 @@ def test_file():
         hasattr(hug.output_format.file(image_file, fake_response), 'read')
 
     assert not hasattr(hug.output_format.file('NON EXISTENT FILE', fake_response), 'read')
+    assert hug.output_format.file(None, fake_response) == ''
 
 
 def test_video():

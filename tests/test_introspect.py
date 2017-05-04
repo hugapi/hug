@@ -38,6 +38,10 @@ def function_with_both(argument1, argument2, argument3, *args, **kwargs):
     pass
 
 
+def function_with_nothing():
+    pass
+
+
 class Object(object):
 
     def my_method(self):
@@ -109,3 +113,6 @@ def test_generate_accepted_kwargs():
 
     kwargs = hug.introspect.generate_accepted_kwargs(function_with_both, 'argument1', 'argument2')(source_dictionary)
     assert kwargs == source_dictionary
+
+    kwargs = hug.introspect.generate_accepted_kwargs(function_with_nothing)(source_dictionary)
+    assert kwargs == {}

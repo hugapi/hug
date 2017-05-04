@@ -24,9 +24,8 @@ from __future__ import absolute_import
 from functools import partial
 from types import FunctionType, MethodType
 
-from falcon import HTTP_METHODS
-
 import hug.api
+from falcon import HTTP_METHODS
 from hug.routing import CLIRouter as cli
 from hug.routing import ExceptionRouter as exception
 from hug.routing import LocalRouter as local
@@ -103,7 +102,7 @@ class Object(http):
 
 
 class API(object):
-    """Provides a convient way to route functions to a single API independant of where they live"""
+    """Provides a convient way to route functions to a single API independent of where they live"""
     __slots__ = ('api', )
 
     def __init__(self, api):

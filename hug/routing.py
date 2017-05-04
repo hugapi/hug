@@ -26,13 +26,13 @@ import os
 import re
 from collections import OrderedDict
 from functools import wraps
+from urllib.parse import urljoin
 
 import falcon
-from falcon import HTTP_METHODS
-
 import hug.api
 import hug.interface
 import hug.output_format
+from falcon import HTTP_METHODS
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 
@@ -184,7 +184,7 @@ class HTTPRouter(InternalValidation):
     __slots__ = ()
 
     def __init__(self, versions=None, parse_body=False, parameters=None, defaults={}, status=None,
-                 response_headers=None, private=False, **kwargs):
+                 response_headers=None, private=False, inputs=None, **kwargs):
         super().__init__(**kwargs)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
         if parse_body:
@@ -199,6 +199,8 @@ class HTTPRouter(InternalValidation):
             self.route['response_headers'] = response_headers
         if private:
             self.route['private'] = private
+        if inputs:
+            self.route['inputs'] = inputs
 
     def versions(self, supported, **overrides):
         """Sets the versions that this route should be compatiable with"""
@@ -307,7 +309,9 @@ class StaticRouter(SinkRouter):
             def read_file(request=None, path=""):
                 filename = path.lstrip("/")
                 for directory in directories:
-                    path = os.path.join(directory, filename)
+                    path = os.path.abspath(os.path.join(directory, filename))
+                    if not path.startswith(directory):
+                        hug.redirect.not_found()
                     if os.path.isdir(path):
                         new_path = os.path.join(path, "index.html")
                         if os.path.exists(new_path) and os.path.isfile(new_path):
@@ -480,3 +484,17 @@ class URLRouter(HTTPRouter):
     def prefixes(self, *prefixes, **overrides):
         """Sets the prefixes supported by the route"""
         return self.where(prefixes=prefixes, **overrides)
+
+    def where(self, **overrides):
+        if 'urls' in overrides:
+            existing_urls = self.route.get('urls', ())
+            use_urls = []
+            for url in (overrides['urls'], ) if isinstance(overrides['urls'], str) else overrides['urls']:
+                if url.startswith('/') or not existing_urls:
+                    use_urls.append(url)
+                else:
+                    for existing in existing_urls:
+                        use_urls.append(urljoin(existing.rstrip('/') + '/', url))
+            overrides['urls'] = tuple(use_urls)
+
+        return super().where(**overrides)

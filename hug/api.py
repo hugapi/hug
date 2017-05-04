@@ -30,10 +30,11 @@ from types import ModuleType
 from wsgiref.simple_server import make_server
 
 import falcon
-from falcon import HTTP_METHODS
-
 import hug.defaults
 import hug.output_format
+from falcon import HTTP_METHODS
+from hug import introspect
+from hug._async import asyncio, ensure_future
 from hug._version import current
 
 
@@ -75,7 +76,7 @@ class InterfaceAPI(object):
 class HTTPInterfaceAPI(InterfaceAPI):
     """Defines the HTTP interface specific API"""
     __slots__ = ('routes', 'versions', 'base_url', '_output_format', '_input_format', 'versioned', '_middleware',
-                 '_not_found_handlers', '_startup_handlers', 'sinks', '_not_found', '_exception_handlers')
+                 '_not_found_handlers', 'sinks', '_not_found', '_exception_handlers')
 
     def __init__(self, api, base_url=''):
         super().__init__(api)
@@ -159,9 +160,6 @@ class HTTPInterfaceAPI(InterfaceAPI):
         for middleware in (http_api.middleware or ()):
             self.add_middleware(middleware)
 
-        for startup_handler in (http_api.startup_handlers or ()):
-            self.add_startup_handler(startup_handler)
-
         for version, handler in getattr(self, '_exception_handlers', {}).items():
             for exception_type, exception_handler in handler.items():
                 target_exception_handlers = http_api.exception_handlers(version) or {}
@@ -187,11 +185,11 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         self.not_found_handlers[version] = handler
 
-    def documentation(self, base_url=None, api_version=None):
+    def documentation(self, base_url=None, api_version=None, prefix=""):
         """Generates and returns documentation for this API endpoint"""
         documentation = OrderedDict()
         base_url = self.base_url if base_url is None else base_url
-        overview = self.api.module.__doc__
+        overview = self.api.doc
         if overview:
             documentation['overview'] = overview
 
@@ -222,21 +220,25 @@ class HTTPInterfaceAPI(InterfaceAPI):
                         for version in applies_to:
                             if api_version and version != api_version:
                                 continue
-                            doc = version_dict.setdefault(router_base_url + url, OrderedDict())
-                            doc[method] = handler.documentation(doc.get(method, None), version=version,
-                                                                base_url=router_base_url or base_url, url=url)
+                            if base_url and router_base_url != base_url:
+                                continue
+                            doc = version_dict.setdefault(url, OrderedDict())
+                            doc[method] = handler.documentation(doc.get(method, None), version=version, prefix=prefix,
+                                                                base_url=router_base_url, url=url)
 
         documentation['handlers'] = version_dict
         return documentation
 
-    def serve(self, port=8000, no_documentation=False):
+    def serve(self, port=8000, no_documentation=False, display_intro=True):
         """Runs the basic hug development server against this API"""
         if no_documentation:
             api = self.server(None)
         else:
             api = self.server()
 
-        print(INTRO)
+        if display_intro:
+            print(INTRO)
+
         httpd = make_server('', port, api)
         print("Serving on port {0}...".format(port))
         httpd.serve_forever()
@@ -277,19 +279,19 @@ class HTTPInterfaceAPI(InterfaceAPI):
         base_url = self.base_url if base_url is None else base_url
 
         def handle_404(request, response, *args, **kwargs):
-            url_prefix = self.base_url
-            if not url_prefix:
-                url_prefix = request.url[:-1]
-                if request.path and request.path != "/":
-                    url_prefix = request.url.split(request.path)[0]
+            url_prefix = request.url[:-1]
+            if request.path and request.path != "/":
+                url_prefix = request.url.split(request.path)[0]
 
             to_return = OrderedDict()
             to_return['404'] = ("The API call you tried to make was not defined. "
                                 "Here's a definition of the API to help you get going :)")
-            to_return['documentation'] = self.documentation(url_prefix, self.determine_version(request, False))
+            to_return['documentation'] = self.documentation(base_url, self.determine_version(request, False),
+                                                            prefix=url_prefix)
             response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
             response.status = falcon.HTTP_NOT_FOUND
             response.content_type = 'application/json'
+        handle_404.interface = True
         return handle_404
 
     def version_router(self, request, response, api_version=None, versions={}, not_found=None, **kwargs):
@@ -308,8 +310,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
         base_url = self.base_url if base_url is None else base_url
 
         not_found_handler = default_not_found
-        for startup_handler in self.startup_handlers:
-            startup_handler(self)
+        self.api._ensure_started()
         if self.not_found_handlers:
             if len(self.not_found_handlers) == 1 and None in self.not_found_handlers:
                 not_found_handler = self.not_found_handlers[None]
@@ -320,7 +321,6 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         if not_found_handler:
             falcon_api.add_sink(not_found_handler)
-            not_found_handler
             self._not_found = not_found_handler
 
         for sink_base_url, sinks in self.sinks.items():
@@ -350,17 +350,6 @@ class HTTPInterfaceAPI(InterfaceAPI):
         falcon_api.set_error_serializer(error_serializer)
         return falcon_api
 
-    @property
-    def startup_handlers(self):
-        return getattr(self, '_startup_handlers', ())
-
-    def add_startup_handler(self, handler):
-        """Adds a startup handler to the hug api"""
-        if not self.startup_handlers:
-            self._startup_handlers = []
-
-        self.startup_handlers.append(handler)
-
 HTTPInterfaceAPI.base_404.interface = True
 
 
@@ -372,24 +361,26 @@ class CLIInterfaceAPI(InterfaceAPI):
         super().__init__(api)
         self.commands = {}
 
-    def __call__(self):
+    def __call__(self, args=None):
         """Routes to the correct command line tool"""
-        if not len(sys.argv) > 1 or not sys.argv[1] in self.commands:
+        self.api._ensure_started()
+        args = sys.argv if args is None else args
+        if not len(args) > 1 or not args[1] in self.commands:
             print(str(self))
             return sys.exit(1)
 
-        command = sys.argv.pop(1)
+        command = args.pop(1)
         self.commands.get(command)()
 
     def __str__(self):
-        return "{0}\n\nAvailable Commands:{1}\n".format(self.api.module.__doc__ or self.api.module.__name__,
+        return "{0}\n\nAvailable Commands:{1}\n".format(self.api.doc or self.api.name,
                                                         "\n\n\t- " + "\n\t- ".join(self.commands.keys()))
 
 
 class ModuleSingleton(type):
     """Defines the module level __hug__ singleton"""
 
-    def __call__(cls, module, *args, **kwargs):
+    def __call__(cls, module=None, *args, **kwargs):
         if isinstance(module, API):
             return module
 
@@ -397,6 +388,8 @@ class ModuleSingleton(type):
             if module not in sys.modules:
                 sys.modules[module] = ModuleType(module)
             module = sys.modules[module]
+        elif module is None:
+            return super().__call__(*args, **kwargs)
 
         if not '__hug__' in module.__dict__:
             def api_auto_instantiate(*args, **kwargs):
@@ -412,10 +405,17 @@ class ModuleSingleton(type):
 
 class API(object, metaclass=ModuleSingleton):
     """Stores the information necessary to expose API calls within this module externally"""
-    __slots__ = ('module', '_directives', '_http', '_cli', '_context')
+    __slots__ = ('module', '_directives', '_http', '_cli', '_context', '_startup_handlers', 'started', 'name', 'doc')
 
-    def __init__(self, module):
+    def __init__(self, module=None, name='', doc=''):
         self.module = module
+        if module:
+            self.name = name or module.__name__ or ''
+            self.doc = doc or module.__doc__ or ''
+        else:
+            self.name = name
+            self.doc = doc
+        self.started = False
 
     def directives(self):
         """Returns all directives applicable to this Hug API"""
@@ -457,6 +457,32 @@ class API(object, metaclass=ModuleSingleton):
 
         for directive in getattr(api, '_directives', {}).values():
             self.add_directive(directive)
+
+        for startup_handler in (api.startup_handlers or ()):
+            self.add_startup_handler(startup_handler)
+
+    def add_startup_handler(self, handler):
+        """Adds a startup handler to the hug api"""
+        if not self.startup_handlers:
+            self._startup_handlers = []
+
+        self.startup_handlers.append(handler)
+
+    def _ensure_started(self):
+        """Marks the API as started and runs all startup handlers"""
+        if not self.started:
+            async_handlers = [startup_handler for startup_handler in self.startup_handlers if
+                              introspect.is_coroutine(startup_handler)]
+            if async_handlers:
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(asyncio.gather(*[handler(self) for handler in async_handlers], loop=loop))
+            for startup_handler in self.startup_handlers:
+                if not startup_handler in async_handlers:
+                    startup_handler(self)
+
+    @property
+    def startup_handlers(self):
+        return getattr(self, '_startup_handlers', ())
 
 
 def from_object(obj):

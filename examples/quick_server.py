@@ -7,4 +7,4 @@ def quick():
 
 
 if __name__ == '__main__':
-    __hug__.serve()  # noqa
+    hug.API(__name__).http.serve()

@@ -102,14 +102,14 @@ There are a few parameters that are shared between all router types, as they are
 HTTP Routers
 ============
 
-in addition to `hug.http` hug includes convience decorators for all common HTTP METHODS (`hug.connect`, `hug.delete`, `hug.get`, `hug.head`, `hug.options`, `hug.patch`, `hug.post`, `hug.put`, `hug.get_post`, `hug.put_post`, and `hug.trace`). These methods are functionally the same as calling `@hug.http(accept=(METHOD, ))` and are otherwise identical to the http router.
+in addition to `hug.http` hug includes convenience decorators for all common HTTP METHODS (`hug.connect`, `hug.delete`, `hug.get`, `hug.head`, `hug.options`, `hug.patch`, `hug.post`, `hug.put`, `hug.get_post`, `hug.put_post`, and `hug.trace`). These methods are functionally the same as calling `@hug.http(accept=(METHOD, ))` and are otherwise identical to the http router.
 
  - `urls`: A list of or a single URL that should be routed to the function. Supports defining variables within the URL that will automatically be passed to the function when `{}` notation is found in the URL: `/website/{page}`. Defaults to the name of the function being routed to.
  - `accept`: A list of or a single HTTP METHOD value to accept. Defaults to all common HTTP methods.
  - `examples`: A list of or a single example set of parameters in URL query param format. For example: `examples="argument_1=x&argument_2=y"`
  - `versions`: A list of or a single integer version of the API this endpoint supports. To support a range of versions the Python builtin range function can be used.
  - `suffixes`: A list of or a single suffix to add to the end of all URLs using this router.
- - `prefixes`: A list of or a single suffix to add to the end of all URLs using this router.
+ - `prefixes`: A list of or a single prefix to add before all URLs using this router.
  - `response_headers`: An optional dictionary of response headers to set automatically on every request to this endpoint.
   - `status`: An optional status code to automatically apply to the response on every request to this endpoint.
  - `parse_body`: If `True` and the format of the request body matches one known by hug, hug will run the specified input formatter on the request body before passing it as an argument to the routed function. Defaults to `True`.

@@ -34,6 +34,15 @@ Code Contributors
 - Gemedet (@gemedet)
 - Garrett Squire (@gsquire)
 - Haïkel Guémar (@hguemar)
+- Eshin Kunishima (@mikoim)
+- Mike Adams (@mikeadamz)
+- Michal Bultrowicz (@butla)
+- Bogdan (@spock)
+- @banteg
+- Philip Bjorge (@philipbjorge)
+- Daniel Metz (@danielmmetz)
+- Alessandro Amici (@alexamici)
+- Trevor Bekolay (@tbekolay)
 
 Documenters
 ===================
@@ -56,6 +65,11 @@ Documenters
 - Benjamin Williams (@benjaminjosephw)
 - @gdw2
 - Thierry Colsenet (@ThierryCols)
+- Shawn Q Jackson (@gt50)
+- Bernhard E. Reiter (@bernhardreiter)
+- Adam McCarthy (@mccajm)
+- Sobolev Nikita (@sobolevn)
+- Chris (@ckhrysze)
 
 --------------------------------------------
 
