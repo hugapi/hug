@@ -11,7 +11,7 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
-### 2.3.0 - In Progress
+### 2.3.0 - May 4, 2017
 - Falcon requirement upgraded to 1.2.0
 - Enables filtering documentation according to a `base_url`
 - Fixed a vulnerability in the static file router that allows files in parent directory to be accessed
