@@ -99,6 +99,12 @@ class HTTPInterfaceAPI(InterfaceAPI):
         """Returns the active not found handler"""
         return getattr(self, '_not_found', self.base_404)
 
+    def urls(self):
+        """Returns a generator of all URLs attached to this API"""
+        for base_url, mapping in self.routes.items():
+            for url, _ in mapping.items():
+                yield base_url + url
+
     def input_format(self, content_type):
         """Returns the set input_format handler for the given content_type"""
         return getattr(self, '_input_format', {}).get(content_type, hug.defaults.input_format.get(content_type, None))

@@ -64,3 +64,19 @@ def test_anonymous():
     assert hug.API().name == ''
     assert hug.API(name='my_name').name == 'my_name'
     assert hug.API(doc='Custom documentation').doc == 'Custom documentation'
+
+
+def test_api_routes(hug_api):
+    """Ensure http API can return a quick mapping all urls to method"""
+    hug_api.http.base_url = '/root'
+
+    @hug.get(api=hug_api)
+    def my_route():
+        pass
+
+    @hug.post(api=hug_api)
+    def my_second_route():
+        pass
+
+    assert list(hug_api.http.urls()) == ['/root/my_route', '/root/my_second_route']
+
