@@ -105,6 +105,17 @@ class HTTPInterfaceAPI(InterfaceAPI):
             for url, _ in mapping.items():
                 yield base_url + url
 
+    def handlers(self):
+        """Returns all registered handlers attached to this API"""
+        used = []
+        for base_url, mapping in self.routes.items():
+            for url, methods in mapping.items():
+                for method, versions in methods.items():
+                    for version, handler in versions.items():
+                        if not handler in used:
+                            used.append(handler)
+                            yield handler
+
     def input_format(self, content_type):
         """Returns the set input_format handler for the given content_type"""
         return getattr(self, '_input_format', {}).get(content_type, hug.defaults.input_format.get(content_type, None))
@@ -378,6 +389,10 @@ class CLIInterfaceAPI(InterfaceAPI):
         command = args.pop(1)
         self.commands.get(command)()
 
+    def handlers(self):
+        """Returns all registered handlers attached to this API"""
+        return self.commands.values()
+
     def __str__(self):
         return "{0}\n\nAvailable Commands:{1}\n".format(self.api.doc or self.api.name,
                                                         "\n\n\t- " + "\n\t- ".join(self.commands.keys()))
@@ -435,6 +450,13 @@ class API(object, metaclass=ModuleSingleton):
     def add_directive(self, directive):
         self._directives = getattr(self, '_directives', {})
         self._directives[directive.__name__] = directive
+
+    def handlers(self):
+        """Returns all registered handlers attached to this API"""
+        if getattr(self, '_http'):
+            yield from self.http.handlers()
+        if getattr(self, '_cli'):
+            yield from self.cli.handlers()
 
     @property
     def http(self):

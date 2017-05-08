@@ -78,5 +78,11 @@ def test_api_routes(hug_api):
     def my_second_route():
         pass
 
-    assert list(hug_api.http.urls()) == ['/root/my_route', '/root/my_second_route']
+    @hug.cli(api=hug_api)
+    def my_cli_command():
+        pass
 
+    assert list(hug_api.http.urls()) == ['/root/my_route', '/root/my_second_route']
+    assert list(hug_api.http.handlers()) == [my_route.interface.http, my_second_route.interface.http]
+    assert list(hug_api.handlers()) == [my_route.interface.http, my_second_route.interface.http,
+                                        my_cli_command.interface.cli]
