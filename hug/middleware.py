@@ -90,9 +90,10 @@ class LogMiddleware(object):
     def _generate_combined_log(self, request, response):
         """Given a request/response pair, generate a logging format similar to the NGINX combined style."""
         current_time = datetime.utcnow()
+        data_len = '-' if response.data is None else len(response.data)
         return '{0} - - [{1}] {2} {3} {4} {5} {6}'.format(request.remote_addr, current_time, request.method,
                                                         request.relative_uri, response.status,
-                                                        len(response.data), request.user_agent)
+                                                        data_len, request.user_agent)
 
     def process_request(self, request, response):
         """Logs the basic endpoint requested"""
