@@ -21,6 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import json
 import urllib
+from backports.typing import TypeVar
 from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
@@ -86,7 +87,10 @@ def test_multiple():
 
 def test_delimited_list():
     """Test to ensure hug's custom delimited list type function works as expected"""
+    U = TypeVar('U') # unkown typevar
+    assert hug.types.delimited_list(',').check_type(U, 'test') == 'test'
     assert hug.types.delimited_list(',')('value1,value2') == ['value1', 'value2']
+    assert hug.types.DelimitedList[int](',')('1,2') == [1, 2]
     assert hug.types.delimited_list(',')(['value1', 'value2']) == ['value1', 'value2']
     assert hug.types.delimited_list('|-|')('value1|-|value2|-|value3,value4') == ['value1', 'value2', 'value3,value4']
     assert ',' in hug.types.delimited_list(',').__doc__
@@ -231,6 +235,9 @@ def test_cut_off():
 
 def test_inline_dictionary():
     """Tests that inline dictionary values are correctly handled"""
+    int_dict = hug.types.InlineDictionary[int, int]()
+    assert int_dict('1:2') == {1:2}
+    assert int_dict('1:2|3:4') == {1:2, 3:4}
     assert hug.types.inline_dictionary('1:2') == {'1': '2'}
     assert hug.types.inline_dictionary('1:2|3:4') == {'1': '2', '3': '4'}
     with pytest.raises(ValueError):
