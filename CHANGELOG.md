@@ -12,7 +12,7 @@ Ideally, within a virtual environment.
 Changelog
 =========
 ### 2.3.1 - In progress
-- Fixed issue #500: Added support for automatic reload on Windows & enabled intuitive use of pdb within autoreloader
+- Fixed issue #500 & 504: Added support for automatic reload on Windows & enabled intuitive use of pdb within autoreloader
 
 ### 2.3.0 - May 4, 2017
 - Falcon requirement upgraded to 1.2.0
