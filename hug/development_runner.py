@@ -26,6 +26,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import _thread as thread
 from multiprocessing import Process
 from os.path import exists
 
@@ -72,8 +73,8 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         return
 
     if not manual_reload:
-        checker = Process(target=reload_checker, args=(interval, ))
-        checker.start()
+        checker = thread.start_new_thread(reload_checker, (interval, ))
+        #checker.start()
         _start_api(api_module, port, no_404_documentation)
 
 
@@ -97,5 +98,6 @@ def reload_checker(interval):
                 changed = True
 
             if changed:
+                thread.interrupt_main()
                 os.execv(__file__, sys.argv)
         time.sleep(interval)
