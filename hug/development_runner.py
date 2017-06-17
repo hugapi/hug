@@ -72,12 +72,12 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         return
 
     if not manual_reload:
-        checker = Process(target=reload_checker)
+        checker = Process(target=reload_checker, args=(interval, ))
         checker.start()
         _start_api(api_module, port, no_404_documentation)
 
 
-def reload_checker():
+def reload_checker(interval):
     files = {}
     for module in list(sys.modules.values()):
         path = getattr(module, '__file__', '')
