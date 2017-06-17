@@ -71,44 +71,31 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         api.cli.commands[command]()
         return
 
-    if manual_reload:
+    if not manual_reload:
+        checker = Process(target=reload_checker)
+        checker.start()
         _start_api(api_module, port, no_404_documentation)
-    else:
-        is_running = True
-        ran = False
-        while is_running:
-            try:
-                running = Process(target=_start_api, args=(api_module, port, no_404_documentation, not ran))
-                running.start()
-                files = {}
-                for module in list(sys.modules.values()):
-                    path = getattr(module, '__file__', '')
-                    if path[-4:] in ('.pyo', '.pyc'):
-                        path = path[:-1]
-                    if path and exists(path):
-                        files[path] = os.stat(path).st_mtime
 
-                changed = False
-                while not changed:
-                    for path, last_modified in files.items():
-                        if not exists(path):
-                            print('\n> Reloading due to file removal: {}'.format(path))
-                            changed = True
-                        elif os.stat(path).st_mtime > last_modified:
-                            print('\n> Reloading due to file change: {}'.format(path))
-                            changed = True
 
-                        if changed:
-                            running.terminate()
-                            for module in [name for name in sys.modules.keys() if name not in INIT_MODULES]:
-                                del(sys.modules[module])
-                            if file:
-                                api_module = importlib.machinery.SourceFileLoader(file.split(".")[0],
-                                                                                  file).load_module()
-                            elif module:
-                                api_module = importlib.import_module(module)
-                            ran = True
-                            break
-                    time.sleep(interval)
-            except KeyboardInterrupt:
-                is_running = False
+def reload_checker():
+    files = {}
+    for module in list(sys.modules.values()):
+        path = getattr(module, '__file__', '')
+        if path[-4:] in ('.pyo', '.pyc'):
+            path = path[:-1]
+        if path and exists(path):
+                    files[path] = os.stat(path).st_mtime
+
+    changed = False
+    while not changed:
+        for path, last_modified in files.items():
+            if not exists(path):
+                print('\n> Reloading due to file removal: {}'.format(path))
+                changed = True
+            elif os.stat(path).st_mtime > last_modified:
+                print('\n> Reloading due to file change: {}'.format(path))
+                changed = True
+
+            if changed:
+                os.execv(__file__, sys.argv)
+        time.sleep(interval)
