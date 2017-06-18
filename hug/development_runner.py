@@ -74,8 +74,10 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
 
     if not manual_reload:
         checker = thread.start_new_thread(reload_checker, (interval, ))
-        #checker.start()
-        _start_api(api_module, port, no_404_documentation)
+        try:
+            _start_api(api_module, port, no_404_documentation)
+        except KeyboardInterrupt:
+            os.execv(__file__, sys.argv)
 
 
 def reload_checker(interval):
@@ -99,5 +101,4 @@ def reload_checker(interval):
 
             if changed:
                 thread.interrupt_main()
-                os.execv(__file__, sys.argv)
         time.sleep(interval)
