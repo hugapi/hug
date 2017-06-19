@@ -75,7 +75,7 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
     ran = False
     if not manual_reload:
         while True:
-            checker = thread.start_new_thread(reload_checker, (interval, ))
+            thread.start_new_thread(reload_checker, (interval, ))
             try:
                 _start_api(api_module, port, no_404_documentation, not ran)
             except KeyboardInterrupt:
