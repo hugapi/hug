@@ -72,12 +72,23 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         api.cli.commands[command]()
         return
 
+    ran = False
     if not manual_reload:
-        checker = thread.start_new_thread(reload_checker, (interval, ))
-        try:
-            _start_api(api_module, port, no_404_documentation)
-        except KeyboardInterrupt:
-            os.execv(__file__, sys.argv)
+        while True:
+            checker = thread.start_new_thread(reload_checker, (interval, ))
+            try:
+                _start_api(api_module, port, no_404_documentation, not ran)
+            except KeyboardInterrupt:
+                ran = True
+                for module in [name for name in sys.modules.keys() if name not in INIT_MODULES]:
+                    del(sys.modules[module])
+                    if file:
+                        api_module = importlib.machinery.SourceFileLoader(file.split(".")[0],
+                                                                            file).load_module()
+                    elif module:
+                        api_module = importlib.import_module(module)
+    else:
+        _start_api(api_module, port, no_404_documentation, not ran)
 
 
 def reload_checker(interval):
@@ -101,4 +112,5 @@ def reload_checker(interval):
 
             if changed:
                 thread.interrupt_main()
+                thread.exit()
         time.sleep(interval)
