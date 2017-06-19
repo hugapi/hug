@@ -79,6 +79,8 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
             try:
                 _start_api(api_module, port, no_404_documentation, not ran)
             except KeyboardInterrupt:
+                if not reload_checker.reloading:
+                    sys.exit(1)
                 ran = True
                 for module in [name for name in sys.modules.keys() if name not in INIT_MODULES]:
                     del(sys.modules[module])
@@ -92,13 +94,14 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
 
 
 def reload_checker(interval):
+    reload_checker.reloading = False
     files = {}
     for module in list(sys.modules.values()):
         path = getattr(module, '__file__', '')
         if path[-4:] in ('.pyo', '.pyc'):
             path = path[:-1]
         if path and exists(path):
-                    files[path] = os.stat(path).st_mtime
+            files[path] = os.stat(path).st_mtime
 
     changed = False
     while not changed:
@@ -111,6 +114,7 @@ def reload_checker(interval):
                 changed = True
 
             if changed:
+                reload_checker.reloading = True
                 thread.interrupt_main()
                 thread.exit()
         time.sleep(interval)
