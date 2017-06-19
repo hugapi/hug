@@ -12,6 +12,7 @@ Ideally, within a virtual environment.
 Changelog
 =========
 ### 2.3.1 - In progress
+- Fixed issue #500 & 504: Added support for automatic reload on Windows & enabled intuitive use of pdb within autoreloader
 - Implemented improved way to retrieve list of urls and handlers for issue #462
 
 ### 2.3.0 - May 4, 2017
