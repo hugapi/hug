@@ -74,17 +74,20 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
 
     ran = False
     if not manual_reload:
+        thread.start_new_thread(reload_checker, (interval, ))
         while True:
-            thread.start_new_thread(reload_checker, (interval, ))
+            reload_checker.reloading = False
+            time.sleep(1)
             try:
                 _start_api(api_module, port, no_404_documentation, not ran)
             except KeyboardInterrupt:
                 if not reload_checker.reloading:
                     sys.exit(1)
+                reload_checker.reloading = False
                 ran = True
                 for module in [name for name in sys.modules.keys() if name not in INIT_MODULES]:
                     if module == 'pdb':
-                        sys.modules['pdb'].clear()
+                        sys.modules['pdb'].Pdb().forget()
                     del(sys.modules[module])
                     if file:
                         api_module = importlib.machinery.SourceFileLoader(file.split(".")[0],
@@ -96,27 +99,28 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
 
 
 def reload_checker(interval):
-    reload_checker.reloading = False
-    files = {}
-    for module in list(sys.modules.values()):
-        path = getattr(module, '__file__', '')
-        if path[-4:] in ('.pyo', '.pyc'):
-            path = path[:-1]
-        if path and exists(path):
-            files[path] = os.stat(path).st_mtime
+    while True:
+        changed = False
+        files = {}
+        for module in list(sys.modules.values()):
+            path = getattr(module, '__file__', '')
+            if path[-4:] in ('.pyo', '.pyc'):
+                path = path[:-1]
+            if path and exists(path):
+                files[path] = os.stat(path).st_mtime
 
-    changed = False
-    while not changed:
-        for path, last_modified in files.items():
-            if not exists(path):
-                print('\n> Reloading due to file removal: {}'.format(path))
-                changed = True
-            elif os.stat(path).st_mtime > last_modified:
-                print('\n> Reloading due to file change: {}'.format(path))
-                changed = True
+        while not changed:
+            for path, last_modified in files.items():
+                if not exists(path):
+                    print('\n> Reloading due to file removal: {}'.format(path))
+                    changed = True
+                elif os.stat(path).st_mtime > last_modified:
+                    print('\n> Reloading due to file change: {}'.format(path))
+                    changed = True
 
-            if changed:
-                reload_checker.reloading = True
-                thread.interrupt_main()
-                thread.exit()
-        time.sleep(interval)
+                if changed:
+                    reload_checker.reloading = True
+                    thread.interrupt_main()
+                    time.sleep(5)
+                    break
+            time.sleep(interval)
