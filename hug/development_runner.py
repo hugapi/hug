@@ -86,8 +86,6 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
                 reload_checker.reloading = False
                 ran = True
                 for module in [name for name in sys.modules.keys() if name not in INIT_MODULES]:
-                    if module == 'pdb':
-                        sys.modules['pdb'].Pdb().forget()
                     del(sys.modules[module])
                     if file:
                         api_module = importlib.machinery.SourceFileLoader(file.split(".")[0],
