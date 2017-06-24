@@ -54,10 +54,14 @@ def call(method, api_or_module, url, body='', headers=None, params=None, query_s
         try:
             response.data = result[0].decode('utf8')
         except TypeError:
-            response.data = []
+            data = BytesIO()
             for chunk in result:
-                response.data.append(chunk.decode('utf8'))
-            response.data = "".join(response.data)
+                data.write(chunk)
+            data = data.getvalue()
+            try:
+                response.data = data.decode('utf8')
+            except UnicodeDecodeError:
+                response.data = data
         except UnicodeDecodeError:
             response.data = result[0]
         response.content_type = response.headers_dict['content-type']
