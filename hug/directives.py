@@ -101,6 +101,13 @@ def user(default=None, request=None, **kwargs):
 
 
 @_built_in_directive
+def cors(support='*', response=None, **kwargs):
+    """Adds the the Access-Control-Allow-Origin header to this endpoint, with the specified support"""
+    response and response.set_header('Access-Control-Allow-Origin', support)
+    return support
+
+
+@_built_in_directive
 class CurrentAPI(object):
     """Returns quick access to all api functions on the current version of the api"""
     __slots__ = ('api_version', 'api')
