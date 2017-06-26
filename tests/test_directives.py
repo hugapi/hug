@@ -208,3 +208,14 @@ def test_user_directives():
 
     token = b'Basic ' + b64encode('{0}:{1}'.format('Tim', 'Custom password').encode('utf8'))
     assert hug.test.get(api, 'try_user', headers={'Authorization': token}).data == 'Tim'
+
+
+def test_directives(hug_api):
+    """Test to ensure cors directive works as expected"""
+    assert hug.directives.cors('google.com') == 'google.com'
+
+    @hug.get(api=hug_api)
+    def cors_supported(cors: hug.directives.cors="*"):
+        return True
+
+    assert hug.test.get(hug_api, 'cors_supported').headers_dict['Access-Control-Allow-Origin'] == '*'
