@@ -244,12 +244,18 @@ class HTTPRouter(InternalValidation):
                  no_store and 'no-store', must_revalidate and 'must-revalidate')
         return self.add_response_headers({'cache-control': ', '.join(filter(bool, parts))}, **overrides)
 
-    def allow_origins(self, *origins, methods=None, **overrides):
+    def allow_origins(self, *origins, methods=None, max_age=None, credentials=None, headers=None, **overrides):
         """Convience method for quickly allowing other resources to access this one"""
-        headers = {'Access-Control-Allow-Origin': ', '.join(origins) if origins else '*'}
+        reponse_headers = {'Access-Control-Allow-Origin': ', '.join(origins) if origins else '*'}
         if methods:
-            headers['Access-Control-Allow-Methods'] = ', '.join(methods)
-        return self.add_response_headers(headers, **overrides)
+            reponse_headers['Access-Control-Allow-Methods'] = ', '.join(methods)
+        if max_age:
+            reponse_headers['Access-Control-Max-Age'] = max_age
+        if credentials:
+            reponse_headers['Access-Control-Allow-Credentials'] = str(credentials).lower()
+        if reponse_headers:
+            reponse_headers['Access-Control-Allow-Headers'] = headers
+        return self.add_response_headers(reponse_headers, **overrides)
 
 
 class NotFoundRouter(HTTPRouter):
