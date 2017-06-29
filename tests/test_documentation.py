@@ -1,6 +1,6 @@
 """tests/test_documentation.py.
 
-Tests the documentation generation capibilities integrated into Hug
+Tests the documentation generation capabilities integrated into Hug
 
 Copyright (C) 2016 Timothy Edmund Crosley
 
@@ -66,27 +66,27 @@ def test_basic_documentation():
     assert '/hello_world' in documentation['handlers']
     assert '/echo' in documentation['handlers']
     assert '/happy_birthday' in documentation['handlers']
-    assert not '/birthday' in documentation['handlers']
+    assert '/birthday' not in documentation['handlers']
     assert '/noop' in documentation['handlers']
     assert '/string_docs' in documentation['handlers']
-    assert not '/private' in documentation['handlers']
+    assert '/private' not in documentation['handlers']
 
     assert documentation['handlers']['/hello_world']['GET']['usage'] == "Returns hello world"
     assert documentation['handlers']['/hello_world']['GET']['examples'] == ["/hello_world"]
     assert documentation['handlers']['/hello_world']['GET']['outputs']['content_type'] == "application/json"
-    assert not 'inputs' in documentation['handlers']['/hello_world']['GET']
+    assert 'inputs' not in documentation['handlers']['/hello_world']['GET']
 
     assert 'text' in documentation['handlers']['/echo']['POST']['inputs']['text']['type']
-    assert not 'default' in documentation['handlers']['/echo']['POST']['inputs']['text']
+    assert 'default' not in documentation['handlers']['/echo']['POST']['inputs']['text']
 
     assert 'number' in documentation['handlers']['/happy_birthday']['POST']['inputs']['age']['type']
     assert documentation['handlers']['/happy_birthday']['POST']['inputs']['age']['default'] == 1
 
-    assert not 'inputs' in documentation['handlers']['/noop']['POST']
+    assert 'inputs' not in documentation['handlers']['/noop']['POST']
 
     assert documentation['handlers']['/string_docs']['GET']['inputs']['data']['type'] == 'Takes data'
     assert documentation['handlers']['/string_docs']['GET']['outputs']['type'] == 'Returns data'
-    assert not 'ignore_directive' in documentation['handlers']['/string_docs']['GET']['inputs']
+    assert 'ignore_directive' not in documentation['handlers']['/string_docs']['GET']['inputs']
 
     @hug.post(versions=1)  # noqa
     def echo(text):
