@@ -21,7 +21,7 @@ import hug
 import pytest
 from falcon.request import SimpleCookie
 from hug.exceptions import SessionNotFound
-from hug.middleware import LogMiddleware, SessionMiddleware
+from hug.middleware import CORSMiddleware, LogMiddleware, SessionMiddleware
 from hug.store import InMemoryStore
 
 api = hug.API(__name__)
@@ -90,3 +90,49 @@ def test_logging_middleware():
     hug.test.get(api, '/test')
     assert output[0] == 'Requested: GET /test None'
     assert len(output[1]) > 0
+
+
+def test_cors_middleware(hug_api):
+    hug_api.http.add_middleware(CORSMiddleware(api))
+
+    @hug.get('/demo', api=hug_api)
+    def get_demo():
+        return {'result': 'Hello World'}
+
+    @hug.get('/demo/{param}', api=hug_api)
+    def get_demo(param):
+        return {'result': 'Hello {0}'.format(param)}
+
+    @hug.post('/demo', api=hug_api)
+    def post_demo(name: 'your name'):
+        return {'result': 'Hello {0}'.format(name)}
+
+    @hug.put('/demo/{param}', api=hug_api)
+    def get_demo(param, name):
+        old_name = param
+        new_name = name
+        return {'result': 'Goodbye {0} ... Hello {1}'.format(old_name, new_name)}
+
+    @hug.delete('/demo/{param}', api=hug_api)
+    def get_demo(param):
+        return {'result': 'Goodbye {0}'.format(param)}
+
+    assert hug.test.get(hug_api, '/demo').data == {'result': 'Hello World'}
+    assert hug.test.post(hug_api, '/demo/Mir').data == {'result': 'Hello Mir'}
+    assert hug.test.post(hug_api, '/demo', name='Mundo')
+    assert hug.test.put(hug_api, '/demo/Carl', name='Junior').data == {'result': 'Goodbye Carl ... Hello Junior'}
+    assert hug.test.delete(hug_api, '/demo/Cruel_World').data == {'result': 'Goodbye Cruel_World'}
+
+    response = hug.test.options(hug_api, '/demo')
+    methods = response.headers['access-control-allow-methods'].replace(' ', '')
+    assert response.status_code == 204
+    allow = response.headers['allow'].replace(' ', '')
+    assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'POST'])
+    assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'POST'])
+
+    response = hug.test.options(hug_api, '/demo/1')
+    methods = response.headers['access-control-allow-methods'].replace(' ', '')
+    allow = response.headers['allow'].replace(' ', '')
+    assert response.status_code == 204
+    assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
+    assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])

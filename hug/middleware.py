@@ -19,6 +19,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
+import re
 import logging
 import uuid
 from datetime import datetime
@@ -112,7 +113,7 @@ class CORSMiddleware(object):
     """
     __slots__ = ('api', 'allow_origins', 'allow_credentials', 'max_age')
 
-    def __init__(self, api, allow_origins: Sequence[str]=['*'], allow_credentials: bool=True, max_age: int=None):
+    def __init__(self, api, allow_origins: list=['*'], allow_credentials: bool=True, max_age: int=None):
         self.api = api
         self.allow_origins = allow_origins
         self.allow_credentials = allow_credentials
