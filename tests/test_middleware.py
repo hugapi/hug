@@ -124,6 +124,7 @@ def test_cors_middleware(hug_api):
     assert hug.test.delete(hug_api, '/demo/Cruel_World').data == {'result': 'Goodbye Cruel_World'}
 
     response = hug.test.options(hug_api, '/demo')
+    import pdb; pdb.set_trace()
     methods = response.headers['access-control-allow-methods'].replace(' ', '')
     assert response.status_code == 204
     allow = response.headers['allow'].replace(' ', '')
