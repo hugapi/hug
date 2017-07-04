@@ -118,7 +118,7 @@ def test_cors_middleware(hug_api):
         return {'result': 'Goodbye {0}'.format(param)}
 
     assert hug.test.get(hug_api, '/demo').data == {'result': 'Hello World'}
-    assert hug.test.post(hug_api, '/demo/Mir').data == {'result': 'Hello Mir'}
+    assert hug.test.get(hug_api, '/demo/Mir').data == {'result': 'Hello Mir'}
     assert hug.test.post(hug_api, '/demo', name='Mundo')
     assert hug.test.put(hug_api, '/demo/Carl', name='Junior').data == {'result': 'Goodbye Carl ... Hello Junior'}
     assert hug.test.delete(hug_api, '/demo/Cruel_World').data == {'result': 'Goodbye Cruel_World'}
