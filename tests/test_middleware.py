@@ -93,7 +93,7 @@ def test_logging_middleware():
 
 
 def test_cors_middleware(hug_api):
-    hug_api.http.add_middleware(CORSMiddleware(api))
+    hug_api.http.add_middleware(CORSMiddleware(hug_api))
 
     @hug.get('/demo', api=hug_api)
     def get_demo():
@@ -124,15 +124,13 @@ def test_cors_middleware(hug_api):
     assert hug.test.delete(hug_api, '/demo/Cruel_World').data == {'result': 'Goodbye Cruel_World'}
 
     response = hug.test.options(hug_api, '/demo')
-    methods = response.headers['access-control-allow-methods'].replace(' ', '')
-    assert response.status_code == 204
-    allow = response.headers['allow'].replace(' ', '')
+    methods = response.headers_dict['access-control-allow-methods'].replace(' ', '')
+    allow = response.headers_dict['allow'].replace(' ', '')
     assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'POST'])
     assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'POST'])
 
     response = hug.test.options(hug_api, '/demo/1')
-    methods = response.headers['access-control-allow-methods'].replace(' ', '')
-    allow = response.headers['allow'].replace(' ', '')
-    assert response.status_code == 204
+    methods = response.headers_dict['access-control-allow-methods'].replace(' ', '')
+    allow = response.headers_dict['allow'].replace(' ', '')
     assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
     assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
