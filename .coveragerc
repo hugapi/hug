@@ -1,5 +1,6 @@
 [report]
 include = hug/*.py
+omit = hug/development_runner.py
 exclude_lines = def hug
                 def serve
                 def _start_api
