@@ -123,12 +123,10 @@ class CORSMiddleware(object):
         """match a request with parameter to it's corresponding route"""
         route_dicts = [routes for _, routes in self.api.http.routes.items()][0]
         routes = [route for route, _ in route_dicts.items()]
-        if reqpath in routes:  # no prameters in path
-            return reqpath
-
-        for route in routes:  # replace params in route with regex
-            if re.match(re.sub(r'/{[^{}]+}', '/\w+', route) + '$', reqpath):
-                return route
+        if reqpath not in routes:
+            for route in routes:  # replace params in route with regex
+                if re.match(re.sub(r'/{[^{}]+}', '/\w+', route) + '$', reqpath):
+                    return route
 
         return reqpath
 

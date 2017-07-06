@@ -93,7 +93,7 @@ def test_logging_middleware():
 
 
 def test_cors_middleware(hug_api):
-    hug_api.http.add_middleware(CORSMiddleware(hug_api))
+    hug_api.http.add_middleware(CORSMiddleware(hug_api, max_age=10))
 
     @hug.get('/demo', api=hug_api)
     def get_demo():
@@ -134,3 +134,4 @@ def test_cors_middleware(hug_api):
     allow = response.headers_dict['allow'].replace(' ', '')
     assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
     assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
+    assert response.headers_dict['access-control-max-age'] == 10
