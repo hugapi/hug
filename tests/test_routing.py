@@ -34,7 +34,7 @@ class TestRouter(object):
         """Test to ensure the route instanciates as expected"""
         assert self.route.route['transform'] == 'transform'
         assert self.route.route['output'] == 'output'
-        assert not 'api' in self.route.route
+        assert 'api' not in self.route.route
 
     def test_output(self):
         """Test to ensure modifying the output argument has the desired effect"""
@@ -106,7 +106,7 @@ class TestInternalValidation(TestRouter):
 
     def test_raise_on_invalid(self):
         """Test to ensure it's possible to set a raise on invalid handler per route"""
-        assert not 'raise_on_invalid' in self.route.route
+        assert 'raise_on_invalid' not in self.route.route
         assert self.route.raise_on_invalid().route['raise_on_invalid']
 
     def test_on_invalid(self):
@@ -124,27 +124,27 @@ class TestLocalRouter(TestInternalValidation):
 
     def test_validate(self):
         """Test to ensure changing wether a local route should validate or not works as expected"""
-        assert not 'skip_validation' in self.route.route
+        assert 'skip_validation' not in self.route.route
 
         route = self.route.validate()
-        assert not 'skip_validation' in route.route
+        assert 'skip_validation' not in route.route
 
         route = self.route.validate(False)
         assert 'skip_validation' in route.route
 
     def test_directives(self):
         """Test to ensure changing wether a local route should supply directives or not works as expected"""
-        assert not 'skip_directives' in self.route.route
+        assert 'skip_directives' not in self.route.route
 
         route = self.route.directives()
-        assert not 'skip_directives' in route.route
+        assert 'skip_directives' not in route.route
 
         route = self.route.directives(False)
         assert 'skip_directives' in route.route
 
     def test_version(self):
         """Test to ensure changing the version of a LocalRoute on the fly works"""
-        assert not 'version' in self.route.route
+        assert 'version' not in self.route.route
 
         route = self.route.version(2)
         assert 'version' in route.route
@@ -163,7 +163,7 @@ class TestHTTPRouter(TestInternalValidation):
     def test_parse_body(self):
         """Test to ensure the parsing body flag be flipped on the fly"""
         assert self.route.parse_body().route['parse_body']
-        assert not 'parse_body' in self.route.parse_body(False).route
+        assert 'parse_body' not in self.route.parse_body(False).route
 
     def test_requires(self):
         """Test to ensure requirements can be added on the fly"""
