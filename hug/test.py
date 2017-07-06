@@ -60,9 +60,9 @@ def call(method, api_or_module, url, body='', headers=None, params=None, query_s
             data = data.getvalue()
             try:
                 response.data = data.decode('utf8')
-            except UnicodeDecodeError:
+            except UnicodeDecodeError:   # pragma: no cover
                 response.data = data
-        except (UnicodeDecodeError, AttributeError):  # pragma: no cover
+        except (UnicodeDecodeError, AttributeError):
             response.data = result[0]
         response.content_type = response.headers_dict['content-type']
         if response.content_type == 'application/json':
