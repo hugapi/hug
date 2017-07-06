@@ -209,11 +209,13 @@ class TestHTTPRouter(TestInternalValidation):
     def test_allow_origins(self):
         """Test to ensure it's easy to expose route to other resources"""
         assert self.route.allow_origins().route['response_headers']['Access-Control-Allow-Origin'] == '*'
-        test_headers = self.route.allow_origins('google.com', methods=('GET', 'POST'), credentials=True, headers="OPTIONS").route['response_headers']
+        test_headers = self.route.allow_origins('google.com', methods=('GET', 'POST'), credentials=True,
+                                                headers="OPTIONS", max_age=10).route['response_headers']
         assert test_headers['Access-Control-Allow-Origin'] == 'google.com'
         assert test_headers['Access-Control-Allow-Methods'] == 'GET, POST'
         assert test_headers['Access-Control-Allow-Credentials'] == 'true'
         assert test_headers['Access-Control-Allow-Headers'] == 'OPTIONS'
+        assert test_headers['Access-Control-Max-Age'] == 10
 
 
 class TestStaticRouter(TestHTTPRouter):
