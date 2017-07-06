@@ -7,4 +7,3 @@ exclude_lines = def hug
                 sys.stdout.buffer.write
                 class Socket
                 pragma: no cover
-                except UnicodeDecodeError:
