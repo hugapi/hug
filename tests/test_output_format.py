@@ -37,7 +37,7 @@ def test_text():
     hug.output_format.text(str(1)) == "1"
 
 
-def test_html():
+def test_html(hug_api):
     """Ensure that it's possible to output a Hug API method as HTML"""
     hug.output_format.html("<html>Hello World!</html>") == "<html>Hello World!</html>"
     hug.output_format.html(str(1)) == "1"
@@ -49,6 +49,16 @@ def test_html():
             return 'test'
 
     assert hug.output_format.html(FakeHTMLWithRender()) == b'test'
+
+    @hug.get('/get/html', output=hug.output_format.html, api=hug_api)
+    def get_html(**kwargs):
+        """
+        Returns command help document when no command is specified
+        """
+        with open(os.path.join(BASE_DIRECTORY, 'examples/document.html'), 'rb') as html_file:
+            return html_file.read()
+
+    assert '<html>' in hug.test.get(hug_api, '/get/html').data
 
 
 def test_json():
