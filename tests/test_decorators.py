@@ -1460,3 +1460,13 @@ def test_api_gets_extra_variables_without_kargs_or_kwargs(hug_api):
 
     assert hug.test.get(hug_api, 'ensure_params', params={'make': 'it'}).data == {'make': 'it'}
     assert hug.test.get(hug_api, 'ensure_params', hello='world').data == {'hello': 'world'}
+
+
+def test_typing_module_support(hug_api):
+    @hug.get(api=hug_api)
+    def echo(text: Optional[str]=None):
+        return text or 'missing'
+
+    assert hug.test.get(hug_api, 'echo').data == 'missing'
+    assert hug.test.get(hug_api, 'echo', text='not missing') == 'not missing'
+
