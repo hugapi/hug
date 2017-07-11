@@ -20,7 +20,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 from __future__ import absolute_import
-from backports.typing import Generic, TypeVar, GenericMeta
 
 import uuid as native_uuid
 from decimal import Decimal
@@ -29,6 +28,11 @@ from json import loads as load_json
 import hug._empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
+
+try:
+    from typing import Generic, TypeVar, GenericMeta
+except ImportError:
+    from backports.typing import Generic, TypeVar, GenericMeta
 
 T = TypeVar('T') # Generic Type
 K = TypeVar('K') # Generic Type for keys of key/value pairs
