@@ -29,10 +29,7 @@ import hug._empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 
-try:
-    from typing import Generic, TypeVar, GenericMeta
-except ImportError:
-    from backports.typing import Generic, TypeVar, GenericMeta
+from backports.typing import Generic, TypeVar, GenericMeta
 
 T = TypeVar('T') # Generic Type
 K = TypeVar('K') # Generic Type for keys of key/value pairs
@@ -163,7 +160,7 @@ class Multiple(Type):
     def __call__(self, value):
         return value if isinstance(value, list) else [value]
 
-class DelimitedList(Type, Generic[T]):
+class DelimitedList(Generic[T], Type):
     """Defines a list type that is formed by delimiting a list with a certain character or set of characters"""
 
     def __init__(self, using=","):
