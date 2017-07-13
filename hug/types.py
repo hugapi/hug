@@ -29,7 +29,10 @@ import hug._empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 
-from backports.typing import Generic, TypeVar, GenericMeta
+try:
+    from typing import Generic, TypeVar, GenericMeta
+except ImportError:
+    from backports.typing import Generic, TypeVar, GenericMeta
 
 T = TypeVar('T') # Generic Type
 K = TypeVar('K') # Generic Type for keys of key/value pairs
