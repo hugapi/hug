@@ -89,3 +89,18 @@ def test_documentation_carry_over():
     """Test to ensure documentation correctly carries over - to address issue #252"""
     authentication = hug.authentication.basic(hug.authentication.verify('User1', 'mypassword'))
     assert authentication.__doc__ == 'Basic HTTP Authentication'
+
+
+def test_missing_authenticator_docstring():
+
+    @hug.authentication.authenticator
+    def custom_authenticator(*args, **kwargs):
+        return None
+
+    authentication = custom_authenticator(None)
+
+    @hug.get(requires=authentication)
+    def hello_world():
+        return 'Hello World!'
+
+    hug.test.get(api, 'hello_world')
