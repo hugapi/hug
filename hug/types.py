@@ -163,7 +163,7 @@ class Multiple(Type):
     def __call__(self, value):
         return value if isinstance(value, list) else [value]
 
-class DelimitedList(Generic[T], Type):
+class DelimitedList(Type):
     """Defines a list type that is formed by delimiting a list with a certain character or set of characters"""
 
     def __init__(self, using=","):
