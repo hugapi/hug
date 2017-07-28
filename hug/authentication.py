@@ -21,10 +21,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
+import jwt
 import base64
 import binascii
 
 from falcon import HTTPUnauthorized
+from datetime import datetime, timedelta
 
 
 def authenticator(function, challenges=()):
@@ -138,3 +140,90 @@ def verify(user, password):
             return user_name
         return False
     return verify_user
+
+# JWT AUTH #
+def jwt_authenticator(function, challenges=()):
+    """Wraps authentication logic, verify_token through to the authentication function.
+
+    The verify_token function passed in should accept the authorization header and the jwt secret 
+    and return a user id to store in the request context if authentication succeeded.
+    """
+    challenges = challenges or ('{} realm="simple"'.format(function.__name__), )
+
+    def wrapper(verify_token, jwt_secret):
+        def authenticate(request, response, **kwargs):
+            result = function(request, response, verify_token, jwt_secret)
+
+            def jwt_authenticator_name():
+                try:
+                    return function.__doc__.splitlines()[0]
+                except AttributeError:
+                    return function.__name__
+
+            if result is None:
+                raise HTTPUnauthorized('Authentication Required',
+                                       'Please provide valid {0} credentials'.format(jwt_authenticator_name()),
+                                       challenges=challenges)
+
+            if result is False:
+                raise HTTPUnauthorized('Invalid Authentication',
+                                       'Provided {0} credentials were invalid'.format(jwt_authenticator_name()),
+                                       challenges=challenges)
+
+            request.context['user_id'] = result
+            return True
+
+        authenticate.__doc__ = function.__doc__
+        return authenticate
+
+    return wrapper
+
+@jwt_authenticator
+def json_web_token(request, response, verify_token, jwt_secret):
+    """JWT verification
+
+    Checks for the Authorization header and verifies it using the verify_token function
+    """
+    authorization = request.get_header('Authorization')
+    if authorization:
+        verified_token = verify_token(authorization, response, jwt_secret)
+        if verified_token:
+            return verified_token
+        else:
+            return False
+    return None
+
+def verify_jwt(authorization, response, jwt_secret):
+    try:
+        token = authorization.split(' ')[1]
+        decoding = jwt.decode(token, jwt_secret, algorithm='HS256')
+        print(decoding)
+        return decoding['user_id']
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        print(template.format(type(ex).__name__, ex.args))
+        return False
+    return None
+
+def new_jwt(user_id, token_expiration_seconds, jwt_secret):
+    return jwt.encode({'user_id': user_id,
+                       'exp': datetime.utcnow() + timedelta(seconds=token_expiration_seconds)},
+                       jwt_secret, algorithm='HS256').decode("utf-8")
+
+def refresh_jwt(authorization, token_refresh_seconds, token_expiration_seconds, jwt_secret):
+    try:
+        token = authorization.split(' ')[1]
+        decoding = jwt.decode(token, jwt_secret, algorithm='HS256')
+        exp = decoding['exp']
+
+        if datetime.utcnow() > (datetime.utcfromtimestamp(exp) - timedelta(seconds=token_refresh_seconds)):
+            return jwt.encode({'user_id': decoding['user_id'],
+                               'exp': datetime.utcnow() + timedelta(seconds=token_expiration_seconds)},
+                               jwt_secret, algorithm='HS256').decode("utf-8")
+        else:
+            return None
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        print(template.format(type(ex).__name__, ex.args))
+        return None
+# END - JWT AUTH #
