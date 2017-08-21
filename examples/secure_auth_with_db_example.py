@@ -45,7 +45,7 @@ def authenticate_user(username, password):
     :return: authenticated username
     """
     user_model = Query()
-    user = db.search(user_model.username == username)[0]
+    user = db.get(user_model.username == username)
 
     if not user:
         logger.warning("User %s not found", username)
