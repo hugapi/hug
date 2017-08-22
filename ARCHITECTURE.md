@@ -9,7 +9,7 @@ But at its core, hug is a framework for exposing idiomatically correct and stand
 A framework to allow developers and architects to define logic and structure once, and then cleanly expose it over other means.
 
 Currently, this means that you can expose existing Python functions / APIs over HTTP and CLI in addition to standard Python.
-However, as time goes on more interfaces will be supported. The architecture and implementation decisions that have going
+However, as time goes on more interfaces will be supported. The architecture and implementation decisions that have gone
 into hug have and will continue to support this goal.
 
 This central concept also frees hug to rely on the fastest and best of breed components for every interface it supports:
@@ -24,6 +24,7 @@ What this looks like in practice - an illustrative example
 Let's say I have a very simple Python API I've built to add 2 numbers together. I call my invention `addition`.
 Trust me, this is legit. It's trademarked and everything:
 
+    ```python
     """A simple API to enable adding two numbers together"""
 
 
@@ -31,11 +32,13 @@ Trust me, this is legit. It's trademarked and everything:
         """Returns the result of adding number_1 to number_2"""
         return number_1 + number_2
 
+    ```
 It works, it's well documented, and it's clean.
 Several people are already importing and using my Python module for their math needs.
-However, there's a great injustice! I'm lazy, and I don't want to have to have open a Python interpreter etc to access my function.
+However, there's a great injustice! I'm lazy, and I don't want to open a Python interpreter etc to access my function.
 Here's how I modify it to expose it via the command line:
 
+    ```python
     """A simple API to enable adding two numbers together"""
     import hug
 
@@ -49,7 +52,9 @@ Here's how I modify it to expose it via the command line:
     if __name__ == '__main__':
         add.interface.cli()
 
-Yay! Now I can just do my math from the command line using `add.py $NUMBER_1 $NUMBER_2`.
+    ```
+Yay! Now I can just do my math from the command line using:
+```add.py $NUMBER_1 $NUMBER_2```.
 And even better, if I miss an argument it let's me know what it is and how to fix my error.
 The thing I immediately notice, is that my new command line interface works, it's well documented, and it's clean.
 Just like the original.
