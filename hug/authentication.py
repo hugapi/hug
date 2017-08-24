@@ -145,7 +145,7 @@ def verify(user, password):
 def jwt_authenticator(function, challenges=()):
     """Wraps authentication logic, verify_token through to the authentication function.
 
-    The verify_token function passed in should accept the authorization header and the jwt secret 
+    The verify_token function passed in should accept the authorization header and the jwt secret
     and return a user id to store in the request context if authentication succeeded.
     """
     challenges = challenges or ('{} realm="simple"'.format(function.__name__), )
