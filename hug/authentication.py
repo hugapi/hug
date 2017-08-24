@@ -38,14 +38,21 @@ def authenticator(function, challenges=()):
     def wrapper(verify_user):
         def authenticate(request, response, **kwargs):
             result = function(request, response, verify_user, **kwargs)
+
+            def authenticator_name():
+                try:
+                    return function.__doc__.splitlines()[0]
+                except AttributeError:
+                    return function.__name__
+
             if result is None:
                 raise HTTPUnauthorized('Authentication Required',
-                                       'Please provide valid {0} credentials'.format(function.__doc__.splitlines()[0]),
+                                       'Please provide valid {0} credentials'.format(authenticator_name()),
                                        challenges=challenges)
 
             if result is False:
                 raise HTTPUnauthorized('Invalid Authentication',
-                                       'Provided {0} credentials were invalid'.format(function.__doc__.splitlines()[0]),
+                                       'Provided {0} credentials were invalid'.format(authenticator_name()),
                                        challenges=challenges)
 
             request.context['user'] = result
