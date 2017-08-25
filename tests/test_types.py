@@ -87,8 +87,6 @@ def test_multiple():
 
 def test_delimited_list():
     """Test to ensure hug's custom delimited list type function works as expected"""
-    U = TypeVar('U') # unkown typevar
-    assert hug.types.delimited_list(',').check_type(U, 'test') == 'test'
     assert hug.types.delimited_list(',')('value1,value2') == ['value1', 'value2']
     assert hug.types.DelimitedList[int](',')('1,2') == [1, 2]
     assert hug.types.delimited_list(',')(['value1', 'value2']) == ['value1', 'value2']

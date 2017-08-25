@@ -1200,6 +1200,12 @@ def test_cli_with_multiple_ints():
 
     assert hug.test.cli(test_multiple_cli, ints=['1', '2', '3']) == [1, 2, 3]
 
+    @hug.cli()
+    def test_multiple_cli(ints: hug.types.Multiple[int]()=[]):
+        return ints
+
+    assert hug.test.cli(test_multiple_cli, ints=['1', '2', '3']) == [1, 2, 3]
+
 
 def test_startup():
     """Test to ensure hug startup decorators work as expected"""

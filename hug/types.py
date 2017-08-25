@@ -34,43 +34,16 @@ try:
 except ImportError:
     from backports.typing import Generic, TypeVar, GenericMeta
 
-T = TypeVar('T') # Generic Type
-K = TypeVar('K') # Generic Type for keys of key/value pairs
-V = TypeVar('V') # Generic Type for value of key/value pairs
 
-class Type:
+class Type(object):
     """Defines the base hug concept of a type for use in function annotation.
        Override `__call__` to define how the type should be transformed and validated
     """
     _hug_type = True
-    __slots__ = ("_types_map_cache", "__orig_class__")
+    _sub_type = None
 
     def __init__(self):
-        self._get_types_map() # this is just so _types_map_cache will be generated when type is initialized
         pass
-
-    def _get_types_map(self):
-        try:
-            return self._types_map_cache
-        except:
-            self._types_map_cache = {}
-            if hasattr(self, '__orig_class__'):
-                for idx in range(len(self.__orig_class__.__args__)):
-                    generic_type = self.__parameters__[idx]
-                    actual_type = self.__orig_class__.__args__[idx]
-                    self._types_map_cache[generic_type] = actual_type
-            return self._types_map_cache
-
-    def check_type(self, generic: TypeVar, val):
-        generics_map = self._get_types_map()
-        if self.has_type(generic):
-            return generics_map[generic](val)
-        else:
-            return val
-
-    def has_type(self, generic):
-        generics_map = self._get_types_map()
-        return generic in generics_map
 
     def __call__(self, value):
         raise NotImplementedError('To implement a new type __call__ must be defined')
@@ -156,16 +129,27 @@ class Text(Type):
 text = Text()
 
 
-class Multiple(Type):
+class SubTyped(type):
+    def __getitem__(cls, sub_type):
+        class TypedSubclass(cls):
+            _sub_type = sub_type
+        return TypedSubclass
+
+
+class Multiple(Type, metaclass=SubTyped):
     """Multiple Values"""
     __slots__ = ()
 
     def __call__(self, value):
-        return value if isinstance(value, list) else [value]
+        as_multiple = value if isinstance(value, list) else [value]
+        if self._sub_type:
+            return [self._sub_type(item) for item in as_multiple]
+        return as_multiple
 
-class DelimitedList(Type):
+
+
+class DelimitedList(Type, metaclass=SubTyped):
     """Defines a list type that is formed by delimiting a list with a certain character or set of characters"""
-
     def __init__(self, using=","):
         super().__init__()
         self.using = using
@@ -176,8 +160,8 @@ class DelimitedList(Type):
 
     def __call__(self, value):
         value_list = value if type(value) in (list, tuple) else value.split(self.using)
-        if self.has_type(T):
-            value_list = [self.check_type(T, val) for val in value_list]
+        if self._sub_type:
+            value_list = [self._sub_type(val) for val in value_list]
         return value_list
 
 
@@ -198,19 +182,24 @@ class SmartBoolean(type(boolean)):
         raise KeyError('Invalid value passed in for true/false field')
 
 
-class InlineDictionary(Type, Generic[K, V]):
+class InlineDictionary(Type, metaclass=SubTyped):
     """A single line dictionary, where items are separted by commas and key:value are separated by a pipe"""
 
     def __call__(self, string):
         dictionary = {}
         for key, value in (item.split(":") for item in string.split("|")):
-            key = key.strip()
-            if self.has_type(K):
-                key = self.check_type(K, key)
-            val = value.strip()
-            if self.has_type(V):
-                val = self.check_type(V, val)
-            dictionary[key] = val
+            key_type = value_type = None
+            if self._sub_type:
+                if type(self._sub_type) in (tuple, list):
+                    if len(self._sub_type) == 2:
+                        key_type, value_type = self._sub_type
+                    else:
+                        value = self._sub_type[0]
+                else:
+                    key_type = self._sub_type
+
+            key, value = key.strip(), value.strip()
+            dictionary[key_type(key) if key_type else key] = value_type(value) if value_type else value
         return dictionary
 
 
@@ -489,7 +478,6 @@ class NewTypeMeta(type):
 
 class Schema(object, metaclass=NewTypeMeta):
     """Schema for creating complex types using hug types"""
-    _hug_type = True
     __slots__ = ()
 
     def __new__(cls, json, *args, **kwargs):
