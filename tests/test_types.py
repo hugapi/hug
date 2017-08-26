@@ -21,7 +21,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import json
 import urllib
-from backports.typing import TypeVar
 from datetime import datetime
 from decimal import Decimal
 from uuid import UUID

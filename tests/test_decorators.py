@@ -1469,6 +1469,8 @@ def test_api_gets_extra_variables_without_kargs_or_kwargs(hug_api):
 
 
 def test_typing_module_support(hug_api):
+    from typing import Optional
+
     @hug.get(api=hug_api)
     def echo(text: Optional[str]=None):
         return text or 'missing'
