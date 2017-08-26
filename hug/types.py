@@ -29,11 +29,6 @@ import hug._empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 
-try:
-    from typing import Generic, TypeVar, GenericMeta
-except ImportError:
-    from backports.typing import Generic, TypeVar, GenericMeta
-
 
 class Type(object):
     """Defines the base hug concept of a type for use in function annotation.
