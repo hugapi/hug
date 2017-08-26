@@ -57,6 +57,7 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         sys.path.append(os.getcwd())
         api_module = importlib.machinery.SourceFileLoader(file.split(".")[0], file).load_module()
     elif module:
+        sys.path.append(os.getcwd())
         api_module = importlib.import_module(module)
     if not api_module or not hasattr(api_module, '__hug__'):
         print("Error: must define a file name or module that contains a Hug API.")
