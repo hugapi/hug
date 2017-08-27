@@ -15,6 +15,8 @@ Changelog
 - Fixed issue #500 & 504: Added support for automatic reload on Windows & enabled intuitive use of pdb within autoreloader
 - Implemented improved way to retrieve list of urls and handlers for issue #462
 - Implemented support for Python typing module style sub types
+- Updated to allow -m parameter load modules on current directory
+- Improved hug.test decode behaviour
 - Added built in handlers for CORS support:
     - directive `hug.directives.cors`
     - Improved routing support
