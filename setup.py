@@ -80,7 +80,6 @@ if CYTHON:
         for ext in list_modules(path.join(MYDIR, 'hug'))]
     cmdclass['build_ext'] = build_ext
 
-
 try:
    import pypandoc
    readme = pypandoc.convert('README.md', 'rst')
@@ -101,8 +100,8 @@ setup(name='hug',
         ]
       },
       packages=['hug'],
-      requires=['falcon', 'requests', 'backports.typing'],
-      install_requires=['falcon==1.2.0', 'requests', 'backports.typing'],
+      requires=['falcon', 'requests'],
+      install_requires=['falcon==1.2.0', 'requests'],
       cmdclass=cmdclass,
       ext_modules=ext_modules,
       keywords='Web, Python, Python3, Refactoring, REST, Framework, RPC',
