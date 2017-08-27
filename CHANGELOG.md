@@ -11,7 +11,7 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
-### 2.3.1 - In progress
+### 2.3.1 - Aug 26, 2017
 - Fixed issue #500 & 504: Added support for automatic reload on Windows & enabled intuitive use of pdb within autoreloader
 - Implemented improved way to retrieve list of urls and handlers for issue #462
 - Implemented support for Python typing module style sub types
