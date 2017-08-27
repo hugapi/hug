@@ -1,6 +1,6 @@
 """hug/typing.py
 
-Defines hugs support for 
+Defines hugs support for
 
 Copyright (C) 2016  Timothy Edmund Crosley
 
@@ -27,10 +27,10 @@ except ImportError:
         from backports import typing
     except ImportError:
         typing = None
-        
-        
+
+
 def check_typing(value):
     if not typing or not isinstance(value, typing._TypingBase):
         return None
-    
-    
+
+
