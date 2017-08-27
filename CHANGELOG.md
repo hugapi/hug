@@ -14,7 +14,7 @@ Changelog
 ### 2.3.1 - In progress
 - Fixed issue #500 & 504: Added support for automatic reload on Windows & enabled intuitive use of pdb within autoreloader
 - Implemented improved way to retrieve list of urls and handlers for issue #462
-- Implemented support for Python typing module (issue #507) and made hug types typing compatible. Including back-port support for Python 3.3.
+- Implemented support for Python typing module style sub types
 - Added built in handlers for CORS support:
     - directive `hug.directives.cors`
     - Improved routing support
