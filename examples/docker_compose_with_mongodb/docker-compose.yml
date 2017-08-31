@@ -1,0 +1,9 @@
+web:
+  build: .
+  command: hug -f app.py
+  ports:
+    - "8000:8000"
+  links:
+  - db
+db:
+  image: mongo:3.0.2
