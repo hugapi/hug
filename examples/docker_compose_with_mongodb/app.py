@@ -3,6 +3,7 @@ import os
 from pymongo import MongoClient
 import hug
 
+
 client = MongoClient('db', 27017)
 db = client['our-database']
 collection = db['our-items']
