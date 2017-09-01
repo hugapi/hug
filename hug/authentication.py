@@ -182,7 +182,7 @@ def jwt_authenticator(function, challenges=()):
 def json_web_token(request, response, verify_token, jwt_secret):
     """JWT verification
 
-    Checks for the Authorization header and verifies it using the verify_token function
+    Checks for the Authorization header and verifies it using the verify_token function.
     """
     authorization = request.get_header('Authorization')
     if authorization:
@@ -197,13 +197,9 @@ def verify_jwt(authorization, response, jwt_secret):
     try:
         token = authorization.split(' ')[1]
         decoding = jwt.decode(token, jwt_secret, algorithm='HS256')
-        print(decoding)
         return decoding['user_id']
-    except Exception as ex:
-        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        print(template.format(type(ex).__name__, ex.args))
+    except:
         return False
-    return None
 
 def new_jwt(user_id, token_expiration_seconds, jwt_secret):
     return jwt.encode({'user_id': user_id,
@@ -220,10 +216,6 @@ def refresh_jwt(authorization, token_refresh_seconds, token_expiration_seconds, 
             return jwt.encode({'user_id': decoding['user_id'],
                                'exp': datetime.utcnow() + timedelta(seconds=token_expiration_seconds)},
                                jwt_secret, algorithm='HS256').decode("utf-8")
-        else:
-            return None
-    except Exception as ex:
-        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        print(template.format(type(ex).__name__, ex.args))
+    except:
         return None
 # END - JWT AUTH #

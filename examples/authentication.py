@@ -84,18 +84,18 @@ def token_gen_call(username, password):
     return 'Invalid username and/or password for user: {0}'.format(username)
 
 # JWT AUTH EXAMPLE #
-replace_this = False
+replace_this = False # Replace this placeholder in your implementation.
 config = {
     'jwt_secret': 'super-secret-key-please-change',
-    # token will expire in 3600 seconds if it is not refreshed and the user will be required to log in again
+    # Token will expire in 3600 seconds if it is not refreshed and the user will be required to log in again.
     'token_expiration_seconds': 3600,
-    # if a request is made at a time less than 1000 seconds before expiry, a new jwt is sent in the response header
+    # If a request is made at a time less than 1000 seconds before expiry, a new jwt is sent in the response header.
     'token_refresh_seconds': 1000 
 }
-# enable authenticated endpoints, example @authenticated.get('/users/me')
+# Enable authenticated endpoints, example @authenticated.get('/users/me').
 authenticated = hug.http(requires=hug.authentication.json_web_token(hug.authentication.verify_jwt, config['jwt_secret']))
 
-# check the token and issue a new one if it is about to expire (within token_refresh_seconds from expiry)
+# Check the token and issue a new one if it is about to expire (within token_refresh_seconds from expiry).
 @hug.response_middleware()
 def refresh_jwt(request, response, resource):
     authorization = request.get_header('Authorization')
