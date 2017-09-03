@@ -178,6 +178,7 @@ def jwt_authenticator(function, challenges=()):
 
     return wrapper
 
+
 @jwt_authenticator
 def json_web_token(request, response, verify_token, jwt_secret):
     """JWT verification
@@ -193,29 +194,31 @@ def json_web_token(request, response, verify_token, jwt_secret):
             return False
     return None
 
+
 def verify_jwt(authorization, response, jwt_secret):
     try:
         token = authorization.split(' ')[1]
         decoding = jwt.decode(token, jwt_secret, algorithm='HS256')
         return decoding['user_id']
-    except:
+    except jwt.InvalidTokenError:
         return False
+
 
 def new_jwt(user_id, token_expiration_seconds, jwt_secret):
     return jwt.encode({'user_id': user_id,
                        'exp': datetime.utcnow() + timedelta(seconds=token_expiration_seconds)},
                        jwt_secret, algorithm='HS256').decode("utf-8")
+    
 
 def refresh_jwt(authorization, token_refresh_seconds, token_expiration_seconds, jwt_secret):
     try:
         token = authorization.split(' ')[1]
         decoding = jwt.decode(token, jwt_secret, algorithm='HS256')
         exp = decoding['exp']
-
         if datetime.utcnow() > (datetime.utcfromtimestamp(exp) - timedelta(seconds=token_refresh_seconds)):
             return jwt.encode({'user_id': decoding['user_id'],
                                'exp': datetime.utcnow() + timedelta(seconds=token_expiration_seconds)},
                                jwt_secret, algorithm='HS256').decode("utf-8")
-    except:
+    except jwt.InvalidTokenError:
         return None
 # END - JWT AUTH #
