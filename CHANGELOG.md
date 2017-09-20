@@ -8,6 +8,11 @@ pip3 install hug --upgrade
 ```
 
 Ideally, within a virtual environment.
+Changelog
+=========
+### 2.3.2 - In Development
+- Breaking Changes:
+    - Fixed issue #539: Allow JSON output to include non-ascii (UTF8) characters by default.
 
 Changelog
 =========

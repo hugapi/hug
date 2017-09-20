@@ -87,14 +87,14 @@ def json_convert(*kinds):
 
 
 @content_type('application/json')
-def json(content, request=None, response=None, **kwargs):
+def json(content, request=None, response=None, ensure_ascii=False, **kwargs):
     """JSON (Javascript Serialized Object Notation)"""
     if hasattr(content, 'read'):
         return content
 
     if isinstance(content, tuple) and getattr(content, '_fields', None):
         content = {field: getattr(content, field) for field in content._fields}
-    return json_converter.dumps(content, default=_json_converter, **kwargs).encode('utf8')
+    return json_converter.dumps(content, default=_json_converter, ensure_ascii=ensure_ascii, **kwargs).encode('utf8')
 
 
 def on_valid(valid_content_type, on_invalid=json):

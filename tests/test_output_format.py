@@ -106,6 +106,8 @@ def test_json():
         return 'Like anyone could convert this'
 
     assert hug.input_format.json(BytesIO(hug.output_format.json(MyCrazyObject()))) == 'Like anyone could convert this'
+    assert hug.input_format.json(BytesIO(hug.output_format.json({'data': ['Τη γλώσσα μου έδωσαν ελληνική']}))) == \
+                                 {'data': ['Τη γλώσσα μου έδωσαν ελληνική']}
 
 
 def test_pretty_json():

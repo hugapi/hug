@@ -1460,9 +1460,19 @@ def test_cli_kwargs(hug_api):
 
 
 def test_api_gets_extra_variables_without_kargs_or_kwargs(hug_api):
+    """Test to ensure it's possiible to extra all params without specifying them exactly"""
     @hug.get(api=hug_api)
     def ensure_params(request, response):
         return request.params
 
     assert hug.test.get(hug_api, 'ensure_params', params={'make': 'it'}).data == {'make': 'it'}
     assert hug.test.get(hug_api, 'ensure_params', hello='world').data == {'hello': 'world'}
+
+
+def test_utf8_output(hug_api):
+    """Test to ensure unicode data is correct outputed on JSON outputs without modification"""
+    @hug.get(api=hug_api)
+    def output_unicode():
+        return {'data': 'Τη γλώσσα μου έδωσαν ελληνική'}
+
+    assert hug.test.get(hug_api, 'output_unicode').data == {'data': 'Τη γλώσσα μου έδωσαν ελληνική'}
