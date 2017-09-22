@@ -15,3 +15,8 @@ def echo(text):
 @hug.get('/unversioned')
 def hello():
     return 'Hello world!'
+
+
+@hug.get('/echo', versions='6')
+def echo(text):
+    return 'Version 6'

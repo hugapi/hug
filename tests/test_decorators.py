@@ -356,9 +356,18 @@ def test_versioning():
     def echo(text, api_version):
         return api_version
 
+    @hug.get('/echo', versions='8')  # noqa
+    def echo(text, api_version):
+        return api_version
+
     @hug.get('/echo', versions=False)  # noqa
     def echo(text):
         return "No Versions"
+
+    with pytest.raises(ValueError):
+        @hug.get('/echo', versions='eight')  # noqa
+        def echo(text, api_version):
+            return api_version
 
     assert hug.test.get(api, 'v1/echo', text="hi").data == 'hi'
     assert hug.test.get(api, 'v2/echo', text="hi").data == "Echo: hi"
@@ -367,6 +376,7 @@ def test_versioning():
     assert hug.test.get(api, 'echo', text="hi", headers={'X-API-VERSION': '3'}).data == "Echo: hi"
     assert hug.test.get(api, 'v4/echo', text="hi").data == "Not Implemented"
     assert hug.test.get(api, 'v7/echo', text="hi").data == 7
+    assert hug.test.get(api, 'v8/echo', text="hi").data == 8
     assert hug.test.get(api, 'echo', text="hi").data == "No Versions"
     assert hug.test.get(api, 'echo', text="hi", api_version=3, body={'api_vertion': 4}).data == "Echo: hi"
 
