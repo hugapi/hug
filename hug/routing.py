@@ -187,6 +187,7 @@ class HTTPRouter(InternalValidation):
                  response_headers=None, private=False, inputs=None, **kwargs):
         super().__init__(**kwargs)
         self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
+        self.route['versions'] = tuple(int(version) if version else version for version in self.route['versions'])
         if parse_body:
             self.route['parse_body'] = parse_body
         if parameters:
