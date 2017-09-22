@@ -8,14 +8,16 @@ pip3 install hug --upgrade
 ```
 
 Ideally, within a virtual environment.
-Changelog
-=========
-### 2.3.2 - In Development
-- Breaking Changes:
-    - Fixed issue #539: Allow JSON output to include non-ascii (UTF8) characters by default.
+
 
 Changelog
 =========
+
+### 2.3.2 - In Development
+- Fixed issue #555: Gracefully handle digit only version strings
+- Breaking Changes:
+    - Fixed issue #539: Allow JSON output to include non-ascii (UTF8) characters by default.
+
 ### 2.3.1 - Aug 26, 2017
 - Fixed issue #500 & 504: Added support for automatic reload on Windows & enabled intuitive use of pdb within autoreloader
 - Implemented improved way to retrieve list of urls and handlers for issue #462
