@@ -14,6 +14,7 @@ Changelog
 =========
 
 ### 2.3.2 - In Development
+- Implemented Issue #540: Add support for remapping parameters
 - Updated Falcon requirement to 1.3.0
 - Fixed issue #555: Gracefully handle digit only version strings
 - Breaking Changes:
