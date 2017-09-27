@@ -233,12 +233,19 @@ def test_cut_off():
 def test_inline_dictionary():
     """Tests that inline dictionary values are correctly handled"""
     int_dict = hug.types.InlineDictionary[int, int]()
-    assert int_dict('1:2') == {1:2}
-    assert int_dict('1:2|3:4') == {1:2, 3:4}
+    assert int_dict('1:2') == {1: 2}
+    assert int_dict('1:2|3:4') == {1: 2, 3: 4}
     assert hug.types.inline_dictionary('1:2') == {'1': '2'}
     assert hug.types.inline_dictionary('1:2|3:4') == {'1': '2', '3': '4'}
     with pytest.raises(ValueError):
         hug.types.inline_dictionary('1')
+
+    int_dict = hug.types.InlineDictionary[int]()
+    assert int_dict('1:2') == {1: '2'}
+
+    int_dict = hug.types.InlineDictionary[int, int, int]()
+    assert int_dict('1:2') == {1: 2}
+
 
 
 def test_one_of():

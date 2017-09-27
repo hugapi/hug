@@ -180,21 +180,22 @@ class SmartBoolean(type(boolean)):
 class InlineDictionary(Type, metaclass=SubTyped):
     """A single line dictionary, where items are separted by commas and key:value are separated by a pipe"""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.key_type = self.value_type = None
+        if self._sub_type:
+            if type(self._sub_type) in (tuple, list):
+                if len(self._sub_type) >= 2:
+                    self.key_type, self.value_type = self._sub_type[:2]
+            else:
+                self.key_type = self._sub_type
+
     def __call__(self, string):
         dictionary = {}
         for key, value in (item.split(":") for item in string.split("|")):
-            key_type = value_type = None
-            if self._sub_type:
-                if type(self._sub_type) in (tuple, list):
-                    if len(self._sub_type) == 2:
-                        key_type, value_type = self._sub_type
-                    else:
-                        value = self._sub_type[0]
-                else:
-                    key_type = self._sub_type
-
             key, value = key.strip(), value.strip()
-            dictionary[key_type(key) if key_type else key] = value_type(value) if value_type else value
+            dictionary[self.key_type(key)
+                       if self.key_type else key] = self.value_type(value) if self.value_type else value
         return dictionary
 
 

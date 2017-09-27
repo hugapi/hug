@@ -1486,3 +1486,27 @@ def test_utf8_output(hug_api):
         return {'data': 'Τη γλώσσα μου έδωσαν ελληνική'}
 
     assert hug.test.get(hug_api, 'output_unicode').data == {'data': 'Τη γλώσσα μου έδωσαν ελληνική'}
+
+
+def test_param_rerouting(hug_api):
+    @hug.local(api=hug_api, map_params={'local_id': 'record_id'})
+    @hug.cli(api=hug_api, map_params={'cli_id': 'record_id'})
+    @hug.get(api=hug_api, map_params={'id': 'record_id'})
+    def pull_record(record_id: hug.types.number):
+        return record_id
+
+    assert hug.test.get(hug_api, 'pull_record', id=10).data == 10
+    assert hug.test.get(hug_api, 'pull_record', id='10').data == 10
+    assert 'errors' in hug.test.get(hug_api, 'pull_record', id='ten').data
+    assert hug.test.cli(pull_record, cli_id=10) == 10
+    assert hug.test.cli(pull_record, cli_id='10') == 10
+    with pytest.raises(SystemExit):
+        hug.test.cli(pull_record, cli_id='ten')
+    assert pull_record(local_id=10)
+
+    @hug.get(api=hug_api, map_params={'id': 'record_id'})
+    def pull_record(record_id: hug.types.number=1):
+        return record_id
+
+    assert hug.test.get(hug_api, 'pull_record').data == 1
+    assert hug.test.get(hug_api, 'pull_record', id=10).data == 10

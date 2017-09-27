@@ -63,6 +63,10 @@ class TestRouter(object):
         """Test to ensure requirements can be added on the fly"""
         assert self.route.requires(('values', )).route['requires'] == ('values', )
 
+    def test_map_params(self):
+        """Test to ensure it is possible to set param mappings on the routing object"""
+        assert self.route.map_params(id='user_id').route['map_params'] == {'id': 'user_id'}
+
     def test_where(self):
         """Test to ensure `where` can be used to replace all arguments on the fly"""
         new_route = self.route.where(transform='transformer', output='outputter')
