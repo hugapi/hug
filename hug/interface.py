@@ -109,7 +109,7 @@ class Interface(object):
     """
     __slots__ = ('interface', '_api', 'defaults', 'parameters', 'required', '_outputs', 'on_invalid', 'requires',
                  'validate_function', 'transform', 'examples', 'output_doc', 'wrapped', 'directives', 'all_parameters',
-                 'raise_on_invalid', 'invalid_outputs')
+                 'raise_on_invalid', 'invalid_outputs', 'map_params', 'input_transformations')
 
     def __init__(self, route, function):
         if route.get('api', None):
@@ -136,6 +136,26 @@ class Interface(object):
             self.parameters = tuple(route['parameters'])
             self.all_parameters = set(route['parameters'])
             self.required = tuple([parameter for parameter in self.parameters if parameter not in self.defaults])
+
+        if 'map_params' in route:
+            self.map_params = route['map_params']
+            for interface_name, internal_name in self.map_params.items():
+                if internal_name in self.defaults:
+                    self.defaults[interface_name] = self.defaults.pop(internal_name)
+                if internal_name in self.parameters:
+                    self.parameters = [interface_name if param == internal_name else param for param in self.parameters]
+                if internal_name in self.all_parameters:
+                    self.all_parameters.remove(internal_name)
+                    self.all_parameters.add(interface_name)
+                if internal_name in self.required:
+                    self.required = tuple([interface_name if param == internal_name else param for
+                                           param in self.required])
+
+            reverse_mapping = {internal: interface for interface, internal in self.map_params.items()}
+            self.input_transformations = {reverse_mapping.get(name, name): transform for
+                                          name, transform in self.interface.input_transformations.items()}
+        else:
+            self.input_transformations = self.interface.input_transformations
 
         if 'output' in route:
             self.outputs = route['output']
@@ -177,7 +197,7 @@ class Interface(object):
     def validate(self, input_parameters):
         """Runs all set type transformers / validators against the provided input parameters and returns any errors"""
         errors = {}
-        for key, type_handler in self.interface.input_transformations.items():
+        for key, type_handler in self.input_transformations.items():
             if self.raise_on_invalid:
                 if key in input_parameters:
                     input_parameters[key] = type_handler(input_parameters[key])
@@ -193,7 +213,7 @@ class Interface(object):
                     else:
                         errors[key] = str(error)
 
-        for require in self.interface.required:
+        for require in self.required:
             if not require in input_parameters:
                 errors[require] = "Required parameter '{}' not supplied".format(require)
         if not errors and getattr(self, 'validate_function', False):
@@ -244,6 +264,10 @@ class Interface(object):
 
         return doc
 
+    def _rewrite_params(self, params):
+        for interface_name, internal_name in self.map_params.items():
+            if interface_name in params:
+                params[internal_name] = params.pop(interface_name)
 
 class Local(Interface):
     """Defines the Interface responsible for exposing functions locally"""
@@ -298,6 +322,8 @@ class Local(Interface):
                 outputs = getattr(self, 'invalid_outputs', self.outputs)
                 return outputs(errors) if outputs else errors
 
+        if getattr(self, 'map_params', None):
+            self._rewrite_params(kwargs)
         result = self.interface(**kwargs)
         if self.transform:
             result = self.transform(result)
@@ -428,6 +454,7 @@ class CLI(Interface):
             if errors:
                 return self.output(errors)
 
+        args = None
         if self.additional_options:
             args = []
             for parameter in self.interface.parameters:
@@ -449,6 +476,10 @@ class CLI(Interface):
                     elif add_options_to:
                         pass_to_function[add_options_to].append(option)
 
+        if getattr(self, 'map_params', None):
+            self._rewrite_params(pass_to_function)
+
+        if args:
             result = self.interface(*args, **pass_to_function)
         else:
             result = self.interface(**pass_to_function)
@@ -504,6 +535,7 @@ class HTTP(Interface):
     def gather_parameters(self, request, response, api_version=None, **input_parameters):
         """Gathers and returns all parameters that will be used for this endpoint"""
         input_parameters.update(request.params)
+
         if self.parse_body and request.content_length:
             body = request.stream
             content_type, content_params = parse_content_type(request.content_type)
@@ -596,6 +628,8 @@ class HTTP(Interface):
     def call_function(self, parameters):
         if not self.interface.takes_kwargs:
             parameters = {key: value for key, value in parameters.items() if key in self.all_parameters}
+        if getattr(self, 'map_params', None):
+            self._rewrite_params(parameters)
 
         return self.interface(**parameters)
 

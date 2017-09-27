@@ -41,7 +41,7 @@ class Router(object):
     """The base chainable router object"""
     __slots__ = ('route', )
 
-    def __init__(self, transform=None, output=None, validate=None, api=None, requires=(), **kwargs):
+    def __init__(self, transform=None, output=None, validate=None, api=None, requires=(), map_params=None, **kwargs):
         self.route = {}
         if transform is not None:
             self.route['transform'] = transform
@@ -53,6 +53,8 @@ class Router(object):
             self.route['api'] = api
         if requires:
             self.route['requires'] = (requires, ) if not isinstance(requires, (tuple, list)) else requires
+        if map_params:
+            self.route['map_params'] = map_params
 
     def output(self, formatter, **overrides):
         """Sets the output formatter that should be used to render this route"""
@@ -80,6 +82,10 @@ class Router(object):
         """Removes individual requirements while keeping all other defined ones within a route"""
         return self.where(requires=tuple(set(self.route.get('requires', ())).difference(requirements if
                                                             type(requirements) in (list, tuple) else (requirements, ))))
+
+    def map_params(self, **map_params):
+        """Map interface specific params to an internal name representation"""
+        return self.where(map_params=map_params)
 
     def where(self, **overrides):
         """Creates a new route, based on the current route, with the specified overrided values"""
