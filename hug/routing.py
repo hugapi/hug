@@ -189,11 +189,12 @@ class HTTPRouter(InternalValidation):
     """The HTTPRouter provides the base concept of a router from an HTTPRequest to a Python function"""
     __slots__ = ()
 
-    def __init__(self, versions=None, parse_body=False, parameters=None, defaults={}, status=None,
+    def __init__(self, versions=any, parse_body=False, parameters=None, defaults={}, status=None,
                  response_headers=None, private=False, inputs=None, **kwargs):
         super().__init__(**kwargs)
-        self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
-        self.route['versions'] = tuple(int(version) if version else version for version in self.route['versions'])
+        if versions is not any:
+            self.route['versions'] = (versions, ) if isinstance(versions, (int, float, None.__class__)) else versions
+            self.route['versions'] = tuple(int(version) if version else version for version in self.route['versions'])
         if parse_body:
             self.route['parse_body'] = parse_body
         if parameters:
@@ -269,13 +270,13 @@ class NotFoundRouter(HTTPRouter):
     """Provides a chainable router that can be used to route 404'd request to a Python function"""
     __slots__ = ()
 
-    def __init__(self, output=None, versions=None, status=falcon.HTTP_NOT_FOUND, **kwargs):
+    def __init__(self, output=None, versions=any, status=falcon.HTTP_NOT_FOUND, **kwargs):
         super().__init__(output=output, versions=versions, status=status, **kwargs)
 
     def __call__(self, api_function):
         api = self.route.get('api', hug.api.from_object(api_function))
         (interface, callable_method) = self._create_interface(api, api_function)
-        for version in self.route['versions']:
+        for version in self.route.get('versions', (None, )):
             api.http.set_not_found_handler(interface, version)
 
         return callable_method
@@ -349,7 +350,7 @@ class ExceptionRouter(HTTPRouter):
     def __call__(self, api_function):
         api = self.route.get('api', hug.api.from_object(api_function))
         (interface, callable_method) = self._create_interface(api, api_function, catch_exceptions=False)
-        for version in self.route['versions']:
+        for version in self.route.get('versions', (None, )):
             for exception in self.route['exceptions']:
                 api.http.add_exception_handler(exception, interface, version)
 
@@ -364,7 +365,7 @@ class URLRouter(HTTPRouter):
     """Provides a chainable router that can be used to route a URL to a Python function"""
     __slots__ = ()
 
-    def __init__(self, urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=None,
+    def __init__(self, urls=None, accept=HTTP_METHODS, output=None, examples=(), versions=any,
                  suffixes=(), prefixes=(), response_headers=None, parse_body=True, **kwargs):
         super().__init__(output=output, versions=versions, parse_body=parse_body, response_headers=response_headers,
                          **kwargs)
@@ -401,7 +402,7 @@ class URLRouter(HTTPRouter):
                 handlers = api.http.routes[api.http.base_url].setdefault(url, {})
                 for method in self.route.get('accept', ()):
                     version_mapping = handlers.setdefault(method.upper(), {})
-                    for version in self.route['versions']:
+                    for version in self.route.get('versions', (None, )):
                         version_mapping[version] = interface
                         api.http.versioned.setdefault(version, {})[callable_method.__name__] = callable_method
 

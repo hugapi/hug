@@ -16,6 +16,7 @@ Changelog
 ### 2.3.2 - In Development
 - Implemented Issue #540: Add support for remapping parameters
 - Updated Falcon requirement to 1.3.0
+- Fixed issue #552: Version ignored in class based routes
 - Fixed issue #555: Gracefully handle digit only version strings
 - Breaking Changes:
     - Fixed issue #539: Allow JSON output to include non-ascii (UTF8) characters by default.

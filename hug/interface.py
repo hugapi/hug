@@ -508,8 +508,7 @@ class HTTP(Interface):
         elif self.transform:
             self._params_for_on_invalid = self._params_for_transform
 
-        if route['versions']:
-            self.api.http.versions.update(route['versions'])
+        self.api.http.versions.update(route.get('versions', (None, )))
 
         self.interface.http = self
 
