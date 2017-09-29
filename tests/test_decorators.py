@@ -738,7 +738,13 @@ def test_extending_api():
         import tests.module_fake
         return (tests.module_fake, )
 
+    @hug.get('/fake/error')
+    def my_error():
+        import tests.module_fake
+        raise tests.module_fake.FakeException()
+
     assert hug.test.get(api, 'fake/made_up_api').data
+    assert hug.test.get(api, 'fake/error').data == True
 
 
 def test_extending_api_simple():
