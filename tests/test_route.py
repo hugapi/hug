@@ -61,6 +61,7 @@ def test_url_inheritance():
 
     assert hug.test.get(api, '/v1/endpoint/inherits_base').data == 'hi there!'
     assert hug.test.post(api, '/v1/ignores_base').data == 'bye'
+    assert hug.test.post(api, '/v2/ignores_base').data != 'bye'
     assert hug.test.get(api, '/endpoint/ignore_version').data == 'what version?'
 
 
