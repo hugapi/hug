@@ -177,11 +177,12 @@ class HTTPInterfaceAPI(InterfaceAPI):
         for middleware in (http_api.middleware or ()):
             self.add_middleware(middleware)
 
-        for version, handler in getattr(self, '_exception_handlers', {}).items():
-            for exception_type, exception_handler in handler.items():
-                target_exception_handlers = http_api.exception_handlers(version) or {}
-                if exception_type not in target_exception_handlers:
-                    http_api.add_exception_handler(exception_type, exception_handler, version)
+        for version, handler in getattr(http_api, '_exception_handlers', {}).items():
+            for exception_type, exception_handlers in handler.items():
+                target_exception_handlers = self.exception_handlers(version) or {}
+                for exception_handler in exception_handlers:
+                    if exception_type not in target_exception_handlers:
+                        self.add_exception_handler(exception_type, exception_handler, version)
 
         for input_format, input_format_handler in getattr(http_api, '_input_format', {}).items():
             if not input_format in getattr(self, '_input_format', {}):

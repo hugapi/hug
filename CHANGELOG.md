@@ -18,6 +18,7 @@ Changelog
 - Updated Falcon requirement to 1.3.0
 - Fixed issue #552: Version ignored in class based routes
 - Fixed issue #555: Gracefully handle digit only version strings
+- Fixed issue #519: Exceptions are now correctly inserted into the current API using `extend_api`
 - Breaking Changes:
     - Fixed issue #539: Allow JSON output to include non-ascii (UTF8) characters by default.
 
