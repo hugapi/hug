@@ -54,18 +54,18 @@ def test_basic_call():
     assert hug.test.get(module, '/hello_world').data == "Hello World!"
 
 
-def test_basic_call_on_method():
+def test_basic_call_on_method(hug_api):
     """Test to ensure the most basic call still works if applied to a method"""
     class API(object):
 
-        @hug.call()
+        @hug.call(api=hug_api)
         def hello_world(self=None):
             return "Hello World!"
 
     api_instance = API()
     assert api_instance.hello_world.interface.http
     assert api_instance.hello_world() == 'Hello World!'
-    assert hug.test.get(api, '/hello_world').data == "Hello World!"
+    assert hug.test.get(hug_api, '/hello_world').data == "Hello World!"
 
     class API(object):
 
@@ -74,17 +74,17 @@ def test_basic_call_on_method():
 
     api_instance = API()
 
-    @hug.call()
+    @hug.call(api=hug_api)
     def hello_world():
         return api_instance.hello_world()
 
     assert api_instance.hello_world() == 'Hello World!'
-    assert hug.test.get(api, '/hello_world').data == "Hello World!"
+    assert hug.test.get(hug_api, '/hello_world').data == "Hello World!"
 
     class API(object):
 
         def __init__(self):
-            hug.call()(self.hello_world_method)
+            hug.call(api=hug_api)(self.hello_world_method)
 
         def hello_world_method(self):
             return "Hello World!"
@@ -92,12 +92,12 @@ def test_basic_call_on_method():
     api_instance = API()
 
     assert api_instance.hello_world_method() == 'Hello World!'
-    assert hug.test.get(api, '/hello_world_method').data == "Hello World!"
+    assert hug.test.get(hug_api, '/hello_world_method').data == "Hello World!"
 
 
-def test_single_parameter():
+def test_single_parameter(hug_api):
     """Test that an api with a single parameter interacts as desired"""
-    @hug.call()
+    @hug.call(api=hug_api)
     def echo(text):
         return text
 
@@ -106,8 +106,8 @@ def test_single_parameter():
     with pytest.raises(TypeError):
         echo()
 
-    assert hug.test.get(api, 'echo', text="Hello").data == "Hello"
-    assert 'required' in hug.test.get(api, '/echo').data['errors']['text'].lower()
+    assert hug.test.get(hug_api, 'echo', text="Hello").data == "Hello"
+    assert 'required' in hug.test.get(hug_api, '/echo').data['errors']['text'].lower()
 
 
 def test_on_invalid_transformer():
