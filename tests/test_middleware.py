@@ -17,9 +17,10 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import hug
 import pytest
 from falcon.request import SimpleCookie
+
+import hug
 from hug.exceptions import SessionNotFound
 from hug.middleware import CORSMiddleware, LogMiddleware, SessionMiddleware
 from hug.store import InMemoryStore
@@ -142,4 +143,3 @@ def test_cors_middleware(hug_api):
     assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
     assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
     assert response.headers_dict['access-control-max-age'] == 10
-

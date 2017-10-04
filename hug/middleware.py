@@ -19,8 +19,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
-import re
 import logging
+import re
 import uuid
 from datetime import datetime
 

@@ -24,15 +24,17 @@ from __future__ import absolute_import
 import json
 import sys
 from collections import OrderedDict, namedtuple
+from distutils.util import strtobool
 from functools import partial
 from itertools import chain
 from types import ModuleType
 from wsgiref.simple_server import make_server
 
 import falcon
+from falcon import HTTP_METHODS
+
 import hug.defaults
 import hug.output_format
-from falcon import HTTP_METHODS
 from hug import introspect
 from hug._async import asyncio, ensure_future
 from hug._version import current
@@ -373,11 +375,12 @@ HTTPInterfaceAPI.base_404.interface = True
 
 class CLIInterfaceAPI(InterfaceAPI):
     """Defines the CLI interface specific API"""
-    __slots__ = ('commands', )
+    __slots__ = ('commands', 'error_exit_codes',)
 
-    def __init__(self, api, version=''):
+    def __init__(self, api, version='', error_exit_codes=False):
         super().__init__(api)
         self.commands = {}
+        self.error_exit_codes = error_exit_codes
 
     def __call__(self, args=None):
         """Routes to the correct command line tool"""
@@ -388,7 +391,10 @@ class CLIInterfaceAPI(InterfaceAPI):
             return sys.exit(1)
 
         command = args.pop(1)
-        self.commands.get(command)()
+        result = self.commands.get(command)()
+
+        if self.error_exit_codes and bool(strtobool(result.decode('utf-8'))) is False:
+            sys.exit(1)
 
     def handlers(self):
         """Returns all registered handlers attached to this API"""
@@ -427,9 +433,10 @@ class ModuleSingleton(type):
 
 class API(object, metaclass=ModuleSingleton):
     """Stores the information necessary to expose API calls within this module externally"""
-    __slots__ = ('module', '_directives', '_http', '_cli', '_context', '_startup_handlers', 'started', 'name', 'doc')
+    __slots__ = ('module', '_directives', '_http', '_cli', '_context',
+                 '_startup_handlers', 'started', 'name', 'doc', 'cli_error_exit_codes')
 
-    def __init__(self, module=None, name='', doc=''):
+    def __init__(self, module=None, name='', doc='', cli_error_exit_codes=False):
         self.module = module
         if module:
             self.name = name or module.__name__ or ''
@@ -438,6 +445,7 @@ class API(object, metaclass=ModuleSingleton):
             self.name = name
             self.doc = doc
         self.started = False
+        self.cli_error_exit_codes = cli_error_exit_codes
 
     def directives(self):
         """Returns all directives applicable to this Hug API"""
@@ -468,7 +476,7 @@ class API(object, metaclass=ModuleSingleton):
     @property
     def cli(self):
         if not hasattr(self, '_cli'):
-            self._cli = CLIInterfaceAPI(self)
+            self._cli = CLIInterfaceAPI(self, error_exit_codes=self.cli_error_exit_codes)
         return self._cli
 
     @property
