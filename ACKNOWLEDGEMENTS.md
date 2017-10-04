@@ -43,6 +43,7 @@ Code Contributors
 - Daniel Metz (@danielmmetz)
 - Alessandro Amici (@alexamici)
 - Trevor Bekolay (@tbekolay)
+- Elijah Wilson (@tizz98)
 
 Documenters
 ===================

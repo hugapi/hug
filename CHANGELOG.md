@@ -13,6 +13,9 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
+### 2.3.3 - In Development
+- Implemented issue #531: Allow exit value to alter status code for CLI tools
+
 ### 2.3.2 - Sep 28, 2017
 - Implemented Issue #540: Add support for remapping parameters
 - Updated Falcon requirement to 1.3.0
