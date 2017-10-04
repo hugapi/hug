@@ -19,6 +19,8 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import pytest
+
 import hug
 
 api = hug.API(__name__)
@@ -86,3 +88,37 @@ def test_api_routes(hug_api):
     assert list(hug_api.http.handlers()) == [my_route.interface.http, my_second_route.interface.http]
     assert list(hug_api.handlers()) == [my_route.interface.http, my_second_route.interface.http,
                                         my_cli_command.interface.cli]
+
+
+def test_cli_interface_api_with_exit_codes(hug_api_error_exit_codes_enabled):
+    api = hug_api_error_exit_codes_enabled
+
+    @hug.object(api=api)
+    class TrueOrFalse:
+        @hug.object.cli
+        def true(self):
+            return True
+
+        @hug.object.cli
+        def false(self):
+            return False
+
+    api.cli(args=[None, 'true'])
+
+    with pytest.raises(SystemExit):
+        api.cli(args=[None, 'false'])
+
+
+def test_cli_interface_api_without_exit_codes():
+    @hug.object(api=api)
+    class TrueOrFalse:
+        @hug.object.cli
+        def true(self):
+            return True
+
+        @hug.object.cli
+        def false(self):
+            return False
+
+    api.cli(args=[None, 'true'])
+    api.cli(args=[None, 'false'])

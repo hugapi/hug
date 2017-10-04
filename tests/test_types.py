@@ -25,10 +25,11 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-import hug
 import pytest
-from hug.exceptions import InvalidTypeData
 from marshmallow import Schema, fields
+
+import hug
+from hug.exceptions import InvalidTypeData
 
 
 def test_type():

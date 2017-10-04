@@ -25,10 +25,11 @@ import sys
 from unittest import mock
 
 import falcon
-import hug
 import pytest
 import requests
 from falcon.testing import StartResponseMock, create_environ
+
+import hug
 from hug._async import coroutine
 
 from .constants import BASE_DIRECTORY

@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import absolute_import
 
 from falcon import *
+
 from hug import (authentication, directives, exceptions, format, input_format, introspect,
                  middleware, output_format, redirect, route, test, transform, types, use, validate)
 from hug._version import current

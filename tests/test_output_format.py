@@ -25,8 +25,9 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from io import BytesIO
 
-import hug
 import pytest
+
+import hug
 
 from .constants import BASE_DIRECTORY
 

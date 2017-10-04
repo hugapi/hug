@@ -28,8 +28,9 @@ from io import BytesIO
 from queue import Queue
 
 import falcon
-import hug._empty as empty
 import requests
+
+import hug._empty as empty
 from hug.api import API
 from hug.defaults import input_format
 from hug.format import parse_content_type
