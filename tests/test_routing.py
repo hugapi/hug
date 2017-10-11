@@ -219,6 +219,13 @@ class TestHTTPRouter(TestInternalValidation):
         assert test_headers['Access-Control-Allow-Credentials'] == 'true'
         assert test_headers['Access-Control-Allow-Headers'] == 'OPTIONS'
         assert test_headers['Access-Control-Max-Age'] == 10
+        test_headers = self.route.allow_origins('google.com', methods=('GET', 'POST'), credentials=True,
+                                                headers="OPTIONS", max_age=10).route['response_headers']
+        assert 'Access-Control-Allow-Origin' not in test_headers
+        assert test_headers['Access-Control-Allow-Methods'] == 'GET, POST'
+        assert test_headers['Access-Control-Allow-Credentials'] == 'true'
+        assert test_headers['Access-Control-Allow-Headers'] == 'OPTIONS'
+        assert test_headers['Access-Control-Max-Age'] == 10
 
 
 class TestStaticRouter(TestHTTPRouter):
