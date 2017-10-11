@@ -255,7 +255,12 @@ class HTTPRouter(InternalValidation):
 
     def allow_origins(self, *origins, methods=None, max_age=None, credentials=None, headers=None, **overrides):
         """Convience method for quickly allowing other resources to access this one"""
-        reponse_headers = {'Access-Control-Allow-Origin': ', '.join(origins) if origins else '*'}
+        @hug.response_middleware()
+        def process_data(request, response, resource):
+            if 'ORIGIN' in request.headers:
+                origin = '*' if origins else request.headers['ORIGIN']
+                if origin == '*' or origin in origins:
+                    response.set_header('Access-Control-Allow-Origin', origin)
         if methods:
             reponse_headers['Access-Control-Allow-Methods'] = ', '.join(methods)
         if max_age:
