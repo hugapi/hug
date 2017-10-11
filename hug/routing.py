@@ -264,14 +264,14 @@ class HTTPRouter(InternalValidation):
 
         response_headers = {}
         if methods:
-            reponse_headers['Access-Control-Allow-Methods'] = ', '.join(methods)
+            response_headers['Access-Control-Allow-Methods'] = ', '.join(methods)
         if max_age:
-            reponse_headers['Access-Control-Max-Age'] = max_age
+            response_headers['Access-Control-Max-Age'] = max_age
         if credentials:
-            reponse_headers['Access-Control-Allow-Credentials'] = str(credentials).lower()
-        if reponse_headers:
-            reponse_headers['Access-Control-Allow-Headers'] = headers
-        return self.add_response_headers(reponse_headers, **overrides)
+            response_headers['Access-Control-Allow-Credentials'] = str(credentials).lower()
+        if headers:
+            response_headers['Access-Control-Allow-Headers'] = headers
+        return self.add_response_headers(response_headers, **overrides)
 
 
 class NotFoundRouter(HTTPRouter):
