@@ -261,6 +261,8 @@ class HTTPRouter(InternalValidation):
                 origin = '*' if origins else request.headers['ORIGIN']
                 if origin == '*' or origin in origins:
                     response.set_header('Access-Control-Allow-Origin', origin)
+
+        response_headers = {}
         if methods:
             reponse_headers['Access-Control-Allow-Methods'] = ', '.join(methods)
         if max_age:
