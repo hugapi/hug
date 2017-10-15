@@ -102,6 +102,9 @@ setup(name='hug',
       packages=['hug'],
       requires=['falcon', 'requests'],
       install_requires=['falcon==1.3.0', 'requests'],
+      extras_require = {
+          'ultrajson':  ["ujson"]
+      },
       cmdclass=cmdclass,
       ext_modules=ext_modules,
       keywords='Web, Python, Python3, Refactoring, REST, Framework, RPC',

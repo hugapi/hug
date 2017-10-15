@@ -21,7 +21,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
-import json
+try:
+    import ujson as json
+except ImportError:
+    import json
 import sys
 from collections import OrderedDict, namedtuple
 from distutils.util import strtobool

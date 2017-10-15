@@ -19,7 +19,10 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import json
+try:
+    import ujson as json
+except ImportError:
+    import json
 import os
 import sys
 from unittest import mock

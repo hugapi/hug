@@ -22,7 +22,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import absolute_import
 
 import base64
-import json as json_converter
+try:
+            import ujson as json_converter
+except ImportError:
+            import json as json_converter
 import mimetypes
 import os
 import re

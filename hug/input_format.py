@@ -21,7 +21,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
-import json as json_converter
+
+
+try:
+        import ujson as json_converter
+except ImportError:
+        import json as json_converter
 import re
 from cgi import parse_multipart
 from urllib.parse import parse_qs as urlencoded_converter

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import tornado.ioloop
 import tornado.web
-import json
-
+try:
+    import ujson as json
+except ImportError:
+    import json
 
 class TextHandler(tornado.web.RequestHandler):
     def get(self):
