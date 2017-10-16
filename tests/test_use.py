@@ -23,10 +23,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 import socket
 import struct
 
+import hug
 import pytest
 import requests
-
-import hug
 from hug import use
 
 

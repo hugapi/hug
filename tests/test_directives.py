@@ -21,9 +21,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from base64 import b64encode
 
-import pytest
-
 import hug
+import pytest
 
 api = hug.API(__name__)
 
