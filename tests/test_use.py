@@ -101,6 +101,7 @@ class TestHTTP(object):
         assert self.service.endpoint == 'http://www.google.com/'
         assert self.service.raise_on == (404, 400)
 
+    @pytest.mark.extnetwork
     def test_request(self):
         """Test so ensure the HTTP service can successfully be used to pull data from an external service"""
         response = self.url_service.request('GET', 'search', query='api')
@@ -197,6 +198,7 @@ class TestSocket(object):
         assert self.tcp_service.connection.sockopts == {(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
                                                         (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)}
 
+    @pytest.mark.extnetwork
     def test_datagram_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
         packet = struct.pack("!HHHHHH", 0x0001, 0x0100, 1, 0, 0, 0)
