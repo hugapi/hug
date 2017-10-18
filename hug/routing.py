@@ -255,16 +255,26 @@ class HTTPRouter(InternalValidation):
 
     def allow_origins(self, *origins, methods=None, max_age=None, credentials=None, headers=None, **overrides):
         """Convience method for quickly allowing other resources to access this one"""
-        reponse_headers = {'Access-Control-Allow-Origin': ', '.join(origins) if origins else '*'}
+        response_headers = {}
+        if origins:
+            @hug.response_middleware()
+            def process_data(request, response, resource):
+                if 'ORIGIN' in request.headers:
+                    origin = request.headers['ORIGIN']
+                    if origin in origins:
+                        response.set_header('Access-Control-Allow-Origin', origin)
+        else:
+            response_headers['Access-Control-Allow-Origin'] = '*'
+
         if methods:
-            reponse_headers['Access-Control-Allow-Methods'] = ', '.join(methods)
+            response_headers['Access-Control-Allow-Methods'] = ', '.join(methods)
         if max_age:
-            reponse_headers['Access-Control-Max-Age'] = max_age
+            response_headers['Access-Control-Max-Age'] = max_age
         if credentials:
-            reponse_headers['Access-Control-Allow-Credentials'] = str(credentials).lower()
-        if reponse_headers:
-            reponse_headers['Access-Control-Allow-Headers'] = headers
-        return self.add_response_headers(reponse_headers, **overrides)
+            response_headers['Access-Control-Allow-Credentials'] = str(credentials).lower()
+        if headers:
+            response_headers['Access-Control-Allow-Headers'] = headers
+        return self.add_response_headers(response_headers, **overrides)
 
 
 class NotFoundRouter(HTTPRouter):
