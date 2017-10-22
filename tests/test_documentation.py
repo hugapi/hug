@@ -19,12 +19,14 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import json
-
-from falcon import Request
-from falcon.testing import StartResponseMock, create_environ
+try:
+    import ujson as json
+except ImportError:
+    import json
 
 import hug
+from falcon import Request
+from falcon.testing import StartResponseMock, create_environ
 
 api = hug.API(__name__)
 

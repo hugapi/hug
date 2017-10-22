@@ -19,17 +19,19 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import json
+try:
+    import ujson as json
+except ImportError:
+    import json
 import urllib
 from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-import pytest
-from marshmallow import Schema, fields
-
 import hug
+import pytest
 from hug.exceptions import InvalidTypeData
+from marshmallow import Schema, fields
 
 
 def test_type():

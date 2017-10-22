@@ -20,7 +20,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import pytest
-
 from hug.exceptions import StoreKeyNotFound
 from hug.store import InMemoryStore
 

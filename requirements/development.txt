@@ -1,6 +1,7 @@
 bumpversion==0.5.3
 Cython==0.25.2
 -r common.txt
+usjon==1.35
 flake8==3.3.0
 frosted==1.4.1
 ipython==5.3.0

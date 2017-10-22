@@ -29,11 +29,10 @@ from __future__ import absolute_import
 import functools
 from collections import namedtuple
 
-from falcon import HTTP_METHODS
-
 import hug.api
 import hug.defaults
 import hug.output_format
+from falcon import HTTP_METHODS
 from hug import introspect
 from hug.format import underscore
 

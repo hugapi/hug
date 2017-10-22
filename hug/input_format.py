@@ -21,14 +21,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
-import json as json_converter
 import re
 from cgi import parse_multipart
 from urllib.parse import parse_qs as urlencoded_converter
 
 from falcon.util.uri import parse_query_string
-
 from hug.format import content_type, underscore
+
+try:  # pragma: no cover
+    import ujson as json_converter
+except ImportError:
+    import json as json_converter
+
+
 
 
 @content_type('text/plain')

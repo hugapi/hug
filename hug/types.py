@@ -23,11 +23,15 @@ from __future__ import absolute_import
 
 import uuid as native_uuid
 from decimal import Decimal
-from json import loads as load_json
 
 import hug._empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
+
+try:
+    from ujson import loads as load_json
+except ImportError:
+    from json import loads as load_json
 
 
 class Type(object):
