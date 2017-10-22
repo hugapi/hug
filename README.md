@@ -105,6 +105,16 @@ import happy_birthday
 hug.test.get(happy_birthday, 'happy_birthday', {'name': 'Timothy', 'age': 25}) # Returns a Response object
 ```
 
+You can use this `Response` object for test assertions (check
+out [`test_happy_birthday.py`](examples/test_happy_birthday.py) ):
+
+```python
+def tests_happy_birthday():
+    response = hug.test.get(happy_birthday, 'happy_birthday', {'name': 'Timothy', 'age': 25})
+    assert response.status == HTTP_200
+    assert response.data is not None
+``` 
+
 
 Running hug with other WSGI based servers
 ===================
