@@ -153,7 +153,8 @@ def math(number_1:int, number_2:int): #The :int after both arguments is the Type
     return number_1 + number_2
 ```
 
-Type annotations also feed into hug's automatic documentation generation to let users of your API know what data to supply.
+Type annotations also feed into `hug`'s automatic documentation
+generation to let users of your API know what data to supply. 
 
 
 **Directives** functions that get executed with the request / response data based on being requested as an argument in your api_function.
