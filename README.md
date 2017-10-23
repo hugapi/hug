@@ -60,9 +60,35 @@ To run, from the command line type:
 hug -f happy_birthday.py
 ```
 
-You can access the example in your browser at: `localhost:8000/happy_birthday?name=hug&age=1`. Then check out the documentation for your API at `localhost:8000/documentation`
+You can access the example in your browser at:
+`localhost:8000/happy_birthday?name=hug&age=1`. Then check out the
+documentation for your API at `localhost:8000/documentation`
 
+Parameters can also be encoded in the URL (check
+out [`happy_birthday.py`](examples/happy_birthday.py) for the whole
+example).
 
+```py
+@hug.get('/greet/{event}')
+def greet(event: str):
+    """Greets appropriately (from http://blog.ketchum.com/how-to-write-10-common-holiday-greetings/)  """
+    greetings = "Happy"
+    if event == "Christmas":
+        greetings = "Merry"
+    if event == "Kwanzaa":
+        greetings = "Joyous"
+    if event == "wishes":
+        greetings = "Warm"
+
+    return "{greetings} {event}!".format(**locals())
+```
+
+Which, once you are running the server as above, you can use this way:
+
+```
+curl http://localhost:8000/greet/wishes
+"Warm wishes!"
+```
 
 Versioning with hug
 ===================
@@ -153,7 +179,8 @@ def math(number_1:int, number_2:int): #The :int after both arguments is the Type
     return number_1 + number_2
 ```
 
-Type annotations also feed into hug's automatic documentation generation to let users of your API know what data to supply.
+Type annotations also feed into `hug`'s automatic documentation
+generation to let users of your API know what data to supply. 
 
 
 **Directives** functions that get executed with the request / response data based on being requested as an argument in your api_function.
