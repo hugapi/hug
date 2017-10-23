@@ -12,3 +12,4 @@ tox==2.7.0
 wheel==0.29.0
 pytest-xdist==1.14.0
 marshmallow==2.6.0
+ujson==1.35

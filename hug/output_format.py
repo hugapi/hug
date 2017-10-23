@@ -22,7 +22,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import absolute_import
 
 import base64
-import json as json_converter
 import mimetypes
 import os
 import re
@@ -35,9 +34,9 @@ from operator import itemgetter
 
 import falcon
 from falcon import HTTP_NOT_FOUND
-
 from hug import introspect
 from hug.format import camelcase, content_type
+from hug.json_module import json as json_converter
 
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
                'cur', 'dcx', 'fli', 'flc', 'gbr', 'gd', 'ico', 'icns', 'imt', 'iptc', 'naa', 'mcidas', 'mpo', 'pcd',

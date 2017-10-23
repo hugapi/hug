@@ -23,11 +23,11 @@ from __future__ import absolute_import
 
 import uuid as native_uuid
 from decimal import Decimal
-from json import loads as load_json
 
 import hug._empty as empty
 from hug import introspect
 from hug.exceptions import InvalidTypeData
+from hug.json_module import json as json_converter
 
 
 class Type(object):
@@ -241,7 +241,7 @@ class JSON(Type):
     def __call__(self, value):
         if type(value) in (str, bytes):
             try:
-                return load_json(value)
+                return json_converter.loads(value)
             except Exception:
                 raise ValueError('Incorrectly formatted JSON provided')
         else:
