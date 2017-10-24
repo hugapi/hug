@@ -15,7 +15,7 @@ try:
                 kwargs.pop('default', None)
                 kwargs.update(escape_forward_slashes=False)
                 return self._dumps(*args, **kwargs)
-        json = dumps_proxy()
+        json.dumps = dumps_proxy()
     else:
         import json
 except ImportError:
