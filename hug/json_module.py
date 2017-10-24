@@ -13,6 +13,7 @@ try:
 
             def __call__(self, *args, **kwargs):
                 kwargs.pop('default', None)
+                kwargs.pop('separators', None)
                 kwargs.update(escape_forward_slashes=False)
                 return self._dumps(*args, **kwargs)
         json.dumps = dumps_proxy()
