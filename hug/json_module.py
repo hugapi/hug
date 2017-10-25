@@ -15,7 +15,11 @@ try:
                 kwargs.pop('default', None)
                 kwargs.pop('separators', None)
                 kwargs.update(escape_forward_slashes=False)
-                return self._dumps(*args, **kwargs)
+                try:  # pragma: no cover
+                    return self._dumps(*args, **kwargs)
+                except Exception as exc:
+                    raise TypeError("Type[ujson] is not Serializable", exc)
+
         json.dumps = dumps_proxy()
     else:
         import json
