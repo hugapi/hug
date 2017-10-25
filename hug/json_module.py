@@ -1,7 +1,7 @@
 import os
 
 HUG_USE_UJSON = bool(os.environ.get('HUG_USE_UJSON', 1))
-try:
+try:  # pragma: no cover
     if HUG_USE_UJSON:
         import ujson as json
 
@@ -15,7 +15,7 @@ try:
                 kwargs.pop('default', None)
                 kwargs.pop('separators', None)
                 kwargs.update(escape_forward_slashes=False)
-                try:  # pragma: no cover
+                try:
                     return self._dumps(*args, **kwargs)
                 except Exception as exc:
                     raise TypeError("Type[ujson] is not Serializable", exc)
@@ -23,5 +23,5 @@ try:
         json.dumps = dumps_proxy()
     else:
         import json
-except ImportError:
+except ImportError:  # pragma: no cover
     import json
