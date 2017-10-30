@@ -122,9 +122,9 @@ Note: versioning in hug automatically supports both the version header as well a
 Testing hug APIs
 ===================
 
-hug's `http` method decorators don't modify your original functions. This makes testing hug APIs as simple as testing any other Python functions. Additionally, this means interacting with your API functions in other Python code is as straight forward as calling Python only API functions. Additionally, hug makes it easy to test the full Python stack of your API by using the `hug.test` module:
+hug's `http` method decorators don't modify your original functions. This makes testing hug APIs as simple as testing any other Python functions. Additionally, this means interacting with your API functions in other Python code is as straight forward as calling Python only API functions. hug makes it easy to test the full Python stack of your API by using the `hug.test` module:
 
-```py
+```python
 import hug
 import happy_birthday
 
