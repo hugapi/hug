@@ -24,6 +24,7 @@ Code Contributors
 - Ian Wagner (@ianthetechie)
 - Erwin Haasnoot (@ErwinHaasnoot)
 - Kirk Leon Guerrero (@kirklg)
+
 - Ergo_ (@johnlam)
 - Rodrigue Cloutier (@rodcloutier)
 - KhanhIceTea (@khanhicetea)
@@ -71,6 +72,7 @@ Documenters
 - Adam McCarthy (@mccajm)
 - Sobolev Nikita (@sobolevn)
 - Chris (@ckhrysze)
+- Amanda Crosley (@waddlelikeaduck)
 
 --------------------------------------------
 
