@@ -46,7 +46,8 @@ def _start_api(api_module, port, no_404_documentation, show_intro=True):
 def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python module that contains a Hug API'=None,
         port: number=8000, no_404_documentation: boolean=False,
         manual_reload: boolean=False, interval: number=1,
-        command: 'Run a command defined in the given module'=None):
+        command: 'Run a command defined in the given module'=None,
+        silent: boolean=False):
     """Hug API Development Server"""
     api_module = None
     if file and module:
@@ -63,7 +64,7 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
         print("Error: must define a file name or module that contains a Hug API.")
         sys.exit(1)
 
-    api = API(api_module)
+    api = API(api_module, display_intro=not silent)
     if command:
         if command not in api.cli.commands:
             print(str(api.cli))
@@ -80,7 +81,7 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
             reload_checker.reloading = False
             time.sleep(1)
             try:
-                _start_api(api_module, port, no_404_documentation, not ran)
+                _start_api(api_module, port, no_404_documentation, False if silent else not ran)
             except KeyboardInterrupt:
                 if not reload_checker.reloading:
                     sys.exit(1)

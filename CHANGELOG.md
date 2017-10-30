@@ -14,6 +14,7 @@ Changelog
 =========
 
 ### 2.3.3 - In Development
+- Implement issue #579: Allow silencing intro message when running hug from command line
 - Implemented issue #531: Allow exit value to alter status code for CLI tools
 
 ### 2.3.2 - Sep 28, 2017
