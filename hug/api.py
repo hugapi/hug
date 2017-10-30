@@ -21,7 +21,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
-import json
 import sys
 from collections import OrderedDict, namedtuple
 from distutils.util import strtobool
@@ -31,13 +30,13 @@ from types import ModuleType
 from wsgiref.simple_server import make_server
 
 import falcon
-from falcon import HTTP_METHODS
-
 import hug.defaults
 import hug.output_format
+from falcon import HTTP_METHODS
 from hug import introspect
 from hug._async import asyncio, ensure_future
 from hug._version import current
+from hug.json_module import json
 
 
 INTRO = """

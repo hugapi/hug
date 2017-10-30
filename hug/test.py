@@ -21,7 +21,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
-import json
 import sys
 from functools import partial
 from io import BytesIO
@@ -30,9 +29,9 @@ from urllib.parse import urlencode
 
 from falcon import HTTP_METHODS
 from falcon.testing import StartResponseMock, create_environ
-
 from hug import output_format
 from hug.api import API
+from hug.json_module import json
 
 
 def call(method, api_or_module, url, body='', headers=None, params=None, query_string='', scheme='http', **kwargs):
