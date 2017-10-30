@@ -16,6 +16,7 @@ Changelog
 ### 2.3.3 - In Development
 - Implement issue #579: Allow silencing intro message when running hug from command line
 - Implemented issue #531: Allow exit value to alter status code for CLI tools
+- Updated documentation generation to use hug's JSON outputter for consistency
 
 ### 2.3.2 - Sep 28, 2017
 - Implemented Issue #540: Add support for remapping parameters
