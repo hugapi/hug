@@ -16,7 +16,7 @@ hug's Design Objectives:
 
 - Make developing a Python driven API as succinct as a written definition.
 - The framework should encourage code that self-documents.
-- It should be fast. Never should a developer feel the need to look somewhere else for performance reasons.
+- It should be fast. A developer should never feel the need to look somewhere else for performance reasons.
 - Writing tests for APIs written on-top of hug should be easy and intuitive.
 - Magic done once, in an API framework, is better than pushing the problem set to the user of the API framework.
 - Be the basis for next generation Python APIs, embracing the latest technology.
@@ -417,7 +417,7 @@ bash-4.3# tree
 Why hug?
 ===================
 
-HUG simply stands for Hopefully Useful Guide. This represents the projects goal to help guide developers into creating well written and intuitive APIs.
+HUG simply stands for Hopefully Useful Guide. This represents the project's goal to help guide developers into creating well written and intuitive APIs.
 
 --------------------------------------------
 
