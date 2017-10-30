@@ -159,7 +159,7 @@ To run the hello world hug example API.
 Building Blocks of a hug API
 ===================
 
-When Building an API using the hug framework you'll use the following concepts:
+When building an API using the hug framework you'll use the following concepts:
 
 **METHOD Decorators** `get`, `post`, `update`, etc HTTP method decorators that expose your Python function as an API while keeping your Python method unchanged
 
