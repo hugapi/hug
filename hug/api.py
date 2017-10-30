@@ -36,8 +36,6 @@ from falcon import HTTP_METHODS
 from hug import introspect
 from hug._async import asyncio, ensure_future
 from hug._version import current
-from hug.json_module import json
-
 
 INTRO = """
 /#######################################################################\\
@@ -307,7 +305,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
                                 "Here's a definition of the API to help you get going :)")
             to_return['documentation'] = self.documentation(base_url, self.determine_version(request, False),
                                                             prefix=url_prefix)
-            response.data = json.dumps(to_return, indent=4, separators=(',', ': ')).encode('utf8')
+            response.data = hug.output_format.json(to_return, indent=4, separators=(',', ': '))
             response.status = falcon.HTTP_NOT_FOUND
             response.content_type = 'application/json'
         handle_404.interface = True
