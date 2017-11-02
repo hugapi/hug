@@ -55,7 +55,7 @@ Here's how I modify it to expose it via the command line:
     ```
 Yay! Now I can just do my math from the command line using:
 ```add.py $NUMBER_1 $NUMBER_2```.
-And even better, if I miss an argument it let's me know what it is and how to fix my error.
+And even better, if I miss an argument it lets me know what it is and how to fix my error.
 The thing I immediately notice, is that my new command line interface works, it's well documented, and it's clean.
 Just like the original.
 
