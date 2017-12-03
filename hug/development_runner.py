@@ -38,13 +38,13 @@ from hug.types import boolean, number
 INIT_MODULES = list(sys.modules.keys())
 
 
-def _start_api(api_module, port, no_404_documentation, show_intro=True):
-    API(api_module).http.serve(port, no_404_documentation, show_intro)
+def _start_api(api_module, host, port, no_404_documentation, show_intro=True):
+    API(api_module).http.serve(host, port, no_404_documentation, show_intro)
 
 
 @cli(version=current)
 def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python module that contains a Hug API'=None,
-        port: number=8000, no_404_documentation: boolean=False,
+        host: 'Interface to bind to'='', port: number=8000, no_404_documentation: boolean=False,
         manual_reload: boolean=False, interval: number=1,
         command: 'Run a command defined in the given module'=None,
         silent: boolean=False):
@@ -81,7 +81,7 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
             reload_checker.reloading = False
             time.sleep(1)
             try:
-                _start_api(api_module, port, no_404_documentation, False if silent else not ran)
+                _start_api(api_module, host, port, no_404_documentation, False if silent else not ran)
             except KeyboardInterrupt:
                 if not reload_checker.reloading:
                     sys.exit(1)
@@ -95,7 +95,7 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
                     elif module:
                         api_module = importlib.import_module(module)
     else:
-        _start_api(api_module, port, no_404_documentation, not ran)
+        _start_api(api_module, host, port, no_404_documentation, not ran)
 
 
 def reload_checker(interval):

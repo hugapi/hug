@@ -246,7 +246,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
         documentation['handlers'] = version_dict
         return documentation
 
-    def serve(self, port=8000, no_documentation=False, display_intro=True):
+    def serve(self, host='', port=8000, no_documentation=False, display_intro=True):
         """Runs the basic hug development server against this API"""
         if no_documentation:
             api = self.server(None)
@@ -256,8 +256,8 @@ class HTTPInterfaceAPI(InterfaceAPI):
         if display_intro:
             print(INTRO)
 
-        httpd = make_server('', port, api)
-        print("Serving on port {0}...".format(port))
+        httpd = make_server(host, port, api)
+        print("Serving on {0}:{1}...".format(host, port))
         httpd.serve_forever()
 
     @staticmethod
