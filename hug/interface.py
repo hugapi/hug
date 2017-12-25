@@ -270,6 +270,13 @@ class Interface(object):
             if interface_name in params:
                 params[internal_name] = params.pop(interface_name)
 
+    @staticmethod
+    def cleanup_parameters(parameters, exception=None):
+        for parameter, directive in parameters.items():
+            if hasattr(directive, 'cleanup'):
+                directive.cleanup(exception=exception)
+
+
 class Local(Interface):
     """Defines the Interface responsible for exposing functions locally"""
     __slots__ = ('skip_directives', 'skip_validation', 'version')
@@ -325,7 +332,12 @@ class Local(Interface):
 
         if getattr(self, 'map_params', None):
             self._rewrite_params(kwargs)
-        result = self.interface(**kwargs)
+        try:
+            result = self.interface(**kwargs)
+            self.cleanup_parameters(kwargs)
+        except Exception as exception:
+            self.cleanup_parameters(kwargs, exception=exception)
+            raise exception
         if self.transform:
             result = self.transform(result)
         return self.outputs(result) if self.outputs else result
@@ -480,11 +492,15 @@ class CLI(Interface):
         if getattr(self, 'map_params', None):
             self._rewrite_params(pass_to_function)
 
-        if args:
-            result = self.interface(*args, **pass_to_function)
-        else:
-            result = self.interface(**pass_to_function)
-
+        try:
+            if args:
+                result = self.interface(*args, **pass_to_function)
+            else:
+                result = self.interface(**pass_to_function)
+            self.cleanup_parameters(pass_to_function)
+        except Exception as exception:
+            self.cleanup_parameters(pass_to_function, exception=exception)
+            raise exception
         return self.output(result)
 
 
@@ -559,7 +575,6 @@ class HTTP(Interface):
             arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
             input_parameters[parameter] = directive(*arguments, response=response, request=request,
                                                     api=self.api, api_version=api_version, interface=self)
-
         return input_parameters
 
     @property
@@ -676,6 +691,7 @@ class HTTP(Interface):
         else:
             exception_types = self.api.http.exception_handlers(api_version)
             exception_types = tuple(exception_types.keys()) if exception_types else ()
+        input_parameters = {}
         try:
             self.set_response_defaults(response, request)
 
@@ -691,9 +707,12 @@ class HTTP(Interface):
                 return self.render_errors(errors, request, response)
 
             self.render_content(self.call_function(input_parameters), request, response, **kwargs)
-        except falcon.HTTPNotFound:
+            self.cleanup_parameters(input_parameters)
+        except falcon.HTTPNotFound as exception:
+            self.cleanup_parameters(input_parameters, exception=exception)
             return self.api.http.not_found(request, response, **kwargs)
         except exception_types as exception:
+            self.cleanup_parameters(input_parameters, exception=exception)
             handler = None
             exception_type = type(exception)
             if exception_type in exception_types:
@@ -710,6 +729,10 @@ class HTTP(Interface):
                 raise exception
 
             handler(request=request, response=response, exception=exception, **kwargs)
+        except Exception as exception:
+            self.cleanup_parameters(input_parameters, exception=exception)
+            raise exception
+
 
     def documentation(self, add_to=None, version=None, prefix="", base_url="", url=""):
         """Returns the documentation specific to an HTTP interface"""
