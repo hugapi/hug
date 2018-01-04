@@ -934,6 +934,69 @@ def test_cli_with_directives():
     assert isinstance(hug.test.cli(test), float)
 
 
+def test_cli_with_class_directives():
+
+    @hug.directive()
+    class ClassDirective(object):
+
+        def __init__(self, *args, **kwargs):
+            self.test = 1
+
+    @hug.cli()
+    @hug.local(skip_directives=False)
+    def test(class_directive: ClassDirective):
+        return class_directive.test
+
+    assert test() == 1
+    assert hug.test.cli(test) == 1
+
+    class TestObject(object):
+        is_cleanup_launched = False
+        last_exception = None
+
+    @hug.directive()
+    class ClassDirectiveWithCleanUp(object):
+
+        def __init__(self, *args, **kwargs):
+            self.test_object = TestObject
+
+        def cleanup(self, exception):
+            self.test_object.is_cleanup_launched = True
+            self.test_object.last_exception = exception
+
+    @hug.cli()
+    @hug.local(skip_directives=False)
+    def test2(class_directive: ClassDirectiveWithCleanUp):
+        return class_directive.test_object.is_cleanup_launched
+
+    assert not hug.test.cli(test2)  # cleanup should be launched after running command
+    assert TestObject.is_cleanup_launched
+    assert TestObject.last_exception is None
+    TestObject.is_cleanup_launched = False
+    TestObject.last_exception = None
+    assert not test2()
+    assert TestObject.is_cleanup_launched
+    assert TestObject.last_exception is None
+
+    @hug.cli()
+    @hug.local(skip_directives=False)
+    def test_with_attribute_error(class_directive: ClassDirectiveWithCleanUp):
+        raise class_directive.test_object2
+
+    hug.test.cli(test_with_attribute_error)
+    assert TestObject.is_cleanup_launched
+    assert isinstance(TestObject.last_exception, AttributeError)
+    TestObject.is_cleanup_launched = False
+    TestObject.last_exception = None
+    try:
+        test_with_attribute_error()
+        assert False
+    except AttributeError:
+        assert True
+    assert TestObject.is_cleanup_launched
+    assert isinstance(TestObject.last_exception, AttributeError)
+
+
 def test_cli_with_named_directives():
     """Test to ensure you can pass named directives into the cli"""
     @hug.cli()
