@@ -7,6 +7,19 @@
 
 # Frequently Asked Questions about Hug
 
+For more examples, check out Hug's [documentation][https://github.com/timothycrosley/hug/tree/develop/documentation] and [examples][https://github.com/timothycrosley/hug/tree/develop/examples] Github directories, and its [website][http://www.hug.rest/].
+
+## General Questions
+
+Q: *Can I use Hug with a web framework -- Django for example?*
+
+A: You can use Hug alongside Django or the web framework of your choice, but it does have drawbacks. You would need to run hug on a separate, hug-exclusive server. You can also [mount Hug as a WSGI app][https://pythonhosted.org/django-wsgi/embedded-apps.html], embedded within your normal Django app. 
+
+
+
+
+## Technical Questions
+
 Q: *I need to ensure the security of my data. Can Hug be used over HTTPS?*
 
 A: Not directly, but you can utilize [uWSGI][https://uwsgi-docs.readthedocs.io/en/latest/] with nginx to transmit sensitive data. HTTPS is not part of the standard WSGI application layer, so you must use a WSGI HTTP server (such as uWSGI) to run in production. With this setup, Nginx handles SSL connections, and transfers requests to uWSGI.
@@ -41,7 +54,7 @@ It will return to you a structure of "base_url -> url -> HTTP method -> Version 
 
 `__hug_wsgi__.http.routes[''].keys()`
 
-Q: How can I configure a unique 404 route? 
+Q: *How can I configure a unique 404 route?*
 
 A: By default, Hug will call `documentation_404()` if no HTTP route is found. However, if you want to configure other options (such as routing to a directiory, or routing everything else to a landing page) you can use the `@hug.sink('/')` decorator to create a "catch-all" route.
 
