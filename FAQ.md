@@ -8,8 +8,17 @@ Q: *Can I use Hug with a web framework -- Django for example?*
 
 A: You can use Hug alongside Django or the web framework of your choice, but it does have drawbacks. You would need to run hug on a separate, hug-exclusive server. You can also [mount Hug as a WSGI app][https://pythonhosted.org/django-wsgi/embedded-apps.html], embedded within your normal Django app. 
 
+Q: *Is Hug compatabile with Python 2?*
 
+A: Python 2 is not supported by Hug. However, if you need to account for backwards compatability, there are workarounds. For example, you can wrap the decorators: 
 
+```Python 
+
+def my_get_fn(func, *args, **kwargs):
+    if 'hug' in globals():
+        return hug.get(func, *args, **kwargs)
+    return func
+```
 
 ## Technical Questions
 
