@@ -72,6 +72,7 @@ Documenters
 - Sobolev Nikita (@sobolevn)
 - Chris (@ckhrysze)
 - Amanda Crosley (@waddlelikeaduck)
+- Chelsea Dole (@chelseadole)
 
 --------------------------------------------
 
