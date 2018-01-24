@@ -118,6 +118,22 @@ in addition to `hug.http` hug includes convenience decorators for all common HTT
  - `raise_on_invalid`: If set to true, instead of collecting validation errors in a dictionary, hug will simply raise them as they occur.
 
 
+Handling for 404 Responses
+===========
+
+By default, Hug will call `documentation_404()` if a user tries to access a nonexistant route when serving. If you want to specify something different, you can use the "sink" decorator, such as in the example below. The `@hug.sink()` decorator serves as a "catch all" for unassigned routes.
+
+```Python 
+import hug
+
+@hug.sink('/all')
+def my_sink(request):
+    return request.path.replace('/all', '')
+```
+
+In this case, the server routes requests to anything that's no an assigned route to the landing page. To test the functionality of your sink decorator, serve your application locally, then attempt to access an unassigned route. Using this code, if you try to access `localhost:8000/this-route-is-invalid`, you will be rerouted to `localhost:8000`.
+
+
 CLI Routing
 ===========
 
