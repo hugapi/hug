@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 # Frequently Asked Questions about Hug
 
 For more examples, check out Hug's [documentation][https://github.com/timothycrosley/hug/tree/develop/documentation] and [examples][https://github.com/timothycrosley/hug/tree/develop/examples] Github directories, and its [website][http://www.hug.rest/].
@@ -28,7 +21,7 @@ Q:  *How can I serve static files from a directory using Hug?*
 
 A: For a static HTML page, you can just set the proper output format as: `output=hug.output_format.html`. To see other examples, check out the [html_serve][https://github.com/timothycrosley/hug/blob/develop/examples/html_serve.py] example, the [image_serve][https://github.com/timothycrosley/hug/blob/develop/examples/image_serve.py] example, and the more general [static_serve][https://github.com/timothycrosley/hug/blob/develop/examples/static_serve.py] example within `hug/examples`.
 
-Most basic examples will use a format that looks somewhat like this: 
+Most basic examples will use a format that looks something like this: 
 
 ```Python
 
@@ -56,16 +49,16 @@ It will return to you a structure of "base_url -> url -> HTTP method -> Version 
 
 Q: *How can I configure a unique 404 route?*
 
-A: By default, Hug will call `documentation_404()` if no HTTP route is found. However, if you want to configure other options (such as routing to a directiory, or routing everything else to a landing page) you can use the `@hug.sink('/')` decorator to create a "catch-all" route.
+A: By default, Hug will call `documentation_404()` if no HTTP route is found. However, if you want to configure other options (such as routing to a directiory, or routing everything else to a landing page) you can use the `@hug.sink('/')` decorator to create a "catch-all" route:
 
+```Python 
 
+import hug
 
-
-
-
-
-
-
+@hug.sink('/all')
+def my_sink(request):
+    return request.path.replace('/all', '')
+```
 
 
 
