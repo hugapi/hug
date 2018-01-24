@@ -23,7 +23,6 @@ from __future__ import absolute_import
 
 import base64
 import mimetypes
-import numpy as np
 import os
 import re
 import tempfile
@@ -65,15 +64,19 @@ def _json_converter(item):
             return item.decode('utf8')
         except UnicodeDecodeError:
             return base64.b64encode(item)
-    elif isinstance(item, (np.ndarray, np.int_)):
-        return item.tolist()
-    elif isinstance(item, np.str):
-        return str(item)
-    elif isinstance(item, np.float):
-        return float(item)
 
+    try:
+        import numpy as np
+        if isinstance(item, (np.ndarray, np.int_)):
+            return item.tolist()
+        elif isinstance(item, np.str):
+            return str(item)
+        elif isinstance(item, np.float):
+            return float(item)
+    except ImportError:
+        pass
 
-    elif hasattr(item, '__iter__'):
+    if hasattr(item, '__iter__'):
         return list(item)
     elif isinstance(item, Decimal):
         return str(item)
