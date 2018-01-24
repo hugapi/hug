@@ -65,7 +65,7 @@ def _json_converter(item):
             return item.decode('utf8')
         except UnicodeDecodeError:
             return base64.b64encode(item)
-    elif isinstance(item, (np.ndarray, np.int)):
+    elif isinstance(item, (np.ndarray, np.int_)):
         return item.tolist()
     elif isinstance(item, np.str):
         return str(item)
