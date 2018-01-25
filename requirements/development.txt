@@ -12,3 +12,4 @@ wheel==0.20.0
 pytest-xdist==1.20.1
 marshmallow==2.14.0
 ujson==1.35
+numpy==1.14.0

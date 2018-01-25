@@ -64,7 +64,19 @@ def _json_converter(item):
             return item.decode('utf8')
         except UnicodeDecodeError:
             return base64.b64encode(item)
-    elif hasattr(item, '__iter__'):
+
+    try:
+        import numpy as np
+        if isinstance(item, (np.ndarray, np.int_)):
+            return item.tolist()
+        elif isinstance(item, np.str):
+            return str(item)
+        elif isinstance(item, np.float):
+            return float(item)
+    except ImportError:
+        pass
+
+    if hasattr(item, '__iter__'):
         return list(item)
     elif isinstance(item, Decimal):
         return str(item)

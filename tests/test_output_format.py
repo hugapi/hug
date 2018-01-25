@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import numpy as np
 import os
 from collections import namedtuple
 from datetime import datetime, timedelta
@@ -304,3 +305,13 @@ def test_prefix():
     with pytest.raises(hug.HTTPNotAcceptable):
         request.path = 'undefined.always'
         formatter('hi', request, response)
+
+def test_json_converter_numpy_types():
+    """Ensure that numpy-specific data types (array, int, float) are properly supported in JSON output."""
+    ex_np_array = np.array([1, 2, 3, 4, 5])
+    ex_np_int = np.int_([5, 4, 3])
+    ex_np_float = np.float(1.0)
+
+    assert [1, 2, 3, 4, 5] == hug.output_format._json_converter(ex_np_array)
+    assert [5, 4, 3] == hug.output_format._json_converter(ex_np_int)
+    assert 1.0 == hug.output_format._json_converter(ex_np_float)
