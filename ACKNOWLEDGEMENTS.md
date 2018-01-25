@@ -44,6 +44,7 @@ Code Contributors
 - Alessandro Amici (@alexamici)
 - Trevor Bekolay (@tbekolay)
 - Elijah Wilson (@tizz98)
+- Chelsea Dole (@chelseadole)
 
 Documenters
 ===================
