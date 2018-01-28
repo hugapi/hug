@@ -38,6 +38,11 @@ from hug import introspect
 from hug.format import camelcase, content_type
 from hug.json_module import json as json_converter
 
+try:
+    import numpy
+except ImportError:
+    numpy = False
+
 IMAGE_TYPES = ('png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
                'cur', 'dcx', 'fli', 'flc', 'gbr', 'gd', 'ico', 'icns', 'imt', 'iptc', 'naa', 'mcidas', 'mpo', 'pcd',
                'psd', 'sgi', 'tga', 'wal', 'xpm', 'svg', 'svg+xml')
@@ -64,19 +69,7 @@ def _json_converter(item):
             return item.decode('utf8')
         except UnicodeDecodeError:
             return base64.b64encode(item)
-
-    try:
-        import numpy as np
-        if isinstance(item, (np.ndarray, np.int_)):
-            return item.tolist()
-        elif isinstance(item, np.str):
-            return str(item)
-        elif isinstance(item, np.float):
-            return float(item)
-    except ImportError:
-        pass
-
-    if hasattr(item, '__iter__'):
+    elif hasattr(item, '__iter__'):
         return list(item)
     elif isinstance(item, Decimal):
         return str(item)
@@ -96,6 +89,20 @@ def json_convert(*kinds):
             json_converters[kind] = function
         return function
     return register_json_converter
+
+
+if numpy:
+    @json_convert(numpy.ndarray, numpy.int_)
+    def numpy_listable(item):
+        return item.tolist()
+
+    @json_convert(numpy.str)
+    def numpy_stringable(item):
+        return str(item)
+
+    @json_convert(numpy.float)
+    def numpy_floatable(item):
+        return float(item)
 
 
 @content_type('application/json')
