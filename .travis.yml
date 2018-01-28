@@ -17,9 +17,6 @@ matrix:
     - os: osx
       language: generic
       env: TOXENV=py35
-    - os: osx
-      language: generic
-      env: TOXENV=py36
 
 before_install:
   - ./scripts/before_install.sh
