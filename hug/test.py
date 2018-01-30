@@ -64,7 +64,7 @@ def call(method, api_or_module, url, body='', headers=None, params=None, query_s
         except (UnicodeDecodeError, AttributeError):
             response.data = result[0]
         response.content_type = response.headers_dict['content-type']
-        if response.content_type == 'application/json':
+        if 'application/json' in response.content_type:
             response.data = json.loads(response.data)
 
     return response
