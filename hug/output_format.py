@@ -105,7 +105,7 @@ if numpy:
         return float(item)
 
 
-@content_type('application/json')
+@content_type('application/json; charset=utf-8')
 def json(content, request=None, response=None, ensure_ascii=False, **kwargs):
     """JSON (Javascript Serialized Object Notation)"""
     if hasattr(content, 'read'):
@@ -141,7 +141,7 @@ def on_valid(valid_content_type, on_invalid=json):
     return wrapper
 
 
-@content_type('text/plain')
+@content_type('text/plain; charset=utf-8')
 def text(content, **kwargs):
     """Free form UTF-8 text"""
     if hasattr(content, 'read'):
@@ -150,7 +150,7 @@ def text(content, **kwargs):
     return str(content).encode('utf8')
 
 
-@content_type('text/html')
+@content_type('text/html; charset=utf-8')
 def html(content, **kwargs):
     """HTML (Hypertext Markup Language)"""
     if hasattr(content, 'read'):
@@ -178,13 +178,13 @@ def _camelcase(content):
         return content
 
 
-@content_type('application/json')
+@content_type('application/json; charset=utf-8')
 def json_camelcase(content, **kwargs):
     """JSON (Javascript Serialized Object Notation) with all keys camelCased"""
     return json(_camelcase(content), **kwargs)
 
 
-@content_type('application/json')
+@content_type('application/json; charset=utf-8')
 def pretty_json(content, **kwargs):
     """JSON (Javascript Serialized Object Notion) pretty printed and indented"""
     return json(content, indent=4, separators=(',', ': '), **kwargs)

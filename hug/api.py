@@ -307,7 +307,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
                                                             prefix=url_prefix)
             response.data = hug.output_format.json(to_return, indent=4, separators=(',', ': '))
             response.status = falcon.HTTP_NOT_FOUND
-            response.content_type = 'application/json'
+            response.content_type = 'application/json; charset=utf-8'
         handle_404.interface = True
         return handle_404
 
