@@ -13,7 +13,14 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
-### 2.3.3 - In Development
+### 2.4.0 - In Development
+- Updated Falcon requirement to 1.4.1
+- Fixed issue #590: Textual output formats should have explicitly defined charsets by default
+- Fixed issue #596: Host argument for development runner
+- Fixed issue #563: Added middleware to handle CORS requests
+- Implemented issue #612: Add support for numpy types in JSON output by default
+- Implemented improved class based directives with cleanup support (see: https://github.com/timothycrosley/hug/pull/603)
+- Support ujson if installed
 - Implement issue #579: Allow silencing intro message when running hug from command line
 - Implemented issue #531: Allow exit value to alter status code for CLI tools
 - Updated documentation generation to use hug's JSON outputter for consistency
