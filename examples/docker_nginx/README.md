@@ -8,14 +8,16 @@ Client <-> NGINX <-> Gunicorn <-> Python API (Hug)
 
 ## Getting started
 
-Clone repository, navigate to directory where repository was cloned, then:
+Clone/copy this directory to your local machine, navigate to said directory, then:
 
 __For production:__
+This is an "immutable" build that will require restarting of the container for changes to reflect.
 ```
 $ make prod
 ```
 
 __For development:__
+This is a "mutable" build, which enables us to make changes to our Python project, and changes will reflect in real time!
 ```
 $ make dev
 ```
