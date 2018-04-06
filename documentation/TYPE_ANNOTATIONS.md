@@ -61,6 +61,7 @@ The most obvious way to extend a hug type is to simply inherit from the base typ
             value = super().__call__(value)
             if value != 42:
                 raise ValueError('Value is not the answer to everything.')
+            return value
 
 If you simply want to perform additional conversion after a base type is finished, or modify its documentation, the most succinct way is the `hug.type` decorator:
 
@@ -72,6 +73,7 @@ If you simply want to perform additional conversion after a base type is finishe
         """My new documentation"""
         if value != 42:
             raise ValueError('Value is not the answer to everything.')
+        return value
 
 
 Marshmallow integration
