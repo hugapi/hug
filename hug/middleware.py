@@ -124,11 +124,13 @@ class CORSMiddleware(object):
         route_dicts = [routes for _, routes in self.api.http.routes.items()][0]
         routes = [route for route, _ in route_dicts.items()]
         if reqpath not in routes:
+            version_pattern = re.compile('^(/v\d*/?)')
+            param_pattern = re.compile(r'/{[^{}]+}')
             for route in routes:  # replace params in route with regex
-                reqpath = re.sub('^(/v\d*/?)', '/', reqpath)
+                reqpath = version_pattern.sub('/', reqpath)
                 base_url = getattr(self.api, 'base_url', '')
                 reqpath = reqpath.lstrip('/{}'.format(base_url)) if base_url else reqpath
-                if re.match(re.sub(r'/{[^{}]+}', '/\w+', route) + '$', reqpath):
+                if re.match(param_pattern.sub('/\w+', route) + '$', reqpath):
                     return route
 
         return reqpath
