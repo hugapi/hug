@@ -27,9 +27,13 @@ from uuid import UUID
 
 import pytest
 from marshmallow import Schema, fields
+from marshmallow.decorators import validates_schema
 
 import hug
 from hug.exceptions import InvalidTypeData
+
+
+api = hug.API(__name__)
 
 
 def test_type():
@@ -358,11 +362,11 @@ def test_marshmallow_schema():
         name = fields.Str()
 
     schema_type = hug.types.MarshmallowSchema(UserSchema())
-    assert schema_type({"name": "test"}) == {"name": "test"}
-    assert schema_type("""{"name": "test"}""") == {"name": "test"}
+    assert schema_type({"name": "test"}, {}) == {"name": "test"}
+    assert schema_type("""{"name": "test"}""", {}) == {"name": "test"}
     assert schema_type.__doc__ == 'UserSchema'
     with pytest.raises(InvalidTypeData):
-        schema_type({"name": 1})
+        schema_type({"name": 1}, {})
 
 
 def test_create_type():
@@ -406,3 +410,186 @@ def test_create_type():
         return int(value)
 
     assert numbered(['1', '2', '3'])('1') == 1
+
+
+def test_marshmallow_custom_context():
+    custom_context = dict(context='global', factory=0, delete=0, marshmallow=0)
+
+    @hug.context_factory(apply_globally=True)
+    def create_context(*args, **kwargs):
+        custom_context['factory'] += 1
+        return custom_context
+
+    @hug.delete_context(apply_globally=True)
+    def delete_context(context, *args, **kwargs):
+        assert context == custom_context
+        custom_context['delete'] += 1
+
+    class MarshmallowContextSchema(Schema):
+        name = fields.String()
+
+        @validates_schema
+        def check_context(self, data):
+            assert self.context == custom_context
+            self.context['marshmallow'] += 1
+
+    @hug.get()
+    def made_up_hello(test: MarshmallowContextSchema()):
+        return 'hi'
+
+    assert hug.test.get(api, '/made_up_hello', {'test': {'name': 'test'}}).data == 'hi'
+    assert custom_context['factory'] == 1
+    assert custom_context['delete'] == 1
+    assert custom_context['marshmallow'] == 1
+
+
+def test_extending_types_with_context_with_no_error_messages():
+    '''
+    1. error_text (zamieniamy text errora czy nie?)
+        2.1 chain
+            3. czy nowy będzie przyjmować context?
+            - nie
+                3.0
+            - tak
+                3.1 czy poprzedni przyjmuje kontekst
+                3.2 nie przyjmuje
+        2.2 no chain
+            3.1 czy przyjmuje kontekst
+            3.2 nie przyjmuje
+
+    if chain:
+        if error_text or exception_handlers:
+            if not accept_context x
+            else
+                if extend._accept_context x
+                else x
+        else
+            if not accept_context x
+            else
+                if extend._accept_context x
+                else x
+    else:
+        if not accept_context:
+            if error_text or exception_handlers: x
+            else x
+        else
+            if error_text or exception_handlers: x
+            else x
+    '''
+    custom_context = dict(context='global', the_only_right_number=42)
+
+    @hug.context_factory()
+    def create_context(*args, **kwargs):
+        return custom_context
+
+    @hug.delete_context()
+    def delete_context(*args, **kwargs):
+        pass
+
+    @hug.type(chain=True, extend=hug.types.number)
+    def check_if_positive(value):
+        if value < 0:
+            raise ValueError('Not positive')
+        return value
+
+    @hug.type(chain=True, extend=check_if_positive, accept_context=True)
+    def check_if_near_the_right_number(value, context):
+        the_only_right_number = context['the_only_right_number']
+        if value not in [
+            the_only_right_number - 1,
+            the_only_right_number,
+            the_only_right_number + 1,
+        ]:
+            raise ValueError('Not near the right number')
+        return value
+
+    @hug.type(chain=True, extend=check_if_near_the_right_number, accept_context=True)
+    def check_if_the_only_right_number(value, context):
+        if value != context['the_only_right_number']:
+            raise ValueError('Not the right number')
+        return value
+
+    @hug.type(chain=False, extend=hug.types.number, accept_context=True)
+    def check_if_string_has_right_value(value, context):
+        if str(context['the_only_right_number']) not in value:
+            raise ValueError('The value does not contain the only right number')
+        return value
+
+    @hug.type(chain=False, extend=hug.types.number)
+    def simple_check(value):
+        if value != 'simple':
+            raise ValueError('This is not simple')
+        return value
+
+    @hug.get('/check_the_types')
+    def check_the_types(
+        first: check_if_positive,
+        second: check_if_near_the_right_number,
+        third: check_if_the_only_right_number,
+        forth: check_if_string_has_right_value,
+        fifth: simple_check,
+    ):
+        return 'hi'
+
+    test_cases = [
+        (
+            (42, 42, 42, '42', 'simple',),
+            (
+                None,
+                None,
+                None,
+                None,
+                None,
+            ),
+        ),
+        (
+            (43, 43, 43, '42', 'simple',),
+            (
+                None,
+                None,
+                'Not the right number',
+                None,
+                None,
+            ),
+        ),
+        (
+            (40, 40, 40, '42', 'simple',),
+            (
+                None,
+                'Not near the right number',
+                'Not near the right number',
+                None,
+                None,
+            ),
+        ),
+        (
+            (-42, -42, -42, '53', 'not_simple',),
+            (
+                'Not positive',
+                'Not positive',
+                'Not positive',
+                'The value does not contain the only right number',
+                'This is not simple',
+            ),
+        ),
+    ]
+
+    for provided_values, expected_results in test_cases:
+        response = hug.test.get(api, '/check_the_types', **{
+            'first': provided_values[0],
+            'second': provided_values[1],
+            'third': provided_values[2],
+            'forth': provided_values[3],
+            'fifth': provided_values[4]
+        })
+        if response.data == 'hi':
+            errors = (None, None, None, None, None)
+        else:
+            errors = []
+            for key in ['first', 'second', 'third', 'forth', 'fifth']:
+                if key in response.data['errors']:
+                    errors.append(response.data['errors'][key])
+                else:
+                    errors.append(None)
+            errors = tuple(errors)
+        assert errors == expected_results

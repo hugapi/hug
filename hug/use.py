@@ -140,11 +140,12 @@ class Local(Service):
         interface = function.interface.http
         response = falcon.Response()
         request = Request(None, None, empty.dict)
+        context = self.api.context_factory(api=self.api, api_version=self.version, interface=interface)
         interface.set_response_defaults(response)
 
         params.update(url_params)
-        params = interface.gather_parameters(request, response, api_version=self.version, **params)
-        errors = interface.validate(params)
+        params = interface.gather_parameters(request, response, context, api_version=self.version, **params)
+        errors = interface.validate(params, context)
         if errors:
             interface.render_errors(errors, request, response)
         else:

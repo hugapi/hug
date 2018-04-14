@@ -78,6 +78,7 @@ for method in HTTP_METHODS:
 
 def cli(method, *args, **arguments):
     """Simulates testing a hug cli method from the command line"""
+
     collect_output = arguments.pop('collect_output', True)
 
     command_args = [method.__name__] + list(args)

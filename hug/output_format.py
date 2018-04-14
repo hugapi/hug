@@ -75,7 +75,6 @@ def _json_converter(item):
         return str(item)
     elif isinstance(item, timedelta):
         return item.total_seconds()
-
     raise TypeError("Type not serializable")
 
 

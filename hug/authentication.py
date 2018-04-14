@@ -65,7 +65,7 @@ def authenticator(function, challenges=()):
 
 
 @authenticator
-def basic(request, response, verify_user, realm='simple', **kwargs):
+def basic(request, response, verify_user, realm='simple', context=None, **kwargs):
     """Basic HTTP Authentication"""
     http_auth = request.auth
     response.set_header('WWW-Authenticate', 'Basic')
@@ -84,7 +84,10 @@ def basic(request, response, verify_user, realm='simple', **kwargs):
     if auth_type.lower() == 'basic':
         try:
             user_id, key = base64.decodebytes(bytes(user_and_key.strip(), 'utf8')).decode('utf8').split(':', 1)
-            user = verify_user(user_id, key)
+            try:
+                user = verify_user(user_id, key)
+            except TypeError:
+                user = verify_user(user_id, key, context)
             if user:
                 response.set_header('WWW-Authenticate', '')
                 return user
@@ -96,7 +99,7 @@ def basic(request, response, verify_user, realm='simple', **kwargs):
 
 
 @authenticator
-def api_key(request, response, verify_user, **kwargs):
+def api_key(request, response, verify_user, context=None, **kwargs):
     """API Key Header Authentication
 
     The verify_user function passed in to ths authenticator shall receive an
@@ -106,7 +109,10 @@ def api_key(request, response, verify_user, **kwargs):
     api_key = request.get_header('X-Api-Key')
 
     if api_key:
-        user = verify_user(api_key)
+        try:
+            user = verify_user(api_key)
+        except TypeError:
+            user = verify_user(api_key, context)
         if user:
             return user
         else:
@@ -116,14 +122,17 @@ def api_key(request, response, verify_user, **kwargs):
 
 
 @authenticator
-def token(request, response, verify_user, **kwargs):
+def token(request, response, verify_user, context=None, **kwargs):
     """Token verification
 
     Checks for the Authorization header and verifies using the verify_user function
     """
     token = request.get_header('Authorization')
     if token:
-        verified_token = verify_user(token)
+        try:
+            verified_token = verify_user(token)
+        except TypeError:
+            verified_token = verify_user(token, context)
         if verified_token:
             return verified_token
         else:

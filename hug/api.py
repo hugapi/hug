@@ -430,7 +430,7 @@ class ModuleSingleton(type):
 
 class API(object, metaclass=ModuleSingleton):
     """Stores the information necessary to expose API calls within this module externally"""
-    __slots__ = ('module', '_directives', '_http', '_cli', '_context',
+    __slots__ = ('module', '_directives', '_http', '_cli', '_context', '_context_factory', '_delete_context',
                  '_startup_handlers', 'started', 'name', 'doc', 'cli_error_exit_codes')
 
     def __init__(self, module=None, name='', doc='', cli_error_exit_codes=False):
@@ -475,6 +475,22 @@ class API(object, metaclass=ModuleSingleton):
         if not hasattr(self, '_cli'):
             self._cli = CLIInterfaceAPI(self, error_exit_codes=self.cli_error_exit_codes)
         return self._cli
+
+    @property
+    def context_factory(self):
+        return getattr(self, '_context_factory', hug.defaults.context_factory)
+
+    @context_factory.setter
+    def context_factory(self, context_factory_):
+        self._context_factory = context_factory_
+
+    @property
+    def delete_context(self):
+        return getattr(self, '_delete_context', hug.defaults.delete_context)
+
+    @delete_context.setter
+    def delete_context(self, delete_context_):
+        self._delete_context = delete_context_
 
     @property
     def context(self):

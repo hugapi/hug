@@ -36,6 +36,7 @@ class Type(object):
     """
     _hug_type = True
     _sub_type = None
+    _accept_context = False
 
     def __init__(self):
         pass
@@ -44,52 +45,115 @@ class Type(object):
         raise NotImplementedError('To implement a new type __call__ must be defined')
 
 
-def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type, chain=True, auto_instance=True):
+def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type, chain=True, auto_instance=True,
+           accept_context=False):
     """Creates a new type handler with the specified type-casting handler"""
     extend = extend if type(extend) == type else type(extend)
 
     def new_type_handler(function):
         class NewType(extend):
             __slots__ = ()
+            _accept_context = accept_context
 
             if chain and extend != Type:
                 if error_text or exception_handlers:
-                    def __call__(self, value):
-                        try:
+                    if not accept_context:
+                        def __call__(self, value):
+                            try:
+                                value = super(NewType, self).__call__(value)
+                                return function(value)
+                            except Exception as exception:
+                                for take_exception, rewrite in exception_handlers.items():
+                                    if isinstance(exception, take_exception):
+                                        if isinstance(rewrite, str):
+                                            raise ValueError(rewrite)
+                                        else:
+                                            raise rewrite(value)
+                                if error_text:
+                                    raise ValueError(error_text)
+                                raise exception
+                    else:
+                        if extend._accept_context:
+                            def __call__(self, value, context):
+                                try:
+                                    value = super(NewType, self).__call__(value, context)
+                                    return function(value, context)
+                                except Exception as exception:
+                                    for take_exception, rewrite in exception_handlers.items():
+                                        if isinstance(exception, take_exception):
+                                            if isinstance(rewrite, str):
+                                                raise ValueError(rewrite)
+                                            else:
+                                                raise rewrite(value)
+                                    if error_text:
+                                        raise ValueError(error_text)
+                                    raise exception
+                        else:
+                            def __call__(self, value, context):
+                                try:
+                                    value = super(NewType, self).__call__(value)
+                                    return function(value, context)
+                                except Exception as exception:
+                                    for take_exception, rewrite in exception_handlers.items():
+                                        if isinstance(exception, take_exception):
+                                            if isinstance(rewrite, str):
+                                                raise ValueError(rewrite)
+                                            else:
+                                                raise rewrite(value)
+                                    if error_text:
+                                        raise ValueError(error_text)
+                                    raise exception
+                else:
+                    if not accept_context:
+                        def __call__(self, value):
                             value = super(NewType, self).__call__(value)
                             return function(value)
-                        except Exception as exception:
-                            for take_exception, rewrite in exception_handlers.items():
-                                if isinstance(exception, take_exception):
-                                    if isinstance(rewrite, str):
-                                        raise ValueError(rewrite)
-                                    else:
-                                        raise rewrite(value)
-                            if error_text:
-                                raise ValueError(error_text)
-                            raise exception
-                else:
-                    def __call__(self, value):
-                        value = super(NewType, self).__call__(value)
-                        return function(value)
+                    else:
+                        if extend._accept_context:
+                            def __call__(self, value, context):
+                                value = super(NewType, self).__call__(value, context)
+                                return function(value, context)
+                        else:
+                            def __call__(self, value, context):
+                                value = super(NewType, self).__call__(value)
+                                return function(value, context)
             else:
-                if error_text or exception_handlers:
-                    def __call__(self, value):
-                        try:
+                if not accept_context:
+                    if error_text or exception_handlers:
+                        def __call__(self, value):
+                            try:
+                                return function(value)
+                            except Exception as exception:
+                                for take_exception, rewrite in exception_handlers.items():
+                                    if isinstance(exception, take_exception):
+                                        if isinstance(rewrite, str):
+                                            raise ValueError(rewrite)
+                                        else:
+                                            raise rewrite(value)
+                                if error_text:
+                                    raise ValueError(error_text)
+                                raise exception
+                    else:
+                        def __call__(self, value):
                             return function(value)
-                        except Exception as exception:
-                            for take_exception, rewrite in exception_handlers.items():
-                                if isinstance(exception, take_exception):
-                                    if isinstance(rewrite, str):
-                                        raise ValueError(rewrite)
-                                    else:
-                                        raise rewrite(value)
-                            if error_text:
-                                raise ValueError(error_text)
-                            raise exception
                 else:
-                    def __call__(self, value):
-                        return function(value)
+                    if error_text or exception_handlers:
+                        def __call__(self, value, context):
+                            try:
+                                return function(value, context)
+                            except Exception as exception:
+                                for take_exception, rewrite in exception_handlers.items():
+                                    if isinstance(exception, take_exception):
+                                        if isinstance(rewrite, str):
+                                            raise ValueError(rewrite)
+                                        else:
+                                            raise rewrite(value)
+                                if error_text:
+                                    raise ValueError(error_text)
+                                raise exception
+                    else:
+                        def __call__(self, value, context):
+                            return function(value, context)
 
         NewType.__doc__ = function.__doc__ if doc is None else doc
         if auto_instance and not (introspect.arguments(NewType.__init__, -1) or
@@ -101,9 +165,15 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
     return new_type_handler
 
 
-def accept(kind, doc=None, error_text=None, exception_handlers=empty.dict):
+def accept(kind, doc=None, error_text=None, exception_handlers=empty.dict, accept_context=False):
     """Allows quick wrapping of any Python type cast function for use as a hug type annotation"""
-    return create(doc, error_text, exception_handlers=exception_handlers, chain=False)(kind)
+    return create(
+        doc,
+        error_text,
+        exception_handlers=exception_handlers,
+        chain=False,
+        accept_context=accept_context
+    )(kind)
 
 number = accept(int, 'A Whole number', 'Invalid whole number provided')
 float_number = accept(float, 'A float number', 'Invalid float number provided')
@@ -494,7 +564,7 @@ json = JSON()
 
 class MarshmallowSchema(Type):
     """Allows using a Marshmallow Schema directly in a hug type annotation"""
-    __slots__ = ("schema", )
+    __slots__ = ("schema")
 
     def __init__(self, schema):
         self.schema = schema
@@ -503,7 +573,8 @@ class MarshmallowSchema(Type):
     def __doc__(self):
         return self.schema.__doc__ or self.schema.__class__.__name__
 
-    def __call__(self, value):
+    def __call__(self, value, context):
+        self.schema.context = context
         value, errors = self.schema.loads(value) if isinstance(value, str) else self.schema.load(value)
         if errors:
             raise InvalidTypeData('Invalid {0} passed in'.format(self.schema.__class__.__name__), errors)
