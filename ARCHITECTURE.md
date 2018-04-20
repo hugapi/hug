@@ -130,7 +130,7 @@ and that is core to hug, lives in only a few:
 These 3 modules define the core functionality of hug, and any API that uses hug will inevitably utilize these modules.
 Develop a good handling on just these and you'll be in great shape to contribute to hug, and think of new ways to improve the Framework.
 
-Beyond these there is one additional internal utility library that enables hug to do it's magic: `hug/introspect.py`.
+Beyond these there is one additional internal utility library that enables hug to do its magic: `hug/introspect.py`.
 This module provides utility functions that enable hugs routers to determine what arguments a function takes and in what form.
 
 Enabling interfaces to improve upon internal functions
