@@ -444,38 +444,6 @@ def test_marshmallow_custom_context():
 
 
 def test_extending_types_with_context_with_no_error_messages():
-    '''
-    1. error_text (zamieniamy text errora czy nie?)
-        2.1 chain
-            3. czy nowy będzie przyjmować context?
-            - nie
-                3.0
-            - tak
-                3.1 czy poprzedni przyjmuje kontekst
-                3.2 nie przyjmuje
-        2.2 no chain
-            3.1 czy przyjmuje kontekst
-            3.2 nie przyjmuje
-
-    if chain:
-        if error_text or exception_handlers:
-            if not accept_context x
-            else
-                if extend._accept_context x
-                else x
-        else
-            if not accept_context x
-            else
-                if extend._accept_context x
-                else x
-    else:
-        if not accept_context:
-            if error_text or exception_handlers: x
-            else x
-        else
-            if error_text or exception_handlers: x
-            else x
-    '''
     custom_context = dict(context='global', the_only_right_number=42)
 
     @hug.context_factory()
@@ -593,3 +561,255 @@ def test_extending_types_with_context_with_no_error_messages():
                     errors.append(None)
             errors = tuple(errors)
         assert errors == expected_results
+
+
+def test_extending_types_with_context_with_error_messages():
+    custom_context = dict(context='global', the_only_right_number=42)
+
+    @hug.context_factory()
+    def create_context(*args, **kwargs):
+        return custom_context
+
+    @hug.delete_context()
+    def delete_context(*args, **kwargs):
+        pass
+
+    @hug.type(chain=True, extend=hug.types.number, error_text='error 1')
+    def check_if_positive(value):
+        if value < 0:
+            raise ValueError('Not positive')
+        return value
+
+    @hug.type(chain=True, extend=check_if_positive, accept_context=True, error_text='error 2')
+    def check_if_near_the_right_number(value, context):
+        the_only_right_number = context['the_only_right_number']
+        if value not in [
+            the_only_right_number - 1,
+            the_only_right_number,
+            the_only_right_number + 1,
+        ]:
+            raise ValueError('Not near the right number')
+        return value
+
+    @hug.type(chain=True, extend=check_if_near_the_right_number, accept_context=True, error_text='error 3')
+    def check_if_the_only_right_number(value, context):
+        if value != context['the_only_right_number']:
+            raise ValueError('Not the right number')
+        return value
+
+    @hug.type(chain=False, extend=hug.types.number, accept_context=True, error_text='error 4')
+    def check_if_string_has_right_value(value, context):
+        if str(context['the_only_right_number']) not in value:
+            raise ValueError('The value does not contain the only right number')
+        return value
+
+    @hug.type(chain=False, extend=hug.types.number, error_text='error 5')
+    def simple_check(value):
+        if value != 'simple':
+            raise ValueError('This is not simple')
+        return value
+
+    @hug.get('/check_the_types')
+    def check_the_types(
+        first: check_if_positive,
+        second: check_if_near_the_right_number,
+        third: check_if_the_only_right_number,
+        forth: check_if_string_has_right_value,
+        fifth: simple_check,
+    ):
+        return 'hi'
+
+    test_cases = [
+        (
+            (42, 42, 42, '42', 'simple',),
+            (
+                None,
+                None,
+                None,
+                None,
+                None,
+            ),
+        ),
+        (
+            (43, 43, 43, '42', 'simple',),
+            (
+                None,
+                None,
+                'error 3',
+                None,
+                None,
+            ),
+        ),
+        (
+            (40, 40, 40, '42', 'simple',),
+            (
+                None,
+                'error 2',
+                'error 3',
+                None,
+                None,
+            ),
+        ),
+        (
+            (-42, -42, -42, '53', 'not_simple',),
+            (
+                'error 1',
+                'error 2',
+                'error 3',
+                'error 4',
+                'error 5',
+            ),
+        ),
+    ]
+
+    for provided_values, expected_results in test_cases:
+        response = hug.test.get(api, '/check_the_types', **{
+            'first': provided_values[0],
+            'second': provided_values[1],
+            'third': provided_values[2],
+            'forth': provided_values[3],
+            'fifth': provided_values[4]
+        })
+        if response.data == 'hi':
+            errors = (None, None, None, None, None)
+        else:
+            errors = []
+            for key in ['first', 'second', 'third', 'forth', 'fifth']:
+                if key in response.data['errors']:
+                    errors.append(response.data['errors'][key])
+                else:
+                    errors.append(None)
+            errors = tuple(errors)
+        assert errors == expected_results
+
+
+def test_extending_types_with_exception_in_function():
+    custom_context = dict(context='global', the_only_right_number=42)
+
+    class CustomStrException(Exception):
+        pass
+
+    class CustomFunctionException(Exception):
+        pass
+
+    class CustomNotRegisteredException(ValueError):
+
+        def __init__(self):
+            super().__init__('not registered exception')
+
+
+    exception_handlers = {
+        CustomFunctionException: lambda exception: ValueError('function exception'),
+        CustomStrException: 'string exception',
+    }
+
+    @hug.context_factory()
+    def create_context(*args, **kwargs):
+        return custom_context
+
+    @hug.delete_context()
+    def delete_context(*args, **kwargs):
+        pass
+
+    @hug.type(chain=True, extend=hug.types.number, exception_handlers=exception_handlers)
+    def check_simple_exception(value):
+        if value < 0:
+            raise CustomStrException()
+        elif value == 0:
+            raise CustomNotRegisteredException()
+        else:
+            raise CustomFunctionException()
+
+    @hug.type(chain=True, extend=hug.types.number, exception_handlers=exception_handlers, accept_context=True)
+    def check_context_exception(value, context):
+        if value < 0:
+            raise CustomStrException()
+        elif value == 0:
+            raise CustomNotRegisteredException()
+        else:
+            raise CustomFunctionException()
+
+    @hug.type(chain=True, extend=hug.types.number, accept_context=True)
+    def no_check(value, context):
+        return value
+
+    @hug.type(chain=True, extend=no_check, exception_handlers=exception_handlers, accept_context=True)
+    def check_another_context_exception(value, context):
+        if value < 0:
+            raise CustomStrException()
+        elif value == 0:
+            raise CustomNotRegisteredException()
+        else:
+            raise CustomFunctionException()
+
+    @hug.type(chain=False, exception_handlers=exception_handlers, accept_context=True)
+    def check_simple_no_chain_exception(value, context):
+        if value == '-1':
+            raise CustomStrException()
+        elif value == '0':
+            raise CustomNotRegisteredException()
+        else:
+            raise CustomFunctionException()
+
+    @hug.type(chain=False, exception_handlers=exception_handlers, accept_context=False)
+    def check_simple_no_chain_no_context_exception(value):
+        if value == '-1':
+            raise CustomStrException()
+        elif value == '0':
+            raise CustomNotRegisteredException()
+        else:
+            raise CustomFunctionException()
+
+
+    @hug.get('/raise_exception')
+    def raise_exception(
+        first: check_simple_exception,
+        second: check_context_exception,
+        third: check_another_context_exception,
+        forth: check_simple_no_chain_exception,
+        fifth: check_simple_no_chain_no_context_exception
+    ):
+        return {}
+
+    response = hug.test.get(api, '/raise_exception', **{
+        'first': 1,
+        'second': 1,
+        'third': 1,
+        'forth': 1,
+        'fifth': 1,
+    })
+    assert response.data['errors'] == {
+        'forth': 'function exception',
+        'third': 'function exception',
+        'fifth': 'function exception',
+        'second': 'function exception',
+        'first': 'function exception'
+    }
+    response = hug.test.get(api, '/raise_exception', **{
+        'first': -1,
+        'second': -1,
+        'third': -1,
+        'forth': -1,
+        'fifth': -1,
+    })
+    assert response.data['errors'] == {
+        'forth': 'string exception',
+        'third': 'string exception',
+        'fifth': 'string exception',
+        'second': 'string exception',
+        'first': 'string exception'
+    }
+    response = hug.test.get(api, '/raise_exception', **{
+        'first': 0,
+        'second': 0,
+        'third': 0,
+        'forth': 0,
+        'fifth': 0,
+    })
+    assert response.data['errors'] == {
+        'second': 'not registered exception',
+        'forth': 'not registered exception',
+        'third': 'not registered exception',
+        'fifth': 'not registered exception',
+        'first': 'not registered exception'
+    }
