@@ -74,7 +74,11 @@ def test_basic_documentation():
 
     assert documentation['handlers']['/hello_world']['GET']['usage'] == "Returns hello world"
     assert documentation['handlers']['/hello_world']['GET']['examples'] == ["/hello_world"]
-    assert documentation['handlers']['/hello_world']['GET']['outputs']['content_type'] == "application/json"
+    assert documentation['handlers']['/hello_world']['GET']['outputs']['content_type'] in [
+        "application/json",
+        "application/json; charset=utf-8"
+    ]
+
     assert 'inputs' not in documentation['handlers']['/hello_world']['GET']
 
     assert 'text' in documentation['handlers']['/echo']['POST']['inputs']['text']['type']

@@ -242,7 +242,6 @@ class HTTPInterfaceAPI(InterfaceAPI):
                             doc = version_dict.setdefault(url, OrderedDict())
                             doc[method] = handler.documentation(doc.get(method, None), version=version, prefix=prefix,
                                                                 base_url=router_base_url, url=url)
-
         documentation['handlers'] = version_dict
         return documentation
 
