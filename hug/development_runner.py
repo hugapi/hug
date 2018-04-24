@@ -87,13 +87,14 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
                     sys.exit(1)
                 reload_checker.reloading = False
                 ran = True
-                for module in [name for name in sys.modules.keys() if name not in INIT_MODULES]:
-                    del(sys.modules[module])
-                    if file:
-                        api_module = importlib.machinery.SourceFileLoader(file.split(".")[0],
-                                                                            file).load_module()
-                    elif module:
-                        api_module = importlib.import_module(module)
+                for name in list(sys.modules.keys()):
+                    if name not in INIT_MODULES:
+                        del(sys.modules[name])
+                if file:
+                    api_module = importlib.machinery.SourceFileLoader(file.split(".")[0],
+                                                                        file).load_module()
+                elif module:
+                    api_module = importlib.import_module(module)
     else:
         _start_api(api_module, host, port, no_404_documentation, not ran)
 
