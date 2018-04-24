@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  api:
+    build: .
+    command: gunicorn --bind=0.0.0.0:8000 api.__main__:__hug_wsgi__
+    expose:
+      - "8000"
+
+  nginx:
+    depends_on:
+      - api
+    image: nginx:latest
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/app
+      - ./config/nginx:/etc/nginx/conf.d

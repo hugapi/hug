@@ -78,7 +78,6 @@ def test_basic_documentation():
         "application/json",
         "application/json; charset=utf-8"
     ]
-
     assert 'inputs' not in documentation['handlers']['/hello_world']['GET']
 
     assert 'text' in documentation['handlers']['/echo']['POST']['inputs']['text']['type']
