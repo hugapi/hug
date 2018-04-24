@@ -1,5 +1,5 @@
 bumpversion==0.5.3
-Cython==0.27.2
+Cython==0.28.2
 -r common.txt
 flake8==3.5.0
 ipython==6.2.1
