@@ -143,3 +143,10 @@ def test_cors_middleware(hug_api):
     assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
     assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
     assert response.headers_dict['access-control-max-age'] == '10'
+
+    response = hug.test.options(hug_api, '/v1/demo/123e4567-midlee89b-12d3-a456-426655440000')
+    methods = response.headers_dict['access-control-allow-methods'].replace(' ', '')
+    allow = response.headers_dict['allow'].replace(' ', '')
+    assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
+    assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
+    assert response.headers_dict['access-control-max-age'] == '10'
