@@ -1,6 +1,6 @@
 The guiding thought behind the architecture
 ===========================================
-hug is the cleanest way to create HTTP REST APIs on Python3.
+hug is the cleanest way to create HTTP REST APIs on Python 3.
 It consistently benchmarks among the top 3 performing web frameworks for Python, handily beating out Flask and Django.
 For almost every common Web API task the code written to accomplish it in hug is a small fraction of what is required in other Frameworks.
 
@@ -14,7 +14,7 @@ into hug have and will continue to support this goal.
 
 This central concept also frees hug to rely on the fastest and best of breed components for every interface it supports:
 
-- [Falcon](https://github.com/falconry/falcon) is leveraged when exposing to HTTP for it's impressive performance at this task
+- [Falcon](https://github.com/falconry/falcon) is leveraged when exposing to HTTP for its impressive performance at this task
 - [Argparse](https://docs.python.org/3/library/argparse.html) is leveraged when exposing to CLI for the clean consistent interaction it enables from the command line
 
 
@@ -130,7 +130,7 @@ and that is core to hug, lives in only a few:
 These 3 modules define the core functionality of hug, and any API that uses hug will inevitably utilize these modules.
 Develop a good handling on just these and you'll be in great shape to contribute to hug, and think of new ways to improve the Framework.
 
-Beyond these there is one additional internal utility library that enables hug to do it's magic: `hug/introspect.py`.
+Beyond these there is one additional internal utility library that enables hug to do its magic: `hug/introspect.py`.
 This module provides utility functions that enable hugs routers to determine what arguments a function takes and in what form.
 
 Enabling interfaces to improve upon internal functions
