@@ -126,8 +126,8 @@ class CORSMiddleware(object):
         if reqpath not in routes:
             for route in routes:  # replace params in route with regex
                 reqpath = re.sub('^(/v\d*/?)', '/', reqpath)
-                base_url = getattr(self.api, 'base_url', '')
-                reqpath = reqpath.lstrip('/{}'.format(base_url)) if base_url else reqpath
+                base_url = getattr(self.api.http, 'base_url', '')
+                reqpath = reqpath.replace(base_url, '', 1) if base_url else reqpath
                 if re.match(re.sub(r'/{[^{}]+}', '/[\w-]+', route) + '$', reqpath):
                     return route
 
