@@ -445,10 +445,8 @@ class CLI(Interface):
                 kwargs['nargs'] = '*'
                 kwargs.pop('action', '')
                 nargs_set = True
-            if option in self.interface.input_transformations and getattr(transform, '_accept_context', False):
-                self.context_tranforms.append((args, kwargs,))
-            else:
-                self.parser.add_argument(*args, **kwargs)
+
+            self.parser.add_argument(*args, **kwargs)
 
         self.api.cli.commands[route.get('name', self.interface.spec.__name__)] = self
 
@@ -491,14 +489,6 @@ class CLI(Interface):
 
         if self.interface.is_method:
             self.parser.prog = "%s %s" % (self.api.module.__name__, self.interface.name)
-
-        for args_, kwargs_ in self.context_tranforms:
-            original_transform = kwargs_['type']
-
-            def transform_with_context(value_):
-                original_transform(value_, context)
-            kwargs_['type'] = transform_with_context
-            self.parser.add_argument(*args_, **kwargs_)
 
         known, unknown = self.parser.parse_known_args()
         pass_to_function = vars(known)
