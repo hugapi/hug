@@ -77,6 +77,30 @@ def directive(apply_globally=False, api=None):
     return decorator
 
 
+def context_factory(apply_globally=False, api=None):
+    """A decorator that registers a single hug context factory"""
+    def decorator(context_factory_):
+        if apply_globally:
+            hug.defaults.context_factory = context_factory_
+        else:
+            apply_to_api = hug.API(api) if api else hug.api.from_object(context_factory_)
+            apply_to_api.context_factory = context_factory_
+        return context_factory_
+    return decorator
+
+
+def delete_context(apply_globally=False, api=None):
+    """A decorator that registers a single hug delete context function"""
+    def decorator(delete_context_):
+        if apply_globally:
+            hug.defaults.delete_context = delete_context_
+        else:
+            apply_to_api = hug.API(api) if api else hug.api.from_object(delete_context_)
+            apply_to_api.delete_context = delete_context_
+        return delete_context_
+    return decorator
+
+
 def startup(api=None):
     """Runs the provided function on startup, passing in an instance of the api"""
     def startup_wrapper(startup_function):

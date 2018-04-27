@@ -43,7 +43,7 @@ def made_up_formatter_global(data):
 
 
 @hug.default_output_format(apply_globally=True)
-def output_formatter_global(data):
+def output_formatter_global(data, request=None, response=None):
     """for testing"""
     return hug.output_format.json(data)
 

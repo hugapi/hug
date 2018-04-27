@@ -21,7 +21,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from base64 import b64encode
 
+from falcon import HTTPUnauthorized
 import hug
+
 
 api = hug.API(__name__)
 
@@ -47,6 +49,54 @@ def test_basic_auth():
     token = b'Basic ' + b64encode('{0}:{1}'.format('Tim', 'Wrong password').encode('utf8'))
     assert '401' in hug.test.get(api, 'hello_world', headers={'Authorization': token}).status
 
+    custom_context = dict(custom='context', username='Tim', password='Custom password')
+
+    @hug.context_factory()
+    def create_test_context(*args, **kwargs):
+        return custom_context
+
+    @hug.delete_context()
+    def delete_custom_context(context, exception=None, errors=None, lacks_requirement=None):
+        assert context == custom_context
+        assert not errors
+        context['exception'] = exception
+
+    @hug.authentication.basic
+    def context_basic_authentication(username, password, context):
+        assert context == custom_context
+        if username == context['username'] and password == context['password']:
+            return True
+
+    @hug.get(requires=context_basic_authentication)
+    def hello_context():
+        return 'context!'
+
+    assert '401' in hug.test.get(api, 'hello_context').status
+    assert isinstance(custom_context['exception'], HTTPUnauthorized)
+    del custom_context['exception']
+    assert '401' in hug.test.get(api, 'hello_context', headers={'Authorization': 'Not correctly formed'}).status
+    assert isinstance(custom_context['exception'], HTTPUnauthorized)
+    del custom_context['exception']
+    assert '401' in hug.test.get(api, 'hello_context', headers={'Authorization': 'Nospaces'}).status
+    assert isinstance(custom_context['exception'], HTTPUnauthorized)
+    del custom_context['exception']
+    assert '401' in hug.test.get(api, 'hello_context', headers={'Authorization': 'Basic VXNlcjE6bXlwYXNzd29yZA'}).status
+    assert isinstance(custom_context['exception'], HTTPUnauthorized)
+    del custom_context['exception']
+
+    token = b64encode('{0}:{1}'.format('Tim', 'Custom password').encode('utf8')).decode('utf8')
+    assert hug.test.get(api, 'hello_context', headers={'Authorization': 'Basic {0}'.format(token)}).data == 'context!'
+    assert not custom_context['exception']
+    del custom_context['exception']
+    token = b'Basic ' + b64encode('{0}:{1}'.format('Tim', 'Custom password').encode('utf8'))
+    assert hug.test.get(api, 'hello_context', headers={'Authorization': token}).data == 'context!'
+    assert not custom_context['exception']
+    del custom_context['exception']
+    token = b'Basic ' + b64encode('{0}:{1}'.format('Tim', 'Wrong password').encode('utf8'))
+    assert '401' in hug.test.get(api, 'hello_context', headers={'Authorization': token}).status
+    assert isinstance(custom_context['exception'], HTTPUnauthorized)
+    del custom_context['exception']
+
 
 def test_api_key():
     """Test the included api_key based header to ensure it works as expected to allow X-Api-Key based authentication"""
@@ -63,6 +113,38 @@ def test_api_key():
     assert hug.test.get(api, 'hello_world', headers={'X-Api-Key': 'Bacon'}).data == 'Hello world!'
     assert '401' in hug.test.get(api, 'hello_world').status
     assert '401' in hug.test.get(api, 'hello_world', headers={'X-Api-Key': 'Invalid'}).status
+
+    custom_context = dict(custom='context')
+
+    @hug.context_factory()
+    def create_test_context(*args, **kwargs):
+        return custom_context
+
+    @hug.delete_context()
+    def delete_custom_context(context, exception=None, errors=None, lacks_requirement=None):
+        assert context == custom_context
+        assert not errors
+        context['exception'] = exception
+
+    @hug.authentication.api_key
+    def context_api_key_authentication(api_key, context):
+        assert context == custom_context
+        if api_key == 'Bacon':
+            return 'Timothy'
+
+    @hug.get(requires=context_api_key_authentication)
+    def hello_context_world():
+        return 'Hello context world!'
+
+    assert hug.test.get(api, 'hello_context_world', headers={'X-Api-Key': 'Bacon'}).data == 'Hello context world!'
+    assert not custom_context['exception']
+    del custom_context['exception']
+    assert '401' in hug.test.get(api, 'hello_context_world').status
+    assert isinstance(custom_context['exception'], HTTPUnauthorized)
+    del custom_context['exception']
+    assert '401' in hug.test.get(api, 'hello_context_world', headers={'X-Api-Key': 'Invalid'}).status
+    assert isinstance(custom_context['exception'], HTTPUnauthorized)
+    del custom_context['exception']
 
 
 def test_token_auth():
@@ -83,6 +165,38 @@ def test_token_auth():
     assert hug.test.get(api, 'hello_world', headers={'Authorization': precomptoken}).data == 'Hello World!'
     assert '401' in hug.test.get(api, 'hello_world').status
     assert '401' in hug.test.get(api, 'hello_world', headers={'Authorization': 'eyJhbGci'}).status
+
+    custom_context = dict(custom='context')
+
+    @hug.context_factory()
+    def create_test_context(*args, **kwargs):
+        return custom_context
+
+    @hug.delete_context()
+    def delete_custom_context(context, exception=None, errors=None, lacks_requirement=None):
+        assert context == custom_context
+        assert not errors
+        context['exception'] = exception
+
+    @hug.authentication.token
+    def context_token_authentication(token, context):
+        assert context == custom_context
+        if token == precomptoken:
+            return 'Timothy'
+
+    @hug.get(requires=context_token_authentication)
+    def hello_context_world():
+        return 'Hello context!'
+
+    assert hug.test.get(api, 'hello_context_world', headers={'Authorization': precomptoken}).data == 'Hello context!'
+    assert not custom_context['exception']
+    del custom_context['exception']
+    assert '401' in hug.test.get(api, 'hello_context_world').status
+    assert isinstance(custom_context['exception'], HTTPUnauthorized)
+    del custom_context['exception']
+    assert '401' in hug.test.get(api, 'hello_context_world', headers={'Authorization': 'eyJhbGci'}).status
+    assert isinstance(custom_context['exception'], HTTPUnauthorized)
+    del custom_context['exception']
 
 
 def test_documentation_carry_over():

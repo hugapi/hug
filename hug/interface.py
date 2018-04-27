@@ -195,17 +195,26 @@ class Interface(object):
     def outputs(self, outputs):
         self._outputs = outputs  # pragma: no cover - generally re-implemented by sub classes
 
-    def validate(self, input_parameters):
+    def validate(self, input_parameters, context):
         """Runs all set type transformers / validators against the provided input parameters and returns any errors"""
         errors = {}
+
         for key, type_handler in self.input_transformations.items():
             if self.raise_on_invalid:
                 if key in input_parameters:
-                    input_parameters[key] = type_handler(input_parameters[key])
+                    input_parameters[key] = self.initialize_handler(
+                        type_handler,
+                        input_parameters[key],
+                        context=context
+                    )
             else:
                 try:
                     if key in input_parameters:
-                        input_parameters[key] = type_handler(input_parameters[key])
+                        input_parameters[key] = self.initialize_handler(
+                            type_handler,
+                            input_parameters[key],
+                            context=context
+                        )
                 except InvalidTypeData as error:
                     errors[key] = error.reasons or str(error.message)
                 except Exception as error:
@@ -213,7 +222,6 @@ class Interface(object):
                         errors[key] = error.args[0]
                     else:
                         errors[key] = str(error)
-
         for require in self.required:
             if not require in input_parameters:
                 errors[require] = "Required parameter '{}' not supplied".format(require)
@@ -221,17 +229,16 @@ class Interface(object):
             errors = self.validate_function(input_parameters)
         return errors
 
-    def check_requirements(self, request=None, response=None):
+    def check_requirements(self, request=None, response=None, context=None):
         """Checks to see if all requirements set pass
 
            if all requirements pass nothing will be returned
            otherwise, the error reported will be returned
         """
         for requirement in self.requires:
-            conclusion = requirement(response=response, request=request, module=self.api.module)
+            conclusion = requirement(response=response, request=request, context=context, module=self.api.module)
             if conclusion and conclusion is not True:
                 return conclusion
-
 
     def documentation(self, add_to=None):
         """Produces general documentation for the interface"""
@@ -276,6 +283,13 @@ class Interface(object):
             if hasattr(directive, 'cleanup'):
                 directive.cleanup(exception=exception)
 
+    @staticmethod
+    def initialize_handler(handler, value, context):
+        try:  # It's easier to ask for forgiveness than for permission
+            return handler(value, context=context)
+        except TypeError:
+            return handler(value)
+
 
 class Local(Interface):
     """Defines the Interface responsible for exposing functions locally"""
@@ -304,10 +318,13 @@ class Local(Interface):
         return self.interface.spec.__module__
 
     def __call__(self, *args, **kwargs):
+        context = self.api.context_factory(api=self.api, api_version=self.version, interface=self)
         """Defines how calling the function locally should be handled"""
+
         for requirement in self.requires:
-            lacks_requirement = self.check_requirements()
+            lacks_requirement = self.check_requirements(context=context)
             if lacks_requirement:
+                self.api.delete_context(context, lacks_requirement=lacks_requirement)
                 return self.outputs(lacks_requirement) if self.outputs else lacks_requirement
 
         for index, argument in enumerate(args):
@@ -319,15 +336,16 @@ class Local(Interface):
                     continue
                 arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
                 kwargs[parameter] = directive(*arguments, api=self.api, api_version=self.version,
-                                              interface=self)
+                                              interface=self, context=context)
 
         if not getattr(self, 'skip_validation', False):
-            errors = self.validate(kwargs)
+            errors = self.validate(kwargs, context)
             if errors:
                 errors = {'errors': errors}
                 if getattr(self, 'on_invalid', False):
                     errors = self.on_invalid(errors)
                 outputs = getattr(self, 'invalid_outputs', self.outputs)
+                self.api.delete_context(context, errors=errors)
                 return outputs(errors) if outputs else errors
 
         if getattr(self, 'map_params', None):
@@ -335,8 +353,10 @@ class Local(Interface):
         try:
             result = self.interface(**kwargs)
             self.cleanup_parameters(kwargs)
+            self.api.delete_context(context)
         except Exception as exception:
             self.cleanup_parameters(kwargs, exception=exception)
+            self.api.delete_context(context, exception=exception)
             raise exception
         if self.transform:
             result = self.transform(result)
@@ -357,14 +377,25 @@ class CLI(Interface):
 
         used_options = {'h', 'help'}
         nargs_set = self.interface.takes_args or self.interface.takes_kwargs
-        self.parser = argparse.ArgumentParser(description=route.get('doc', self.interface.spec.__doc__))
+
+        class CustomArgumentParser(argparse.ArgumentParser):
+            exit_callback = None
+
+            def exit(self, status=0, message=None):
+                if self.exit_callback:
+                    self.exit_callback(message)
+                super().exit(status, message)
+
+        self.parser = CustomArgumentParser(description=route.get('doc', self.interface.spec.__doc__))
         if 'version' in route:
             self.parser.add_argument('-v', '--version', action='version',
                                 version="{0} {1}".format(route.get('name', self.interface.spec.__name__),
                                                          route['version']))
             used_options.update(('v', 'version'))
 
+        self.context_tranforms = []
         for option in use_parameters:
+
             if option in self.directives:
                 continue
 
@@ -443,10 +474,17 @@ class CLI(Interface):
 
     def __call__(self):
         """Calls the wrapped function through the lens of a CLI ran command"""
+        context = self.api.context_factory(api=self.api, argparse=self.parser, interface=self)
+
+        def exit_callback(message):
+            self.api.delete_context(context, errors=message)
+        self.parser.exit_callback = exit_callback
+
         self.api._ensure_started()
         for requirement in self.requires:
-            conclusion = requirement(request=sys.argv, module=self.api.module)
+            conclusion = requirement(request=sys.argv, module=self.api.module, context=context)
             if conclusion and conclusion is not True:
+                self.api.delete_context(context, lacks_requirement=conclusion)
                 return self.output(conclusion)
 
         if self.interface.is_method:
@@ -456,15 +494,21 @@ class CLI(Interface):
         pass_to_function = vars(known)
         for option, directive in self.directives.items():
             arguments = (self.defaults[option], ) if option in self.defaults else ()
-            pass_to_function[option] = directive(*arguments, api=self.api, argparse=self.parser,
+            pass_to_function[option] = directive(*arguments, api=self.api, argparse=self.parser, context=context,
                                                  interface=self)
+
         for field, type_handler in self.reaffirm_types.items():
             if field in pass_to_function:
-                pass_to_function[field] = type_handler(pass_to_function[field])
+                pass_to_function[field] = self.initialize_handler(
+                    type_handler,
+                    pass_to_function[field],
+                    context=context
+                )
 
         if getattr(self, 'validate_function', False):
             errors = self.validate_function(pass_to_function)
             if errors:
+                self.api.delete_context(context, errors=errors)
                 return self.output(errors)
 
         args = None
@@ -498,8 +542,10 @@ class CLI(Interface):
             else:
                 result = self.interface(**pass_to_function)
             self.cleanup_parameters(pass_to_function)
+            self.api.delete_context(context)
         except Exception as exception:
             self.cleanup_parameters(pass_to_function, exception=exception)
+            self.api.delete_context(context, exception=exception)
             raise exception
         return self.output(result)
 
@@ -548,7 +594,7 @@ class HTTP(Interface):
             self._params_for_transform_state = introspect.takes_arguments(self.transform, *self.AUTO_INCLUDE)
         return self._params_for_transform_state
 
-    def gather_parameters(self, request, response, api_version=None, **input_parameters):
+    def gather_parameters(self, request, response, context, api_version=None, **input_parameters):
         """Gathers and returns all parameters that will be used for this endpoint"""
         input_parameters.update(request.params)
 
@@ -574,7 +620,8 @@ class HTTP(Interface):
         for parameter, directive in self.directives.items():
             arguments = (self.defaults[parameter], ) if parameter in self.defaults else ()
             input_parameters[parameter] = directive(*arguments, response=response, request=request,
-                                                    api=self.api, api_version=api_version, interface=self)
+                                                    api=self.api, api_version=api_version, context=context,
+                                                    interface=self)
         return input_parameters
 
     @property
@@ -681,6 +728,8 @@ class HTTP(Interface):
             response.data = content
 
     def __call__(self, request, response, api_version=None, **kwargs):
+        context = self.api.context_factory(response=response, request=request, api=self.api, api_version=api_version,
+                                           interface=self)
         """Call the wrapped function over HTTP pulling information as needed"""
         if isinstance(api_version, str) and api_version.isdigit():
             api_version = int(api_version)
@@ -694,25 +743,29 @@ class HTTP(Interface):
         input_parameters = {}
         try:
             self.set_response_defaults(response, request)
-
-            lacks_requirement = self.check_requirements(request, response)
+            lacks_requirement = self.check_requirements(request, response, context)
             if lacks_requirement:
                 response.data = self.outputs(lacks_requirement,
                                              **self._arguments(self._params_for_outputs, request, response))
+                self.api.delete_context(context, lacks_requirement=lacks_requirement)
                 return
 
-            input_parameters = self.gather_parameters(request, response, api_version, **kwargs)
-            errors = self.validate(input_parameters)
+            input_parameters = self.gather_parameters(request, response, context, api_version, **kwargs)
+            errors = self.validate(input_parameters, context)
             if errors:
+                self.api.delete_context(context, errors=errors)
                 return self.render_errors(errors, request, response)
 
             self.render_content(self.call_function(input_parameters), request, response, **kwargs)
             self.cleanup_parameters(input_parameters)
+            self.api.delete_context(context)
         except falcon.HTTPNotFound as exception:
             self.cleanup_parameters(input_parameters, exception=exception)
+            self.api.delete_context(context, exception=exception)
             return self.api.http.not_found(request, response, **kwargs)
         except exception_types as exception:
             self.cleanup_parameters(input_parameters, exception=exception)
+            self.api.delete_context(context, exception=exception)
             handler = None
             exception_type = type(exception)
             if exception_type in exception_types:
@@ -731,8 +784,8 @@ class HTTP(Interface):
             handler(request=request, response=response, exception=exception, **kwargs)
         except Exception as exception:
             self.cleanup_parameters(input_parameters, exception=exception)
+            self.api.delete_context(context, exception=exception)
             raise exception
-
 
     def documentation(self, add_to=None, version=None, prefix="", base_url="", url=""):
         """Returns the documentation specific to an HTTP interface"""

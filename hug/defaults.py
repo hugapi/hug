@@ -44,3 +44,11 @@ directives = {
     'session': hug.directives.session,
     'documentation': hug.directives.documentation
 }
+
+
+def context_factory(*args, **kwargs):
+    return dict()
+
+
+def delete_context(context, exception=None, errors=None, lacks_requirement=None):
+    del context
