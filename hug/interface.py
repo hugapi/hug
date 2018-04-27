@@ -506,7 +506,7 @@ class CLI(Interface):
                 )
 
         if getattr(self, 'validate_function', False):
-            errors = self.validate_function(pass_to_function)  # TODO MIKE <- wtf is that
+            errors = self.validate_function(pass_to_function)
             if errors:
                 self.api.delete_context(context, errors=errors)
                 return self.output(errors)
