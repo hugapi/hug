@@ -27,7 +27,7 @@ try:
     if sys.version_info >= (3, 4, 4):
         ensure_future = asyncio.ensure_future  # pragma: no cover
     else:
-        ensure_future = asyncio.async  # pragma: no cover
+        ensure_future = getattr('asyncio', 'async')  # pragma: no cover
 
     def asyncio_call(function, *args, **kwargs):
         try:
