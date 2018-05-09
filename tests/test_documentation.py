@@ -156,9 +156,9 @@ def test_marshallow_return_type_documentation():
         "Return docs"
 
     @hug.post()
-    def test() -> Returns():
+    def testret() -> Returns():
         pass
 
     doc = api.http.documentation()
 
-    assert doc['handlers']['/test']['POST']['outputs']['type'] == "Return docs"
+    assert doc['handlers']['/testret']['POST']['outputs']['type'] == "Return docs"
