@@ -150,15 +150,15 @@ def test_basic_documentation():
     assert '/test' not in documentation['handlers']
 
 
-def test_marshallow_return_type_documentation():
+def test_marshmallow_return_type_documentation():
 
     class Returns(marshmallow.Schema):
         "Return docs"
 
     @hug.post()
-    def test() -> Returns():
+    def marshtest() -> Returns():
         pass
 
     doc = api.http.documentation()
 
-    assert doc['handlers']['/test']['POST']['outputs']['type'] == "Return docs"
+    assert doc['handlers']['/marshtest']['POST']['outputs']['type'] == "Return docs"
