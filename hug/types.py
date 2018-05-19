@@ -562,8 +562,8 @@ class Schema(object, metaclass=NewTypeMeta):
 json = JSON()
 
 
-class MarshmallowSchema(Type):
-    """Allows using a Marshmallow Schema directly in a hug type annotation"""
+class MarshmallowInputSchema(Type):
+    """Allows using a Marshmallow Schema directly in a hug input type annotation"""
     __slots__ = ("schema")
 
     def __init__(self, schema):
@@ -579,6 +579,26 @@ class MarshmallowSchema(Type):
         if errors:
             raise InvalidTypeData('Invalid {0} passed in'.format(self.schema.__class__.__name__), errors)
         return value
+
+
+class MarshmallowReturnSchema(Type):
+    """Allows using a Marshmallow Schema directly in a hug return type annotation"""
+    __slots__ = ("schema", )
+
+    def __init__(self, schema):
+        self.schema = schema
+
+    @property
+    def __doc__(self):
+        return self.schema.__doc__ or self.schema.__class__.__name__
+
+    def __call__(self, value):
+        value, errors = self.schema.dump(value)
+        if errors:
+            raise InvalidTypeData('Invalid {0} passed in'.format(self.schema.__class__.__name__), errors)
+        print(f'returning {value}')
+        return value
+
 
 
 multiple = Multiple()
