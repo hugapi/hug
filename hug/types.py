@@ -596,7 +596,6 @@ class MarshmallowReturnSchema(Type):
         value, errors = self.schema.dump(value)
         if errors:
             raise InvalidTypeData('Invalid {0} passed in'.format(self.schema.__class__.__name__), errors)
-        print(f'returning {value}')
         return value
 
 
