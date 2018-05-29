@@ -27,6 +27,8 @@ from falcon.testing import StartResponseMock, create_environ
 import hug
 import marshmallow
 
+import marshmallow
+
 api = hug.API(__name__)
 
 
@@ -149,7 +151,7 @@ def test_basic_documentation():
     assert '/echo' in documentation['handlers']
     assert '/test' not in documentation['handlers']
 
-
+    
 def test_marshallow_return_type_documentation():
 
     class Returns(marshmallow.Schema):
@@ -157,8 +159,22 @@ def test_marshallow_return_type_documentation():
 
     @hug.post()
     def testret() -> Returns():
+      pass
+    
+    doc = api.http.documentation()
+    assert doc['handlers']['/testret']['POST']['outputs']['type'] == "Return docs"
+      
+      
+def test_marshallow_documentation():
+
+    class Param1(marshmallow.Schema):
+        "Param1 docs"
+        pass
+
+    @hug.get()
+    def test(p1: Param1()):
         pass
 
     doc = api.http.documentation()
-
-    assert doc['handlers']['/testret']['POST']['outputs']['type'] == "Return docs"
+    assert doc['handlers']['/test']['GET']['inputs']['p1']['type'] == "Param1 docs"
+    
