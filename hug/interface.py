@@ -166,8 +166,8 @@ class Interface(object):
             self.transform = self.interface.transform
 
         if hasattr(self.transform, 'dump'):
-            self.transform = self.transform.dump
             self.output_doc = self.transform.__doc__
+            self.transform = self.transform.dump
         elif self.transform or self.interface.transform:
             output_doc = (self.transform or self.interface.transform)
             self.output_doc = output_doc if type(output_doc) is str else output_doc.__doc__
