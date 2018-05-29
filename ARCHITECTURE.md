@@ -24,35 +24,35 @@ What this looks like in practice - an illustrative example
 Let's say I have a very simple Python API I've built to add 2 numbers together. I call my invention `addition`.
 Trust me, this is legit. It's trademarked and everything:
 
-    ```python
-    """A simple API to enable adding two numbers together"""
+```python
+"""A simple API to enable adding two numbers together"""
 
 
-    def add(number_1, number_2):
-        """Returns the result of adding number_1 to number_2"""
-        return number_1 + number_2
+def add(number_1, number_2):
+    """Returns the result of adding number_1 to number_2"""
+    return number_1 + number_2
+```
 
-    ```
 It works, it's well documented, and it's clean.
 Several people are already importing and using my Python module for their math needs.
 However, there's a great injustice! I'm lazy, and I don't want to open a Python interpreter etc to access my function.
 Here's how I modify it to expose it via the command line:
 
-    ```python
-    """A simple API to enable adding two numbers together"""
-    import hug
+```python
+"""A simple API to enable adding two numbers together"""
+import hug
 
 
-    @hug.cli()
-    def add(number_1: hug.types.number, number_2: hug.types.number):
-        """Returns the result of adding number_1 to number_2"""
-        return number_1 + number_2
+@hug.cli()
+def add(number_1: hug.types.number, number_2: hug.types.number):
+    """Returns the result of adding number_1 to number_2"""
+    return number_1 + number_2
 
 
-    if __name__ == '__main__':
-        add.interface.cli()
+if __name__ == '__main__':
+    add.interface.cli()
+```
 
-    ```
 Yay! Now I can just do my math from the command line using:
 ```add.py $NUMBER_1 $NUMBER_2```.
 And even better, if I miss an argument it lets me know what it is and how to fix my error.
@@ -63,19 +63,21 @@ However, users are not satisfied. I keep updating my API and they don't want to 
 They demand a Web API so they can always be pointing to my latest and greatest without restarting their apps and APIs.
 No problem. I'll just expose it over HTTP as well:
 
-    """A simple API to enable adding two numbers together"""
-    import hug
+```python
+"""A simple API to enable adding two numbers together"""
+import hug
 
 
-    @hug.get() # <-- This is the only additional line
-    @hug.cli()
-    def add(number_1: hug.types.number, number_2: hug.types.number):
-        """Returns the result of adding number_1 to number_2"""
-        return number_1 + number_2
+@hug.get() # <-- This is the only additional line
+@hug.cli()
+def add(number_1: hug.types.number, number_2: hug.types.number):
+    """Returns the result of adding number_1 to number_2"""
+    return number_1 + number_2
 
 
-    if __name__ == '__main__':
-        add.interface.cli()
+if __name__ == '__main__':
+    add.interface.cli()
+```
 
 That's it. I then run my new service via `hug -f add.py` and can see it running on `http://localhost:8000/`.
 The default page shows me documentation that points me toward `http://localhost:8000/add?number_1=1&number_2=2` to perform my first addition.
