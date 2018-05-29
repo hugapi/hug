@@ -26,6 +26,8 @@ from falcon.testing import StartResponseMock, create_environ
 
 import hug
 
+import marshmallow
+
 api = hug.API(__name__)
 
 
@@ -147,3 +149,18 @@ def test_basic_documentation():
     assert 'versions' in documentation
     assert '/echo' in documentation['handlers']
     assert '/test' not in documentation['handlers']
+
+
+def test_marshallow_documentation():
+
+    class Param1(marshmallow.Schema):
+        "Param1 docs"
+        pass
+
+    @hug.get()
+    def test(p1: Param1()):
+        pass
+
+    doc = api.http.documentation()
+
+    assert doc['handlers']['/test']['GET']['inputs']['p1']['type'] == "Param1 docs"
