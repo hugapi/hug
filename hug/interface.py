@@ -38,7 +38,7 @@ from hug import introspect
 from hug._async import asyncio_call
 from hug.exceptions import InvalidTypeData
 from hug.format import parse_content_type
-from hug.types import MarshmallowSchema, Multiple, OneOf, SmartBoolean, Text, text
+from hug.types import MarshmallowInputSchema, MarshmallowReturnSchema, Multiple, OneOf, SmartBoolean, Text, text
 
 
 class Interfaces(object):
@@ -88,7 +88,7 @@ class Interfaces(object):
             if hasattr(transformer, 'from_string'):
                 transformer = transformer.from_string
             elif hasattr(transformer, 'load'):
-                transformer = MarshmallowSchema(transformer)
+                transformer = MarshmallowInputSchema(transformer)
             elif hasattr(transformer, 'deserialize'):
                 transformer = transformer.deserialize
 
@@ -166,7 +166,7 @@ class Interface(object):
             self.transform = self.interface.transform
 
         if hasattr(self.transform, 'dump'):
-            self.transform = self.transform.dump
+            self.transform = MarshmallowReturnSchema(self.transform)
             self.output_doc = self.transform.__doc__
         elif self.transform or self.interface.transform:
             output_doc = (self.transform or self.interface.transform)

@@ -359,14 +359,20 @@ def test_schema_type():
 def test_marshmallow_schema():
     """Test hug's marshmallow schema support"""
     class UserSchema(Schema):
-        name = fields.Str()
+        name = fields.Int()
 
-    schema_type = hug.types.MarshmallowSchema(UserSchema())
-    assert schema_type({"name": "test"}, {}) == {"name": "test"}
-    assert schema_type("""{"name": "test"}""", {}) == {"name": "test"}
+    schema_type = hug.types.MarshmallowInputSchema(UserSchema())
+    assert schema_type({"name": 23}, {}) == {"name": 23}
+    assert schema_type("""{"name": 23}""", {}) == {"name": 23}
     assert schema_type.__doc__ == 'UserSchema'
     with pytest.raises(InvalidTypeData):
-        schema_type({"name": 1}, {})
+        schema_type({"name": "test"}, {})
+
+    schema_type = hug.types.MarshmallowReturnSchema(UserSchema())
+    assert schema_type({"name": 23}) == {"name": 23}
+    assert schema_type.__doc__ == 'UserSchema'
+    with pytest.raises(InvalidTypeData):
+        schema_type({"name": "test"})
 
 
 def test_create_type():
