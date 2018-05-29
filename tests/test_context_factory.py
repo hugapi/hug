@@ -1,6 +1,9 @@
 import sys
 
+from marshmallow.decorators import post_dump
+
 import hug
+from marshmallow import fields, Schema
 import pytest
 
 
@@ -107,6 +110,37 @@ class TestContextFactoryLocal(object):
 
         validation_local_function(43)
         assert not 'launched_local_function' in custom_context
+        assert 'launched_delete_context' in custom_context
+
+    def test_transform(self):
+        custom_context = dict(test='context', test_number=43)
+
+        @hug.context_factory()
+        def return_context(**kwargs):
+            return custom_context
+
+        @hug.delete_context()
+        def delete_context(context, exception=None, errors=None, lacks_requirement=None):
+            assert context == custom_context
+            assert not exception
+            assert not errors
+            assert not lacks_requirement
+            custom_context['launched_delete_context'] = True
+
+        class UserSchema(Schema):
+            name = fields.Str()
+
+            @post_dump()
+            def check_context(self, data):
+                assert self.context['test'] == 'context'
+                self.context['test_number'] += 1
+
+        @hug.local()
+        def validation_local_function() -> UserSchema():
+            return {'name': 'test'}
+
+        validation_local_function()
+        assert 'test_number' in custom_context and custom_context['test_number'] == 44
         assert 'launched_delete_context' in custom_context
 
     def test_exception(self):
@@ -255,6 +289,40 @@ class TestContextFactoryCLI(object):
         assert 'launched_local_function' not in custom_context
         assert 'launched_delete_context' in custom_context
 
+    def test_transform(self):
+        custom_context = dict(test='context', test_number=43)
+
+        @hug.context_factory()
+        def return_context(**kwargs):
+            return custom_context
+
+        @hug.delete_context()
+        def delete_context(context, exception=None, errors=None, lacks_requirement=None):
+            assert not exception
+            assert context == custom_context
+            assert not errors
+            assert not lacks_requirement
+            custom_context['launched_delete_context'] = True
+
+        class UserSchema(Schema):
+            name = fields.Str()
+
+            @post_dump()
+            def check_context(self, data):
+                assert self.context['test'] == 'context'
+                self.context['test_number'] += 1
+
+        @hug.cli()
+        def transform_cli_function() -> UserSchema():
+            custom_context['launched_cli_function'] = True
+            return {'name': 'test'}
+
+        hug.test.cli(transform_cli_function)
+        assert 'launched_cli_function' in custom_context
+        assert 'launched_delete_context' in custom_context
+        assert 'test_number' in custom_context
+        assert custom_context['test_number'] == 44
+
     def test_exception(self):
         custom_context = dict(test='context')
 
@@ -396,6 +464,39 @@ class TestContextFactoryHTTP(object):
         hug.test.get(module, '/validation_function', 43)
         assert 'launched_local_function ' not in custom_context
         assert 'launched_delete_context' in custom_context
+
+    def test_transform(self):
+        custom_context = dict(test='context', test_number=43)
+
+        @hug.context_factory()
+        def return_context(**kwargs):
+            return custom_context
+
+        @hug.delete_context()
+        def delete_context(context, exception=None, errors=None, lacks_requirement=None):
+            assert context == custom_context
+            assert not exception
+            assert not errors
+            assert not lacks_requirement
+            custom_context['launched_delete_context'] = True
+
+        class UserSchema(Schema):
+            name = fields.Str()
+
+            @post_dump()
+            def check_context(self, data):
+                assert self.context['test'] == 'context'
+                self.context['test_number'] += 1
+
+        @hug.get('/validation_function')
+        def validation_http_function() -> UserSchema():
+            custom_context['launched_local_function'] = True
+
+        hug.test.get(module, '/validation_function', 43)
+        assert 'launched_local_function' in custom_context
+        assert 'launched_delete_context' in custom_context
+        assert 'test_number' in custom_context
+        assert custom_context['test_number'] == 44
 
     def test_exception(self):
         custom_context = dict(test='context')
