@@ -23,14 +23,17 @@ import json
 import os
 import sys
 from unittest import mock
+from collections import namedtuple
 
 import falcon
 import pytest
 import requests
 from falcon.testing import StartResponseMock, create_environ
+from marshmallow import Schema, fields
 
 import hug
 from hug._async import coroutine
+from hug.exceptions import InvalidTypeData
 
 from .constants import BASE_DIRECTORY
 
@@ -528,9 +531,13 @@ def test_custom_deserializer_support():
 
 def test_marshmallow_support():
     """Ensure that you can use Marshmallow style objects to control input and output validation and transformation"""
+    MarshalResult = namedtuple('MarshalResult', ['data', 'errors'])
+
     class MarshmallowStyleObject(object):
         def dump(self, item):
-            return 'Dump Success'
+            if item == 'bad':
+                return MarshalResult('', 'problems')
+            return MarshalResult('Dump Success', {})
 
         def load(self, item):
             return ('Load Success', None)
@@ -546,6 +553,14 @@ def test_marshmallow_support():
 
     assert hug.test.get(api, 'test_marshmallow_style').data == "Dump Success"
     assert test_marshmallow_style() == 'world'
+
+
+    @hug.get()
+    def test_marshmallow_style_error() -> schema:
+        return 'bad'
+
+    with pytest.raises(InvalidTypeData):
+        hug.test.get(api, 'test_marshmallow_style_error')
 
 
     @hug.get()
