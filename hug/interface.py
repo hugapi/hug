@@ -355,10 +355,7 @@ class Local(Interface):
             if self.transform:
                 if hasattr(self.transform, 'context'):
                     self.transform.context = context
-                if hasattr(self.transform, 'dump'):
-                    result = self.transform.dump(result)
-                else:
-                    result = self.transform(result)
+                result = self.transform(result)
         except Exception as exception:
             self.cleanup_parameters(kwargs, exception=exception)
             self.api.delete_context(context, exception=exception)
@@ -468,10 +465,7 @@ class CLI(Interface):
         if self.transform:
             if hasattr(self.transform, 'context'):
                 self.transform.context = context
-            if hasattr(self.transform, 'dump'):
-                data = self.transform.dump(data)
-            else:
-                data = self.transform(data)
+            data = self.transform(data)
         if hasattr(data, 'read'):
             data = data.read().decode('utf8')
         if data is not None:
@@ -646,8 +640,6 @@ class HTTP(Interface):
         transform = self.transform
         if hasattr(transform, 'context'):
             self.transform.context = context
-        if hasattr(transform, 'dump'):
-            transform = transform.dump
         """Runs the transforms specified on this endpoint with the provided data, returning the data modified"""
         if transform and not (isinstance(transform, type) and isinstance(data, transform)):
             if self._params_for_transform:
