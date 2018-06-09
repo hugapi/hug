@@ -95,7 +95,7 @@ if numpy:
     def numpy_listable(item):
         return item.tolist()
 
-    @json_convert(numpy.str)
+    @json_convert(str, numpy.character)
     def numpy_stringable(item):
         return str(item)
 
