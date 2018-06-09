@@ -319,6 +319,8 @@ def test_json_converter_numpy_types():
     assert [5, 4, 3] == hug.output_format._json_converter(ex_np_int_array)
     assert .5 == hug.output_format._json_converter(ex_np_float)
 
+    # Some type names are merely shorthands.
+    # The following shorthands for built-in types are excluded: numpy.bool, numpy.int, numpy.float.
     np_bool_types = [numpy.bool_, numpy.bool8]
     np_int_types = [numpy.int_, numpy.byte, numpy.ubyte, numpy.intc, numpy.uintc, numpy.intp, numpy.uintp, numpy.int8,
                     numpy.uint8, numpy.int16, numpy.uint16, numpy.int32, numpy.uint32, numpy.int64, numpy.uint64,
