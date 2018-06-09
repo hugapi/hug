@@ -99,6 +99,10 @@ if numpy:
     def numpy_stringable(item):
         return str(item)
 
+    @json_convert(numpy.bool_)
+    def numpy_boolable(item):
+        return bool(item)
+
     @json_convert(numpy.integer)
     def numpy_integerable(item):
         return int(item)
