@@ -318,3 +318,19 @@ def test_json_converter_numpy_types():
     assert [1, 2, 3, 4, 5] == hug.output_format._json_converter(ex_np_array)
     assert [5, 4, 3] == hug.output_format._json_converter(ex_np_int_array)
     assert .5 == hug.output_format._json_converter(ex_np_float)
+
+    np_bool_types = [numpy.bool_, numpy.bool8]
+    np_int_types = [numpy.int_, numpy.byte, numpy.ubyte, numpy.intc, numpy.uintc, numpy.intp, numpy.uintp, numpy.int8,
+                    numpy.uint8, numpy.int16, numpy.uint16, numpy.int32, numpy.uint32, numpy.int64, numpy.uint64,
+                    numpy.longlong, numpy.ulonglong, numpy.short, numpy.ushort]
+    np_float_types = [numpy.float_, numpy.float32, numpy.float64, numpy.float128]
+    np_str_types = [numpy.bytes_, numpy.str, numpy.str_, numpy.string_, numpy.unicode_]
+
+    for np_type in np_bool_types:
+        assert True == hug.output_format._json_converter(np_type(True))
+    for np_type in np_int_types:
+        assert 1 is hug.output_format._json_converter(np_type(1))
+    for np_type in np_float_types:
+        assert .5 == hug.output_format._json_converter(np_type(.5))
+    for np_type in np_str_types:
+        assert 'a' is hug.output_format._json_converter(np_type('a'))
