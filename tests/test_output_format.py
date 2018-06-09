@@ -312,9 +312,9 @@ def test_json_converter_numpy_types():
     ex_int = numpy.int_(9)
     ex_np_array = numpy.array([1, 2, 3, 4, 5])
     ex_np_int_array = numpy.int_([5, 4, 3])
-    ex_np_float = numpy.float(1.0)
+    ex_np_float = numpy.float(.5)
 
     assert 9 is hug.output_format._json_converter(ex_int)
     assert [1, 2, 3, 4, 5] == hug.output_format._json_converter(ex_np_array)
     assert [5, 4, 3] == hug.output_format._json_converter(ex_np_int_array)
-    assert 1.0 == hug.output_format._json_converter(ex_np_float)
+    assert .5 == hug.output_format._json_converter(ex_np_float)
