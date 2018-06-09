@@ -103,7 +103,7 @@ if numpy:
     def numpy_integerable(item):
         return int(item)
 
-    @json_convert(numpy.float)
+    @json_convert(float, numpy.floating)
     def numpy_floatable(item):
         return float(item)
 
