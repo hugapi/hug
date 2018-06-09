@@ -99,7 +99,7 @@ if numpy:
     def numpy_stringable(item):
         return str(item)
 
-    @json_convert(numpy.int_)
+    @json_convert(numpy.integer)
     def numpy_integerable(item):
         return int(item)
 
