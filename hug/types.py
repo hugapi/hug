@@ -401,7 +401,7 @@ class GreaterThan(Type):
 
 
 class Length(Type):
-    """Accepts a a value that is withing a specific length limit"""
+    """Accepts a a value that is within a specific length limit"""
     __slots__ = ('lower', 'upper', 'convert')
 
     def __init__(self, lower, upper, convert=text):
