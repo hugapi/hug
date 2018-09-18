@@ -2,9 +2,10 @@ import hug
 from marshmallow import fields
 from marshmallow.decorators import validates_schema
 from marshmallow.schema import Schema
+from marshmallow_sqlalchemy import ModelSchema
 
 from demo.context import SqlalchemyContext
-from demo.models import TestUser
+from demo.models import TestUser, TestModel
 
 
 @hug.type(extend=hug.types.text, chain=True, accept_context=True)
@@ -30,3 +31,18 @@ class CreateUserSchema(Schema):
             ).exists()
         ).scalar():
             raise ValueError('User with a username {0} already exists.'.format(data['username']))
+
+
+class DumpUserSchema(ModelSchema):
+
+    @property
+    def session(self):
+        return self.context.db
+
+    class Meta:
+        model = TestModel
+        fields = ('name',)
+
+
+class DumpSchema(Schema):
+    users = fields.Nested(DumpUserSchema, many=True)

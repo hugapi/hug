@@ -589,6 +589,14 @@ class MarshmallowReturnSchema(Type):
         self.schema = schema
 
     @property
+    def context(self):
+        return self.schema.context
+
+    @context.setter
+    def context(self, context):
+        self.schema.context = context
+
+    @property
     def __doc__(self):
         return self.schema.__doc__ or self.schema.__class__.__name__
 
