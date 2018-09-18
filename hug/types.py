@@ -314,6 +314,13 @@ class JSON(Type):
                 return json_converter.loads(value)
             except Exception:
                 raise ValueError('Incorrectly formatted JSON provided')
+        if type(value) is list:
+            # If Falcon is set to comma-separate entries, this segment joins them again.
+            try:
+                fixed_value = ",".join(value)
+                return json_converter.loads(fixed_value)
+            except Exception:
+                raise ValueError('Incorrectly formatted JSON provided')
         else:
             return value
 
