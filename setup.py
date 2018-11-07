@@ -22,11 +22,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 import glob
 import os
-import subprocess
 import sys
 from os import path
 
-from setuptools import Extension, find_packages, setup
+from setuptools import Extension, setup
 from setuptools.command.test import test as TestCommand
 
 
@@ -80,43 +79,54 @@ if CYTHON:
         for ext in list_modules(path.join(MYDIR, 'hug'))]
     cmdclass['build_ext'] = build_ext
 
-try:
-   import pypandoc
-   readme = pypandoc.convert('README.md', 'rst')
-except (IOError, ImportError, OSError, RuntimeError):
-   readme = ''
 
-setup(name='hug',
-      version='2.4.1',
-      description='A Python framework that makes developing APIs as simple as possible, but no simpler.',
-      long_description=readme,
-      author='Timothy Crosley',
-      author_email='timothy.crosley@gmail.com',
-      url='https://github.com/timothycrosley/hug',
-      license="MIT",
-      entry_points={
+with open('README.md', encoding='utf-8') as f:  # Loads in the README for PyPI
+    long_description = f.read()
+
+
+setup(
+    name='hug',
+    version='2.4.1',
+    description='A Python framework that makes developing APIs '
+                'as simple as possible, but no simpler.',
+    long_description=long_description,
+    # PEP 566, the new PyPI, and setuptools>=38.6.0 make markdown possible
+    long_description_content_type='text/markdown',
+    author='Timothy Crosley',
+    author_email='timothy.crosley@gmail.com',
+    # These appear in the left hand side bar on PyPI
+    url='https://github.com/timothycrosley/hug',
+    project_urls={
+        'Documentation': 'http://www.hug.rest/',
+        'Gitter': 'https://gitter.im/timothycrosley/hug',
+    },
+    license="MIT",
+    entry_points={
         'console_scripts': [
             'hug = hug:development_runner.hug.interface.cli',
         ]
-      },
-      packages=['hug'],
-      requires=['falcon', 'requests'],
-      install_requires=['falcon==1.4.1', 'requests'],
-      cmdclass=cmdclass,
-      ext_modules=ext_modules,
-      python_requires=">=3.4",
-      keywords='Web, Python, Python3, Refactoring, REST, Framework, RPC',
-      classifiers=['Development Status :: 6 - Mature',
-                   'Intended Audience :: Developers',
-                   'Natural Language :: English',
-                   'Environment :: Console',
-                   'License :: OSI Approved :: MIT License',
-                   'Programming Language :: Python',
-                   'Programming Language :: Python :: 3',
-                   'Programming Language :: Python :: 3.2',
-                   'Programming Language :: Python :: 3.4',
-                   'Programming Language :: Python :: 3.5',
-                   'Programming Language :: Python :: 3.6',
-                   'Topic :: Software Development :: Libraries',
-                   'Topic :: Utilities'],
-      **PyTest.extra_kwargs)
+    },
+    packages=['hug'],
+    requires=['falcon', 'requests'],
+    install_requires=['falcon==1.4.1', 'requests'],
+    cmdclass=cmdclass,
+    ext_modules=ext_modules,
+    python_requires=">=3.4",
+    keywords='Web, Python, Python3, Refactoring, REST, Framework, RPC',
+    classifiers=[
+        'Development Status :: 6 - Mature',
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        'Environment :: Console',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Utilities'
+    ],
+    **PyTest.extra_kwargs
+)
