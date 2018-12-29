@@ -326,7 +326,8 @@ def test_json_converter_numpy_types():
                     numpy.uint8, numpy.int16, numpy.uint16, numpy.int32, numpy.uint32, numpy.int64, numpy.uint64,
                     numpy.longlong, numpy.ulonglong, numpy.short, numpy.ushort]
     np_float_types = [numpy.float_, numpy.float32, numpy.float64, numpy.float128]
-    np_str_types = [numpy.bytes_, numpy.str, numpy.str_, numpy.string_, numpy.unicode_]
+    np_unicode_types = [numpy.unicode_]
+    np_bytes_types = [numpy.bytes_]
 
     for np_type in np_bool_types:
         assert True == hug.output_format._json_converter(np_type(True))
@@ -334,8 +335,10 @@ def test_json_converter_numpy_types():
         assert 1 is hug.output_format._json_converter(np_type(1))
     for np_type in np_float_types:
         assert .5 == hug.output_format._json_converter(np_type(.5))
-    for np_type in np_str_types:
-        assert 'a' is hug.output_format._json_converter(np_type('a'))
+    for np_type in np_unicode_types:
+        assert "a" == hug.output_format._json_converter(np_type('a'))
+    for np_type in np_bytes_types:
+        assert "a" == hug.output_format._json_converter(np_type('a'))
 
 def test_output_format_with_no_docstring():
     """Ensure it is safe to use formatters with no docstring"""

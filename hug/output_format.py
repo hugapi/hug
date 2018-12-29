@@ -95,9 +95,13 @@ if numpy:
     def numpy_listable(item):
         return item.tolist()
 
-    @json_convert(str, numpy.character)
+    @json_convert(str, numpy.unicode_)
     def numpy_stringable(item):
         return str(item)
+
+    @json_convert(numpy.bytes_)
+    def numpy_byte_decodeable(item):
+        return item.decode()
 
     @json_convert(numpy.bool_)
     def numpy_boolable(item):
