@@ -34,7 +34,7 @@ You can use route chaining to specify an output format for a group of endpoints 
 Finally, an output format may be a collection of different output formats that get used conditionally. For example, using the built-in suffix output format:
 
     suffix_output = hug.output_format.suffix({'.js': hug.output_format.json,
-                                              '.html':hug.output_format.html})
+                                              '.html': hug.output_format.html})
 
     @hug.get(('my_endpoint.js', 'my_endoint.html'), output=suffix_output)
     def my_endpoint():
@@ -75,10 +75,10 @@ An output format is simply a function with a content type attached that takes a 
 
     @hug.format.content_type('file/text')
     def format_as_text(data, request=None, response=None):
-        return str(content).encode('utf8')
+        return str(data).encode('utf8')
 
 A common pattern is to only apply the output format. Validation errors aren't passed in, since it's hard to deal with this for several formats (such as images), and it may make more sense to simply return the error as JSON. hug makes this pattern simple, as well, with the `hug.output_format.on_valid` decorator:
 
     @hug.output_format.on_valid('file/text')
     def format_as_text_when_valid(data, request=None, response=None):
-        return str(content).encode('utf8')
+        return str(data).encode('utf8')

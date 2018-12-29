@@ -352,14 +352,16 @@ class Local(Interface):
             self._rewrite_params(kwargs)
         try:
             result = self.interface(**kwargs)
-            self.cleanup_parameters(kwargs)
-            self.api.delete_context(context)
+            if self.transform:
+                if hasattr(self.transform, 'context'):
+                    self.transform.context = context
+                result = self.transform(result)
         except Exception as exception:
             self.cleanup_parameters(kwargs, exception=exception)
             self.api.delete_context(context, exception=exception)
             raise exception
-        if self.transform:
-            result = self.transform(result)
+        self.cleanup_parameters(kwargs)
+        self.api.delete_context(context)
         return self.outputs(result) if self.outputs else result
 
 
@@ -458,9 +460,11 @@ class CLI(Interface):
     def outputs(self, outputs):
         self._outputs = outputs
 
-    def output(self, data):
+    def output(self, data, context):
         """Outputs the provided data using the transformations and output format specified for this CLI endpoint"""
         if self.transform:
+            if hasattr(self.transform, 'context'):
+                self.transform.context = context
             data = self.transform(data)
         if hasattr(data, 'read'):
             data = data.read().decode('utf8')
@@ -485,7 +489,7 @@ class CLI(Interface):
             conclusion = requirement(request=sys.argv, module=self.api.module, context=context)
             if conclusion and conclusion is not True:
                 self.api.delete_context(context, lacks_requirement=conclusion)
-                return self.output(conclusion)
+                return self.output(conclusion, context)
 
         if self.interface.is_method:
             self.parser.prog = "%s %s" % (self.api.module.__name__, self.interface.name)
@@ -509,7 +513,7 @@ class CLI(Interface):
             errors = self.validate_function(pass_to_function)
             if errors:
                 self.api.delete_context(context, errors=errors)
-                return self.output(errors)
+                return self.output(errors, context)
 
         args = None
         if self.additional_options:
@@ -538,16 +542,16 @@ class CLI(Interface):
 
         try:
             if args:
-                result = self.interface(*args, **pass_to_function)
+                result = self.output(self.interface(*args, **pass_to_function), context)
             else:
-                result = self.interface(**pass_to_function)
-            self.cleanup_parameters(pass_to_function)
-            self.api.delete_context(context)
+                result = self.output(self.interface(**pass_to_function), context)
         except Exception as exception:
             self.cleanup_parameters(pass_to_function, exception=exception)
             self.api.delete_context(context, exception=exception)
             raise exception
-        return self.output(result)
+        self.cleanup_parameters(pass_to_function)
+        self.api.delete_context(context)
+        return result
 
 
 class HTTP(Interface):
@@ -632,13 +636,16 @@ class HTTP(Interface):
     def outputs(self, outputs):
         self._outputs = outputs
 
-    def transform_data(self, data, request=None, response=None):
+    def transform_data(self, data, request=None, response=None, context=None):
+        transform = self.transform
+        if hasattr(transform, 'context'):
+            self.transform.context = context
         """Runs the transforms specified on this endpoint with the provided data, returning the data modified"""
-        if self.transform and not (isinstance(self.transform, type) and isinstance(data, self.transform)):
+        if transform and not (isinstance(transform, type) and isinstance(data, transform)):
             if self._params_for_transform:
-                return self.transform(data, **self._arguments(self._params_for_transform, request, response))
+                return transform(data, **self._arguments(self._params_for_transform, request, response))
             else:
-                return self.transform(data)
+                return transform(data)
         return data
 
     def content_type(self, request=None, response=None):
@@ -695,7 +702,7 @@ class HTTP(Interface):
 
         return self.interface(**parameters)
 
-    def render_content(self, content, request, response, **kwargs):
+    def render_content(self, content, context, request, response, **kwargs):
         if hasattr(content, 'interface') and (content.interface is True or hasattr(content.interface, 'http')):
             if content.interface is True:
                 content(request, response, api_version=None, **kwargs)
@@ -703,7 +710,7 @@ class HTTP(Interface):
                 content.interface.http(request, response, api_version=None, **kwargs)
             return
 
-        content = self.transform_data(content, request, response)
+        content = self.transform_data(content, request, response, context)
         content = self.outputs(content, **self._arguments(self._params_for_outputs, request, response))
         if hasattr(content, 'read'):
             size = None
@@ -756,9 +763,7 @@ class HTTP(Interface):
                 self.api.delete_context(context, errors=errors)
                 return self.render_errors(errors, request, response)
 
-            self.render_content(self.call_function(input_parameters), request, response, **kwargs)
-            self.cleanup_parameters(input_parameters)
-            self.api.delete_context(context)
+            self.render_content(self.call_function(input_parameters), context, request, response, **kwargs)
         except falcon.HTTPNotFound as exception:
             self.cleanup_parameters(input_parameters, exception=exception)
             self.api.delete_context(context, exception=exception)
@@ -786,6 +791,8 @@ class HTTP(Interface):
             self.cleanup_parameters(input_parameters, exception=exception)
             self.api.delete_context(context, exception=exception)
             raise exception
+        self.cleanup_parameters(input_parameters)
+        self.api.delete_context(context)
 
     def documentation(self, add_to=None, version=None, prefix="", base_url="", url=""):
         """Returns the documentation specific to an HTTP interface"""

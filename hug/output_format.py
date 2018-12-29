@@ -283,8 +283,8 @@ def on_content_type(handlers, default=None, error='The requested content type do
 
         response.content_type = handler.content_type
         return handler(data, request=request, response=response)
-    output_type.__doc__ = 'Supports any of the following formats: {0}'.format(', '.join(function.__doc__ for function in
-                                                                                        handlers.values()))
+    output_type.__doc__ = 'Supports any of the following formats: {0}'.format(', '.join(
+        function.__doc__ or function.__name__ for function in handlers.values()))
     output_type.content_type = ', '.join(handlers.keys())
     return output_type
 

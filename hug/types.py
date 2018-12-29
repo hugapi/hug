@@ -314,6 +314,13 @@ class JSON(Type):
                 return json_converter.loads(value)
             except Exception:
                 raise ValueError('Incorrectly formatted JSON provided')
+        if type(value) is list:
+            # If Falcon is set to comma-separate entries, this segment joins them again.
+            try:
+                fixed_value = ",".join(value)
+                return json_converter.loads(fixed_value)
+            except Exception:
+                raise ValueError('Incorrectly formatted JSON provided')
         else:
             return value
 
@@ -401,7 +408,7 @@ class GreaterThan(Type):
 
 
 class Length(Type):
-    """Accepts a a value that is withing a specific length limit"""
+    """Accepts a a value that is within a specific length limit"""
     __slots__ = ('lower', 'upper', 'convert')
 
     def __init__(self, lower, upper, convert=text):
@@ -587,6 +594,14 @@ class MarshmallowReturnSchema(Type):
 
     def __init__(self, schema):
         self.schema = schema
+
+    @property
+    def context(self):
+        return self.schema.context
+
+    @context.setter
+    def context(self, context):
+        self.schema.context = context
 
     @property
     def __doc__(self):

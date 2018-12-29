@@ -336,3 +336,12 @@ def test_json_converter_numpy_types():
         assert .5 == hug.output_format._json_converter(np_type(.5))
     for np_type in np_str_types:
         assert 'a' is hug.output_format._json_converter(np_type('a'))
+
+def test_output_format_with_no_docstring():
+    """Ensure it is safe to use formatters with no docstring"""
+
+    @hug.format.content_type('test/fmt')
+    def test_fmt(data, request=None, response=None):
+        return str(data).encode('utf8')
+
+    hug.output_format.on_content_type({'test/fmt': test_fmt})

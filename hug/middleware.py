@@ -135,8 +135,11 @@ class CORSMiddleware(object):
 
     def process_response(self, request, response, resource):
         """Add CORS headers to the response"""
-        response.set_header('Access-Control-Allow-Origin', ', '.join(self.allow_origins))
         response.set_header('Access-Control-Allow-Credentials', str(self.allow_credentials).lower())
+
+        origin = request.get_header('ORIGIN')
+        if origin and (origin in self.allow_origins) or ('*' in self.allow_origins):
+            response.set_header('Access-Control-Allow-Origin', origin)
 
         if request.method == 'OPTIONS': # check if we are handling a preflight request
             allowed_methods = set(
