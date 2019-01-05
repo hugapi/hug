@@ -25,6 +25,7 @@ from collections import namedtuple
 from datetime import datetime, timedelta
 from decimal import Decimal
 from io import BytesIO
+from uuid import UUID
 
 import pytest
 
@@ -317,6 +318,11 @@ def test_json_converter_numpy_types():
     assert [5, 4, 3] == hug.output_format._json_converter(ex_np_int)
     assert 1.0 == hug.output_format._json_converter(ex_np_float)
 
+def test_json_converter_uuid():
+    """Ensure that uuid data type is properly supported in JSON output."""
+    uuidstr = '8ae4d8c1-e2d7-5cd0-8407-6baf16dfbca4'
+
+    assert uuidstr == hug.output_format._json_converter(UUID(uuidstr))
 
 def test_output_format_with_no_docstring():
     """Ensure it is safe to use formatters with no docstring"""

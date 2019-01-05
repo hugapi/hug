@@ -31,6 +31,7 @@ from decimal import Decimal
 from functools import wraps
 from io import BytesIO
 from operator import itemgetter
+from uuid import UUID
 
 import falcon
 from falcon import HTTP_NOT_FOUND
@@ -75,6 +76,8 @@ def _json_converter(item):
         return str(item)
     elif isinstance(item, timedelta):
         return item.total_seconds()
+    elif isinstance(item, UUID):
+        return str(item)
     raise TypeError("Type not serializable")
 
 
