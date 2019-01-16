@@ -105,6 +105,8 @@ def reload_checker(interval):
         files = {}
         for module in list(sys.modules.values()):
             path = getattr(module, '__file__', '')
+            if not path:
+                continue
             if path[-4:] in ('.pyo', '.pyc'):
                 path = path[:-1]
             if path and exists(path):
