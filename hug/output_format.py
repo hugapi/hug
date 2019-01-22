@@ -72,12 +72,10 @@ def _json_converter(item):
             return base64.b64encode(item)
     elif hasattr(item, '__iter__'):
         return list(item)
-    elif isinstance(item, Decimal):
+    elif isinstance(item, (Decimal, UUID)):
         return str(item)
     elif isinstance(item, timedelta):
         return item.total_seconds()
-    elif isinstance(item, UUID):
-        return str(item)
     raise TypeError("Type not serializable")
 
 
