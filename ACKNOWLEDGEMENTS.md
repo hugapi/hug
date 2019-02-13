@@ -74,6 +74,7 @@ Documenters
 - Chris (@ckhrysze)
 - Amanda Crosley (@waddlelikeaduck)
 - Chelsea Dole (@chelseadole)
+- Joshua Crowgey (@jcrowgey)
 
 --------------------------------------------
 
