@@ -180,7 +180,7 @@ def extend_api(route="", api=None, base_url=""):
 
 
 def wraps(function):
-    """Enables building decorators around functions used for hug routes without chaninging their function signature"""
+    """Enables building decorators around functions used for hug routes without changing their function signature"""
     def wrap(decorator):
         decorator = functools.wraps(function)(decorator)
         if not hasattr(function, 'original'):
