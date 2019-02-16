@@ -92,15 +92,27 @@ def json_convert(*kinds):
 
 
 if numpy:
-    @json_convert(numpy.ndarray, numpy.int_)
+    @json_convert(numpy.ndarray)
     def numpy_listable(item):
         return item.tolist()
 
-    @json_convert(numpy.str)
+    @json_convert(str, numpy.unicode_)
     def numpy_stringable(item):
         return str(item)
 
-    @json_convert(numpy.float)
+    @json_convert(numpy.bytes_)
+    def numpy_byte_decodeable(item):
+        return item.decode()
+
+    @json_convert(numpy.bool_)
+    def numpy_boolable(item):
+        return bool(item)
+
+    @json_convert(numpy.integer)
+    def numpy_integerable(item):
+        return int(item)
+
+    @json_convert(float, numpy.floating)
     def numpy_floatable(item):
         return float(item)
 

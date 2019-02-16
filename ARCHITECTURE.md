@@ -141,28 +141,63 @@ Enabling interfaces to improve upon internal functions
 hug provides several mechanisms to enable your exposed interfaces to have additional capabilities not defined by
 the base Python function.
 
-- Enforced type annotations: hug interfaces automatically enforce type annotations you set on functions
-    `def add(number_1:hug.types.number, number_2:hug.types.number):`
-    - These types are simply called with the data passed into that field, if an exception is thrown it's seen as invalid
-    - all of hugs custom types to be used for annotation are defined in `hug/types.py`
-- Directives: hug interfaces allow replacing Python function parameters with dynamically pulled data via directives.
-    `def add(number_1:hug.types.number, number_2:hug.types.number, hug_timer=2):`
-    - In this example `hug_timer` is directive, when calling via a hug interface hug_timer is replaced with a timer that contains the starting time.
-    - All of hug's built-in directives are defined in hug/directives.py
-- Requires: hug requirements allow you to specify requirements that must be met only for specified interfaces.
-    `@hug.get(requires=hug.authentication.basic(hug.authentication.verify('User1', 'mypassword')))`
-    - Causes the HTTP method to only successfully call the Python function if User1 is logged in
-    - requirements are currently highly focused on authentication, and all existing require functions are defined in hug/authentication.py
-- Transformations: hug transformations enable changing the result of a function but only for the specified interface
-    `@hug.get(transform=str)`
-    - The above would cause the method to return a stringed result, while the original Python function would still return an int.
-    - All of hug's built in transformations are defined in `hug/transform.py`
-- Input / Output formats: hug provides an extensive number of built-in input and output formats.
-    `@hug.get(output_format=hug.output_format.json)`
-    - These formats define how data should be sent to your API function and how it will be returned
-    - All of hugs built-in output formats are found in `hug/output_format.py`
-    - All of hugs built-in input formats are found in `hug/input_format.py`
-    - The default assumption for output_formatting is JSON
+Enforced type annotations
+--
+hug interfaces automatically enforce the type annotations that you set on functions
+
+```python
+def add(number_1:hug.types.number, number_2:hug.types.number):
+```
+
+- These types are simply called with the data which is passed into that field, if an exception is raised then it's seen as invalid.
+- All of hug's custom types used for enforcing annotations are defined in `hug/types.py`.
+
+Directives
+--
+hug interfaces allow replacing Python function parameters with dynamically-pulled data via directives.
+
+```python
+def add(number_1:hug.types.number, number_2:hug.types.number, hug_timer=2):
+```
+
+- In this example `hug_timer` is a directive, when calling via a hug interface `hug_timer` is replaced with a timer that contains the starting time.
+- All of hug's built-in directives are defined in `hug/directives.py`.
+
+Requires
+--
+hug requirements allow you to specify requirements that must be met only for specified interfaces.
+
+```python
+@hug.get(requires=hug.authentication.basic(hug.authentication.verify('User1', 'mypassword')))
+```
+
+- Causes the HTTP method to only successfully call the Python function if User1 is logged in.
+- require functions currently highly focused on authentication and all existing require functions are defined in `hug/authentication.py`.
+
+Transformations
+--
+hug transformations enable changing the result of a function but only for the specified interface.
+
+```python
+@hug.get(transform=str)
+```
+
+- The above would cause the method to return a stringed result, while the original Python function would still return an int.
+- All of hug's built in transformations are defined in `hug/transform.py`.
+
+Input/Output formats
+--
+hug provides an extensive number of built-in input and output formats.
+
+ ```python
+ @hug.get(output_format=hug.output_format.json)
+ ```
+
+ - These formats define how data should be sent to your API function and how it will be returned.
+ - All of hugs built-in output formats are found in `hug/output_format.py`.
+ - All of hugs built-in input formats are found in `hug/input_format.py`.
+ - The default `output_formatting` is JSON.
+
 
 Switching from using a hug API over one interface to another
 ===========================================
