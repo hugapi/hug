@@ -31,6 +31,7 @@ from decimal import Decimal
 from functools import wraps
 from io import BytesIO
 from operator import itemgetter
+from uuid import UUID
 
 import falcon
 from falcon import HTTP_NOT_FOUND
@@ -71,7 +72,7 @@ def _json_converter(item):
             return base64.b64encode(item)
     elif hasattr(item, '__iter__'):
         return list(item)
-    elif isinstance(item, Decimal):
+    elif isinstance(item, (Decimal, UUID)):
         return str(item)
     elif isinstance(item, timedelta):
         return item.total_seconds()
