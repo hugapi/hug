@@ -128,7 +128,7 @@ class CORSMiddleware(object):
                 reqpath = re.sub('^(/v\d*/?)', '/', reqpath)
                 base_url = getattr(self.api.http, 'base_url', '')
                 reqpath = reqpath.replace(base_url, '', 1) if base_url else reqpath
-                if re.match(re.sub(r'/{[^{}]+}', '/[\w-]+', route) + '$', reqpath):
+                if re.match(re.sub(r'/{[^{}]+}', r'/[\\w-]+', route) + '$', reqpath):
                     return route
 
         return reqpath
