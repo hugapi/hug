@@ -295,9 +295,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
         base_url = self.base_url if base_url is None else base_url
 
         def handle_404(request, response, *args, **kwargs):
-            url_prefix = request.url[:-1]
+            url_prefix = request.forwarded_uri[:-1]
             if request.path and request.path != "/":
-                url_prefix = request.url.split(request.path)[0]
+                url_prefix = request.forwarded_uri.split(request.path)[0]
 
             to_return = OrderedDict()
             to_return['404'] = ("The API call you tried to make was not defined. "
