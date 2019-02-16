@@ -309,14 +309,37 @@ def test_prefix():
 
 def test_json_converter_numpy_types():
     """Ensure that numpy-specific data types (array, int, float) are properly supported in JSON output."""
+    ex_int = numpy.int_(9)
     ex_np_array = numpy.array([1, 2, 3, 4, 5])
-    ex_np_int = numpy.int_([5, 4, 3])
-    ex_np_float = numpy.float(1.0)
+    ex_np_int_array = numpy.int_([5, 4, 3])
+    ex_np_float = numpy.float(.5)
 
+    assert 9 is hug.output_format._json_converter(ex_int)
     assert [1, 2, 3, 4, 5] == hug.output_format._json_converter(ex_np_array)
-    assert [5, 4, 3] == hug.output_format._json_converter(ex_np_int)
-    assert 1.0 == hug.output_format._json_converter(ex_np_float)
+    assert [5, 4, 3] == hug.output_format._json_converter(ex_np_int_array)
+    assert .5 == hug.output_format._json_converter(ex_np_float)
 
+    # Some type names are merely shorthands.
+    # The following shorthands for built-in types are excluded: numpy.bool, numpy.int, numpy.float.
+    np_bool_types = [numpy.bool_, numpy.bool8]
+    np_int_types = [numpy.int_, numpy.byte, numpy.ubyte, numpy.intc, numpy.uintc, numpy.intp, numpy.uintp, numpy.int8,
+                    numpy.uint8, numpy.int16, numpy.uint16, numpy.int32, numpy.uint32, numpy.int64, numpy.uint64,
+                    numpy.longlong, numpy.ulonglong, numpy.short, numpy.ushort]
+    np_float_types = [numpy.float_, numpy.float32, numpy.float64, numpy.half, numpy.single,
+                      numpy.longfloat]
+    np_unicode_types = [numpy.unicode_]
+    np_bytes_types = [numpy.bytes_]
+
+    for np_type in np_bool_types:
+        assert True == hug.output_format._json_converter(np_type(True))
+    for np_type in np_int_types:
+        assert 1 is hug.output_format._json_converter(np_type(1))
+    for np_type in np_float_types:
+        assert .5 == hug.output_format._json_converter(np_type(.5))
+    for np_type in np_unicode_types:
+        assert "a" == hug.output_format._json_converter(np_type('a'))
+    for np_type in np_bytes_types:
+        assert "a" == hug.output_format._json_converter(np_type('a'))
 
 def test_output_format_with_no_docstring():
     """Ensure it is safe to use formatters with no docstring"""
