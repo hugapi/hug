@@ -728,9 +728,10 @@ class HTTP(Interface):
                 response.content_range = (start, end, size)
                 content.close()
             else:
-                response.stream = content
                 if size:
-                    response.stream_len = size
+                    response.set_stream(content, size)
+                else:
+                    response.stream = content
         else:
             response.data = content
 
