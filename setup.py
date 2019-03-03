@@ -108,7 +108,7 @@ setup(
     },
     packages=['hug'],
     requires=['falcon', 'requests'],
-    install_requires=['falcon==2.0.0.a1', 'requests'],
+    install_requires=['falcon==1.4.1', 'requests'],
     cmdclass=cmdclass,
     ext_modules=ext_modules,
     python_requires=">=3.4",
