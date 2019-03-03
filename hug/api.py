@@ -359,9 +359,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
                 if self.versions and self.versions != (None, ):
                     falcon_api.add_route(router_base_url + '/v{api_version}' + url, router)
 
-        def error_serializer(_, error):
-            return (self.output_format.content_type,
-                    self.output_format({"errors": {error.title: error.description}}))
+        def error_serializer(request, response, error):
+            response.content_type = self.output_format.content_type
+            response.body = self.output_format({"errors": {error.title: error.description}})
 
         falcon_api.set_error_serializer(error_serializer)
         return falcon_api
