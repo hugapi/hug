@@ -1,5 +1,6 @@
 language: python
-
+cache: pip
+dist: xenial
 matrix:
   include:
     - os: linux
@@ -11,6 +12,9 @@ matrix:
     - os: linux
       sudo: required
       python: 3.6
+    - os: linux
+      sudo: required
+      python: 3.7
     - os: linux
       sudo: required
       python: pypy3
