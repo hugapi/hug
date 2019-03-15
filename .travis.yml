@@ -1,6 +1,6 @@
+dist: xenial
 language: python
 cache: pip
-dist: xenial
 matrix:
   include:
     - os: linux
