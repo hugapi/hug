@@ -17,7 +17,8 @@ matrix:
       python: 3.7
     - os: linux
       sudo: required
-      python: pypy3
+      python: pypy3.5-6.0
+      env: TOXENV=pypy3
     - os: osx
       language: generic
       env: TOXENV=py34
