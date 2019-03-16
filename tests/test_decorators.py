@@ -1435,7 +1435,7 @@ def test_multipart():
     def test_multipart_post(**kwargs):
         return kwargs
 
-    with open(os.path.join(BASE_DIRECTORY, 'artwork', 'logo.png'),'rb') as logo:
+    with open(os.path.join(BASE_DIRECTORY, 'artwork', 'logo.png'), 'rb') as logo:
         prepared_request = requests.Request('POST', 'http://localhost/', files={'logo': logo}).prepare()
         logo.seek(0)
         output = json.loads(hug.defaults.output_format({'logo': logo.read()}).decode('utf8'))

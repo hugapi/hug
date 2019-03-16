@@ -42,7 +42,7 @@ def test_nested_basic_call_coroutine():
     @hug.call()
     @asyncio.coroutine
     def hello_world():
-        return getattr(asyncio, 'async')(nested_hello_world())
+        return getattr(asyncio, 'ensure_future')(nested_hello_world())
 
     @hug.local()
     @asyncio.coroutine
