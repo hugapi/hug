@@ -13,6 +13,9 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
+### 2.4.3 [hotfix] - March 17, 2019
+- Fix issue #737 - latest hug release breaks meinheld worker setup
+
 ### 2.4.2 - March 16, 2019
 - Python 3.7 support improvements
 - No longer test against Python 3.4 - aimed for full deprecation in Hug 3.0.0
