@@ -17,7 +17,6 @@ Changelog
 - Python 3.7 support improvements
 - No longer test against Python 3.4 - aimed for full deprecation in Hug 3.0.0
 
-
 ### 2.4.1 - Sep 17, 2018
 - Fixed issue #631: Added support for Python 3.7
 - Fixed issue #665: Fixed problem with hug.types.json
