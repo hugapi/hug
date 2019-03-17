@@ -13,12 +13,17 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
+### 2.4.2 - TBD
+- Python 3.7 support improvements
+- No longer test against Python 3.4 - aimed for full deprecation in Hug 3.0.0
+
+
 ### 2.4.1 - Sep 17, 2018
 - Fixed issue #631: Added support for Python 3.7
 - Fixed issue #665: Fixed problem with hug.types.json
 - Fixed issue #679: Return docs for marshmallow schema instead of for dump method
 
-### 2.4.0 - Jan 31, 2018 
+### 2.4.0 - Jan 31, 2018
 - Updated Falcon requirement to 1.4.1
 - Fixed issue #590: Textual output formats should have explicitly defined charsets by default
 - Fixed issue #596: Host argument for development runner
