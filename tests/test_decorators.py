@@ -662,7 +662,7 @@ def test_output_format():
 def test_input_format():
     """Test to ensure it's possible to quickly change the default hug output format"""
     old_format = api.http.input_format('application/json')
-    api.http.set_input_format('application/json', lambda a: {'no': 'relation'})
+    api.http.set_input_format('application/json', lambda a, **headers: {'no': 'relation'})
 
     @hug.get()
     def hello(body):
@@ -682,7 +682,7 @@ def test_input_format():
 @pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
 def test_specific_input_format():
     """Test to ensure the input formatter can be specified"""
-    @hug.get(inputs={'application/json': lambda a: 'formatted'})
+    @hug.get(inputs={'application/json': lambda a, **headers: 'formatted'})
     def hello(body):
         return body
 
