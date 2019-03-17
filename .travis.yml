@@ -5,9 +5,6 @@ matrix:
   include:
     - os: linux
       sudo: required
-      python: 3.4
-    - os: linux
-      sudo: required
       python: 3.5
     - os: linux
       sudo: required
