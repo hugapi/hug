@@ -1,15 +1,16 @@
 bumpversion==0.5.3
-Cython==0.28.2
+Cython==0.29.6
 -r common.txt
 flake8==3.5.0
 ipython==6.2.1
 isort==4.2.5
 pytest-cov==2.5.1
-pytest==3.0.7
+pytest==4.3.1
 python-coveralls==2.9.1
 tox==2.9.1
 wheel
 pytest-xdist==1.20.1
 marshmallow==2.18.1
 ujson==1.35
-numpy==1.14.0
+numpy==1.15.4
+

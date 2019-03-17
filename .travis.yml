@@ -1,31 +1,42 @@
+dist: xenial
 language: python
-
+cache: pip
 matrix:
   include:
-    - os: linux
-      sudo: required
-      python: 3.4
-    - os: linux
-      sudo: required
-      python: 3.5
-    - os: linux
-      sudo: required
-      python: 3.6
-    - os: linux
-      sudo: required
-      python: pypy3
-    - os: osx
-      language: generic
-      env: TOXENV=py34
-    - os: osx
-      language: generic
-      env: TOXENV=py35
-
+  - os: linux
+    sudo: required
+    python: 3.5
+  - os: linux
+    sudo: required
+    python: 3.6
+  - os: linux
+    sudo: required
+    python: 3.7
+  - os: linux
+    sudo: required
+    python: pypy3.5-6.0
+    env: TOXENV=pypy3
+  - os: osx
+    language: generic
+    env: TOXENV=py34
+  - os: osx
+    language: generic
+    env: TOXENV=py35
 before_install:
-  - ./scripts/before_install.sh
-
+- "./scripts/before_install.sh"
 install:
-  - source ./scripts/install.sh
-  - pip install tox tox-travis coveralls
+- source ./scripts/install.sh
+- pip install tox tox-travis coveralls
 script: tox
 after_success: coveralls
+deploy:
+  provider: pypi
+  user: timothycrosley
+  distributions: sdist bdist_wheel
+  skip_existing: true
+  on:
+    tags: false
+    branch: master
+    condition: "$TOXENV = py37"
+  password:
+    secure: Zb8jwvUzsiXNxU+J0cuP/7ZIUfsw9qoENAlIEI5qyly8MFyHTM/HvdriQJM0IFCKiOSU4PnCtkL6Yt+M4oA7QrjsMrxxDo2ekZq2EbsxjTNxzXnnyetTYh94AbQfZyzliMyeccJe4iZJdoJqYG92BwK0cDyRV/jSsIL6ibkZgjKuBP7WAKbZcUVDwOgL4wEfKztTnQcAYUCmweoEGt8r0HP1PXvb0jt5Rou3qwMpISZpBYU01z38h23wtOi8jylSvYu/LiFdV8fKslAgDyDUhRdbj9DMBVBlvYT8dlWNpnrpphortJ6H+G82NbFT53qtV75CrB1j/wGik1HQwUYfhfDFP1RYgdXfHeKYEMWiokp+mX3O9uv/AoArAX5Q4auFBR8VG3BB6H96BtNQk5x/Lax7eWMZI0yzsGuJtWiDyeI5Ah5EBOs89bX+tlIhYDH5jm44ekmkKJJlRiiry1k2oSqQL35sLI3S68vqzo0vswsMhLq0/dGhdUxf1FH9jJHHbSxSV3HRSk045w9OYpLC2GULytSO9IBOFFOaTJqb8MXFZwyb9wqZbQxELBrfH3VocVq85E1ZJUT4hsDkODNfe6LAeaDmdl8V1T8d+KAs62pX+4BHDED+LmHI/7Ha/bf6MkXloJERKg3ocpjr69QADc3x3zuyArQ2ab1ncrer+yk=

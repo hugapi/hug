@@ -59,6 +59,7 @@ def test_multipart():
     with open(os.path.join(BASE_DIRECTORY, 'artwork', 'koala.png'),'rb') as koala:
         prepared_request = requests.Request('POST', 'http://localhost/', files={'koala': koala}).prepare()
         koala.seek(0)
-        file_content = hug.input_format.multipart(BytesIO(prepared_request.body),
-                                                  **parse_header(prepared_request.headers['Content-Type'])[1])['koala']
+        headers = parse_header(prepared_request.headers['Content-Type'])[1]
+        headers['CONTENT-LENGTH'] = '22176'
+        file_content = hug.input_format.multipart(BytesIO(prepared_request.body), **headers)['koala']
         assert file_content == koala.read()
