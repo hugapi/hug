@@ -1,6 +1,6 @@
 """hug/redirect.py
 
-Implements convience redirect methods that raise a redirection exception when called
+Implements convenience redirect methods that raise a redirection exception when called
 
 Copyright (C) 2016  Timothy Edmund Crosley
 

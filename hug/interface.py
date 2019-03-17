@@ -604,6 +604,7 @@ class HTTP(Interface):
 
         if self.parse_body and request.content_length:
             body = request.stream
+            body.content_length = request.content_length
             content_type, content_params = parse_content_type(request.content_type)
             body_formatter = body and self.inputs.get(content_type, self.api.http.input_format(content_type))
             if body_formatter:
@@ -728,9 +729,10 @@ class HTTP(Interface):
                 response.content_range = (start, end, size)
                 content.close()
             else:
-                response.stream = content
                 if size:
-                    response.stream_len = size
+                    response.set_stream(content, size)
+                else:
+                    response.stream = content
         else:
             response.data = content
 

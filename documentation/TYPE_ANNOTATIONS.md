@@ -54,12 +54,12 @@ The most obvious way to extend a hug type is to simply inherit from the base typ
     import hug
 
 
-    class TheAnswer(hug.types.number):
+    class TheAnswer(hug.types.Text):
         """My new documentation"""
 
         def __call__(self, value):
             value = super().__call__(value)
-            if value != 42:
+            if value != 'fourty-two':
                 raise ValueError('Value is not the answer to everything.')
             return value
 

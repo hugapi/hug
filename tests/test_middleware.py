@@ -18,7 +18,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import pytest
-from falcon.request import SimpleCookie
+from http.cookies import SimpleCookie
 
 import hug
 from hug.exceptions import SessionNotFound

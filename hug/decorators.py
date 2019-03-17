@@ -134,7 +134,7 @@ def response_middleware(api=None):
         class MiddlewareRouter(object):
             __slots__ = ()
 
-            def process_response(self, request, response, resource):
+            def process_response(self, request, response, resource, req_succeeded):
                 return middleware_method(request, response, resource)
 
         apply_to_api.http.add_middleware(MiddlewareRouter())
@@ -153,7 +153,7 @@ def reqresp_middleware(api=None):
                 self.gen = middleware_generator(request)
                 return self.gen.__next__()
 
-            def process_response(self, request, response, resource):
+            def process_response(self, request, response, resource, req_succeeded):
                 return self.gen.send((response, resource))
 
         apply_to_api.http.add_middleware(MiddlewareRouter())
@@ -180,7 +180,7 @@ def extend_api(route="", api=None, base_url=""):
 
 
 def wraps(function):
-    """Enables building decorators around functions used for hug routes without chaninging their function signature"""
+    """Enables building decorators around functions used for hug routes without changing their function signature"""
     def wrap(decorator):
         decorator = functools.wraps(function)(decorator)
         if not hasattr(function, 'original'):

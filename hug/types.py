@@ -175,7 +175,7 @@ def accept(kind, doc=None, error_text=None, exception_handlers=empty.dict, accep
         accept_context=accept_context
     )(kind)
 
-number = accept(int, 'A Whole number', 'Invalid whole number provided')
+number = accept(int, 'A whole number', 'Invalid whole number provided')
 float_number = accept(float, 'A float number', 'Invalid float number provided')
 decimal = accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
 boolean = accept(bool, 'Providing any value will set this to true', 'Invalid boolean value provided')
