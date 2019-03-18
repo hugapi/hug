@@ -26,27 +26,11 @@ import sys
 from os import path
 
 from setuptools import Extension, setup
-from setuptools.command.test import test as TestCommand
-
-
-class PyTest(TestCommand):
-    extra_kwargs = {'tests_require': ['pytest', 'mock']}
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest
-        sys.exit(pytest.main())
-
 
 MYDIR = path.abspath(os.path.dirname(__file__))
 CYTHON = False
 JYTHON = 'java' in sys.platform
 
-cmdclass = {'test': PyTest}
 ext_modules = []
 
 try:
@@ -109,7 +93,8 @@ setup(
     packages=['hug'],
     requires=['falcon', 'requests'],
     install_requires=['falcon==1.4.1', 'requests'],
-    cmdclass=cmdclass,
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest', 'mock', 'marshmallow'],
     ext_modules=ext_modules,
     python_requires=">=3.4",
     keywords='Web, Python, Python3, Refactoring, REST, Framework, RPC',
@@ -126,6 +111,5 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries',
         'Topic :: Utilities'
-    ],
-    **PyTest.extra_kwargs
+    ]
 )
