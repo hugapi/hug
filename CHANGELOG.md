@@ -13,6 +13,9 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
+### 2.4.4 - TBD
+- Documented the `multiple_files` example
+
 ### 2.4.3 [hotfix] - March 17, 2019
 - Fix issue #737 - latest hug release breaks meinheld worker setup
 
