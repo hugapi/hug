@@ -815,6 +815,28 @@ def test_extending_api_with_same_path_under_different_base_url():
     assert hug.test.get(api, '/api/made_up_hello').data == 'hello'
 
 
+def test_extending_api_with_methods_in_one_module():
+    """Test to ensure it's possible to extend the current API with HTTP methods for a view in one module"""
+    @hug.extend_api(base_url='/get_and_post')
+    def extend_with():
+        import tests.module_fake_many_methods
+        return (tests.module_fake_many_methods,)
+
+    assert hug.test.get(api, '/get_and_post/made_up_hello').data == 'hello from GET'
+    assert hug.test.post(api, '/get_and_post/made_up_hello').data == 'hello from POST'
+
+
+def test_extending_api_with_methods_in_different_modules():
+    """Test to ensure it's possible to extend the current API with HTTP methods for a view in different modules"""
+    @hug.extend_api(base_url='/get_and_post')
+    def extend_with():
+        import tests.module_fake_simple, tests.module_fake_post
+        return (tests.module_fake_simple, tests.module_fake_post,)
+
+    assert hug.test.get(api, '/get_and_post/made_up_hello').data == 'hello'
+    assert hug.test.post(api, '/get_and_post/made_up_hello').data == 'hello from POST'
+
+
 def test_cli():
     """Test to ensure the CLI wrapper works as intended"""
     @hug.cli('command', '1.0.0', output=str)
