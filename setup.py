@@ -41,11 +41,15 @@ except AttributeError:
     PYPY = False
 
 if not PYPY and not JYTHON:
-    try:
-        from Cython.Distutils import build_ext
-        CYTHON = True
-    except ImportError:
+    if '--without-cython' in sys.argv:
+        sys.argv.remove('--without-cython')
         CYTHON = False
+    else:
+        try:
+            from Cython.Distutils import build_ext
+            CYTHON = True
+        except ImportError:
+            CYTHON = False
 
 if CYTHON:
     def list_modules(dirname):
