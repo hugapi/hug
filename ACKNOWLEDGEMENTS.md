@@ -76,6 +76,7 @@ Documenters
 - Amanda Crosley (@waddlelikeaduck)
 - Chelsea Dole (@chelseadole)
 - Joshua Crowgey (@jcrowgey)
+- Antti Kaihola (@akaihola)
 
 --------------------------------------------
 
