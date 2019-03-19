@@ -825,7 +825,7 @@ def test_extending_api_with_http_and_cli():
 
     assert hug.test.get(api, '/api/made_up_go').data == 'Going!'
     assert tests.module_fake_http_and_cli.made_up_go() == 'Going!'
-    assert hug.test.cli(tests.module_fake_http_and_cli.made_up_go) == 'Going!'
+    assert hug.test.cli('made_up_go', api=api)
 
 
 def test_cli():
