@@ -15,6 +15,8 @@ Changelog
 
 ### 2.4.4 - TBD
 - Add unit test for `extend_api()` with CLI commands
+- Fix running tests using `python setup.py test`
+- Documented the `multiple_files` example
 
 ### 2.4.3 [hotfix] - March 17, 2019
 - Fix issue #737 - latest hug release breaks meinheld worker setup
