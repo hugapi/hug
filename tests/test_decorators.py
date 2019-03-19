@@ -815,6 +815,19 @@ def test_extending_api_with_same_path_under_different_base_url():
     assert hug.test.get(api, '/api/made_up_hello').data == 'hello'
 
 
+def test_extending_api_with_http_and_cli():
+    """Test to ensure it's possible to extend the current API so both HTTP and CLI APIs are extended"""
+    import tests.module_fake_http_and_cli
+
+    @hug.extend_api(base_url='/api')
+    def extend_with():
+        return (tests.module_fake_http_and_cli, )
+
+    assert hug.test.get(api, '/api/made_up_go').data == 'Going!'
+    assert tests.module_fake_http_and_cli.made_up_go() == 'Going!'
+    assert hug.test.cli(tests.module_fake_http_and_cli.made_up_go) == 'Going!'
+
+
 def test_cli():
     """Test to ensure the CLI wrapper works as intended"""
     @hug.cli('command', '1.0.0', output=str)
