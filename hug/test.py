@@ -76,10 +76,13 @@ for method in HTTP_METHODS:
     globals()[method.lower()] = tester
 
 
-def cli(method, *args, **arguments):
+def cli(method, *args, api=None, module=None, **arguments):
     """Simulates testing a hug cli method from the command line"""
-
     collect_output = arguments.pop('collect_output', True)
+    if api and module:
+        raise ValueError("Please specify an API OR a Module that contains the API, not both")
+    elif api or module:
+        method = API(api or module).cli.commands[method].interface._function
 
     command_args = [method.__name__] + list(args)
     for name, values in arguments.items():
