@@ -396,13 +396,16 @@ class CLIInterfaceAPI(InterfaceAPI):
         """Returns all registered handlers attached to this API"""
         return self.commands.values()
 
-    def extend(self, cli_api, prefix="", sub_command="", **kwargs):
+    def extend(self, cli_api, command_prefix="", sub_command="", **kwargs):
         """Extends this CLI api with the commands present in the provided cli_api object"""
+        if sub_command and command_prefix:
+            raise ValueError('It is not currently supported to provide both a command_prefix and sub_command')
+
         if sub_command:
             self.commands[sub_command] = cli_api
         else:
             for name, command in cli_api.commands.items():
-                self.commands["{}{}".format(prefix, name)] = command
+                self.commands["{}{}".format(command_prefix, name)] = command
 
     def __str__(self):
         return "{0}\n\nAvailable Commands:{1}\n".format(self.api.doc or self.api.name,
