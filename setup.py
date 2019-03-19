@@ -32,6 +32,7 @@ CYTHON = False
 JYTHON = 'java' in sys.platform
 
 ext_modules = []
+cmdclass = {}
 
 try:
     sys.pypy_version_info
@@ -96,6 +97,7 @@ setup(
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'mock', 'marshmallow'],
     ext_modules=ext_modules,
+    cmdclass=cmdclass,
     python_requires=">=3.4",
     keywords='Web, Python, Python3, Refactoring, REST, Framework, RPC',
     classifiers=[
