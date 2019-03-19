@@ -156,7 +156,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
             placement = self._exception_handlers.setdefault(version, OrderedDict())
             placement[exception_type] = (error_handler, ) + placement.get(exception_type, tuple())
 
-    def extend(self, http_api, route="", base_url=""):
+    def extend(self, http_api, route="", base_url="", **kwargs):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         self.versions.update(http_api.versions)
         base_url = base_url or self.base_url
@@ -396,6 +396,17 @@ class CLIInterfaceAPI(InterfaceAPI):
         """Returns all registered handlers attached to this API"""
         return self.commands.values()
 
+    def extend(self, cli_api, command_prefix="", sub_command="", **kwargs):
+        """Extends this CLI api with the commands present in the provided cli_api object"""
+        if sub_command and command_prefix:
+            raise ValueError('It is not currently supported to provide both a command_prefix and sub_command')
+
+        if sub_command:
+            self.commands[sub_command] = cli_api
+        else:
+            for name, command in cli_api.commands.items():
+                self.commands["{}{}".format(command_prefix, name)] = command
+
     def __str__(self):
         return "{0}\n\nAvailable Commands:{1}\n".format(self.api.doc or self.api.name,
                                                         "\n\n\t- " + "\n\t- ".join(self.commands.keys()))
@@ -497,12 +508,15 @@ class API(object, metaclass=ModuleSingleton):
             self._context = {}
         return self._context
 
-    def extend(self, api, route="", base_url=""):
+    def extend(self, api, route="", base_url="", http=True, cli=True, **kwargs):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         api = API(api)
 
-        if hasattr(api, '_http'):
-            self.http.extend(api.http, route, base_url)
+        if http and hasattr(api, '_http'):
+            self.http.extend(api.http, route, base_url, **kwargs)
+
+        if cli and hasattr(api, '_cli'):
+            self.cli.extend(api.cli, **kwargs)
 
         for directive in getattr(api, '_directives', {}).values():
             self.add_directive(directive)

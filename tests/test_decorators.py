@@ -825,7 +825,40 @@ def test_extending_api_with_http_and_cli():
 
     assert hug.test.get(api, '/api/made_up_go').data == 'Going!'
     assert tests.module_fake_http_and_cli.made_up_go() == 'Going!'
-    assert hug.test.cli(tests.module_fake_http_and_cli.made_up_go) == 'Going!'
+    assert hug.test.cli('made_up_go', api=api)
+
+    # Should be able to apply a prefix when extending CLI APIs
+    @hug.extend_api(command_prefix='prefix_', http=False)
+    def extend_with():
+        return (tests.module_fake_http_and_cli, )
+
+    assert hug.test.cli('prefix_made_up_go', api=api)
+
+    # OR provide a sub command use to reference the commands
+    @hug.extend_api(sub_command='sub_api', http=False)
+    def extend_with():
+        return (tests.module_fake_http_and_cli, )
+
+    assert hug.test.cli('sub_api', 'made_up_go', api=api)
+
+    # But not both
+    with pytest.raises(ValueError):
+        @hug.extend_api(sub_command='sub_api', command_prefix='api_', http=False)
+        def extend_with():
+            return (tests.module_fake_http_and_cli, )
+
+
+def test_extending_api_with_http_and_cli():
+    """Test to ensure it's possible to extend the current API so both HTTP and CLI APIs are extended"""
+    import tests.module_fake_http_and_cli
+
+    @hug.extend_api(base_url='/api')
+    def extend_with():
+        return (tests.module_fake_http_and_cli, )
+
+    assert hug.test.get(api, '/api/made_up_go').data == 'Going!'
+    assert tests.module_fake_http_and_cli.made_up_go() == 'Going!'
+    assert hug.test.cli('made_up_go', api=api)
 
 
 def test_cli():

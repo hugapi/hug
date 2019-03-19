@@ -14,6 +14,8 @@ Changelog
 =========
 
 ### 2.4.4 - TBD
+- Added the ablity to extend CLI APIs in addition to HTTP APIs issue #744.
+- Added optional built-in API aware testing for CLI commands.
 - Add unit test for `extend_api()` with CLI commands
 - Fix running tests using `python setup.py test`
 - Documented the `multiple_files` example
