@@ -167,7 +167,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
                 for method, versions in handler.items():
                     for version, function in versions.items():
                         function.interface.api = self.api
-                self.routes[base_url][route + item_route] = handler
+                self.routes[base_url].setdefault(route + item_route, {}).update(handler)
 
         for sink_base_url, sinks in http_api.sinks.items():
             for url, sink in sinks.items():
