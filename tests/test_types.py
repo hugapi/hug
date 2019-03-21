@@ -32,7 +32,6 @@ from marshmallow.decorators import validates_schema
 import hug
 from hug.exceptions import InvalidTypeData
 
-
 api = hug.API(__name__)
 
 

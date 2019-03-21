@@ -21,6 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
+import ast
 import sys
 from functools import partial
 from io import BytesIO
@@ -29,9 +30,26 @@ from urllib.parse import urlencode
 
 from falcon import HTTP_METHODS
 from falcon.testing import StartResponseMock, create_environ
+
 from hug import output_format
 from hug.api import API
 from hug.json_module import json
+
+
+def _internal_result(raw_response):
+    try:
+        return raw_response[0].decode('utf8')
+    except TypeError:
+        data = BytesIO()
+        for chunk in raw_response:
+            data.write(chunk)
+        data = data.getvalue()
+        try:
+            return data.decode('utf8')
+        except UnicodeDecodeError:   # pragma: no cover
+            return data
+    except (UnicodeDecodeError, AttributeError):
+        return raw_response[0]
 
 
 def call(method, api_or_module, url, body='', headers=None, params=None, query_string='', scheme='http', **kwargs):
@@ -50,23 +68,10 @@ def call(method, api_or_module, url, body='', headers=None, params=None, query_s
     result = api(create_environ(path=url, method=method, headers=headers, query_string=query_string,
                                 body=body, scheme=scheme), response)
     if result:
-        try:
-            response.data = result[0].decode('utf8')
-        except TypeError:
-            data = BytesIO()
-            for chunk in result:
-                data.write(chunk)
-            data = data.getvalue()
-            try:
-                response.data = data.decode('utf8')
-            except UnicodeDecodeError:   # pragma: no cover
-                response.data = data
-        except (UnicodeDecodeError, AttributeError):
-            response.data = result[0]
+        response.data = _internal_result(result)
         response.content_type = response.headers_dict['content-type']
         if 'application/json' in response.content_type:
             response.data = json.loads(response.data)
-
     return response
 
 
@@ -96,9 +101,9 @@ def cli(method, *args, api=None, module=None, **arguments):
     old_sys_argv = sys.argv
     sys.argv = [str(part) for part in command_args]
 
-    old_output = method.interface.cli.output
+    old_outputs = method.interface.cli.outputs
     if collect_output:
-        method.interface.cli.outputs = lambda data: to_return.append(data)
+        method.interface.cli.outputs = lambda data: to_return.append(old_outputs(data))
     to_return = []
 
     try:
@@ -106,6 +111,15 @@ def cli(method, *args, api=None, module=None, **arguments):
     except Exception as e:
         to_return = (e, )
 
-    method.interface.cli.output = old_output
+    method.interface.cli.outputs = old_outputs
     sys.argv = old_sys_argv
-    return to_return and to_return[0] or None
+    if to_return:
+        result = _internal_result(to_return)
+        try:
+            result = json.loads(result)
+        except Exception:
+            try:
+                result = ast.literal_eval(result)
+            except Exception:
+                pass
+        return result

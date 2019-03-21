@@ -13,11 +13,13 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
-### 2.4.4 - TBD
+### 2.4.4 - March 21, 2019
+- Added the ability to change the default output format for CLI endpoints both at the API and global level.
 - Added the ablity to extend CLI APIs in addition to HTTP APIs issue #744.
 - Added optional built-in API aware testing for CLI commands.
 - Add unit test for `extend_api()` with CLI commands
 - Fix running tests using `python setup.py test`
+- Fix issue #749 extending API with mixed GET/POST methods
 - Documented the `multiple_files` example
 - Added the `--without-cython` option to `setup.py`
 
