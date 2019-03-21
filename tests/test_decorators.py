@@ -22,8 +22,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 import json
 import os
 import sys
-from unittest import mock
 from collections import namedtuple
+from unittest import mock
 
 import falcon
 import pytest

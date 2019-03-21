@@ -19,7 +19,6 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import numpy
 import os
 from collections import namedtuple
 from datetime import datetime, timedelta
@@ -27,6 +26,7 @@ from decimal import Decimal
 from io import BytesIO
 from uuid import UUID
 
+import numpy
 import pytest
 
 import hug
