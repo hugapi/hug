@@ -30,9 +30,10 @@ from types import ModuleType
 from wsgiref.simple_server import make_server
 
 import falcon
+from falcon import HTTP_METHODS
+
 import hug.defaults
 import hug.output_format
-from falcon import HTTP_METHODS
 from hug import introspect
 from hug._async import asyncio, ensure_future
 from hug._version import current
@@ -371,7 +372,7 @@ HTTPInterfaceAPI.base_404.interface = True
 
 class CLIInterfaceAPI(InterfaceAPI):
     """Defines the CLI interface specific API"""
-    __slots__ = ('commands', 'error_exit_codes',)
+    __slots__ = ('commands', 'error_exit_codes', '_output_format')
 
     def __init__(self, api, version='', error_exit_codes=False):
         super().__init__(api)
@@ -406,6 +407,14 @@ class CLIInterfaceAPI(InterfaceAPI):
         else:
             for name, command in cli_api.commands.items():
                 self.commands["{}{}".format(command_prefix, name)] = command
+
+    @property
+    def output_format(self):
+        return getattr(self, '_output_format', hug.defaults.cli_output_format)
+
+    @output_format.setter
+    def output_format(self, formatter):
+        self._output_format = formatter
 
     def __str__(self):
         return "{0}\n\nAvailable Commands:{1}\n".format(self.api.doc or self.api.name,
