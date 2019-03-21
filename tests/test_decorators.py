@@ -22,8 +22,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 import json
 import os
 import sys
-from unittest import mock
 from collections import namedtuple
+from unittest import mock
 
 import falcon
 import pytest
@@ -626,7 +626,7 @@ def test_smart_outputter():
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Currently failing on Windows build')
-def test_output_format():
+def test_output_format(hug_api):
     """Test to ensure it's possible to quickly change the default hug output format"""
     old_formatter = api.http.output_format
 
@@ -634,6 +634,7 @@ def test_output_format():
     def augmented(data):
         return hug.output_format.json(['Augmented', data])
 
+    @hug.cli()
     @hug.get(suffixes=('.js', '/js'), prefixes='/text')
     def hello():
         return "world"
@@ -642,11 +643,32 @@ def test_output_format():
     assert hug.test.get(api, 'hello.js').data == ['Augmented', 'world']
     assert hug.test.get(api, 'hello/js').data == ['Augmented', 'world']
     assert hug.test.get(api, 'text/hello').data == ['Augmented', 'world']
+    assert hug.test.cli('hello', api=api) == 'world'
+
+    @hug.default_output_format(cli=True, http=False, api=hug_api)
+    def augmented(data):
+        return hug.output_format.json(['Augmented', data])
+
+    @hug.cli(api=hug_api)
+    def hello():
+        return "world"
+
+    assert hug.test.cli('hello', api=hug_api) == ['Augmented', 'world']
+
+    @hug.default_output_format(cli=True, http=False, api=hug_api, apply_globally=True)
+    def augmented(data):
+        return hug.output_format.json(['Augmented2', data])
+
+    @hug.cli(api=api)
+    def hello():
+        return "world"
+
+    assert hug.test.cli('hello', api=api) == ['Augmented2', 'world']
+    hug.defaults.cli_output_format = hug.output_format.text
 
     @hug.default_output_format()
     def jsonify(data):
         return hug.output_format.json(data)
-
 
     api.http.output_format = hug.output_format.text
 
@@ -815,6 +837,74 @@ def test_extending_api_with_same_path_under_different_base_url():
     assert hug.test.get(api, '/api/made_up_hello').data == 'hello'
 
 
+def test_extending_api_with_methods_in_one_module():
+    """Test to ensure it's possible to extend the current API with HTTP methods for a view in one module"""
+    @hug.extend_api(base_url='/get_and_post')
+    def extend_with():
+        import tests.module_fake_many_methods
+        return (tests.module_fake_many_methods,)
+
+    assert hug.test.get(api, '/get_and_post/made_up_hello').data == 'hello from GET'
+    assert hug.test.post(api, '/get_and_post/made_up_hello').data == 'hello from POST'
+
+
+def test_extending_api_with_methods_in_different_modules():
+    """Test to ensure it's possible to extend the current API with HTTP methods for a view in different modules"""
+    @hug.extend_api(base_url='/get_and_post')
+    def extend_with():
+        import tests.module_fake_simple, tests.module_fake_post
+        return (tests.module_fake_simple, tests.module_fake_post,)
+
+    assert hug.test.get(api, '/get_and_post/made_up_hello').data == 'hello'
+    assert hug.test.post(api, '/get_and_post/made_up_hello').data == 'hello from POST'
+
+
+def test_extending_api_with_http_and_cli():
+    """Test to ensure it's possible to extend the current API so both HTTP and CLI APIs are extended"""
+    import tests.module_fake_http_and_cli
+
+    @hug.extend_api(base_url='/api')
+    def extend_with():
+        return (tests.module_fake_http_and_cli, )
+
+    assert hug.test.get(api, '/api/made_up_go').data == 'Going!'
+    assert tests.module_fake_http_and_cli.made_up_go() == 'Going!'
+    assert hug.test.cli('made_up_go', api=api)
+
+    # Should be able to apply a prefix when extending CLI APIs
+    @hug.extend_api(command_prefix='prefix_', http=False)
+    def extend_with():
+        return (tests.module_fake_http_and_cli, )
+
+    assert hug.test.cli('prefix_made_up_go', api=api)
+
+    # OR provide a sub command use to reference the commands
+    @hug.extend_api(sub_command='sub_api', http=False)
+    def extend_with():
+        return (tests.module_fake_http_and_cli, )
+
+    assert hug.test.cli('sub_api', 'made_up_go', api=api)
+
+    # But not both
+    with pytest.raises(ValueError):
+        @hug.extend_api(sub_command='sub_api', command_prefix='api_', http=False)
+        def extend_with():
+            return (tests.module_fake_http_and_cli, )
+
+
+def test_extending_api_with_http_and_cli():
+    """Test to ensure it's possible to extend the current API so both HTTP and CLI APIs are extended"""
+    import tests.module_fake_http_and_cli
+
+    @hug.extend_api(base_url='/api')
+    def extend_with():
+        return (tests.module_fake_http_and_cli, )
+
+    assert hug.test.get(api, '/api/made_up_go').data == 'Going!'
+    assert tests.module_fake_http_and_cli.made_up_go() == 'Going!'
+    assert hug.test.cli('made_up_go', api=api)
+
+
 def test_cli():
     """Test to ensure the CLI wrapper works as intended"""
     @hug.cli('command', '1.0.0', output=str)
@@ -822,7 +912,7 @@ def test_cli():
         return (name, value)
 
     assert cli_command('Testing', 1) == ('Testing', 1)
-    assert hug.test.cli(cli_command, "Bob", 5) == ("Bob", 5)
+    assert hug.test.cli(cli_command, "Bob", 5) == ('Bob', 5)
 
 
 def test_cli_requires():

@@ -22,8 +22,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 from base64 import b64encode
 
 from falcon import HTTPUnauthorized
-import hug
 
+import hug
 
 api = hug.API(__name__)
 

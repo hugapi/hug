@@ -45,6 +45,7 @@ Code Contributors
 - Trevor Bekolay (@tbekolay)
 - Elijah Wilson (@tizz98)
 - Chelsea Dole (@chelseadole)
+- Antti Kaihola (@akaihola)
 
 Documenters
 ===================
@@ -75,6 +76,7 @@ Documenters
 - Amanda Crosley (@waddlelikeaduck)
 - Chelsea Dole (@chelseadole)
 - Joshua Crowgey (@jcrowgey)
+- Antti Kaihola (@akaihola)
 
 --------------------------------------------
 

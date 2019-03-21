@@ -1,8 +1,8 @@
-"""hug/defaults.py
+"""tests/test_test.py.
 
-Defines and stores Hug's default handlers
+Test to ensure basic test functionality works as expected.
 
-Copyright (C) 2016  Timothy Edmund Crosley
+Copyright (C) 2019 Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -19,37 +19,22 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from __future__ import absolute_import
+import pytest
 
 import hug
 
-output_format = hug.output_format.json
-cli_output_format = hug.output_format.text
-
-input_format = {
-    'application/json': hug.input_format.json,
-    'application/x-www-form-urlencoded': hug.input_format.urlencoded,
-    'multipart/form-data': hug.input_format.multipart,
-    'text/plain': hug.input_format.text,
-    'text/css': hug.input_format.text,
-    'text/html': hug.input_format.text
-}
-
-directives = {
-    'timer': hug.directives.Timer,
-    'api': hug.directives.api,
-    'module': hug.directives.module,
-    'current_api': hug.directives.CurrentAPI,
-    'api_version': hug.directives.api_version,
-    'user': hug.directives.user,
-    'session': hug.directives.session,
-    'documentation': hug.directives.documentation
-}
+api = hug.API(__name__)
 
 
-def context_factory(*args, **kwargs):
-    return dict()
+def test_cli():
+    """Test to ensure the CLI tester works as intended to allow testing CLI endpoints"""
+    @hug.cli()
+    def my_cli_function():
+        return 'Hello'
 
+    assert hug.test.cli(my_cli_function) == 'Hello'
+    assert hug.test.cli('my_cli_function', api=api) == 'Hello'
 
-def delete_context(context, exception=None, errors=None, lacks_requirement=None):
-    del context
+    # Shouldn't be able to specify both api and module.
+    with pytest.raises(ValueError):
+        assert hug.test.cli('my_method', api=api, module=hug)

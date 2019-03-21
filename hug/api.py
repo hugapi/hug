@@ -30,9 +30,10 @@ from types import ModuleType
 from wsgiref.simple_server import make_server
 
 import falcon
+from falcon import HTTP_METHODS
+
 import hug.defaults
 import hug.output_format
-from falcon import HTTP_METHODS
 from hug import introspect
 from hug._async import asyncio, ensure_future
 from hug._version import current
@@ -156,7 +157,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
             placement = self._exception_handlers.setdefault(version, OrderedDict())
             placement[exception_type] = (error_handler, ) + placement.get(exception_type, tuple())
 
-    def extend(self, http_api, route="", base_url=""):
+    def extend(self, http_api, route="", base_url="", **kwargs):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         self.versions.update(http_api.versions)
         base_url = base_url or self.base_url
@@ -167,7 +168,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
                 for method, versions in handler.items():
                     for version, function in versions.items():
                         function.interface.api = self.api
-                self.routes[base_url][route + item_route] = handler
+                self.routes[base_url].setdefault(route + item_route, {}).update(handler)
 
         for sink_base_url, sinks in http_api.sinks.items():
             for url, sink in sinks.items():
@@ -371,7 +372,7 @@ HTTPInterfaceAPI.base_404.interface = True
 
 class CLIInterfaceAPI(InterfaceAPI):
     """Defines the CLI interface specific API"""
-    __slots__ = ('commands', 'error_exit_codes',)
+    __slots__ = ('commands', 'error_exit_codes', '_output_format')
 
     def __init__(self, api, version='', error_exit_codes=False):
         super().__init__(api)
@@ -395,6 +396,25 @@ class CLIInterfaceAPI(InterfaceAPI):
     def handlers(self):
         """Returns all registered handlers attached to this API"""
         return self.commands.values()
+
+    def extend(self, cli_api, command_prefix="", sub_command="", **kwargs):
+        """Extends this CLI api with the commands present in the provided cli_api object"""
+        if sub_command and command_prefix:
+            raise ValueError('It is not currently supported to provide both a command_prefix and sub_command')
+
+        if sub_command:
+            self.commands[sub_command] = cli_api
+        else:
+            for name, command in cli_api.commands.items():
+                self.commands["{}{}".format(command_prefix, name)] = command
+
+    @property
+    def output_format(self):
+        return getattr(self, '_output_format', hug.defaults.cli_output_format)
+
+    @output_format.setter
+    def output_format(self, formatter):
+        self._output_format = formatter
 
     def __str__(self):
         return "{0}\n\nAvailable Commands:{1}\n".format(self.api.doc or self.api.name,
@@ -497,12 +517,15 @@ class API(object, metaclass=ModuleSingleton):
             self._context = {}
         return self._context
 
-    def extend(self, api, route="", base_url=""):
+    def extend(self, api, route="", base_url="", http=True, cli=True, **kwargs):
         """Adds handlers from a different Hug API to this one - to create a single API"""
         api = API(api)
 
-        if hasattr(api, '_http'):
-            self.http.extend(api.http, route, base_url)
+        if http and hasattr(api, '_http'):
+            self.http.extend(api.http, route, base_url, **kwargs)
+
+        if cli and hasattr(api, '_cli'):
+            self.cli.extend(api.cli, **kwargs)
 
         for directive in getattr(api, '_directives', {}).values():
             self.add_directive(directive)

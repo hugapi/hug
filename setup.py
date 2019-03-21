@@ -26,28 +26,13 @@ import sys
 from os import path
 
 from setuptools import Extension, setup
-from setuptools.command.test import test as TestCommand
-
-
-class PyTest(TestCommand):
-    extra_kwargs = {'tests_require': ['pytest', 'mock']}
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest
-        sys.exit(pytest.main())
-
 
 MYDIR = path.abspath(os.path.dirname(__file__))
 CYTHON = False
 JYTHON = 'java' in sys.platform
 
-cmdclass = {'test': PyTest}
 ext_modules = []
+cmdclass = {}
 
 try:
     sys.pypy_version_info
@@ -56,11 +41,15 @@ except AttributeError:
     PYPY = False
 
 if not PYPY and not JYTHON:
-    try:
-        from Cython.Distutils import build_ext
-        CYTHON = True
-    except ImportError:
+    if '--without-cython' in sys.argv:
+        sys.argv.remove('--without-cython')
         CYTHON = False
+    else:
+        try:
+            from Cython.Distutils import build_ext
+            CYTHON = True
+        except ImportError:
+            CYTHON = False
 
 if CYTHON:
     def list_modules(dirname):
@@ -86,7 +75,7 @@ with open('README.md', encoding='utf-8') as f:  # Loads in the README for PyPI
 
 setup(
     name='hug',
-    version='2.4.3',
+    version='2.4.4',
     description='A Python framework that makes developing APIs '
                 'as simple as possible, but no simpler.',
     long_description=long_description,
@@ -109,8 +98,10 @@ setup(
     packages=['hug'],
     requires=['falcon', 'requests'],
     install_requires=['falcon==1.4.1', 'requests'],
-    cmdclass=cmdclass,
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest', 'mock', 'marshmallow'],
     ext_modules=ext_modules,
+    cmdclass=cmdclass,
     python_requires=">=3.4",
     keywords='Web, Python, Python3, Refactoring, REST, Framework, RPC',
     classifiers=[
@@ -126,6 +117,5 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries',
         'Topic :: Utilities'
-    ],
-    **PyTest.extra_kwargs
+    ]
 )

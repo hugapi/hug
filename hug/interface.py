@@ -370,6 +370,9 @@ class CLI(Interface):
 
     def __init__(self, route, function):
         super().__init__(route, function)
+        if not self.outputs:
+            self.outputs = self.api.cli.output_format
+
         self.interface.cli = self
         self.reaffirm_types = {}
         use_parameters = list(self.interface.parameters)
@@ -451,14 +454,6 @@ class CLI(Interface):
             self.parser.add_argument(*args, **kwargs)
 
         self.api.cli.commands[route.get('name', self.interface.spec.__name__)] = self
-
-    @property
-    def outputs(self):
-        return getattr(self, '_outputs', hug.output_format.text)
-
-    @outputs.setter
-    def outputs(self, outputs):
-        self._outputs = outputs
 
     def output(self, data, context):
         """Outputs the provided data using the transformations and output format specified for this CLI endpoint"""
