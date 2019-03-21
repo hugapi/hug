@@ -655,6 +655,17 @@ def test_output_format(hug_api):
 
     assert hug.test.cli('hello', api=hug_api) == ['Augmented', 'world']
 
+    @hug.default_output_format(cli=True, http=False, api=hug_api, apply_globally=True)
+    def augmented(data):
+        return hug.output_format.json(['Augmented2', data])
+
+    @hug.cli(api=api)
+    def hello():
+        return "world"
+
+    assert hug.test.cli('hello', api=api) == ['Augmented2', 'world']
+    hug.defaults.cli_output_format = hug.output_format.text
+
     @hug.default_output_format()
     def jsonify(data):
         return hug.output_format.json(data)

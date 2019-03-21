@@ -43,7 +43,8 @@ def default_output_format(content_type='application/json', apply_globally=False,
     def decorator(formatter):
         formatter = hug.output_format.content_type(content_type)(formatter)
         if apply_globally:
-            hug.defaults.output_format = formatter
+            if http:
+                hug.defaults.output_format = formatter
             if cli:
                 hug.defaults.cli_output_format = formatter
         else:
