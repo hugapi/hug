@@ -24,6 +24,7 @@ from __future__ import absolute_import
 import hug
 
 output_format = hug.output_format.json
+cli_output_format = hug.output_format.text
 
 input_format = {
     'application/json': hug.input_format.json,
