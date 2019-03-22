@@ -33,6 +33,20 @@ Once you have verified that you system matches the base requirements you can sta
     - If you don't have autoenv set-up, run `source .env` to set up the local environment. You will need to run this script every time you want to work on the project - though it will not cause the entire set up process to re-occur.
 4. Run `test` to verify your everything is set up correctly. If the tests all pass, you have successfully set up hug for local development! If not, you can ask for help diagnosing the error [here](https://gitter.im/timothycrosley/hug).
 
+At step 3, you can skip using autoenv and the `.env` script,
+and create your development virtul environment manually instead
+using e.g. [`python3 -m venv`](https://docs.python.org/3/library/venv.html)
+or `mkvirtualenv` (from [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)).
+
+Install dependencies by running `pip install -r requirements/release.txt`,
+and optional build or development dependencies
+by running `pip install -r requirements/build.txt`
+or `pip install -r requirements/build.txt`.
+
+Install Hug itself with `pip install .` or `pip install -e .` (for editable mode).
+This will compile all modules with [Cython](https://cython.org/) if it's installed in the environment.
+You can skip Cython compilation using `pip install --without-cython .` (this works with `-e` as well).
+
 Making a contribution
 =========
 Congrats! You're now ready to make a contribution! Use the following as a guide to help you reach a successful pull-request:
