@@ -307,30 +307,32 @@ def test_method_routing():
     assert 'method not allowed' in hug.test.trace(api, 'accepts_get_and_post').status.lower()
 
 
-def test_not_found():
+def test_not_found(hug_api):
     """Test to ensure the not_found decorator correctly routes 404s to the correct handler"""
-    @hug.not_found()
+    @hug.not_found(api=hug_api)
     def not_found_handler():
         return "Not Found"
 
-    result = hug.test.get(api, '/does_not_exist/yet')
+    result = hug.test.get(hug_api, '/does_not_exist/yet')
     assert result.data == "Not Found"
     assert result.status == falcon.HTTP_NOT_FOUND
 
-    @hug.not_found(versions=10)  # noqa
+    @hug.not_found(versions=10, api=hug_api)  # noqa
     def not_found_handler(response):
         response.status = falcon.HTTP_OK
         return {'look': 'elsewhere'}
 
-    result = hug.test.get(api, '/v10/does_not_exist/yet')
+    result = hug.test.get(hug_api, '/v10/does_not_exist/yet')
     assert result.data == {'look': 'elsewhere'}
     assert result.status == falcon.HTTP_OK
 
-    result = hug.test.get(api, '/does_not_exist/yet')
+    result = hug.test.get(hug_api, '/does_not_exist/yet')
     assert result.data == "Not Found"
     assert result.status == falcon.HTTP_NOT_FOUND
 
-    del api.http._not_found_handlers
+    hug_api.http.output_format = hug.output_format.text
+    result = hug.test.get(hug_api, '/v10/does_not_exist/yet')
+    assert result.data == "{'look': 'elsewhere'}"
 
 
 def test_not_found_with_extended_api():
