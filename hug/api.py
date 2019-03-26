@@ -305,9 +305,16 @@ class HTTPInterfaceAPI(InterfaceAPI):
                                 "Here's a definition of the API to help you get going :)")
             to_return['documentation'] = self.documentation(base_url, self.determine_version(request, False),
                                                             prefix=url_prefix)
-            response.data = hug.output_format.json(to_return, indent=4, separators=(',', ': '))
+
+            if self.output_format == hug.output_format.json:
+                response.data = hug.output_format.json(to_return, indent=4, separators=(',', ': '))
+                response.content_type = 'application/json; charset=utf-8'
+            else:
+                response.data = self.output_format(to_return)
+                response.content_type = self.output_format.content_type
+
             response.status = falcon.HTTP_NOT_FOUND
-            response.content_type = 'application/json; charset=utf-8'
+
         handle_404.interface = True
         return handle_404
 
