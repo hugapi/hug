@@ -13,6 +13,9 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
+### 2.4.5 - March 25, 2019
+- Fixed issue #753 - 404 not found does not respect default output format.
+
 ### 2.4.4 - March 21, 2019
 - Added the ability to change the default output format for CLI endpoints both at the API and global level.
 - Added the ablity to extend CLI APIs in addition to HTTP APIs issue #744.
