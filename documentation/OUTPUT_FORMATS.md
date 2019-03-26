@@ -3,7 +3,7 @@ hug output formats
 
 Every endpoint that is exposed through an externally facing interface will need to return data in a standard, easily understandable format.
 
-The default output format for all hug APIs is JSON. However, you may explicitly specify a different default output_format:
+The default output format for all hug APIs is JSON. However, you may explicitly specify a different default output_format for a particular API:
 
     hug.API(__name__).http.output_format = hug.output_format.html
 
@@ -13,7 +13,14 @@ or:
     def my_output_formatter(data, request, response):
         # Custom output formatting code
 
-Or, to specify an output_format for a specific endpoint, simply specify the output format within its router:
+By default, this only applies to the output format of HTTP responses.
+To change the output format of the command line interface:
+
+    @hug.default_output_format(cli=True, http=False)
+    def my_output_formatter(data, request, response):
+        # Custom output formatting code
+
+To specify an output_format for a specific endpoint, simply specify the output format within its router:
 
     @hug.get(output=hug.output_format.html)
     def my_endpoint():
@@ -41,6 +48,29 @@ Finally, an output format may be a collection of different output formats that g
         return ''
 
 In this case, if the endpoint is accessed via my_endpoint.js, the output type will be JSON; however if it's accessed via my_endoint.html, the output type will be HTML.
+
+You can also change the default output format globally for all APIs with either:
+
+    @hug.default_output_format(apply_globally=True, cli=True, http=True)
+    def my_output_formatter(data, request, response):
+        # Custom output formatting code
+
+or:
+
+    hug.defaults.output_format = hug.output_format.html      # for HTTP
+    hug.defaults.cli_output_format = hug.output_format.html  # for the CLI
+
+Note that when extending APIs, changing the default output format globally must be done before importing the modules of any of the sub-APIs:
+
+    hug.defaults.cli_output_format = hug.output_format.html
+
+    from my_app import my_sub_api
+
+    @hug.extend_api()
+    def extended():
+        return [my_sub_api]
+
+
 
 Built-in hug output formats
 ===================
