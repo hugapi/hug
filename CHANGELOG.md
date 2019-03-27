@@ -13,6 +13,9 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
+### 2.4.7 - TBD
+- Fixed API documentation with selectable output types
+
 ### 2.4.6 - March 25, 2019
 - Fixed issue #753 - 404 not found does not respect default output format.
 - Documented the `--without-cython` option in `CONTRIBUTING.md`
