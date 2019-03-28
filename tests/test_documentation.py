@@ -20,6 +20,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import json
+from unittest import mock
 
 import marshmallow
 from falcon import Request
@@ -148,6 +149,22 @@ def test_basic_documentation():
     assert 'versions' in documentation
     assert '/echo' in documentation['handlers']
     assert '/test' not in documentation['handlers']
+
+
+def test_basic_documentation_output_type_accept():
+    """Ensure API documentation works with selectable output types"""
+    accept_output = hug.output_format.accept(
+        {'application/json': hug.output_format.json,
+         'application/pretty-json': hug.output_format.pretty_json},
+        default=hug.output_format.json)
+    with mock.patch.object(api.http, '_output_format', accept_output, create=True):
+        handler = api.http.documentation_404()
+        response = StartResponseMock()
+
+        handler(Request(create_environ(path='v1/doc')), response)
+
+    documentation = json.loads(response.data.decode('utf8'))['documentation']
+    assert 'handlers' in documentation and 'overview' in documentation
 
     
 def test_marshmallow_return_type_documentation():
