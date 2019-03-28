@@ -310,7 +310,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
                 response.data = hug.output_format.json(to_return, indent=4, separators=(',', ': '))
                 response.content_type = 'application/json; charset=utf-8'
             else:
-                response.data = self.output_format(to_return, request, response)
+                response.data = self.output_format(to_return, request=request, response=response)
                 response.content_type = self.output_format.content_type
 
             response.status = falcon.HTTP_NOT_FOUND
