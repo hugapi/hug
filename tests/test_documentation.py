@@ -164,7 +164,7 @@ def test_basic_documentation_output_type_accept():
         handler(Request(create_environ(path='v1/doc')), response)
 
     documentation = json.loads(response.data.decode('utf8'))['documentation']
-    assert set(documentation) == {'handlers', 'overview'}
+    assert 'handlers' in documentation and 'overview' in documentation
 
     
 def test_marshmallow_return_type_documentation():
