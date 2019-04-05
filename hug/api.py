@@ -369,7 +369,8 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         def error_serializer(request, response, error):
             response.content_type = self.output_format.content_type
-            response.body = self.output_format({"errors": {error.title: error.description}})
+            response.body = self.output_format({"errors": {error.title: error.description}},
+                                               request, response)
 
         falcon_api.set_error_serializer(error_serializer)
         return falcon_api

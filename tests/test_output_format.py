@@ -268,6 +268,26 @@ def test_accept():
     assert formatter('hi', request, response) == b'"hi"'
 
 
+def test_accept_with_http_errors():
+    """Ensure that content type based output formats work for HTTP error responses"""
+    formatter = hug.output_format.accept({'application/json': hug.output_format.json,
+                                          'text/plain': hug.output_format.text},
+                                         default=hug.output_format.json)
+
+    api = hug.API('test_accept_with_http_errors')
+    hug.default_output_format(api=api)(formatter)
+
+    @hug.get('/500', api=api)
+    def error_500():
+        raise hug.HTTPInternalServerError('500 Internal Server Error',
+                                          'This is an example')
+
+    response = hug.test.get(api, '/500')
+    assert response.status == '500 Internal Server Error'
+    assert response.data == {
+        'errors': {'500 Internal Server Error': 'This is an example'}}
+
+
 def test_suffix():
     """Ensure that it's possible to route the output type format by the suffix of the requested URL"""
     formatter = hug.output_format.suffix({'.js': hug.output_format.json, '.html': hug.output_format.text})
