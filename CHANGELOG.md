@@ -13,6 +13,10 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
+### 2.4.8 - TBD
+- Fixed issue #762 - HTTP errors crash with selectable output types
+- Fixed MacOS testing via travis - added testing accross all the same Python versions tested on Linux
+
 ### 2.4.7 - March 28, 2019
 - Fixed API documentation with selectable output types
 
