@@ -1,4 +1,4 @@
-#! /bin/bash
+ #! /bin/bash
 
 echo $TRAVIS_OS_NAME
 
@@ -16,6 +16,10 @@ echo $TRAVIS_OS_NAME
             python_minor=4;;
         py35)
             python_minor=5;;
+        py36)
+            python_minor=6;;
+        py37)
+            python_minor=7;;
     esac
     latest_version=`pyenv install --list | grep -e "^[ ]*3\.$python_minor" | tail -1`
 
