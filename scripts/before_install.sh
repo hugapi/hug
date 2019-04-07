@@ -6,6 +6,7 @@ echo $TRAVIS_OS_NAME
 
     # Travis has an old version of pyenv by default, upgrade it
     brew update > /dev/null 2>&1
+    brew install readline xz
     brew outdated pyenv || brew upgrade pyenv
 
     pyenv --version
