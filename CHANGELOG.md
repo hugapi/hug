@@ -12,6 +12,8 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 3.0.0 - TBD
+- Updated Falcon to version 2.0.0
 
 ### 2.4.8 - April 7, 2019
 - Fixed issue #762 - HTTP errors crash with selectable output types
