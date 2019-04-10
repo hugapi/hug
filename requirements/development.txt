@@ -10,7 +10,7 @@ python-coveralls==2.9.1
 tox==2.9.1
 wheel
 pytest-xdist==1.20.1
-marshmallow==2.18.1
+marshmallow==3.0.0rc5
 ujson==1.35
 numpy==1.15.4
 
