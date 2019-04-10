@@ -13,6 +13,9 @@ Ideally, within a virtual environment.
 Changelog
 =========
 
+### 2.4.9 - TBD
+- Corrected the documentation for the `--without-cython` install option
+
 ### 2.4.8 - April 7, 2019
 - Fixed issue #762 - HTTP errors crash with selectable output types
 - Fixed MacOS testing via travis - added testing accross all the same Python versions tested on Linux
