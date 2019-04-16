@@ -14,6 +14,7 @@ Changelog
 =========
 
 ### 2.4.9 - TBD
+- Add the ability to invoke the hug development server as a Python module e.g. `python -m hug`
 - Corrected the documentation for the `--without-cython` install option
 
 ### 2.4.8 - April 7, 2019
