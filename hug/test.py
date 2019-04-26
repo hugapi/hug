@@ -29,7 +29,7 @@ from unittest import mock
 from urllib.parse import urlencode
 
 from falcon import HTTP_METHODS
-from falcon.testing import StartResponseMock, create_environ
+from falcon.testing import StartResponseMock, create_environ, DEFAULT_HOST
 
 from hug import output_format
 from hug.api import API
@@ -52,7 +52,7 @@ def _internal_result(raw_response):
         return raw_response[0]
 
 
-def call(method, api_or_module, url, body='', headers=None, params=None, query_string='', scheme='http', **kwargs):
+def call(method, api_or_module, url, body='', headers=None, params=None, query_string='', scheme='http', host=DEFAULT_HOST, **kwargs):
     """Simulates a round-trip call against the given API / URL"""
     api = API(api_or_module).http.server()
     response = StartResponseMock()
@@ -66,7 +66,7 @@ def call(method, api_or_module, url, body='', headers=None, params=None, query_s
     if params:
         query_string = '{}{}{}'.format(query_string, '&' if query_string else '', urlencode(params, True))
     result = api(create_environ(path=url, method=method, headers=headers, query_string=query_string,
-                                body=body, scheme=scheme), response)
+                                body=body, scheme=scheme, host=host), response)
     if result:
         response.data = _internal_result(result)
         response.content_type = response.headers_dict['content-type']
