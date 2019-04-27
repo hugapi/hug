@@ -52,7 +52,8 @@ def _internal_result(raw_response):
         return raw_response[0]
 
 
-def call(method, api_or_module, url, body='', headers=None, params=None, query_string='', scheme='http', host=DEFAULT_HOST, **kwargs):
+def call(method, api_or_module, url, body='', headers=None, params=None, query_string='', scheme='http',
+         host=DEFAULT_HOST, **kwargs):
     """Simulates a round-trip call against the given API / URL"""
     api = API(api_or_module).http.server()
     response = StartResponseMock()
