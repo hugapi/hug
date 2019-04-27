@@ -26,7 +26,7 @@ from decimal import Decimal
 from uuid import UUID
 
 import pytest
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, ValidationError
 from marshmallow.decorators import validates_schema
 
 import hug
@@ -818,3 +818,46 @@ def test_extending_types_with_exception_in_function():
         'fifth': 'not registered exception',
         'first': 'not registered exception'
     }
+
+
+def test_validate_route_args_positive_case():
+
+    class TestSchema(Schema):
+        bar = fields.String()
+
+    @hug.get('/hello', args={
+        'foo': fields.Integer(),
+        'return': TestSchema()
+    })
+    def hello(foo: int) -> dict:
+        return {'bar': str(foo)}
+
+    response = hug.test.get(api, '/hello', **{
+        'foo': 5
+    })
+    assert response.data == {'bar': '5'}
+
+
+def test_validate_route_args_negative_case():
+    @hug.get('/hello', raise_on_invalid=True, args={
+        'foo': fields.Integer()
+    })
+    def hello(foo: int):
+        return str(foo)
+
+    with pytest.raises(ValidationError):
+        hug.test.get(api, '/hello', **{
+            'foo': 'a'
+        })
+
+    class TestSchema(Schema):
+        bar = fields.Integer()
+
+    @hug.get('/foo', raise_on_invalid=True, args={
+        'return': TestSchema()
+    })
+    def foo():
+        return {'bar': 'a'}
+
+    with pytest.raises(InvalidTypeData):
+        hug.test.get(api, '/foo')

@@ -42,7 +42,8 @@ class Router(object):
     """The base chainable router object"""
     __slots__ = ('route', )
 
-    def __init__(self, transform=None, output=None, validate=None, api=None, requires=(), map_params=None, **kwargs):
+    def __init__(self, transform=None, output=None, validate=None, api=None, requires=(), map_params=None,
+                 args=None, **kwargs):
         self.route = {}
         if transform is not None:
             self.route['transform'] = transform
@@ -56,6 +57,8 @@ class Router(object):
             self.route['requires'] = (requires, ) if not isinstance(requires, (tuple, list)) else requires
         if map_params:
             self.route['map_params'] = map_params
+        if args:
+            self.route['args'] = args
 
     def output(self, formatter, **overrides):
         """Sets the output formatter that should be used to render this route"""
