@@ -12,6 +12,9 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.5.0 - May 3, 2019
+- Breaking Changes:
+    - Deprecated support for Python 3.4
 
 ### 2.4.9 - TBD
 - Add the ability to invoke the hug development server as a Python module e.g. `python -m hug`
