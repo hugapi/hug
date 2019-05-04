@@ -102,7 +102,7 @@ setup(
     tests_require=['pytest', 'mock', 'marshmallow'],
     ext_modules=ext_modules,
     cmdclass=cmdclass,
-    python_requires=">=3.4",
+    python_requires=">=3.5",
     keywords='Web, Python, Python3, Refactoring, REST, Framework, RPC',
     classifiers=[
         'Development Status :: 6 - Mature',
