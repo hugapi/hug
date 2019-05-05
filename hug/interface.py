@@ -44,7 +44,7 @@ from hug.types import MarshmallowInputSchema, MarshmallowReturnSchema, Multiple,
 class Interfaces(object):
     """Defines the per-function singleton applied to hugged functions defining common data needed by all interfaces"""
 
-    def __init__(self, function):
+    def __init__(self, function, args=None):
         self.api = hug.api.from_object(function)
         self.spec = getattr(function, 'original', function)
         self.arguments = introspect.arguments(function)
@@ -75,10 +75,15 @@ class Interfaces(object):
         if self.spec is not function:
             self.all_parameters.update(self.arguments)
 
-        self.transform = self.spec.__annotations__.get('return', None)
+        if args is not None:
+            transformers = args
+        else:
+            transformers = self.spec.__annotations__
+
+        self.transform = transformers.get('return', None)
         self.directives = {}
         self.input_transformations = {}
-        for name, transformer in self.spec.__annotations__.items():
+        for name, transformer in transformers.items():
             if isinstance(transformer, str):
                 continue
             elif hasattr(transformer, 'directive'):
@@ -117,8 +122,9 @@ class Interface(object):
             self._api = route['api']
         if 'examples' in route:
             self.examples = route['examples']
+        function_args = route.get('args')
         if not hasattr(function, 'interface'):
-            function.__dict__['interface'] = Interfaces(function)
+            function.__dict__['interface'] = Interfaces(function, function_args)
 
         self.interface = function.interface
         self.requires = route.get('requires', ())
