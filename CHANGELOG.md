@@ -16,6 +16,7 @@ Changelog
 - Updated to latest Falcon: 2.0.0
 - Added support for Marshmallow 3
 - Added support for `args` decorator parameter to optionally specify type transformations separate from annotations
+- Added support for tests to provide a custom host parameter
 - Breaking Changes:
     - Deprecated support for Python 3.4
 
