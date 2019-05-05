@@ -47,6 +47,7 @@ Code Contributors
 - Chelsea Dole (@chelseadole)
 - Antti Kaihola (@akaihola)
 - Christopher Goes (@GhostOfGoes)
+- Stanislav (@atmo)
 
 Documenters
 ===================
