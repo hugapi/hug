@@ -2,7 +2,7 @@
 ===================
 
 [![PyPI version](https://badge.fury.io/py/hug.svg)](http://badge.fury.io/py/hug)
-[![Build Status](https://travis-ci.org/hugapi/hug.svg?branch=master)](https://travis-ci.org/hugapi/hug)
+[![Build Status](https://travis-ci.org/hugapi/hug.svg?branch=develop)](https://travis-ci.org/hugapi/hug)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/0h7ynsqrbaxs7hfm/branch/master?svg=true)](https://ci.appveyor.com/project/TimothyCrosley/hug)
 [![Coverage Status](https://coveralls.io/repos/hugapi/hug/badge.svg?branch=master&service=github)](https://coveralls.io/github/hugapi/hug?branch=master)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/hug/)
