@@ -97,7 +97,7 @@ setup(
     },
     packages=['hug'],
     requires=['falcon', 'requests'],
-    install_requires=['falcon==1.4.1', 'requests'],
+    install_requires=['falcon==2.0.0', 'requests'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'mock', 'marshmallow'],
     ext_modules=ext_modules,
