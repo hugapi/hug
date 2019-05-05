@@ -45,7 +45,7 @@ or `pip install -r requirements/build.txt`.
 
 Install Hug itself with `pip install .` or `pip install -e .` (for editable mode).
 This will compile all modules with [Cython](https://cython.org/) if it's installed in the environment.
-You can skip Cython compilation using `pip install --without-cython .` (this works with `-e` as well).
+You can skip Cython compilation using `pip install --install-option=--without-cython .` (this works with `-e` as well).
 
 Making a contribution
 =========

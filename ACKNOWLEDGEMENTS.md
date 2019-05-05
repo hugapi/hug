@@ -46,6 +46,8 @@ Code Contributors
 - Elijah Wilson (@tizz98)
 - Chelsea Dole (@chelseadole)
 - Antti Kaihola (@akaihola)
+- Christopher Goes (@GhostOfGoes)
+- Stanislav (@atmo)
 
 Documenters
 ===================

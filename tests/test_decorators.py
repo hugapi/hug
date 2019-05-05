@@ -26,10 +26,11 @@ from collections import namedtuple
 from unittest import mock
 
 import falcon
+import marshmallow
 import pytest
 import requests
 from falcon.testing import StartResponseMock, create_environ
-from marshmallow import Schema, fields
+from marshmallow import ValidationError
 
 import hug
 from hug._async import coroutine
@@ -43,6 +44,9 @@ module = sys.modules[__name__]
 # Fix flake8 undefined names (F821)
 __hug__ = __hug__  # noqa
 __hug_wsgi__ = __hug_wsgi__  # noqa
+
+
+MARSHMALLOW_MAJOR_VERSION = marshmallow.__version_info__[0]
 
 
 def test_basic_call():
@@ -531,7 +535,8 @@ def test_custom_deserializer_support():
     assert hug.test.get(api, 'test_custom_deserializer', text='world').data == 'custom world'
 
 
-def test_marshmallow_support():
+@pytest.mark.skipif(MARSHMALLOW_MAJOR_VERSION != 2, reason='This test is for marshmallow 2 only')
+def test_marshmallow2_support():
     """Ensure that you can use Marshmallow style objects to control input and output validation and transformation"""
     MarshalResult = namedtuple('MarshalResult', ['data', 'errors'])
 
@@ -598,7 +603,77 @@ def test_marshmallow_support():
     def test_marshmallow_input_field(item: MarshmallowStyleField()):
         return item
 
-    assert hug.test.get(api, 'test_marshmallow_input_field', item='bacon').data == 'bacon'
+    assert hug.test.get(api, 'test_marshmallow_input_field', item=1).data == '1'
+
+
+@pytest.mark.skipif(MARSHMALLOW_MAJOR_VERSION != 3, reason='This test is for marshmallow 3 only')
+def test_marshmallow3_support():
+    """Ensure that you can use Marshmallow style objects to control input and output validation and transformation"""
+
+    class MarshmallowStyleObject(object):
+        def dump(self, item):
+            if item == 'bad':
+                raise ValidationError('problems')
+            return 'Dump Success'
+
+        def load(self, item):
+            return 'Load Success'
+
+        def loads(self, item):
+            return self.load(item)
+
+    schema = MarshmallowStyleObject()
+
+    @hug.get()
+    def test_marshmallow_style() -> schema:
+        return 'world'
+
+    assert hug.test.get(api, 'test_marshmallow_style').data == "Dump Success"
+    assert test_marshmallow_style() == 'world'
+
+
+    @hug.get()
+    def test_marshmallow_style_error() -> schema:
+        return 'bad'
+
+    with pytest.raises(InvalidTypeData):
+        hug.test.get(api, 'test_marshmallow_style_error')
+
+
+    @hug.get()
+    def test_marshmallow_input(item: schema):
+        return item
+
+    assert hug.test.get(api, 'test_marshmallow_input', item='bacon').data == "Load Success"
+    assert test_marshmallow_style() == 'world'
+
+    class MarshmallowStyleObjectWithError(object):
+        def dump(self, item):
+            return 'Dump Success'
+
+        def load(self, item):
+            raise ValidationError({'type': 'invalid'})
+
+        def loads(self, item):
+            return self.load(item)
+
+    schema = MarshmallowStyleObjectWithError()
+
+    @hug.get()
+    def test_marshmallow_input2(item: schema):
+        return item
+
+    assert hug.test.get(api, 'test_marshmallow_input2', item='bacon').data == {'errors': {'item': {'type': 'invalid'}}}
+
+    class MarshmallowStyleField(object):
+        def deserialize(self, value):
+            return str(value)
+
+    @hug.get()
+    def test_marshmallow_input_field(item: MarshmallowStyleField()):
+        return item
+
+    assert hug.test.get(api, 'test_marshmallow_input_field', item=1).data == '1'
 
 
 def test_stream_return():

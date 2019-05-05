@@ -1,12 +1,12 @@
-[![HUG](https://raw.github.com/timothycrosley/hug/develop/artwork/logo.png)](http://hug.rest)
+[![HUG](https://raw.github.com/hugapi/hug/develop/artwork/logo.png)](http://hug.rest)
 ===================
 
 [![PyPI version](https://badge.fury.io/py/hug.svg)](http://badge.fury.io/py/hug)
-[![Build Status](https://travis-ci.org/timothycrosley/hug.svg?branch=master)](https://travis-ci.org/timothycrosley/hug)
+[![Build Status](https://travis-ci.org/hugapi/hug.svg?branch=develop)](https://travis-ci.org/hugapi/hug)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/0h7ynsqrbaxs7hfm/branch/master?svg=true)](https://ci.appveyor.com/project/TimothyCrosley/hug)
-[![Coverage Status](https://coveralls.io/repos/timothycrosley/hug/badge.svg?branch=master&service=github)](https://coveralls.io/github/timothycrosley/hug?branch=master)
+[![Coverage Status](https://coveralls.io/repos/hugapi/hug/badge.svg?branch=develop&service=github)](https://coveralls.io/github/hugapi/hug?branch=master)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/hug/)
-[![Join the chat at https://gitter.im/timothycrosley/hug](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/timothycrosley/hug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/timothycrosley/hug](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hugapi/hug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 NOTE: For more in-depth documentation visit [hug's website](http://www.hug.rest)
 
@@ -23,7 +23,7 @@ hug's Design Objectives:
 
 As a result of these goals, hug is Python 3+ only and built upon [Falcon's](https://github.com/falconry/falcon) high performance HTTP library
 
-[![HUG Hello World Example](https://raw.github.com/timothycrosley/hug/develop/artwork/example.gif)](https://github.com/timothycrosley/hug/blob/develop/examples/hello_world.py)
+[![HUG Hello World Example](https://raw.github.com/hugapi/hug/develop/artwork/example.gif)](https://github.com/hugapi/hug/blob/develop/examples/hello_world.py)
 
 
 Installing hug
@@ -139,7 +139,7 @@ def tests_happy_birthday():
     response = hug.test.get(happy_birthday, 'happy_birthday', {'name': 'Timothy', 'age': 25})
     assert response.status == HTTP_200
     assert response.data is not None
-``` 
+```
 
 
 Running hug with other WSGI based servers
@@ -180,7 +180,7 @@ def math(number_1:int, number_2:int): #The :int after both arguments is the Type
 ```
 
 Type annotations also feed into `hug`'s automatic documentation
-generation to let users of your API know what data to supply. 
+generation to let users of your API know what data to supply.
 
 
 **Directives** functions that get executed with the request / response data based on being requested as an argument in your api_function.

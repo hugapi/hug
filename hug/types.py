@@ -29,6 +29,16 @@ from hug import introspect
 from hug.exceptions import InvalidTypeData
 from hug.json_module import json as json_converter
 
+MARSHMALLOW_MAJOR_VERSION = None
+try:
+    import marshmallow
+    from marshmallow import ValidationError
+    MARSHMALLOW_MAJOR_VERSION = marshmallow.__version_info__[0]
+except ImportError:
+    # Just define the error that is never raised so that Python does not complain.
+    class ValidationError(Exception):
+        pass
+
 
 class Type(object):
     """Defines the base hug concept of a type for use in function annotation.
@@ -582,7 +592,19 @@ class MarshmallowInputSchema(Type):
 
     def __call__(self, value, context):
         self.schema.context = context
-        value, errors = self.schema.loads(value) if isinstance(value, str) else self.schema.load(value)
+        # In marshmallow 2 schemas return tuple (`data`, `errors`) upon loading. They might also raise on invalid data
+        # if configured so, but will still return a tuple.
+        # In marshmallow 3 schemas always raise Validation error on load if input data is invalid and a single
+        # value `data` is returned.
+        if MARSHMALLOW_MAJOR_VERSION is None or MARSHMALLOW_MAJOR_VERSION == 2:
+            value, errors = self.schema.loads(value) if isinstance(value, str) else self.schema.load(value)
+        else:
+            errors = {}
+            try:
+                value = self.schema.loads(value) if isinstance(value, str) else self.schema.load(value)
+            except ValidationError as e:
+                errors = e.messages
+
         if errors:
             raise InvalidTypeData('Invalid {0} passed in'.format(self.schema.__class__.__name__), errors)
         return value
@@ -608,7 +630,19 @@ class MarshmallowReturnSchema(Type):
         return self.schema.__doc__ or self.schema.__class__.__name__
 
     def __call__(self, value):
-        value, errors = self.schema.dump(value)
+        # In marshmallow 2 schemas return tuple (`data`, `errors`) upon loading. They might also raise on invalid data
+        # if configured so, but will still return a tuple.
+        # In marshmallow 3 schemas always raise Validation error on load if input data is invalid and a single
+        # value `data` is returned.
+        if MARSHMALLOW_MAJOR_VERSION is None or MARSHMALLOW_MAJOR_VERSION == 2:
+            value, errors = self.schema.dump(value)
+        else:
+            errors = {}
+            try:
+                value = self.schema.dump(value)
+            except ValidationError as e:
+                errors = e.messages
+
         if errors:
             raise InvalidTypeData('Invalid {0} passed in'.format(self.schema.__class__.__name__), errors)
         return value
