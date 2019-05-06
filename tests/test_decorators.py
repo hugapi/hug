@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import asyncio
 import json
 import os
 import sys
@@ -33,7 +34,6 @@ from falcon.testing import StartResponseMock, create_environ
 from marshmallow import ValidationError
 
 import hug
-from hug._async import coroutine
 from hug.exceptions import InvalidTypeData
 
 from .constants import BASE_DIRECTORY
@@ -1476,7 +1476,7 @@ def test_startup():
         pass
 
     @hug.startup()
-    @coroutine
+    @asyncio.coroutine
     def async_happens_on_startup(api):
         pass
 

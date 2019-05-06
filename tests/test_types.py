@@ -26,7 +26,7 @@ from decimal import Decimal
 from uuid import UUID
 
 import pytest
-from marshmallow import Schema, fields, ValidationError
+from marshmallow import Schema, ValidationError, fields
 from marshmallow.decorators import validates_schema
 
 import hug
