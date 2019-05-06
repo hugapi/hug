@@ -29,11 +29,10 @@ from functools import wraps
 from urllib.parse import urljoin
 
 import falcon
-from falcon import HTTP_METHODS
-
 import hug.api
 import hug.interface
 import hug.output_format
+from falcon import HTTP_METHODS
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 

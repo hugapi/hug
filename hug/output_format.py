@@ -35,7 +35,6 @@ from uuid import UUID
 
 import falcon
 from falcon import HTTP_NOT_FOUND
-
 from hug import introspect
 from hug.format import camelcase, content_type
 from hug.json_module import json as json_converter

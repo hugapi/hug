@@ -23,9 +23,8 @@ import os
 from cgi import parse_header
 from io import BytesIO
 
-import requests
-
 import hug
+import requests
 
 from .constants import BASE_DIRECTORY
 

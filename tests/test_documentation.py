@@ -22,11 +22,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 import json
 from unittest import mock
 
+import hug
 import marshmallow
 from falcon import Request
 from falcon.testing import StartResponseMock, create_environ
-
-import hug
 
 api = hug.API(__name__)
 

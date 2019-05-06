@@ -22,23 +22,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import absolute_import
 
 import argparse
+import asyncio
 import os
 import sys
 from collections import OrderedDict
 from functools import lru_cache, partial, wraps
 
 import falcon
-from falcon import HTTP_BAD_REQUEST
-
 import hug._empty as empty
 import hug.api
 import hug.output_format
 import hug.types as types
+from falcon import HTTP_BAD_REQUEST
 from hug import introspect
-from hug._async import asyncio_call
 from hug.exceptions import InvalidTypeData
 from hug.format import parse_content_type
 from hug.types import MarshmallowInputSchema, MarshmallowReturnSchema, Multiple, OneOf, SmartBoolean, Text, text
+
+
+def asyncio_call(function, *args, **kwargs):
+    loop = asyncio.get_event_loop()
+    if loop.is_running():
+        return function(*args, **kwargs)
+
+    function = asyncio.ensure_future(function(*args, **kwargs), loop=loop)
+    loop.run_until_complete(function)
+    return function.result()
 
 
 class Interfaces(object):

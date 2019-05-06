@@ -19,9 +19,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from http.cookies import SimpleCookie
 
-import pytest
-
 import hug
+import pytest
 from hug.exceptions import SessionNotFound
 from hug.middleware import CORSMiddleware, LogMiddleware, SessionMiddleware
 from hug.store import InMemoryStore

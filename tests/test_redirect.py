@@ -20,9 +20,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import falcon
-import pytest
-
 import hug.redirect
+import pytest
 
 
 def test_to():

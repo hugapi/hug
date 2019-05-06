@@ -26,10 +26,9 @@ from decimal import Decimal
 from io import BytesIO
 from uuid import UUID
 
+import hug
 import numpy
 import pytest
-
-import hug
 
 from .constants import BASE_DIRECTORY
 
