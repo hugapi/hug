@@ -1,9 +1,10 @@
 import sys
 
-import hug
 import pytest
 from marshmallow import Schema, fields
 from marshmallow.decorators import post_dump
+
+import hug
 
 module = sys.modules[__name__]
 

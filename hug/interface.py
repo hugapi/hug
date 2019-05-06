@@ -29,11 +29,12 @@ from collections import OrderedDict
 from functools import lru_cache, partial, wraps
 
 import falcon
+from falcon import HTTP_BAD_REQUEST
+
 import hug._empty as empty
 import hug.api
 import hug.output_format
 import hug.types as types
-from falcon import HTTP_BAD_REQUEST
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 from hug.format import parse_content_type

@@ -29,12 +29,11 @@ import time
 from multiprocessing import Process
 from os.path import exists
 
+import _thread as thread
 from hug._version import current
 from hug.api import API
 from hug.route import cli
 from hug.types import boolean, number
-
-import _thread as thread
 
 INIT_MODULES = list(sys.modules.keys())
 

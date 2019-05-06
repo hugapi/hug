@@ -29,7 +29,7 @@ from unittest import mock
 from urllib.parse import urlencode
 
 from falcon import HTTP_METHODS
-from falcon.testing import StartResponseMock, create_environ, DEFAULT_HOST
+from falcon.testing import DEFAULT_HOST, StartResponseMock, create_environ
 
 from hug import output_format
 from hug.api import API

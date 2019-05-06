@@ -2,8 +2,9 @@
 from collections import namedtuple
 from random import randint
 
-import hug
 import pytest
+
+import hug
 
 Routers = namedtuple('Routers', ['http', 'local', 'cli'])
 

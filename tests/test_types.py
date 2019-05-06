@@ -25,11 +25,12 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-import hug
 import pytest
-from hug.exceptions import InvalidTypeData
 from marshmallow import Schema, ValidationError, fields
 from marshmallow.decorators import validates_schema
+
+import hug
+from hug.exceptions import InvalidTypeData
 
 api = hug.API(__name__)
 

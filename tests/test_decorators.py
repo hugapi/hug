@@ -27,13 +27,14 @@ from collections import namedtuple
 from unittest import mock
 
 import falcon
-import hug
 import marshmallow
 import pytest
 import requests
 from falcon.testing import StartResponseMock, create_environ
-from hug.exceptions import InvalidTypeData
 from marshmallow import ValidationError
+
+import hug
+from hug.exceptions import InvalidTypeData
 
 from .constants import BASE_DIRECTORY
 

@@ -19,8 +19,9 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import hug
 import pytest
+
+import hug
 
 
 @hug.http(('/namer', '/namer/{name}'), ('GET', 'POST'), versions=(None, 2))
