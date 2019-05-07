@@ -47,7 +47,7 @@ class Object(http):
             return self.where(**kwargs)
 
         if isinstance(method_or_class, (MethodType, FunctionType)):
-            routes = getattr(method_or_class, '_hug_http_routes', [])
+            routes = getattr(method_or_class, "_hug_http_routes", [])
             routes.append(self.route)
             method_or_class._hug_http_routes = routes
             return method_or_class
@@ -59,11 +59,11 @@ class Object(http):
         for argument in dir(instance):
             argument = getattr(instance, argument, None)
 
-            http_routes = getattr(argument, '_hug_http_routes', ())
+            http_routes = getattr(argument, "_hug_http_routes", ())
             for route in http_routes:
                 http(**self.where(**route).route)(argument)
 
-            cli_routes = getattr(argument, '_hug_cli_routes', ())
+            cli_routes = getattr(argument, "_hug_cli_routes", ())
             for route in cli_routes:
                 cli(**self.where(**route).route)(argument)
 
@@ -71,32 +71,36 @@ class Object(http):
 
     def http_methods(self, urls=None, **route_data):
         """Creates routes from a class, where the class method names should line up to HTTP METHOD types"""
+
         def decorator(class_definition):
             instance = class_definition
             if isinstance(class_definition, type):
                 instance = class_definition()
 
-            router = self.urls(urls if urls else "/{0}".format(instance.__class__.__name__.lower()), **route_data)
+            router = self.urls(
+                urls if urls else "/{0}".format(instance.__class__.__name__.lower()), **route_data
+            )
             for method in HTTP_METHODS:
                 handler = getattr(instance, method.lower(), None)
                 if handler:
-                    http_routes = getattr(handler, '_hug_http_routes', ())
+                    http_routes = getattr(handler, "_hug_http_routes", ())
                     if http_routes:
                         for route in http_routes:
                             http(**router.accept(method).where(**route).route)(handler)
                     else:
                         http(**router.accept(method).route)(handler)
 
-                    cli_routes = getattr(handler, '_hug_cli_routes', ())
+                    cli_routes = getattr(handler, "_hug_cli_routes", ())
                     if cli_routes:
                         for route in cli_routes:
                             cli(**self.where(**route).route)(handler)
             return class_definition
+
         return decorator
 
     def cli(self, method):
         """Registers a method on an Object as a CLI route"""
-        routes = getattr(method, '_hug_cli_routes', [])
+        routes = getattr(method, "_hug_cli_routes", [])
         routes.append(self.route)
         method._hug_cli_routes = routes
         return method
@@ -104,7 +108,8 @@ class Object(http):
 
 class API(object):
     """Provides a convient way to route functions to a single API independent of where they live"""
-    __slots__ = ('api', )
+
+    __slots__ = ("api",)
 
     def __init__(self, api):
         if type(api) == str:
@@ -113,7 +118,7 @@ class API(object):
 
     def http(self, *args, **kwargs):
         """Starts the process of building a new HTTP route linked to this API instance"""
-        kwargs['api'] = self.api
+        kwargs["api"] = self.api
         return http(*args, **kwargs)
 
     def urls(self, *args, **kwargs):
@@ -125,110 +130,112 @@ class API(object):
 
     def not_found(self, *args, **kwargs):
         """Defines the handler that should handle not found requests against this API"""
-        kwargs['api'] = self.api
+        kwargs["api"] = self.api
         return not_found(*args, **kwargs)
 
     def static(self, *args, **kwargs):
         """Define the routes to static files the API should expose"""
-        kwargs['api'] = self.api
+        kwargs["api"] = self.api
         return static(*args, **kwargs)
 
     def sink(self, *args, **kwargs):
         """Define URL prefixes/handler matches where everything under the URL prefix should be handled"""
-        kwargs['api'] = self.api
+        kwargs["api"] = self.api
         return sink(*args, **kwargs)
 
     def exception(self, *args, **kwargs):
         """Defines how this API should handle the provided exceptions"""
-        kwargs['api'] = self.api
+        kwargs["api"] = self.api
         return exception(*args, **kwargs)
 
     def cli(self, *args, **kwargs):
         """Defines a CLI function that should be routed by this API"""
-        kwargs['api'] = self.api
+        kwargs["api"] = self.api
         return cli(*args, **kwargs)
 
     def object(self, *args, **kwargs):
         """Registers a class based router to this API"""
-        kwargs['api'] = self.api
+        kwargs["api"] = self.api
         return Object(*args, **kwargs)
 
     def get(self, *args, **kwargs):
         """Builds a new GET HTTP route that is registered to this API"""
-        kwargs['api'] = self.api
-        kwargs['accept'] = ('GET', )
+        kwargs["api"] = self.api
+        kwargs["accept"] = ("GET",)
         return http(*args, **kwargs)
 
     def post(self, *args, **kwargs):
         """Builds a new POST HTTP route that is registered to this API"""
-        kwargs['api'] = self.api
-        kwargs['accept'] = ('POST', )
+        kwargs["api"] = self.api
+        kwargs["accept"] = ("POST",)
         return http(*args, **kwargs)
 
     def put(self, *args, **kwargs):
         """Builds a new PUT HTTP route that is registered to this API"""
-        kwargs['api'] = self.api
-        kwargs['accept'] = ('PUT', )
+        kwargs["api"] = self.api
+        kwargs["accept"] = ("PUT",)
         return http(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         """Builds a new DELETE HTTP route that is registered to this API"""
-        kwargs['api'] = self.api
-        kwargs['accept'] = ('DELETE', )
+        kwargs["api"] = self.api
+        kwargs["accept"] = ("DELETE",)
         return http(*args, **kwargs)
 
     def connect(self, *args, **kwargs):
         """Builds a new CONNECT HTTP route that is registered to this API"""
-        kwargs['api'] = self.api
-        kwargs['accept'] = ('CONNECT', )
+        kwargs["api"] = self.api
+        kwargs["accept"] = ("CONNECT",)
         return http(*args, **kwargs)
 
     def head(self, *args, **kwargs):
         """Builds a new HEAD HTTP route that is registered to this API"""
-        kwargs['api'] = self.api
-        kwargs['accept'] = ('HEAD', )
+        kwargs["api"] = self.api
+        kwargs["accept"] = ("HEAD",)
         return http(*args, **kwargs)
 
     def options(self, *args, **kwargs):
         """Builds a new OPTIONS HTTP route that is registered to this API"""
-        kwargs['api'] = self.api
-        kwargs['accept'] = ('OPTIONS', )
+        kwargs["api"] = self.api
+        kwargs["accept"] = ("OPTIONS",)
         return http(*args, **kwargs)
 
     def patch(self, *args, **kwargs):
         """Builds a new PATCH HTTP route that is registered to this API"""
-        kwargs['api'] = self.api
-        kwargs['accept'] = ('PATCH', )
+        kwargs["api"] = self.api
+        kwargs["accept"] = ("PATCH",)
         return http(*args, **kwargs)
 
     def trace(self, *args, **kwargs):
         """Builds a new TRACE HTTP route that is registered to this API"""
-        kwargs['api'] = self.api
-        kwargs['accept'] = ('TRACE', )
+        kwargs["api"] = self.api
+        kwargs["accept"] = ("TRACE",)
         return http(*args, **kwargs)
 
     def get_post(self, *args, **kwargs):
         """Builds a new GET or POST HTTP route that is registered to this API"""
-        kwargs['api'] = self.api
-        kwargs['accept'] = ('GET', 'POST')
+        kwargs["api"] = self.api
+        kwargs["accept"] = ("GET", "POST")
         return http(*args, **kwargs)
 
     def put_post(self, *args, **kwargs):
         """Builds a new PUT or POST HTTP route that is registered to this API"""
-        kwargs['api'] = self.api
-        kwargs['accept'] = ('PUT', 'POST')
+        kwargs["api"] = self.api
+        kwargs["accept"] = ("PUT", "POST")
         return http(*args, **kwargs)
 
 
 for method in HTTP_METHODS:
-    method_handler = partial(http, accept=(method, ))
-    method_handler.__doc__ = "Exposes a Python method externally as an HTTP {0} method".format(method.upper())
+    method_handler = partial(http, accept=(method,))
+    method_handler.__doc__ = "Exposes a Python method externally as an HTTP {0} method".format(
+        method.upper()
+    )
     globals()[method.lower()] = method_handler
 
-get_post = partial(http, accept=('GET', 'POST'))
+get_post = partial(http, accept=("GET", "POST"))
 get_post.__doc__ = "Exposes a Python method externally under both the HTTP POST and GET methods"
 
-put_post = partial(http, accept=('PUT', 'POST'))
+put_post = partial(http, accept=("PUT", "POST"))
 put_post.__doc__ = "Exposes a Python method externally under both the HTTP POST and PUT methods"
 
 object = Object()

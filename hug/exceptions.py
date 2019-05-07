@@ -24,6 +24,7 @@ from __future__ import absolute_import
 
 class InvalidTypeData(Exception):
     """Should be raised when data passed in doesn't match a types expectations"""
+
     def __init__(self, message, reasons=None):
         self.message = message
         self.reasons = reasons
@@ -35,4 +36,5 @@ class StoreKeyNotFound(Exception):
 
 class SessionNotFound(StoreKeyNotFound):
     """Should be raised when a session ID has not been found inside a session store"""
+
     pass

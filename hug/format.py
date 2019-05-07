@@ -27,29 +27,31 @@ from cgi import parse_header
 
 from hug import _empty as empty
 
-UNDERSCORE = (re.compile('(.)([A-Z][a-z]+)'), re.compile('([a-z0-9])([A-Z])'))
+UNDERSCORE = (re.compile("(.)([A-Z][a-z]+)"), re.compile("([a-z0-9])([A-Z])"))
 
 
 def parse_content_type(content_type):
     """Separates out the parameters from the content_type and returns both in a tuple (content_type, parameters)"""
-    if content_type is not None and ';' in content_type:
+    if content_type is not None and ";" in content_type:
         return parse_header(content_type)
     return (content_type, empty.dict)
 
 
 def content_type(content_type):
     """Attaches the supplied content_type to a Hug formatting function"""
+
     def decorator(method):
         method.content_type = content_type
         return method
+
     return decorator
 
 
 def underscore(text):
     """Converts text that may be camelcased into an underscored format"""
-    return UNDERSCORE[1].sub(r'\1_\2', UNDERSCORE[0].sub(r'\1_\2', text)).lower()
+    return UNDERSCORE[1].sub(r"\1_\2", UNDERSCORE[0].sub(r"\1_\2", text)).lower()
 
 
 def camelcase(text):
     """Converts text that may be underscored into a camelcase format"""
-    return text[0] + "".join(text.title().split('_'))[1:]
+    return text[0] + "".join(text.title().split("_"))[1:]

@@ -28,13 +28,14 @@ api = hug.API(__name__)
 
 def test_cli():
     """Test to ensure the CLI tester works as intended to allow testing CLI endpoints"""
+
     @hug.cli()
     def my_cli_function():
-        return 'Hello'
+        return "Hello"
 
-    assert hug.test.cli(my_cli_function) == 'Hello'
-    assert hug.test.cli('my_cli_function', api=api) == 'Hello'
+    assert hug.test.cli(my_cli_function) == "Hello"
+    assert hug.test.cli("my_cli_function", api=api) == "Hello"
 
     # Shouldn't be able to specify both api and module.
     with pytest.raises(ValueError):
-        assert hug.test.cli('my_method', api=api, module=hug)
+        assert hug.test.cli("my_method", api=api, module=hug)

@@ -11,4 +11,4 @@ def base():
 
 @hug.get("/add", examples="num=1")
 def add(num: hug.types.number = 1):
-    return {"res" : num + 1}
+    return {"res": num + 1}

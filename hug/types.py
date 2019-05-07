@@ -33,6 +33,7 @@ MARSHMALLOW_MAJOR_VERSION = None
 try:
     import marshmallow
     from marshmallow import ValidationError
+
     MARSHMALLOW_MAJOR_VERSION = marshmallow.__version_info__[0]
 except ImportError:
     # Just define the error that is never raised so that Python does not complain.
@@ -44,6 +45,7 @@ class Type(object):
     """Defines the base hug concept of a type for use in function annotation.
        Override `__call__` to define how the type should be transformed and validated
     """
+
     _hug_type = True
     _sub_type = None
     _accept_context = False
@@ -52,11 +54,18 @@ class Type(object):
         pass
 
     def __call__(self, value):
-        raise NotImplementedError('To implement a new type __call__ must be defined')
+        raise NotImplementedError("To implement a new type __call__ must be defined")
 
 
-def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type, chain=True, auto_instance=True,
-           accept_context=False):
+def create(
+    doc=None,
+    error_text=None,
+    exception_handlers=empty.dict,
+    extend=Type,
+    chain=True,
+    auto_instance=True,
+    accept_context=False,
+):
     """Creates a new type handler with the specified type-casting handler"""
     extend = extend if type(extend) == type else type(extend)
 
@@ -68,6 +77,7 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
             if chain and extend != Type:
                 if error_text or exception_handlers:
                     if not accept_context:
+
                         def __call__(self, value):
                             try:
                                 value = super(NewType, self).__call__(value)
@@ -82,8 +92,10 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
                                 if error_text:
                                     raise ValueError(error_text)
                                 raise exception
+
                     else:
                         if extend._accept_context:
+
                             def __call__(self, value, context):
                                 try:
                                     value = super(NewType, self).__call__(value, context)
@@ -98,7 +110,9 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
                                     if error_text:
                                         raise ValueError(error_text)
                                     raise exception
+
                         else:
+
                             def __call__(self, value, context):
                                 try:
                                     value = super(NewType, self).__call__(value)
@@ -113,23 +127,31 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
                                     if error_text:
                                         raise ValueError(error_text)
                                     raise exception
+
                 else:
                     if not accept_context:
+
                         def __call__(self, value):
                             value = super(NewType, self).__call__(value)
                             return function(value)
+
                     else:
                         if extend._accept_context:
+
                             def __call__(self, value, context):
                                 value = super(NewType, self).__call__(value, context)
                                 return function(value, context)
+
                         else:
+
                             def __call__(self, value, context):
                                 value = super(NewType, self).__call__(value)
                                 return function(value, context)
+
             else:
                 if not accept_context:
                     if error_text or exception_handlers:
+
                         def __call__(self, value):
                             try:
                                 return function(value)
@@ -143,11 +165,15 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
                                 if error_text:
                                     raise ValueError(error_text)
                                 raise exception
+
                     else:
+
                         def __call__(self, value):
                             return function(value)
+
                 else:
                     if error_text or exception_handlers:
+
                         def __call__(self, value, context):
                             try:
                                 return function(value, context)
@@ -161,14 +187,18 @@ def create(doc=None, error_text=None, exception_handlers=empty.dict, extend=Type
                                 if error_text:
                                     raise ValueError(error_text)
                                 raise exception
+
                     else:
+
                         def __call__(self, value, context):
                             return function(value, context)
 
         NewType.__doc__ = function.__doc__ if doc is None else doc
-        if auto_instance and not (introspect.arguments(NewType.__init__, -1) or
-                                  introspect.takes_kwargs(NewType.__init__) or
-                                  introspect.takes_args(NewType.__init__)):
+        if auto_instance and not (
+            introspect.arguments(NewType.__init__, -1)
+            or introspect.takes_kwargs(NewType.__init__)
+            or introspect.takes_args(NewType.__init__)
+        ):
             return NewType()
         return NewType
 
@@ -182,24 +212,29 @@ def accept(kind, doc=None, error_text=None, exception_handlers=empty.dict, accep
         error_text,
         exception_handlers=exception_handlers,
         chain=False,
-        accept_context=accept_context
+        accept_context=accept_context,
     )(kind)
 
-number = accept(int, 'A whole number', 'Invalid whole number provided')
-float_number = accept(float, 'A float number', 'Invalid float number provided')
-decimal = accept(Decimal, 'A decimal number', 'Invalid decimal number provided')
-boolean = accept(bool, 'Providing any value will set this to true', 'Invalid boolean value provided')
-uuid = accept(native_uuid.UUID, 'A Universally Unique IDentifier', 'Invalid UUID provided')
+
+number = accept(int, "A whole number", "Invalid whole number provided")
+float_number = accept(float, "A float number", "Invalid float number provided")
+decimal = accept(Decimal, "A decimal number", "Invalid decimal number provided")
+boolean = accept(
+    bool, "Providing any value will set this to true", "Invalid boolean value provided"
+)
+uuid = accept(native_uuid.UUID, "A Universally Unique IDentifier", "Invalid UUID provided")
 
 
 class Text(Type):
     """Basic text / string value"""
+
     __slots__ = ()
 
     def __call__(self, value):
         if type(value) in (list, tuple) or value is None:
-            raise ValueError('Invalid text value provided')
+            raise ValueError("Invalid text value provided")
         return str(value)
+
 
 text = Text()
 
@@ -208,11 +243,13 @@ class SubTyped(type):
     def __getitem__(cls, sub_type):
         class TypedSubclass(cls):
             _sub_type = sub_type
+
         return TypedSubclass
 
 
 class Multiple(Type, metaclass=SubTyped):
     """Multiple Values"""
+
     __slots__ = ()
 
     def __call__(self, value):
@@ -222,9 +259,9 @@ class Multiple(Type, metaclass=SubTyped):
         return as_multiple
 
 
-
 class DelimitedList(Type, metaclass=SubTyped):
     """Defines a list type that is formed by delimiting a list with a certain character or set of characters"""
+
     def __init__(self, using=","):
         super().__init__()
         self.using = using
@@ -242,6 +279,7 @@ class DelimitedList(Type, metaclass=SubTyped):
 
 class SmartBoolean(type(boolean)):
     """Accepts a true or false value"""
+
     __slots__ = ()
 
     def __call__(self, value):
@@ -249,12 +287,12 @@ class SmartBoolean(type(boolean)):
             return bool(value)
 
         value = value.lower()
-        if value in ('true', 't', '1'):
+        if value in ("true", "t", "1"):
             return True
-        elif value in ('false', 'f', '0', ''):
+        elif value in ("false", "f", "0", ""):
             return False
 
-        raise KeyError('Invalid value passed in for true/false field')
+        raise KeyError("Invalid value passed in for true/false field")
 
 
 class InlineDictionary(Type, metaclass=SubTyped):
@@ -274,31 +312,36 @@ class InlineDictionary(Type, metaclass=SubTyped):
         dictionary = {}
         for key, value in (item.split(":") for item in string.split("|")):
             key, value = key.strip(), value.strip()
-            dictionary[self.key_type(key)
-                       if self.key_type else key] = self.value_type(value) if self.value_type else value
+            dictionary[self.key_type(key) if self.key_type else key] = (
+                self.value_type(value) if self.value_type else value
+            )
         return dictionary
 
 
 class OneOf(Type):
     """Ensures the value is within a set of acceptable values"""
-    __slots__ = ('values', )
+
+    __slots__ = ("values",)
 
     def __init__(self, values):
         self.values = values
 
     @property
     def __doc__(self):
-        return 'Accepts one of the following values: ({0})'.format("|".join(self.values))
+        return "Accepts one of the following values: ({0})".format("|".join(self.values))
 
     def __call__(self, value):
         if not value in self.values:
-            raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(self.values)))
+            raise KeyError(
+                "Invalid value passed. The accepted values are: ({0})".format("|".join(self.values))
+            )
         return value
 
 
 class Mapping(OneOf):
     """Ensures the value is one of an acceptable set of values mapping those values to a Python equivelent"""
-    __slots__ = ('value_map', )
+
+    __slots__ = ("value_map",)
 
     def __init__(self, value_map):
         self.value_map = value_map
@@ -306,16 +349,19 @@ class Mapping(OneOf):
 
     @property
     def __doc__(self):
-        return 'Accepts one of the following values: ({0})'.format("|".join(self.values))
+        return "Accepts one of the following values: ({0})".format("|".join(self.values))
 
     def __call__(self, value):
         if not value in self.values:
-            raise KeyError('Invalid value passed. The accepted values are: ({0})'.format("|".join(self.values)))
+            raise KeyError(
+                "Invalid value passed. The accepted values are: ({0})".format("|".join(self.values))
+            )
         return self.value_map[value]
 
 
 class JSON(Type):
     """Accepts a JSON formatted data structure"""
+
     __slots__ = ()
 
     def __call__(self, value):
@@ -323,29 +369,30 @@ class JSON(Type):
             try:
                 return json_converter.loads(value)
             except Exception:
-                raise ValueError('Incorrectly formatted JSON provided')
+                raise ValueError("Incorrectly formatted JSON provided")
         if type(value) is list:
             # If Falcon is set to comma-separate entries, this segment joins them again.
             try:
                 fixed_value = ",".join(value)
                 return json_converter.loads(fixed_value)
             except Exception:
-                raise ValueError('Incorrectly formatted JSON provided')
+                raise ValueError("Incorrectly formatted JSON provided")
         else:
             return value
 
 
 class Multi(Type):
     """Enables accepting one of multiple type methods"""
-    __slots__ = ('types', )
+
+    __slots__ = ("types",)
 
     def __init__(self, *types):
-       self.types = types
+        self.types = types
 
     @property
     def __doc__(self):
         type_strings = (type_method.__doc__ for type_method in self.types)
-        return 'Accepts any of the following value types:{0}\n'.format('\n  - '.join(type_strings))
+        return "Accepts any of the following value types:{0}\n".format("\n  - ".join(type_strings))
 
     def __call__(self, value):
         for type_method in self.types:
@@ -358,7 +405,8 @@ class Multi(Type):
 
 class InRange(Type):
     """Accepts a number within a lower and upper bound of acceptable values"""
-    __slots__ = ('lower', 'upper', 'convert')
+
+    __slots__ = ("lower", "upper", "convert")
 
     def __init__(self, lower, upper, convert=number):
         self.lower = lower
@@ -367,8 +415,9 @@ class InRange(Type):
 
     @property
     def __doc__(self):
-        return "{0} that is greater or equal to {1} and less than {2}".format(self.convert.__doc__,
-                                                                              self.lower, self.upper)
+        return "{0} that is greater or equal to {1} and less than {2}".format(
+            self.convert.__doc__, self.lower, self.upper
+        )
 
     def __call__(self, value):
         value = self.convert(value)
@@ -381,7 +430,8 @@ class InRange(Type):
 
 class LessThan(Type):
     """Accepts a number within a lower and upper bound of acceptable values"""
-    __slots__ = ('limit', 'convert')
+
+    __slots__ = ("limit", "convert")
 
     def __init__(self, limit, convert=number):
         self.limit = limit
@@ -389,7 +439,7 @@ class LessThan(Type):
 
     @property
     def __doc__(self):
-         return "{0} that is less than {1}".format(self.convert.__doc__, self.limit)
+        return "{0} that is less than {1}".format(self.convert.__doc__, self.limit)
 
     def __call__(self, value):
         value = self.convert(value)
@@ -400,7 +450,8 @@ class LessThan(Type):
 
 class GreaterThan(Type):
     """Accepts a value above a given minimum"""
-    __slots__ = ('minimum', 'convert')
+
+    __slots__ = ("minimum", "convert")
 
     def __init__(self, minimum, convert=number):
         self.minimum = minimum
@@ -419,7 +470,8 @@ class GreaterThan(Type):
 
 class Length(Type):
     """Accepts a a value that is within a specific length limit"""
-    __slots__ = ('lower', 'upper', 'convert')
+
+    __slots__ = ("lower", "upper", "convert")
 
     def __init__(self, lower, upper, convert=text):
         self.lower = lower
@@ -428,22 +480,28 @@ class Length(Type):
 
     @property
     def __doc__(self):
-        return ("{0} that has a length longer or equal to {1} and less then {2}".format(self.convert.__doc__,
-                                                                                        self.lower, self.upper))
+        return "{0} that has a length longer or equal to {1} and less then {2}".format(
+            self.convert.__doc__, self.lower, self.upper
+        )
 
     def __call__(self, value):
         value = self.convert(value)
         length = len(value)
         if length < self.lower:
-            raise ValueError("'{0}' is shorter than the lower limit of {1}".format(value, self.lower))
+            raise ValueError(
+                "'{0}' is shorter than the lower limit of {1}".format(value, self.lower)
+            )
         if length >= self.upper:
-            raise ValueError("'{0}' is longer then the allowed limit of {1}".format(value, self.upper))
+            raise ValueError(
+                "'{0}' is longer then the allowed limit of {1}".format(value, self.upper)
+            )
         return value
 
 
 class ShorterThan(Type):
     """Accepts a text value shorter than the specified length limit"""
-    __slots__ = ('limit', 'convert')
+
+    __slots__ = ("limit", "convert")
 
     def __init__(self, limit, convert=text):
         self.limit = limit
@@ -457,13 +515,16 @@ class ShorterThan(Type):
         value = self.convert(value)
         length = len(value)
         if not length < self.limit:
-            raise ValueError("'{0}' is longer then the allowed limit of {1}".format(value, self.limit))
+            raise ValueError(
+                "'{0}' is longer then the allowed limit of {1}".format(value, self.limit)
+            )
         return value
 
 
 class LongerThan(Type):
     """Accepts a value up to the specified limit"""
-    __slots__ = ('limit', 'convert')
+
+    __slots__ = ("limit", "convert")
 
     def __init__(self, limit, convert=text):
         self.limit = limit
@@ -483,7 +544,8 @@ class LongerThan(Type):
 
 class CutOff(Type):
     """Cuts off the provided value at the specified index"""
-    __slots__ = ('limit', 'convert')
+
+    __slots__ = ("limit", "convert")
 
     def __init__(self, limit, convert=text):
         self.limit = limit
@@ -491,15 +553,18 @@ class CutOff(Type):
 
     @property
     def __doc__(self):
-        return "'{0}' with anything over the length of {1} being ignored".format(self.convert.__doc__, self.limit)
+        return "'{0}' with anything over the length of {1} being ignored".format(
+            self.convert.__doc__, self.limit
+        )
 
     def __call__(self, value):
-        return self.convert(value)[:self.limit]
+        return self.convert(value)[: self.limit]
 
 
 class Chain(Type):
     """type for chaining multiple types together"""
-    __slots__ = ('types', )
+
+    __slots__ = ("types",)
 
     def __init__(self, *types):
         self.types = types
@@ -512,7 +577,8 @@ class Chain(Type):
 
 class Nullable(Chain):
     """A Chain types that Allows None values"""
-    __slots__ = ('types', )
+
+    __slots__ = ("types",)
 
     def __init__(self, *types):
         self.types = types
@@ -526,7 +592,8 @@ class Nullable(Chain):
 
 class TypedProperty(object):
     """class for building property objects for schema objects"""
-    __slots__ = ('name', 'type_func')
+
+    __slots__ = ("name", "type_func")
 
     def __init__(self, name, type_func):
         self.name = "_" + name
@@ -544,10 +611,15 @@ class TypedProperty(object):
 
 class NewTypeMeta(type):
     """Meta class to turn Schema objects into format usable by hug"""
+
     __slots__ = ()
 
     def __init__(cls, name, bases, nmspc):
-        cls._types = {attr: getattr(cls, attr) for attr in dir(cls) if getattr(getattr(cls, attr), "_hug_type", False)}
+        cls._types = {
+            attr: getattr(cls, attr)
+            for attr in dir(cls)
+            if getattr(getattr(cls, attr), "_hug_type", False)
+        }
         slots = getattr(cls, "__slots__", ())
         slots = set(slots)
         for attr, type_func in cls._types.items():
@@ -561,6 +633,7 @@ class NewTypeMeta(type):
 
 class Schema(object, metaclass=NewTypeMeta):
     """Schema for creating complex types using hug types"""
+
     __slots__ = ()
 
     def __new__(cls, json, *args, **kwargs):
@@ -576,12 +649,14 @@ class Schema(object, metaclass=NewTypeMeta):
                     key = "_" + key
                 setattr(self, key, value)
 
+
 json = JSON()
 
 
 class MarshmallowInputSchema(Type):
     """Allows using a Marshmallow Schema directly in a hug input type annotation"""
-    __slots__ = ("schema")
+
+    __slots__ = "schema"
 
     def __init__(self, schema):
         self.schema = schema
@@ -597,22 +672,29 @@ class MarshmallowInputSchema(Type):
         # In marshmallow 3 schemas always raise Validation error on load if input data is invalid and a single
         # value `data` is returned.
         if MARSHMALLOW_MAJOR_VERSION is None or MARSHMALLOW_MAJOR_VERSION == 2:
-            value, errors = self.schema.loads(value) if isinstance(value, str) else self.schema.load(value)
+            value, errors = (
+                self.schema.loads(value) if isinstance(value, str) else self.schema.load(value)
+            )
         else:
             errors = {}
             try:
-                value = self.schema.loads(value) if isinstance(value, str) else self.schema.load(value)
+                value = (
+                    self.schema.loads(value) if isinstance(value, str) else self.schema.load(value)
+                )
             except ValidationError as e:
                 errors = e.messages
 
         if errors:
-            raise InvalidTypeData('Invalid {0} passed in'.format(self.schema.__class__.__name__), errors)
+            raise InvalidTypeData(
+                "Invalid {0} passed in".format(self.schema.__class__.__name__), errors
+            )
         return value
 
 
 class MarshmallowReturnSchema(Type):
     """Allows using a Marshmallow Schema directly in a hug return type annotation"""
-    __slots__ = ("schema", )
+
+    __slots__ = ("schema",)
 
     def __init__(self, schema):
         self.schema = schema
@@ -644,9 +726,10 @@ class MarshmallowReturnSchema(Type):
                 errors = e.messages
 
         if errors:
-            raise InvalidTypeData('Invalid {0} passed in'.format(self.schema.__class__.__name__), errors)
+            raise InvalidTypeData(
+                "Invalid {0} passed in".format(self.schema.__class__.__name__), errors
+            )
         return value
-
 
 
 multiple = Multiple()

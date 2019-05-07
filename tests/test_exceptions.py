@@ -26,19 +26,19 @@ import hug
 
 def test_invalid_type_data():
     try:
-        raise hug.exceptions.InvalidTypeData('not a good type')
+        raise hug.exceptions.InvalidTypeData("not a good type")
     except hug.exceptions.InvalidTypeData as exception:
         error = exception
 
-    assert error.message == 'not a good type'
+    assert error.message == "not a good type"
     assert error.reasons is None
 
     try:
-        raise hug.exceptions.InvalidTypeData('not a good type', [1, 2, 3])
+        raise hug.exceptions.InvalidTypeData("not a good type", [1, 2, 3])
     except hug.exceptions.InvalidTypeData as exception:
         error = exception
 
-    assert error.message == 'not a good type'
+    assert error.message == "not a good type"
     assert error.reasons == [1, 2, 3]
 
     with pytest.raises(Exception):

@@ -22,15 +22,17 @@ from marshmallow import fields
 from marshmallow.validate import Range, OneOf
 
 
-@hug.get('/dateadd', examples="value=1973-04-10&addend=63")
-def dateadd(value: fields.DateTime(),
-            addend: fields.Int(validate=Range(min=1)),
-            unit: fields.Str(validate=OneOf(['minutes', 'days']))='days'):
+@hug.get("/dateadd", examples="value=1973-04-10&addend=63")
+def dateadd(
+    value: fields.DateTime(),
+    addend: fields.Int(validate=Range(min=1)),
+    unit: fields.Str(validate=OneOf(["minutes", "days"])) = "days",
+):
     """Add a value to a date."""
     value = value or dt.datetime.utcnow()
-    if unit == 'minutes':
+    if unit == "minutes":
         delta = dt.timedelta(minutes=addend)
     else:
         delta = dt.timedelta(days=addend)
     result = value + delta
-    return {'result': result}
+    return {"result": result}

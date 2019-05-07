@@ -31,14 +31,14 @@ from hug.format import content_type, underscore
 from hug.json_module import json as json_converter
 
 
-@content_type('text/plain')
-def text(body, charset='utf-8', **kwargs):
+@content_type("text/plain")
+def text(body, charset="utf-8", **kwargs):
     """Takes plain text data"""
     return body.read().decode(charset)
 
 
-@content_type('application/json')
-def json(body, charset='utf-8', **kwargs):
+@content_type("application/json")
+def json(body, charset="utf-8", **kwargs):
     """Takes JSON formatted data, converting it into native Python objects"""
     return json_converter.loads(text(body, charset=charset))
 
@@ -54,7 +54,7 @@ def _underscore_dict(dictionary):
     return new_dictionary
 
 
-def json_underscore(body, charset='utf-8', **kwargs):
+def json_underscore(body, charset="utf-8", **kwargs):
     """Converts JSON formatted date to native Python objects.
 
     The keys in any JSON dict are transformed from camelcase to underscore separated words.
@@ -62,21 +62,21 @@ def json_underscore(body, charset='utf-8', **kwargs):
     return _underscore_dict(json(body, charset=charset))
 
 
-@content_type('application/x-www-form-urlencoded')
-def urlencoded(body, charset='ascii', **kwargs):
+@content_type("application/x-www-form-urlencoded")
+def urlencoded(body, charset="ascii", **kwargs):
     """Converts query strings into native Python objects"""
     return parse_query_string(text(body, charset=charset), False)
 
 
-@content_type('multipart/form-data')
+@content_type("multipart/form-data")
 def multipart(body, content_length=0, **header_params):
     """Converts multipart form data into native Python objects"""
-    header_params.setdefault('CONTENT-LENGTH', content_length)
-    if header_params and 'boundary' in header_params:
-        if type(header_params['boundary']) is str:
-            header_params['boundary'] = header_params['boundary'].encode()
+    header_params.setdefault("CONTENT-LENGTH", content_length)
+    if header_params and "boundary" in header_params:
+        if type(header_params["boundary"]) is str:
+            header_params["boundary"] = header_params["boundary"].encode()
 
-    form = parse_multipart((body.stream if hasattr(body, 'stream') else body), header_params)
+    form = parse_multipart((body.stream if hasattr(body, "stream") else body), header_params)
     for key, value in form.items():
         if type(value) is list and len(value) is 1:
             form[key] = value[0]

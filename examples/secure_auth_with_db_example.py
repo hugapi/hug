@@ -7,7 +7,7 @@ import os
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-db = TinyDB('db.json')
+db = TinyDB("db.json")
 
 """
   Helper Methods
@@ -21,8 +21,8 @@ def hash_password(password, salt):
     :param salt:
     :return: Hex encoded SHA512 hash of provided password
     """
-    password = str(password).encode('utf-8')
-    salt = str(salt).encode('utf-8')
+    password = str(password).encode("utf-8")
+    salt = str(salt).encode("utf-8")
     return hashlib.sha512(password + salt).hexdigest()
 
 
@@ -32,7 +32,7 @@ def gen_api_key(username):
     :param username:
     :return: Hex encoded SHA512 random string
     """
-    salt = str(os.urandom(64)).encode('utf-8')
+    salt = str(os.urandom(64)).encode("utf-8")
     return hash_password(username, salt)
 
 
@@ -51,8 +51,8 @@ def authenticate_user(username, password):
         logger.warning("User %s not found", username)
         return False
 
-    if user['password'] == hash_password(password, user.get('salt')):
-        return user['username']
+    if user["password"] == hash_password(password, user.get("salt")):
+        return user["username"]
 
     return False
 
@@ -67,8 +67,9 @@ def authenticate_key(api_key):
     user_model = Query()
     user = db.search(user_model.api_key == api_key)[0]
     if user:
-        return user['username']
+        return user["username"]
     return False
+
 
 """
   API Methods start here
@@ -89,30 +90,19 @@ def add_user(username, password):
 
     user_model = Query()
     if db.search(user_model.username == username):
-        return {
-            'error': 'User {0} already exists'.format(username)
-        }
+        return {"error": "User {0} already exists".format(username)}
 
-    salt = hashlib.sha512(str(os.urandom(64)).encode('utf-8')).hexdigest()
+    salt = hashlib.sha512(str(os.urandom(64)).encode("utf-8")).hexdigest()
     password = hash_password(password, salt)
     api_key = gen_api_key(username)
 
-    user = {
-        'username': username,
-        'password': password,
-        'salt': salt,
-        'api_key': api_key
-    }
+    user = {"username": username, "password": password, "salt": salt, "api_key": api_key}
     user_id = db.insert(user)
 
-    return {
-       'result': 'success',
-       'eid': user_id,
-       'user_created': user
-    }
+    return {"result": "success", "eid": user_id, "user_created": user}
 
 
-@hug.get('/api/get_api_key', requires=basic_authentication)
+@hug.get("/api/get_api_key", requires=basic_authentication)
 def get_token(authed_user: hug.directives.user):
     """
     Get Job details
@@ -123,34 +113,26 @@ def get_token(authed_user: hug.directives.user):
     user = db.search(user_model.username == authed_user)[0]
 
     if user:
-        out = {
-            'user': user['username'],
-            'api_key': user['api_key']
-        }
+        out = {"user": user["username"], "api_key": user["api_key"]}
     else:
         # this should never happen
-        out = {
-            'error': 'User {0} does not exist'.format(authed_user)
-        }
+        out = {"error": "User {0} does not exist".format(authed_user)}
 
     return out
 
 
 # Same thing, but authenticating against an API key
-@hug.get(('/api/job', '/api/job/{job_id}/'), requires=api_key_authentication)
+@hug.get(("/api/job", "/api/job/{job_id}/"), requires=api_key_authentication)
 def get_job_details(job_id):
     """
     Get Job details
     :param job_id:
     :return:
     """
-    job = {
-        'job_id': job_id,
-        'details': 'Details go here'
-    }
+    job = {"job_id": job_id, "details": "Details go here"}
 
     return job
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     add_user.interface.cli()

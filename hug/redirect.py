@@ -26,7 +26,7 @@ import falcon
 
 def to(location, code=falcon.HTTP_302):
     """Redirects to the specified location using the provided http_code (defaults to HTTP_302 FOUND)"""
-    raise falcon.http_status.HTTPStatus(code, {'location': location})
+    raise falcon.http_status.HTTPStatus(code, {"location": location})
 
 
 def permanent(location):
