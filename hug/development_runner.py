@@ -77,7 +77,7 @@ def hug(
             sys.exit(1)
 
         sys.argv[1:] = sys.argv[
-            (sys.argv.index("-c") if "-c" in sys.argv else sys.argv.index("--command")) + 2 :
+            (sys.argv.index("-c") if "-c" in sys.argv else sys.argv.index("--command")) + 2:
         ]
         api.cli.commands[command]()
         return

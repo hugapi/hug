@@ -398,7 +398,7 @@ class Multi(Type):
         for type_method in self.types:
             try:
                 return type_method(value)
-            except:
+            except BaseException:
                 pass
         raise ValueError(self.__doc__)
 
