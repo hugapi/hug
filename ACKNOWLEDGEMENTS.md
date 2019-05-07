@@ -1,6 +1,9 @@
-Original Creator & Maintainer
+Core Developers
 ===================
 - Timothy Edmund Crosley (@timothycrosley)
+- Brandon Hoffman (@BrandonHoffman)
+- Jason Tyler (@jay-tyler)
+- Fabian Kochem (@vortec)
 
 Notable Bug Reporters
 ===================
@@ -13,8 +16,6 @@ Notable Bug Reporters
 
 Code Contributors
 ===================
-- Brandon Hoffman (@BrandonHoffman)
-- Fabian Kochem (@vortec)
 - Kostas Dizas (@kostasdizas)
 - Ali-Akber Saifee (@alisaifee)
 - @arpesenti
