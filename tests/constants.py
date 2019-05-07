@@ -23,4 +23,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 import os
 
 TEST_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-BASE_DIRECTORY = os.path.realpath(os.path.join(TEST_DIRECTORY, '..'))
+BASE_DIRECTORY = os.path.realpath(os.path.join(TEST_DIRECTORY, ".."))

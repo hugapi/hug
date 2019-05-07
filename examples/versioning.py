@@ -2,21 +2,21 @@
 import hug
 
 
-@hug.get('/echo', versions=1)
+@hug.get("/echo", versions=1)
 def echo(text):
     return text
 
 
-@hug.get('/echo', versions=range(2, 5))  # noqa
+@hug.get("/echo", versions=range(2, 5))  # noqa
 def echo(text):
-    return 'Echo: {text}'.format(**locals())
+    return "Echo: {text}".format(**locals())
 
 
-@hug.get('/unversioned')
+@hug.get("/unversioned")
 def hello():
-    return 'Hello world!'
+    return "Hello world!"
 
 
-@hug.get('/echo', versions='6')
+@hug.get("/echo", versions="6")
 def echo(text):
-    return 'Version 6'
+    return "Version 6"

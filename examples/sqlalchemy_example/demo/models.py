@@ -5,13 +5,15 @@ from demo.base import Base
 
 
 class TestModel(Base):
-    __tablename__ = 'test_model'
+    __tablename__ = "test_model"
     id = Column(Integer, primary_key=True)
     name = Column(String)
 
 
 class TestUser(Base):
-    __tablename__ = 'test_user'
+    __tablename__ = "test_user"
     id = Column(Integer, primary_key=True)
     username = Column(String)
-    password = Column(String)  # do not store plain password in the database, hash it, see porridge for example
+    password = Column(
+        String
+    )  # do not store plain password in the database, hash it, see porridge for example

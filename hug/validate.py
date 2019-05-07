@@ -24,6 +24,7 @@ from __future__ import absolute_import
 
 def all(*validators):
     """Validation only succeeds if all passed in validators return no errors"""
+
     def validate_all(fields):
         for validator in validators:
             errors = validator(fields)
@@ -36,6 +37,7 @@ def all(*validators):
 
 def any(*validators):
     """If any of the specified validators pass the validation succeeds"""
+
     def validate_any(fields):
         errors = {}
         for validator in validators:
@@ -51,7 +53,7 @@ def any(*validators):
 
 def contains_one_of(*fields):
     """Enables ensuring that one of multiple optional fields is set"""
-    message = 'Must contain any one of the following fields: {0}'.format(', '.join(fields))
+    message = "Must contain any one of the following fields: {0}".format(", ".join(fields))
 
     def check_contains(endpoint_fields):
         for field in fields:
@@ -60,7 +62,8 @@ def contains_one_of(*fields):
 
         errors = {}
         for field in fields:
-            errors[field] = 'one of these must have a value'
+            errors[field] = "one of these must have a value"
         return errors
+
     check_contains.__doc__ = message
     return check_contains

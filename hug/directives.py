@@ -39,7 +39,8 @@ def _built_in_directive(directive):
 @_built_in_directive
 class Timer(object):
     """Keeps track of time surpased since instantiation, outputed by doing float(instance)"""
-    __slots__ = ('start', 'round_to')
+
+    __slots__ = ("start", "round_to")
 
     def __init__(self, round_to=None, **kwargs):
         self.start = python_timer()
@@ -89,7 +90,7 @@ def documentation(default=None, api_version=None, api=None, **kwargs):
 
 
 @_built_in_directive
-def session(context_name='session', request=None, **kwargs):
+def session(context_name="session", request=None, **kwargs):
     """Returns the session associated with the current request"""
     return request and request.context.get(context_name, None)
 
@@ -97,20 +98,21 @@ def session(context_name='session', request=None, **kwargs):
 @_built_in_directive
 def user(default=None, request=None, **kwargs):
     """Returns the current logged in user"""
-    return request and request.context.get('user', None) or default
+    return request and request.context.get("user", None) or default
 
 
 @_built_in_directive
-def cors(support='*', response=None, **kwargs):
+def cors(support="*", response=None, **kwargs):
     """Adds the the Access-Control-Allow-Origin header to this endpoint, with the specified support"""
-    response and response.set_header('Access-Control-Allow-Origin', support)
+    response and response.set_header("Access-Control-Allow-Origin", support)
     return support
 
 
 @_built_in_directive
 class CurrentAPI(object):
     """Returns quick access to all api functions on the current version of the api"""
-    __slots__ = ('api_version', 'api')
+
+    __slots__ = ("api_version", "api")
 
     def __init__(self, default=None, api_version=None, **kwargs):
         self.api_version = api_version
@@ -121,12 +123,12 @@ class CurrentAPI(object):
         if not function:
             function = self.api.http.versioned.get(None, {}).get(name, None)
         if not function:
-            raise AttributeError('API Function {0} not found'.format(name))
+            raise AttributeError("API Function {0} not found".format(name))
 
         accepts = function.interface.arguments
-        if 'hug_api_version' in accepts:
+        if "hug_api_version" in accepts:
             function = partial(function, hug_api_version=self.api_version)
-        if 'hug_current_api' in accepts:
+        if "hug_current_api" in accepts:
             function = partial(function, hug_current_api=self)
 
         return function

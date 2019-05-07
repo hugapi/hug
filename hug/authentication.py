@@ -33,7 +33,7 @@ def authenticator(function, challenges=()):
     The verify_user function passed in should accept an API key and return a user object to
     store in the request context if authentication succeeded.
     """
-    challenges = challenges or ('{} realm="simple"'.format(function.__name__), )
+    challenges = challenges or ('{} realm="simple"'.format(function.__name__),)
 
     def wrapper(verify_user):
         def authenticate(request, response, **kwargs):
@@ -46,16 +46,20 @@ def authenticator(function, challenges=()):
                     return function.__name__
 
             if result is None:
-                raise HTTPUnauthorized('Authentication Required',
-                                       'Please provide valid {0} credentials'.format(authenticator_name()),
-                                       challenges=challenges)
+                raise HTTPUnauthorized(
+                    "Authentication Required",
+                    "Please provide valid {0} credentials".format(authenticator_name()),
+                    challenges=challenges,
+                )
 
             if result is False:
-                raise HTTPUnauthorized('Invalid Authentication',
-                                       'Provided {0} credentials were invalid'.format(authenticator_name()),
-                                       challenges=challenges)
+                raise HTTPUnauthorized(
+                    "Invalid Authentication",
+                    "Provided {0} credentials were invalid".format(authenticator_name()),
+                    challenges=challenges,
+                )
 
-            request.context['user'] = result
+            request.context["user"] = result
             return True
 
         authenticate.__doc__ = function.__doc__
@@ -65,36 +69,42 @@ def authenticator(function, challenges=()):
 
 
 @authenticator
-def basic(request, response, verify_user, realm='simple', context=None, **kwargs):
+def basic(request, response, verify_user, realm="simple", context=None, **kwargs):
     """Basic HTTP Authentication"""
     http_auth = request.auth
-    response.set_header('WWW-Authenticate', 'Basic')
+    response.set_header("WWW-Authenticate", "Basic")
     if http_auth is None:
         return
 
     if isinstance(http_auth, bytes):
-        http_auth = http_auth.decode('utf8')
+        http_auth = http_auth.decode("utf8")
     try:
-        auth_type, user_and_key = http_auth.split(' ', 1)
+        auth_type, user_and_key = http_auth.split(" ", 1)
     except ValueError:
-        raise HTTPUnauthorized('Authentication Error',
-                               'Authentication header is improperly formed',
-                               challenges=('Basic realm="{}"'.format(realm), ))
+        raise HTTPUnauthorized(
+            "Authentication Error",
+            "Authentication header is improperly formed",
+            challenges=('Basic realm="{}"'.format(realm),),
+        )
 
-    if auth_type.lower() == 'basic':
+    if auth_type.lower() == "basic":
         try:
-            user_id, key = base64.decodebytes(bytes(user_and_key.strip(), 'utf8')).decode('utf8').split(':', 1)
+            user_id, key = (
+                base64.decodebytes(bytes(user_and_key.strip(), "utf8")).decode("utf8").split(":", 1)
+            )
             try:
                 user = verify_user(user_id, key)
             except TypeError:
                 user = verify_user(user_id, key, context)
             if user:
-                response.set_header('WWW-Authenticate', '')
+                response.set_header("WWW-Authenticate", "")
                 return user
         except (binascii.Error, ValueError):
-            raise HTTPUnauthorized('Authentication Error',
-                                   'Unable to determine user and password with provided encoding',
-                                   challenges=('Basic realm="{}"'.format(realm), ))
+            raise HTTPUnauthorized(
+                "Authentication Error",
+                "Unable to determine user and password with provided encoding",
+                challenges=('Basic realm="{}"'.format(realm),),
+            )
     return False
 
 
@@ -106,7 +116,7 @@ def api_key(request, response, verify_user, context=None, **kwargs):
     API key as input, and return a user object to store in the request context
     if the request was successful.
     """
-    api_key = request.get_header('X-Api-Key')
+    api_key = request.get_header("X-Api-Key")
 
     if api_key:
         try:
@@ -127,7 +137,7 @@ def token(request, response, verify_user, context=None, **kwargs):
 
     Checks for the Authorization header and verifies using the verify_user function
     """
-    token = request.get_header('Authorization')
+    token = request.get_header("Authorization")
     if token:
         try:
             verified_token = verify_user(token)
@@ -142,8 +152,10 @@ def token(request, response, verify_user, context=None, **kwargs):
 
 def verify(user, password):
     """Returns a simple verification callback that simply verifies that the users and password match that provided"""
+
     def verify_user(user_name, user_password):
         if user_name == user and user_password == password:
             return user_name
         return False
+
     return verify_user

@@ -19,7 +19,7 @@ def delete_context(context: SqlalchemyContext, exception=None, errors=None, lack
 
 @hug.local(skip_directives=False)
 def initialize(db: SqlalchemySession):
-    admin = TestUser(username='admin', password='admin')
+    admin = TestUser(username="admin", password="admin")
     db.add(admin)
     db.flush()
 

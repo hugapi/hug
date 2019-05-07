@@ -39,11 +39,31 @@ class SessionMiddleware(object):
     The name of the context key can be set via the 'context_name' argument.
     The cookie arguments are the same as for falcons set_cookie() function, just prefixed with 'cookie_'.
     """
-    __slots__ = ('store', 'context_name', 'cookie_name', 'cookie_expires', 'cookie_max_age', 'cookie_domain',
-                 'cookie_path', 'cookie_secure', 'cookie_http_only')
 
-    def __init__(self, store, context_name='session', cookie_name='sid', cookie_expires=None, cookie_max_age=None,
-                 cookie_domain=None, cookie_path=None, cookie_secure=True, cookie_http_only=True):
+    __slots__ = (
+        "store",
+        "context_name",
+        "cookie_name",
+        "cookie_expires",
+        "cookie_max_age",
+        "cookie_domain",
+        "cookie_path",
+        "cookie_secure",
+        "cookie_http_only",
+    )
+
+    def __init__(
+        self,
+        store,
+        context_name="session",
+        cookie_name="sid",
+        cookie_expires=None,
+        cookie_max_age=None,
+        cookie_domain=None,
+        cookie_path=None,
+        cookie_secure=True,
+        cookie_http_only=True,
+    ):
         self.store = store
         self.context_name = context_name
         self.cookie_name = cookie_name
@@ -76,29 +96,47 @@ class SessionMiddleware(object):
             sid = self.generate_sid()
 
         self.store.set(sid, request.context.get(self.context_name, {}))
-        response.set_cookie(self.cookie_name, sid, expires=self.cookie_expires, max_age=self.cookie_max_age,
-                            domain=self.cookie_domain, path=self.cookie_path, secure=self.cookie_secure,
-                            http_only=self.cookie_http_only)
+        response.set_cookie(
+            self.cookie_name,
+            sid,
+            expires=self.cookie_expires,
+            max_age=self.cookie_max_age,
+            domain=self.cookie_domain,
+            path=self.cookie_path,
+            secure=self.cookie_secure,
+            http_only=self.cookie_http_only,
+        )
 
 
 class LogMiddleware(object):
     """A middleware that logs all incoming requests and outgoing responses that make their way through the API"""
-    __slots__ = ('logger', )
+
+    __slots__ = ("logger",)
 
     def __init__(self, logger=None):
-        self.logger = logger if logger is not None else logging.getLogger('hug')
+        self.logger = logger if logger is not None else logging.getLogger("hug")
 
     def _generate_combined_log(self, request, response):
         """Given a request/response pair, generate a logging format similar to the NGINX combined style."""
         current_time = datetime.utcnow()
-        data_len = '-' if response.data is None else len(response.data)
-        return '{0} - - [{1}] {2} {3} {4} {5} {6}'.format(request.remote_addr, current_time, request.method,
-                                                        request.relative_uri, response.status,
-                                                        data_len, request.user_agent)
+        data_len = "-" if response.data is None else len(response.data)
+        return "{0} - - [{1}] {2} {3} {4} {5} {6}".format(
+            request.remote_addr,
+            current_time,
+            request.method,
+            request.relative_uri,
+            response.status,
+            data_len,
+            request.user_agent,
+        )
 
     def process_request(self, request, response):
         """Logs the basic endpoint requested"""
-        self.logger.info('Requested: {0} {1} {2}'.format(request.method, request.relative_uri, request.content_type))
+        self.logger.info(
+            "Requested: {0} {1} {2}".format(
+                request.method, request.relative_uri, request.content_type
+            )
+        )
 
     def process_response(self, request, response, resource, req_succeeded):
         """Logs the basic data returned by the API"""
@@ -111,9 +149,12 @@ class CORSMiddleware(object):
     Adds appropriate Access-Control-* headers to the HTTP responses returned from the hug API,
     especially for HTTP OPTIONS responses used in CORS preflighting.
     """
-    __slots__ = ('api', 'allow_origins', 'allow_credentials', 'max_age')
 
-    def __init__(self, api, allow_origins: list=['*'], allow_credentials: bool=True, max_age: int=None):
+    __slots__ = ("api", "allow_origins", "allow_credentials", "max_age")
+
+    def __init__(
+        self, api, allow_origins: list = ["*"], allow_credentials: bool = True, max_age: int = None
+    ):
         self.api = api
         self.allow_origins = allow_origins
         self.allow_credentials = allow_credentials
@@ -125,38 +166,38 @@ class CORSMiddleware(object):
         routes = [route for route, _ in route_dicts.items()]
         if reqpath not in routes:
             for route in routes:  # replace params in route with regex
-                reqpath = re.sub('^(/v\d*/?)', '/', reqpath)
-                base_url = getattr(self.api.http, 'base_url', '')
-                reqpath = reqpath.replace(base_url, '', 1) if base_url else reqpath
-                if re.match(re.sub(r'/{[^{}]+}', r'/[\\w-]+', route) + '$', reqpath):
+                reqpath = re.sub("^(/v\d*/?)", "/", reqpath)
+                base_url = getattr(self.api.http, "base_url", "")
+                reqpath = reqpath.replace(base_url, "", 1) if base_url else reqpath
+                if re.match(re.sub(r"/{[^{}]+}", r"/[\\w-]+", route) + "$", reqpath):
                     return route
 
         return reqpath
 
     def process_response(self, request, response, resource, req_succeeded):
         """Add CORS headers to the response"""
-        response.set_header('Access-Control-Allow-Credentials', str(self.allow_credentials).lower())
+        response.set_header("Access-Control-Allow-Credentials", str(self.allow_credentials).lower())
 
-        origin = request.get_header('ORIGIN')
-        if origin and (origin in self.allow_origins) or ('*' in self.allow_origins):
-            response.set_header('Access-Control-Allow-Origin', origin)
+        origin = request.get_header("ORIGIN")
+        if origin and (origin in self.allow_origins) or ("*" in self.allow_origins):
+            response.set_header("Access-Control-Allow-Origin", origin)
 
-        if request.method == 'OPTIONS': # check if we are handling a preflight request
+        if request.method == "OPTIONS":  # check if we are handling a preflight request
             allowed_methods = set(
                 method
                 for _, routes in self.api.http.routes.items()
                 for method, _ in routes[self.match_route(request.path)].items()
             )
-            allowed_methods.add('OPTIONS')
+            allowed_methods.add("OPTIONS")
 
             # return allowed methods
-            response.set_header('Access-Control-Allow-Methods', ', '.join(allowed_methods))
-            response.set_header('Allow', ', '.join(allowed_methods))
+            response.set_header("Access-Control-Allow-Methods", ", ".join(allowed_methods))
+            response.set_header("Allow", ", ".join(allowed_methods))
 
             # get all requested headers and echo them back
-            requested_headers = request.get_header('Access-Control-Request-Headers')
-            response.set_header('Access-Control-Allow-Headers', requested_headers or '')
+            requested_headers = request.get_header("Access-Control-Request-Headers")
+            response.set_header("Access-Control-Allow-Headers", requested_headers or "")
 
             # return valid caching time
             if self.max_age:
-                response.set_header('Access-Control-Max-Age', self.max_age)
+                response.set_header("Access-Control-Max-Age", self.max_age)

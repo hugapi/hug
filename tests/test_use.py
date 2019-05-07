@@ -32,91 +32,94 @@ from hug import use
 
 class TestService(object):
     """Test to ensure the base Service object works as a base Abstract service runner"""
-    service = use.Service(version=1, timeout=100, raise_on=(500, ))
+
+    service = use.Service(version=1, timeout=100, raise_on=(500,))
 
     def test_init(self):
         """Test to ensure base service instantiation populates expected attributes"""
         assert self.service.version == 1
-        assert self.service.raise_on == (500, )
+        assert self.service.raise_on == (500,)
         assert self.service.timeout == 100
 
     def test_request(self):
         """Test to ensure the abstract service request method raises NotImplementedError to show its abstract nature"""
         with pytest.raises(NotImplementedError):
-            self.service.request('POST', 'endpoint')
+            self.service.request("POST", "endpoint")
 
     def test_get(self):
         """Test to ensure the abstract service get method raises NotImplementedError to show its abstract nature"""
         with pytest.raises(NotImplementedError):
-            self.service.get('endpoint')
+            self.service.get("endpoint")
 
     def test_post(self):
         """Test to ensure the abstract service post method raises NotImplementedError to show its abstract nature"""
         with pytest.raises(NotImplementedError):
-            self.service.post('endpoint')
+            self.service.post("endpoint")
 
     def test_delete(self):
         """Test to ensure the abstract service delete method raises NotImplementedError to show its abstract nature"""
         with pytest.raises(NotImplementedError):
-            self.service.delete('endpoint')
+            self.service.delete("endpoint")
 
     def test_put(self):
         """Test to ensure the abstract service put method raises NotImplementedError to show its abstract nature"""
         with pytest.raises(NotImplementedError):
-            self.service.put('endpoint')
+            self.service.put("endpoint")
 
     def test_trace(self):
         """Test to ensure the abstract service trace method raises NotImplementedError to show its abstract nature"""
         with pytest.raises(NotImplementedError):
-            self.service.trace('endpoint')
+            self.service.trace("endpoint")
 
     def test_patch(self):
         """Test to ensure the abstract service patch method raises NotImplementedError to show its abstract nature"""
         with pytest.raises(NotImplementedError):
-            self.service.patch('endpoint')
+            self.service.patch("endpoint")
 
     def test_options(self):
         """Test to ensure the abstract service options method raises NotImplementedError to show its abstract nature"""
         with pytest.raises(NotImplementedError):
-            self.service.options('endpoint')
+            self.service.options("endpoint")
 
     def test_head(self):
         """Test to ensure the abstract service head method raises NotImplementedError to show its abstract nature"""
         with pytest.raises(NotImplementedError):
-            self.service.head('endpoint')
+            self.service.head("endpoint")
 
     def test_connect(self):
         """Test to ensure the abstract service connect method raises NotImplementedError to show its abstract nature"""
         with pytest.raises(NotImplementedError):
-            self.service.connect('endpoint')
+            self.service.connect("endpoint")
 
 
 class TestHTTP(object):
     """Test to ensure the HTTP Service object enables pulling data from external HTTP services"""
-    service = use.HTTP('http://www.google.com/', raise_on=(404, 400))
-    url_service = use.HTTP('http://www.google.com/', raise_on=(404, 400), json_transport=False)
+
+    service = use.HTTP("http://www.google.com/", raise_on=(404, 400))
+    url_service = use.HTTP("http://www.google.com/", raise_on=(404, 400), json_transport=False)
 
     def test_init(self):
         """Test to ensure HTTP service instantiation populates expected attributes"""
-        assert self.service.endpoint == 'http://www.google.com/'
+        assert self.service.endpoint == "http://www.google.com/"
         assert self.service.raise_on == (404, 400)
 
     @pytest.mark.extnetwork
     def test_request(self):
         """Test so ensure the HTTP service can successfully be used to pull data from an external service"""
-        response = self.url_service.request('GET', 'search', query='api')
+        response = self.url_service.request("GET", "search", query="api")
         assert response
         assert response.data
 
         with pytest.raises(requests.HTTPError):
-            response = self.service.request('GET', 'search', query='api')
+            response = self.service.request("GET", "search", query="api")
 
         with pytest.raises(requests.HTTPError):
-            self.url_service.request('GET', 'not_found', query='api')
+            self.url_service.request("GET", "not_found", query="api")
 
 
 class TestLocal(object):
     """Test to ensure the Local Service object enables pulling data from internal hug APIs with minimal overhead"""
+
     service = use.Local(__name__)
 
     def test_init(self):
@@ -125,23 +128,24 @@ class TestLocal(object):
 
     def test_request(self):
         """Test to ensure requesting data from a local service works as expected"""
-        assert self.service.get('hello_world').data == 'Hi!'
-        assert self.service.get('not_there').status_code == 404
-        assert self.service.get('validation_error').status_code == 400
+        assert self.service.get("hello_world").data == "Hi!"
+        assert self.service.get("not_there").status_code == 404
+        assert self.service.get("validation_error").status_code == 400
 
         self.service.raise_on = (404, 500)
         with pytest.raises(requests.HTTPError):
-            assert self.service.get('not_there')
+            assert self.service.get("not_there")
 
         with pytest.raises(requests.HTTPError):
-            assert self.service.get('exception')
+            assert self.service.get("exception")
 
 
 class TestSocket(object):
     """Test to ensure the Socket Service object enables sending/receiving data from arbitrary server/port sockets"""
-    on_unix = getattr(socket, 'AF_UNIX', False)
-    tcp_service = use.Socket(connect_to=('www.google.com', 80), proto='tcp', timeout=60)
-    udp_service = use.Socket(connect_to=('8.8.8.8', 53), proto='udp', timeout=60)
+
+    on_unix = getattr(socket, "AF_UNIX", False)
+    tcp_service = use.Socket(connect_to=("www.google.com", 80), proto="tcp", timeout=60)
+    udp_service = use.Socket(connect_to=("8.8.8.8", 53), proto="udp", timeout=60)
 
     def test_init(self):
         """Test to ensure the Socket service instantiation populates the expected attributes"""
@@ -149,38 +153,38 @@ class TestSocket(object):
 
     def test_protocols(self):
         """Test to ensure all supported protocols are present"""
-        protocols = sorted(['tcp', 'udp', 'unix_stream', 'unix_dgram'])
+        protocols = sorted(["tcp", "udp", "unix_stream", "unix_dgram"])
         if self.on_unix:
             assert sorted(self.tcp_service.protocols) == protocols
         else:
-            protocols.remove('unix_stream')
-            protocols.remove('unix_dgram')
+            protocols.remove("unix_stream")
+            protocols.remove("unix_dgram")
             assert sorted(self.tcp_service.protocols) == protocols
 
     def test_streams(self):
         if self.on_unix:
-            assert set(self.tcp_service.streams) == set(('tcp', 'unix_stream', ))
+            assert set(self.tcp_service.streams) == set(("tcp", "unix_stream"))
         else:
-            assert set(self.tcp_service.streams) == set(('tcp', ))
+            assert set(self.tcp_service.streams) == set(("tcp",))
 
     def test_datagrams(self):
         if self.on_unix:
-            assert set(self.tcp_service.datagrams) == set(('udp', 'unix_dgram', ))
+            assert set(self.tcp_service.datagrams) == set(("udp", "unix_dgram"))
         else:
-            assert set(self.tcp_service.datagrams) == set(('udp', ))
+            assert set(self.tcp_service.datagrams) == set(("udp",))
 
     def test_inet(self):
-        assert set(self.tcp_service.inet) == set(('tcp', 'udp', ))
+        assert set(self.tcp_service.inet) == set(("tcp", "udp"))
 
     def test_unix(self):
         if self.on_unix:
-            assert set(self.tcp_service.unix) == set(('unix_stream', 'unix_dgram', ))
+            assert set(self.tcp_service.unix) == set(("unix_stream", "unix_dgram"))
         else:
             assert set(self.tcp_service.unix) == set()
 
     def test_connection(self):
-        assert self.tcp_service.connection.connect_to == ('www.google.com', 80)
-        assert self.tcp_service.connection.proto == 'tcp'
+        assert self.tcp_service.connection.connect_to == ("www.google.com", 80)
+        assert self.tcp_service.connection.proto == "tcp"
         assert set(self.tcp_service.connection.sockopts) == set()
 
     def test_settimeout(self):
@@ -193,28 +197,37 @@ class TestSocket(object):
         assert self.tcp_service.connection.sockopts == {(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)}
 
     def test_connection_sockopts_batch(self):
-        self.tcp_service.setsockopt(((socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
-                                 (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)))
-        assert self.tcp_service.connection.sockopts == {(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
-                                                        (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)}
+        self.tcp_service.setsockopt(
+            (
+                (socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
+                (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1),
+            )
+        )
+        assert self.tcp_service.connection.sockopts == {
+            (socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
+            (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1),
+        }
 
     @pytest.mark.extnetwork
     def test_datagram_request(self):
         """Test to ensure requesting data from a socket service works as expected"""
         packet = struct.pack("!HHHHHH", 0x0001, 0x0100, 1, 0, 0, 0)
-        for name in ('www', 'google', 'com'):
+        for name in ("www", "google", "com"):
             header = b"!b"
             header += bytes(str(len(name)), "utf-8") + b"s"
-            query = struct.pack(header, len(name), name.encode('utf-8'))
+            query = struct.pack(header, len(name), name.encode("utf-8"))
             packet = packet + query
 
         dns_query = packet + struct.pack("!bHH", 0, 1, 1)
-        assert len(self.udp_service.request(dns_query.decode("utf-8"), buffer_size=4096).data.read()) > 0
+        assert (
+            len(self.udp_service.request(dns_query.decode("utf-8"), buffer_size=4096).data.read())
+            > 0
+        )
 
 
 @hug.get()
 def hello_world():
-    return 'Hi!'
+    return "Hi!"
 
 
 @hug.get()
