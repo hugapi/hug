@@ -2,12 +2,13 @@
 import hug
 
 
-@hug.get('/happy_birthday', examples="name=HUG&age=1")
+@hug.get("/happy_birthday", examples="name=HUG&age=1")
 def happy_birthday(name, age: hug.types.number):
     """Says happy birthday to a user"""
     return "Happy {age} Birthday {name}!".format(**locals())
 
-@hug.get('/greet/{event}')
+
+@hug.get("/greet/{event}")
 def greet(event: str):
     """Greets appropriately (from http://blog.ketchum.com/how-to-write-10-common-holiday-greetings/)  """
     greetings = "Happy"

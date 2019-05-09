@@ -24,18 +24,13 @@ import pytest
 from hug.exceptions import StoreKeyNotFound
 from hug.store import InMemoryStore
 
-stores_to_test = [
-    InMemoryStore()
-]
+stores_to_test = [InMemoryStore()]
 
 
-@pytest.mark.parametrize('store', stores_to_test)
+@pytest.mark.parametrize("store", stores_to_test)
 def test_stores_generically(store):
-    key = 'test-key'
-    data = {
-        'user': 'foo',
-        'authenticated': False
-    }
+    key = "test-key"
+    data = {"user": "foo", "authenticated": False}
 
     # Key should not exist
     assert not store.exists(key)
@@ -47,7 +42,7 @@ def test_stores_generically(store):
 
     # Expect exception if unknown session key was requested
     with pytest.raises(StoreKeyNotFound):
-        store.get('unknown')
+        store.get("unknown")
 
     # Delete key
     store.delete(key)

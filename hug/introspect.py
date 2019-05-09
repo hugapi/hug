@@ -32,7 +32,7 @@ def is_method(function):
 
 def is_coroutine(function):
     """Returns True if the passed in function is a coroutine"""
-    return function.__code__.co_flags & 0x0080 or getattr(function, '_is_coroutine', False)
+    return function.__code__.co_flags & 0x0080 or getattr(function, "_is_coroutine", False)
 
 
 def name(function):
@@ -42,10 +42,10 @@ def name(function):
 
 def arguments(function, extra_arguments=0):
     """Returns the name of all arguments a function takes"""
-    if not hasattr(function, '__code__'):
+    if not hasattr(function, "__code__"):
         return ()
 
-    return function.__code__.co_varnames[:function.__code__.co_argcount + extra_arguments]
+    return function.__code__.co_varnames[: function.__code__.co_argcount + extra_arguments]
 
 
 def takes_kwargs(function):
@@ -72,7 +72,7 @@ def generate_accepted_kwargs(function, *named_arguments):
     """Dynamically creates a function that when called with dictionary of arguments will produce a kwarg that's
        compatible with the supplied function
     """
-    if hasattr(function, '__code__') and takes_kwargs(function):
+    if hasattr(function, "__code__") and takes_kwargs(function):
         function_takes_kwargs = True
         function_takes_arguments = []
     else:
@@ -85,4 +85,5 @@ def generate_accepted_kwargs(function, *named_arguments):
         elif function_takes_arguments:
             return {key: value for key, value in kwargs.items() if key in function_takes_arguments}
         return {}
+
     return accepted_kwargs

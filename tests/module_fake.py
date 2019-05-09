@@ -12,7 +12,7 @@ def my_directive(default=None, **kwargs):
     return default
 
 
-@hug.default_input_format('application/made-up')
+@hug.default_input_format("application/made-up")
 def made_up_formatter(data):
     """for testing"""
     return data
@@ -36,7 +36,7 @@ def my_directive_global(default=None, **kwargs):
     return default
 
 
-@hug.default_input_format('application/made-up', apply_globally=True)
+@hug.default_input_format("application/made-up", apply_globally=True)
 def made_up_formatter_global(data):
     """for testing"""
     return data
@@ -63,10 +63,10 @@ def on_startup(api):
 @hug.static()
 def static():
     """for testing"""
-    return ('', )
+    return ("",)
 
 
-@hug.sink('/all')
+@hug.sink("/all")
 def sink(path):
     """for testing"""
     return path

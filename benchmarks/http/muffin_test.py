@@ -1,8 +1,8 @@
 import muffin
 
-app = muffin.Application('web')
+app = muffin.Application("web")
 
 
-@app.register('/text')
+@app.register("/text")
 def text(request):
-    return 'Hello, World!'
+    return "Hello, World!"

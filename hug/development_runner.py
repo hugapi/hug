@@ -43,11 +43,17 @@ def _start_api(api_module, host, port, no_404_documentation, show_intro=True):
 
 
 @cli(version=current)
-def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python module that contains a Hug API'=None,
-        host: 'Interface to bind to'='', port: number=8000, no_404_documentation: boolean=False,
-        manual_reload: boolean=False, interval: number=1,
-        command: 'Run a command defined in the given module'=None,
-        silent: boolean=False):
+def hug(
+    file: "A Python file that contains a Hug API" = None,
+    module: "A Python module that contains a Hug API" = None,
+    host: "Interface to bind to" = "",
+    port: number = 8000,
+    no_404_documentation: boolean = False,
+    manual_reload: boolean = False,
+    interval: number = 1,
+    command: "Run a command defined in the given module" = None,
+    silent: boolean = False,
+):
     """Hug API Development Server"""
     api_module = None
     if file and module:
@@ -60,7 +66,7 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
     elif module:
         sys.path.append(os.getcwd())
         api_module = importlib.import_module(module)
-    if not api_module or not hasattr(api_module, '__hug__'):
+    if not api_module or not hasattr(api_module, "__hug__"):
         print("Error: must define a file name or module that contains a Hug API.")
         sys.exit(1)
 
@@ -70,18 +76,23 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
             print(str(api.cli))
             sys.exit(1)
 
-        sys.argv[1:] = sys.argv[(sys.argv.index('-c') if '-c' in sys.argv else sys.argv.index('--command')) + 2:]
+        use_cli_router = slice(
+            start=(sys.argv.index("-c") if "-c" in sys.argv else sys.argv.index("--command")) + 2
+        )
+        sys.argv[1:] = sys.argv[use_cli_router]
         api.cli.commands[command]()
         return
 
     ran = False
     if not manual_reload:
-        thread.start_new_thread(reload_checker, (interval, ))
+        thread.start_new_thread(reload_checker, (interval,))
         while True:
             reload_checker.reloading = False
             time.sleep(1)
             try:
-                _start_api(api_module, host, port, no_404_documentation, False if silent else not ran)
+                _start_api(
+                    api_module, host, port, no_404_documentation, False if silent else not ran
+                )
             except KeyboardInterrupt:
                 if not reload_checker.reloading:
                     sys.exit(1)
@@ -89,10 +100,11 @@ def hug(file: 'A Python file that contains a Hug API'=None, module: 'A Python mo
                 ran = True
                 for name in list(sys.modules.keys()):
                     if name not in INIT_MODULES:
-                        del(sys.modules[name])
+                        del sys.modules[name]
                 if file:
-                    api_module = importlib.machinery.SourceFileLoader(file.split(".")[0],
-                                                                        file).load_module()
+                    api_module = importlib.machinery.SourceFileLoader(
+                        file.split(".")[0], file
+                    ).load_module()
                 elif module:
                     api_module = importlib.import_module(module)
     else:
@@ -104,10 +116,10 @@ def reload_checker(interval):
         changed = False
         files = {}
         for module in list(sys.modules.values()):
-            path = getattr(module, '__file__', '')
+            path = getattr(module, "__file__", "")
             if not path:
                 continue
-            if path[-4:] in ('.pyo', '.pyc'):
+            if path[-4:] in (".pyo", ".pyc"):
                 path = path[:-1]
             if path and exists(path):
                 files[path] = os.stat(path).st_mtime
@@ -115,10 +127,10 @@ def reload_checker(interval):
         while not changed:
             for path, last_modified in files.items():
                 if not exists(path):
-                    print('\n> Reloading due to file removal: {}'.format(path))
+                    print("\n> Reloading due to file removal: {}".format(path))
                     changed = True
                 elif os.stat(path).st_mtime > last_modified:
-                    print('\n> Reloading due to file change: {}'.format(path))
+                    print("\n> Reloading due to file change: {}".format(path))
                     changed = True
 
                 if changed:

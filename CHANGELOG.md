@@ -14,6 +14,7 @@ Changelog
 =========
 ### 2.5.1 hotfix - TBD,
 - Fixed issue #784 - POST requests broken on 2.5.0
+- Optimizations and simplification of async support, taking advantadge of Python3.4 deprecation.
 
 ### 2.5.0 - May 4, 2019
 - Updated to latest Falcon: 2.0.0

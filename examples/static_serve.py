@@ -9,6 +9,7 @@ import hug
 
 tmp_dir_object = None
 
+
 def setup(api=None):
     """Sets up and fills test directory for serving.
 
@@ -28,13 +29,16 @@ def setup(api=None):
 
     # populate directory a with text files
     file_list = [
-            ["hi.txt", """Hi World!"""],
-            ["hi.html", """<strong>Hi World!</strong>"""],
-            ["hello.html", """
+        ["hi.txt", """Hi World!"""],
+        ["hi.html", """<strong>Hi World!</strong>"""],
+        [
+            "hello.html",
+            """
                 <img src='/static/b/smile.png'</img>
                 pop-up
-                <script src='/static/a/hi.js'></script>"""],
-            ["hi.js", """alert('Hi World')""" ]
+                <script src='/static/a/hi.js'></script>""",
+        ],
+        ["hi.js", """alert('Hi World')"""],
     ]
 
     for f in file_list:
@@ -42,16 +46,16 @@ def setup(api=None):
             fo.write(f[1])
 
     # populate directory b with binary file
-    image = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\n\x00\x00\x00\n\x08\x02\x00\x00\x00\x02PX\xea\x00\x00\x006IDAT\x18\xd3c\xfc\xff\xff?\x03n\xc0\xc4\x80\x170100022222\xc2\x85\x90\xb9\x04t3\x92`7\xb2\x15D\xeb\xc6\xe34\xa8n4c\xe1F\x120\x1c\x00\xc6z\x12\x1c\x8cT\xf2\x1e\x00\x00\x00\x00IEND\xaeB`\x82'
+    image = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\n\x00\x00\x00\n\x08\x02\x00\x00\x00\x02PX\xea\x00\x00\x006IDAT\x18\xd3c\xfc\xff\xff?\x03n\xc0\xc4\x80\x170100022222\xc2\x85\x90\xb9\x04t3\x92`7\xb2\x15D\xeb\xc6\xe34\xa8n4c\xe1F\x120\x1c\x00\xc6z\x12\x1c\x8cT\xf2\x1e\x00\x00\x00\x00IEND\xaeB`\x82"
 
     with open(os.path.join(dir_b, "smile.png"), mode="wb") as fo:
-            fo.write(image)
+        fo.write(image)
 
 
-@hug.static('/static')
+@hug.static("/static")
 def my_static_dirs():
     """Returns static directory names to be served."""
     global tmp_dir_object
     if tmp_dir_object == None:
         setup()
-    return(tmp_dir_object.name,)
+    return (tmp_dir_object.name,)

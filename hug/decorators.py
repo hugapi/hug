@@ -38,8 +38,11 @@ from hug import introspect
 from hug.format import underscore
 
 
-def default_output_format(content_type='application/json', apply_globally=False, api=None, cli=False, http=True):
+def default_output_format(
+    content_type="application/json", apply_globally=False, api=None, cli=False, http=True
+):
     """A decorator that allows you to override the default output format for an API"""
+
     def decorator(formatter):
         formatter = hug.output_format.content_type(content_type)(formatter)
         if apply_globally:
@@ -54,11 +57,13 @@ def default_output_format(content_type='application/json', apply_globally=False,
             if cli:
                 apply_to_api.cli.output_format = formatter
         return formatter
+
     return decorator
 
 
-def default_input_format(content_type='application/json', apply_globally=False, api=None):
+def default_input_format(content_type="application/json", apply_globally=False, api=None):
     """A decorator that allows you to override the default output format for an API"""
+
     def decorator(formatter):
         formatter = hug.output_format.content_type(content_type)(formatter)
         if apply_globally:
@@ -67,11 +72,13 @@ def default_input_format(content_type='application/json', apply_globally=False, 
             apply_to_api = hug.API(api) if api else hug.api.from_object(formatter)
             apply_to_api.http.set_input_format(content_type, formatter)
         return formatter
+
     return decorator
 
 
 def directive(apply_globally=False, api=None):
     """A decorator that registers a single hug directive"""
+
     def decorator(directive_method):
         if apply_globally:
             hug.defaults.directives[underscore(directive_method.__name__)] = directive_method
@@ -80,11 +87,13 @@ def directive(apply_globally=False, api=None):
             apply_to_api.add_directive(directive_method)
         directive_method.directive = True
         return directive_method
+
     return decorator
 
 
 def context_factory(apply_globally=False, api=None):
     """A decorator that registers a single hug context factory"""
+
     def decorator(context_factory_):
         if apply_globally:
             hug.defaults.context_factory = context_factory_
@@ -92,11 +101,13 @@ def context_factory(apply_globally=False, api=None):
             apply_to_api = hug.API(api) if api else hug.api.from_object(context_factory_)
             apply_to_api.context_factory = context_factory_
         return context_factory_
+
     return decorator
 
 
 def delete_context(apply_globally=False, api=None):
     """A decorator that registers a single hug delete context function"""
+
     def decorator(delete_context_):
         if apply_globally:
             hug.defaults.delete_context = delete_context_
@@ -104,20 +115,24 @@ def delete_context(apply_globally=False, api=None):
             apply_to_api = hug.API(api) if api else hug.api.from_object(delete_context_)
             apply_to_api.delete_context = delete_context_
         return delete_context_
+
     return decorator
 
 
 def startup(api=None):
     """Runs the provided function on startup, passing in an instance of the api"""
+
     def startup_wrapper(startup_function):
         apply_to_api = hug.API(api) if api else hug.api.from_object(startup_function)
         apply_to_api.add_startup_handler(startup_function)
         return startup_function
+
     return startup_wrapper
 
 
 def request_middleware(api=None):
     """Registers a middleware function that will be called on every request"""
+
     def decorator(middleware_method):
         apply_to_api = hug.API(api) if api else hug.api.from_object(middleware_method)
 
@@ -129,11 +144,13 @@ def request_middleware(api=None):
 
         apply_to_api.http.add_middleware(MiddlewareRouter())
         return middleware_method
+
     return decorator
 
 
 def response_middleware(api=None):
     """Registers a middleware function that will be called on every response"""
+
     def decorator(middleware_method):
         apply_to_api = hug.API(api) if api else hug.api.from_object(middleware_method)
 
@@ -145,15 +162,18 @@ def response_middleware(api=None):
 
         apply_to_api.http.add_middleware(MiddlewareRouter())
         return middleware_method
+
     return decorator
+
 
 def reqresp_middleware(api=None):
     """Registers a middleware function that will be called on every request and response"""
+
     def decorator(middleware_generator):
         apply_to_api = hug.API(api) if api else hug.api.from_object(middleware_generator)
 
         class MiddlewareRouter(object):
-            __slots__ = ('gen', )
+            __slots__ = ("gen",)
 
             def process_request(self, request, response):
                 self.gen = middleware_generator(request)
@@ -164,37 +184,45 @@ def reqresp_middleware(api=None):
 
         apply_to_api.http.add_middleware(MiddlewareRouter())
         return middleware_generator
+
     return decorator
+
 
 def middleware_class(api=None):
     """Registers a middleware class"""
+
     def decorator(middleware_class):
         apply_to_api = hug.API(api) if api else hug.api.from_object(middleware_class)
         apply_to_api.http.add_middleware(middleware_class())
         return middleware_class
+
     return decorator
 
 
 def extend_api(route="", api=None, base_url="", **kwargs):
     """Extends the current api, with handlers from an imported api. Optionally provide a route that prefixes access"""
+
     def decorator(extend_with):
         apply_to_api = hug.API(api) if api else hug.api.from_object(extend_with)
         for extended_api in extend_with():
             apply_to_api.extend(extended_api, route, base_url, **kwargs)
         return extend_with
+
     return decorator
 
 
 def wraps(function):
     """Enables building decorators around functions used for hug routes without changing their function signature"""
+
     def wrap(decorator):
         decorator = functools.wraps(function)(decorator)
-        if not hasattr(function, 'original'):
+        if not hasattr(function, "original"):
             decorator.original = function
         else:
             decorator.original = function.original
-            delattr(function, 'original')
+            delattr(function, "original")
         return decorator
+
     return wrap
 
 
@@ -205,4 +233,5 @@ def auto_kwargs(function):
     @wraps(function)
     def call_function(*args, **kwargs):
         return function(*args, **{key: value for key, value in kwargs.items() if key in supported})
+
     return call_function

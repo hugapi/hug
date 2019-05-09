@@ -3,7 +3,7 @@ import part_1
 import part_2
 
 
-@hug.get('/')
+@hug.get("/")
 def say_hi():
     """This view will be at the path ``/``"""
     return "Hi from root"
