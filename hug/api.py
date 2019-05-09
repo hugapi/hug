@@ -78,11 +78,11 @@ class InterfaceAPI(object):
 
 class HTTPInterfaceAPI(InterfaceAPI):
     """Defines the HTTP interface specific API"""
-
     __slots__ = (
         "routes",
         "versions",
         "base_url",
+        "falcon",
         "_output_format",
         "_input_format",
         "versioned",
@@ -356,7 +356,8 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
     def server(self, default_not_found=True, base_url=None):
         """Returns a WSGI compatible API server for the given Hug API module"""
-        falcon_api = falcon.API(middleware=self.middleware)
+        falcon_api = self.falcon = falcon.API(middleware=self.middleware)
+        falcon_api.req_options.keep_blank_qs_values = False
         default_not_found = self.documentation_404() if default_not_found is True else None
         base_url = self.base_url if base_url is None else base_url
 

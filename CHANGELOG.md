@@ -14,6 +14,8 @@ Changelog
 =========
 ### 2.5.1 - TBD
 - Optimizations and simplification of async support, taking advantadge of Python3.4 deprecation.
+- Fix issue #785: Empty query params are not ignored on 2.5.0
+- Added support for modifying falcon API directly on startup
 
 ### 2.5.0 - May 4, 2019
 - Updated to latest Falcon: 2.0.0
