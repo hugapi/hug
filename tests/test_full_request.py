@@ -40,7 +40,7 @@ def post(body, response):
 def test_hug_post(tmp_path):
     hug_test_file = (tmp_path / "hug_postable.py")
     hug_test_file.write_text(TEST_HUG_API)
-    hug_server = Popen(['hug', '-f', hug_test_file])
+    hug_server = Popen(['hug', '-f', str(hug_test_file)])
     time.sleep(1)
     requests.post('http://localhost:8000/test', {'data': 'here'})
     hug_server.kill()
