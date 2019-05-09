@@ -18,7 +18,7 @@ Account Requirements:
 
 Base System Requirements:
 
-- Python3.3+
+- Python3.5+
 - Python3-venv (included with most Python3 installations but some Ubuntu systems require that it be installed separately)
 - bash or a bash compatible shell (should be auto-installed on Linux / Mac)
 - [autoenv](https://github.com/kennethreitz/autoenv) (optional)
