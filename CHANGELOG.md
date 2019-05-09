@@ -14,6 +14,7 @@ Changelog
 =========
 ### 2.5.1 - TBD
 - Optimizations and simplification of async support, taking advantadge of Python3.4 deprecation.
+- Initial `black` formatting of code base, in preperation for CI enforced code formatting
 
 ### 2.5.0 - May 4, 2019
 - Updated to latest Falcon: 2.0.0
