@@ -1,6 +1,6 @@
-"""tests/test_exceptions.py.
+"""tests/test_full_request.py.
 
-Tests to ensure custom exceptions work and are formatted as expected
+Test cases that rely on a command being ran against a running hug server
 
 Copyright (C) 2016 Timothy Edmund Crosley
 
@@ -19,30 +19,31 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import platform
+import time
+from subprocess import Popen
+
 import pytest
+import requests
 
 import hug
 
+TEST_HUG_API = """
+import hug
 
-def test_invalid_type_data():
-    try:
-        raise hug.exceptions.InvalidTypeData("not a good type")
-    except hug.exceptions.InvalidTypeData as exception:
-        error = exception
 
-    assert error.message == "not a good type"
-    assert error.reasons is None
+@hug.post("/test", output=hug.output_format.json)
+def post(body, response):
+    print(body)
+    return {'message': 'ok'}
+"""
 
-    try:
-        raise hug.exceptions.InvalidTypeData("not a good type", [1, 2, 3])
-    except hug.exceptions.InvalidTypeData as exception:
-        error = exception
 
-    assert error.message == "not a good type"
-    assert error.reasons == [1, 2, 3]
-
-    with pytest.raises(Exception):
-        try:
-            raise hug.exceptions.InvalidTypeData()
-        except hug.exceptions.InvalidTypeData as exception:
-            pass
+@pytest.mark.skipif(platform.python_implementation() == "PyPy", reason="Can't run hug CLI from travis PyPy")
+def test_hug_post(tmp_path):
+    hug_test_file = (tmp_path / "hug_postable.py")
+    hug_test_file.write_text(TEST_HUG_API)
+    hug_server = Popen(['hug', '-f', str(hug_test_file), '-p', '3000'])
+    time.sleep(5)
+    requests.post('http://127.0.0.1:3000/test', {'data': 'here'})
+    hug_server.kill()

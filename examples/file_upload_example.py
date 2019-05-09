@@ -17,9 +17,10 @@ This should both print in the terminal and return back the filename and filesize
 
 import hug
 
-@hug.post('/upload')
+
+@hug.post("/upload")
 def upload_file(body):
     """accepts file uploads"""
     # <body> is a simple dictionary of {filename: b'content'}
-    print('body: ', body)
-    return {'filename': list(body.keys()).pop(), 'filesize': len(list(body.values()).pop())}
+    print("body: ", body)
+    return {"filename": list(body.keys()).pop(), "filesize": len(list(body.values()).pop())}

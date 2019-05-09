@@ -35,15 +35,16 @@ class TestAPI(object):
 
     def test_context(self):
         """Test to ensure the hug singleton provides a global modifiable context"""
-        assert not hasattr(hug.API(__name__), '_context')
+        assert not hasattr(hug.API(__name__), "_context")
         assert hug.API(__name__).context == {}
-        assert hasattr(hug.API(__name__), '_context')
+        assert hasattr(hug.API(__name__), "_context")
 
     def test_dynamic(self):
         """Test to ensure it's possible to dynamically create new modules to house APIs based on name alone"""
-        new_api = hug.API('module_created_on_the_fly')
-        assert new_api.module.__name__ == 'module_created_on_the_fly'
+        new_api = hug.API("module_created_on_the_fly")
+        assert new_api.module.__name__ == "module_created_on_the_fly"
         import module_created_on_the_fly
+
         assert module_created_on_the_fly
         assert module_created_on_the_fly.__hug__ == new_api
 
@@ -63,14 +64,14 @@ def test_anonymous():
     """Ensure it's possible to create anonymous APIs"""
     assert hug.API() != hug.API() != api
     assert hug.API().module == None
-    assert hug.API().name == ''
-    assert hug.API(name='my_name').name == 'my_name'
-    assert hug.API(doc='Custom documentation').doc == 'Custom documentation'
+    assert hug.API().name == ""
+    assert hug.API(name="my_name").name == "my_name"
+    assert hug.API(doc="Custom documentation").doc == "Custom documentation"
 
 
 def test_api_routes(hug_api):
     """Ensure http API can return a quick mapping all urls to method"""
-    hug_api.http.base_url = '/root'
+    hug_api.http.base_url = "/root"
 
     @hug.get(api=hug_api)
     def my_route():
@@ -84,10 +85,16 @@ def test_api_routes(hug_api):
     def my_cli_command():
         pass
 
-    assert list(hug_api.http.urls()) == ['/root/my_route', '/root/my_second_route']
-    assert list(hug_api.http.handlers()) == [my_route.interface.http, my_second_route.interface.http]
-    assert list(hug_api.handlers()) == [my_route.interface.http, my_second_route.interface.http,
-                                        my_cli_command.interface.cli]
+    assert list(hug_api.http.urls()) == ["/root/my_route", "/root/my_second_route"]
+    assert list(hug_api.http.handlers()) == [
+        my_route.interface.http,
+        my_second_route.interface.http,
+    ]
+    assert list(hug_api.handlers()) == [
+        my_route.interface.http,
+        my_second_route.interface.http,
+        my_cli_command.interface.cli,
+    ]
 
 
 def test_cli_interface_api_with_exit_codes(hug_api_error_exit_codes_enabled):
@@ -103,10 +110,10 @@ def test_cli_interface_api_with_exit_codes(hug_api_error_exit_codes_enabled):
         def false(self):
             return False
 
-    api.cli(args=[None, 'true'])
+    api.cli(args=[None, "true"])
 
     with pytest.raises(SystemExit):
-        api.cli(args=[None, 'false'])
+        api.cli(args=[None, "false"])
 
 
 def test_cli_interface_api_without_exit_codes():
@@ -120,5 +127,5 @@ def test_cli_interface_api_without_exit_codes():
         def false(self):
             return False
 
-    api.cli(args=[None, 'true'])
-    api.cli(args=[None, 'false'])
+    api.cli(args=[None, "true"])
+    api.cli(args=[None, "false"])

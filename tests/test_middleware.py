@@ -35,42 +35,42 @@ __hug__ = __hug__  # noqa
 def test_session_middleware():
     @hug.get()
     def count(request):
-        session = request.context['session']
-        counter = session.get('counter', 0) + 1
-        session['counter'] = counter
+        session = request.context["session"]
+        counter = session.get("counter", 0) + 1
+        session["counter"] = counter
         return counter
 
     def get_cookies(response):
-        simple_cookie = SimpleCookie(response.headers_dict['set-cookie'])
+        simple_cookie = SimpleCookie(response.headers_dict["set-cookie"])
         return {morsel.key: morsel.value for morsel in simple_cookie.values()}
 
     # Add middleware
     session_store = InMemoryStore()
-    middleware = SessionMiddleware(session_store, cookie_name='test-sid')
+    middleware = SessionMiddleware(session_store, cookie_name="test-sid")
     __hug__.http.add_middleware(middleware)
 
     # Get cookies from response
-    response = hug.test.get(api, '/count')
+    response = hug.test.get(api, "/count")
     cookies = get_cookies(response)
 
     # Assert session cookie has been set and session exists in session store
-    assert 'test-sid' in cookies
-    sid = cookies['test-sid']
+    assert "test-sid" in cookies
+    sid = cookies["test-sid"]
     assert session_store.exists(sid)
-    assert session_store.get(sid) == {'counter': 1}
+    assert session_store.get(sid) == {"counter": 1}
 
     # Assert session persists throughout the requests
-    headers = {'Cookie': 'test-sid={}'.format(sid)}
-    assert hug.test.get(api, '/count', headers=headers).data == 2
-    assert session_store.get(sid) == {'counter': 2}
+    headers = {"Cookie": "test-sid={}".format(sid)}
+    assert hug.test.get(api, "/count", headers=headers).data == 2
+    assert session_store.get(sid) == {"counter": 2}
 
     # Assert a non-existing session cookie gets ignored
-    headers = {'Cookie': 'test-sid=foobarfoo'}
-    response = hug.test.get(api, '/count', headers=headers)
+    headers = {"Cookie": "test-sid=foobarfoo"}
+    response = hug.test.get(api, "/count", headers=headers)
     cookies = get_cookies(response)
     assert response.data == 1
-    assert not session_store.exists('foobarfoo')
-    assert cookies['test-sid'] != 'foobarfoo'
+    assert not session_store.exists("foobarfoo")
+    assert cookies["test-sid"] != "foobarfoo"
 
 
 def test_logging_middleware():
@@ -87,67 +87,69 @@ def test_logging_middleware():
 
     @hug.get()
     def test(request):
-        return 'data'
+        return "data"
 
-    hug.test.get(api, '/test')
-    assert output[0] == 'Requested: GET /test None'
+    hug.test.get(api, "/test")
+    assert output[0] == "Requested: GET /test None"
     assert len(output[1]) > 0
 
 
 def test_cors_middleware(hug_api):
     hug_api.http.add_middleware(CORSMiddleware(hug_api, max_age=10))
 
-    @hug.get('/demo', api=hug_api)
+    @hug.get("/demo", api=hug_api)
     def get_demo():
-        return {'result': 'Hello World'}
+        return {"result": "Hello World"}
 
-    @hug.get('/demo/{param}', api=hug_api)
+    @hug.get("/demo/{param}", api=hug_api)
     def get_demo(param):
-        return {'result': 'Hello {0}'.format(param)}
+        return {"result": "Hello {0}".format(param)}
 
-    @hug.post('/demo', api=hug_api)
-    def post_demo(name: 'your name'):
-        return {'result': 'Hello {0}'.format(name)}
+    @hug.post("/demo", api=hug_api)
+    def post_demo(name: "your name"):
+        return {"result": "Hello {0}".format(name)}
 
-    @hug.put('/demo/{param}', api=hug_api)
+    @hug.put("/demo/{param}", api=hug_api)
     def get_demo(param, name):
         old_name = param
         new_name = name
-        return {'result': 'Goodbye {0} ... Hello {1}'.format(old_name, new_name)}
+        return {"result": "Goodbye {0} ... Hello {1}".format(old_name, new_name)}
 
-    @hug.delete('/demo/{param}', api=hug_api)
+    @hug.delete("/demo/{param}", api=hug_api)
     def get_demo(param):
-        return {'result': 'Goodbye {0}'.format(param)}
+        return {"result": "Goodbye {0}".format(param)}
 
-    assert hug.test.get(hug_api, '/demo').data == {'result': 'Hello World'}
-    assert hug.test.get(hug_api, '/demo/Mir').data == {'result': 'Hello Mir'}
-    assert hug.test.post(hug_api, '/demo', name='Mundo')
-    assert hug.test.put(hug_api, '/demo/Carl', name='Junior').data == {'result': 'Goodbye Carl ... Hello Junior'}
-    assert hug.test.delete(hug_api, '/demo/Cruel_World').data == {'result': 'Goodbye Cruel_World'}
+    assert hug.test.get(hug_api, "/demo").data == {"result": "Hello World"}
+    assert hug.test.get(hug_api, "/demo/Mir").data == {"result": "Hello Mir"}
+    assert hug.test.post(hug_api, "/demo", name="Mundo")
+    assert hug.test.put(hug_api, "/demo/Carl", name="Junior").data == {
+        "result": "Goodbye Carl ... Hello Junior"
+    }
+    assert hug.test.delete(hug_api, "/demo/Cruel_World").data == {"result": "Goodbye Cruel_World"}
 
-    response = hug.test.options(hug_api, '/demo')
-    methods = response.headers_dict['access-control-allow-methods'].replace(' ', '')
-    allow = response.headers_dict['allow'].replace(' ', '')
-    assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'POST'])
-    assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'POST'])
+    response = hug.test.options(hug_api, "/demo")
+    methods = response.headers_dict["access-control-allow-methods"].replace(" ", "")
+    allow = response.headers_dict["allow"].replace(" ", "")
+    assert set(methods.split(",")) == set(["OPTIONS", "GET", "POST"])
+    assert set(allow.split(",")) == set(["OPTIONS", "GET", "POST"])
 
-    response = hug.test.options(hug_api, '/demo/1')
-    methods = response.headers_dict['access-control-allow-methods'].replace(' ', '')
-    allow = response.headers_dict['allow'].replace(' ', '')
-    assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
-    assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
-    assert response.headers_dict['access-control-max-age'] == '10'
+    response = hug.test.options(hug_api, "/demo/1")
+    methods = response.headers_dict["access-control-allow-methods"].replace(" ", "")
+    allow = response.headers_dict["allow"].replace(" ", "")
+    assert set(methods.split(",")) == set(["OPTIONS", "GET", "DELETE", "PUT"])
+    assert set(allow.split(",")) == set(["OPTIONS", "GET", "DELETE", "PUT"])
+    assert response.headers_dict["access-control-max-age"] == "10"
 
-    response = hug.test.options(hug_api, '/v1/demo/1')
-    methods = response.headers_dict['access-control-allow-methods'].replace(' ', '')
-    allow = response.headers_dict['allow'].replace(' ', '')
-    assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
-    assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
-    assert response.headers_dict['access-control-max-age'] == '10'
+    response = hug.test.options(hug_api, "/v1/demo/1")
+    methods = response.headers_dict["access-control-allow-methods"].replace(" ", "")
+    allow = response.headers_dict["allow"].replace(" ", "")
+    assert set(methods.split(",")) == set(["OPTIONS", "GET", "DELETE", "PUT"])
+    assert set(allow.split(",")) == set(["OPTIONS", "GET", "DELETE", "PUT"])
+    assert response.headers_dict["access-control-max-age"] == "10"
 
-    response = hug.test.options(hug_api, '/v1/demo/123e4567-midlee89b-12d3-a456-426655440000')
-    methods = response.headers_dict['access-control-allow-methods'].replace(' ', '')
-    allow = response.headers_dict['allow'].replace(' ', '')
-    assert set(methods.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
-    assert set(allow.split(',')) == set(['OPTIONS', 'GET', 'DELETE', 'PUT'])
-    assert response.headers_dict['access-control-max-age'] == '10'
+    response = hug.test.options(hug_api, "/v1/demo/123e4567-midlee89b-12d3-a456-426655440000")
+    methods = response.headers_dict["access-control-allow-methods"].replace(" ", "")
+    allow = response.headers_dict["allow"].replace(" ", "")
+    assert set(methods.split(",")) == set(["OPTIONS", "GET", "DELETE", "PUT"])
+    assert set(allow.split(",")) == set(["OPTIONS", "GET", "DELETE", "PUT"])
+    assert response.headers_dict["access-control-max-age"] == "10"

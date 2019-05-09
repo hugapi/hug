@@ -5,4 +5,4 @@ import hug
 @hug.get()
 def unicode_response():
     """An example endpoint that returns unicode data nested within the result object"""
-    return {'data': ['Τη γλώσσα μου έδωσαν ελληνική']}
+    return {"data": ["Τη γλώσσα μου έδωσαν ελληνική"]}

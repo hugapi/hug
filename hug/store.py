@@ -29,6 +29,7 @@ class InMemoryStore:
     Regard this as a blueprint for more useful and probably more complex store implementations, for example stores
     which make use of databases like Redis, PostgreSQL or others.
     """
+
     def __init__(self):
         self._data = {}
 

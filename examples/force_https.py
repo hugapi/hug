@@ -10,4 +10,4 @@ hug.API(__name__).http.add_middleware(RequireHTTPS())
 
 @hug.get()
 def my_endpoint():
-    return 'Success!'
+    return "Success!"

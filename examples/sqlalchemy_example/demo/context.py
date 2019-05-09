@@ -10,7 +10,6 @@ session_factory = scoped_session(sessionmaker(bind=engine))
 
 
 class SqlalchemyContext(object):
-
     def __init__(self):
         self._db = session_factory()
 

@@ -5,4 +5,4 @@ import hug
 @hug.post()
 def made_up_hello():
     """POSTing for science!"""
-    return 'hello from POST'
+    return "hello from POST"

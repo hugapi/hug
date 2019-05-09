@@ -29,6 +29,7 @@ api = hug.API(__name__)
 
 def test_basic_call_coroutine():
     """The most basic Happy-Path test for Hug APIs using async"""
+
     @hug.call()
     @asyncio.coroutine
     def hello_world():
@@ -39,10 +40,11 @@ def test_basic_call_coroutine():
 
 def test_nested_basic_call_coroutine():
     """The most basic Happy-Path test for Hug APIs using async"""
+
     @hug.call()
     @asyncio.coroutine
     def hello_world():
-        return getattr(asyncio, 'ensure_future')(nested_hello_world())
+        return getattr(asyncio, "ensure_future")(nested_hello_world())
 
     @hug.local()
     @asyncio.coroutine
@@ -54,8 +56,8 @@ def test_nested_basic_call_coroutine():
 
 def test_basic_call_on_method_coroutine():
     """Test to ensure the most basic call still works if applied to a method"""
-    class API(object):
 
+    class API(object):
         @hug.call()
         @asyncio.coroutine
         def hello_world(self=None):
@@ -64,13 +66,13 @@ def test_basic_call_on_method_coroutine():
     api_instance = API()
     assert api_instance.hello_world.interface.http
     assert loop.run_until_complete(api_instance.hello_world()) == "Hello World!"
-    assert hug.test.get(api, '/hello_world').data == "Hello World!"
+    assert hug.test.get(api, "/hello_world").data == "Hello World!"
 
 
 def test_basic_call_on_method_through_api_instance_coroutine():
     """Test to ensure the most basic call still works if applied to a method"""
-    class API(object):
 
+    class API(object):
         def hello_world(self):
             return "Hello World!"
 
@@ -82,13 +84,13 @@ def test_basic_call_on_method_through_api_instance_coroutine():
         return api_instance.hello_world()
 
     assert api_instance.hello_world() == "Hello World!"
-    assert hug.test.get(api, '/hello_world').data == "Hello World!"
+    assert hug.test.get(api, "/hello_world").data == "Hello World!"
 
 
 def test_basic_call_on_method_registering_without_decorator_coroutine():
     """Test to ensure instance method calling via async works as expected"""
-    class API(object):
 
+    class API(object):
         def __init__(self):
             hug.call()(self.hello_world_method)
 
@@ -99,4 +101,4 @@ def test_basic_call_on_method_registering_without_decorator_coroutine():
     api_instance = API()
 
     assert loop.run_until_complete(api_instance.hello_world_method()) == "Hello World!"
-    assert hug.test.get(api, '/hello_world_method').data == "Hello World!"
+    assert hug.test.get(api, "/hello_world_method").data == "Hello World!"

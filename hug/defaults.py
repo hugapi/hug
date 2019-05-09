@@ -27,23 +27,23 @@ output_format = hug.output_format.json
 cli_output_format = hug.output_format.text
 
 input_format = {
-    'application/json': hug.input_format.json,
-    'application/x-www-form-urlencoded': hug.input_format.urlencoded,
-    'multipart/form-data': hug.input_format.multipart,
-    'text/plain': hug.input_format.text,
-    'text/css': hug.input_format.text,
-    'text/html': hug.input_format.text
+    "application/json": hug.input_format.json,
+    "application/x-www-form-urlencoded": hug.input_format.urlencoded,
+    "multipart/form-data": hug.input_format.multipart,
+    "text/plain": hug.input_format.text,
+    "text/css": hug.input_format.text,
+    "text/html": hug.input_format.text,
 }
 
 directives = {
-    'timer': hug.directives.Timer,
-    'api': hug.directives.api,
-    'module': hug.directives.module,
-    'current_api': hug.directives.CurrentAPI,
-    'api_version': hug.directives.api_version,
-    'user': hug.directives.user,
-    'session': hug.directives.session,
-    'documentation': hug.directives.documentation
+    "timer": hug.directives.Timer,
+    "api": hug.directives.api,
+    "module": hug.directives.module,
+    "current_api": hug.directives.CurrentAPI,
+    "api_version": hug.directives.api_version,
+    "user": hug.directives.user,
+    "session": hug.directives.session,
+    "documentation": hug.directives.documentation,
 }
 
 

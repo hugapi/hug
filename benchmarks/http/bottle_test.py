@@ -3,6 +3,6 @@ import bottle
 app = bottle.Bottle()
 
 
-@app.route('/text')
+@app.route("/text")
 def text():
-    return 'Hello, world!'
+    return "Hello, world!"
