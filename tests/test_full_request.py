@@ -19,9 +19,11 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
+import platform
 import time
 from subprocess import Popen
 
+import pytest
 import requests
 
 import hug
@@ -37,6 +39,7 @@ def post(body, response):
 """
 
 
+@pytest.mark.skipif(platform.python_implementation() == "PyPy", reason="Can't run hug CLI from travis PyPy")
 def test_hug_post(tmp_path):
     hug_test_file = (tmp_path / "hug_postable.py")
     hug_test_file.write_text(TEST_HUG_API)
