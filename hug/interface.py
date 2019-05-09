@@ -604,7 +604,7 @@ class HTTP(Interface):
         input_parameters.update(request.params)
 
         if self.parse_body and request.content_length:
-            body = request.stream
+            body = request.bounded_stream
             content_type, content_params = parse_content_type(request.content_type)
             body_formatter = body and self.inputs.get(content_type, self.api.http.input_format(content_type))
             if body_formatter:
