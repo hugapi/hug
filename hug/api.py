@@ -357,7 +357,11 @@ class HTTPInterfaceAPI(InterfaceAPI):
     def server(self, default_not_found=True, base_url=None):
         """Returns a WSGI compatible API server for the given Hug API module"""
         falcon_api = self.falcon = falcon.API(middleware=self.middleware)
-        falcon_api.req_options.keep_blank_qs_values = False
+        if not self.api.future:
+            falcon_api.req_options.keep_blank_qs_values = False
+            falcon_api.req_options.auto_parse_qs_csv = True
+            falcon_api.req_options.strip_url_path_trailing_slash = True
+
         default_not_found = self.documentation_404() if default_not_found is True else None
         base_url = self.base_url if base_url is None else base_url
 
@@ -510,10 +514,11 @@ class API(object, metaclass=ModuleSingleton):
         "started",
         "name",
         "doc",
+        "future",
         "cli_error_exit_codes",
     )
 
-    def __init__(self, module=None, name="", doc="", cli_error_exit_codes=False):
+    def __init__(self, module=None, name="", doc="", cli_error_exit_codes=False, future=False):
         self.module = module
         if module:
             self.name = name or module.__name__ or ""
@@ -523,6 +528,7 @@ class API(object, metaclass=ModuleSingleton):
             self.doc = doc
         self.started = False
         self.cli_error_exit_codes = cli_error_exit_codes
+        self.future = future
 
     def directives(self):
         """Returns all directives applicable to this Hug API"""
