@@ -9,9 +9,11 @@ pip3 install hug --upgrade
 
 Ideally, within a virtual environment.
 
-
 Changelog
 =========
+### 2.5.2 hotfix - May 10, 2019
+- Fixed issue #790 - Set Falcon defaults to pre 2.0.0 version to avoid breaking changes for Hug users until a Hug 3.0.0 release. The new default Falcon behaviour can be defaulted before hand by setting `__hug__.future = True`.
+
 ### 2.5.1 hotfix - May 9, 2019
 - Fixed issue #784 - POST requests broken on 2.5.0
 - Optimizations and simplification of async support, taking advantadge of Python3.4 deprecation.
