@@ -49,6 +49,7 @@ Code Contributors
 - Antti Kaihola (@akaihola)
 - Christopher Goes (@GhostOfGoes)
 - Stanislav (@atmo)
+- Lordran (@xzycn)
 
 Documenters
 ===================
