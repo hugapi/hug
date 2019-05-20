@@ -50,6 +50,8 @@ Code Contributors
 - Christopher Goes (@GhostOfGoes)
 - Stanislav (@atmo)
 - Lordran (@xzycn)
+- Stephan Fitzpatrick (@knowsuchagency)
+
 
 Documenters
 ===================
@@ -81,6 +83,8 @@ Documenters
 - Chelsea Dole (@chelseadole)
 - Joshua Crowgey (@jcrowgey)
 - Antti Kaihola (@akaihola)
+- Simon Ince (@Simon-Ince)
+
 
 --------------------------------------------
 

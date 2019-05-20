@@ -92,7 +92,7 @@ Here is a simple example of an API that does datetime addition.
 
 
     @hug.get('/dateadd', examples="value=1973-04-10&addend=63")
-    def dateadd(value: fields.DateTime(),
+    def dateadd(value: fields.Date(),
                 addend: fields.Int(validate=Range(min=1))):
         """Add a value to a date."""
         delta = dt.timedelta(days=addend)
