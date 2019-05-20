@@ -11,6 +11,9 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.5.4 hotfix - May 19, 2019
+- Fix issue #798 - Development runner `TypeError` when executing cli
+
 ### 2.5.3 hotfix - May 15, 2019
 - Fixed issue #794 - Restore support for versions of Marshmallow pre-2.17.0
 
