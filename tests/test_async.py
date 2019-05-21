@@ -45,7 +45,7 @@ def tested_nested_basic_call_async():
     async def hello_world(self=None):
         return await nested_hello_world()
 
-    @hug.local()
+    @hug.LocalRouter()
     async def nested_hello_world(self=None):
         return "Hello World!"
 

@@ -3,7 +3,7 @@ import hug
 import sub_api
 
 
-@hug.cli()
+@hug.CLIRouter()
 def echo(text: hug.types.text):
     return text
 

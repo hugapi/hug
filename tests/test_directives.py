@@ -47,7 +47,7 @@ def test_timer():
     assert float(timer) < timer.start
 
     @hug.get()
-    @hug.local()
+    @hug.LocalRouter()
     def timer_tester(hug_timer):
         return hug_timer
 
@@ -146,7 +146,7 @@ def test_session_directive():
     def add_session(request, response):
         request.context["session"] = {"test": "data"}
 
-    @hug.local()
+    @hug.LocalRouter()
     @hug.get()
     def session_data(hug_session):
         return hug_session
@@ -164,20 +164,20 @@ def test_named_directives():
 
     assert isinstance(test(1), int)
 
-    test = hug.local()(test)
+    test = hug.LocalRouter()(test)
     assert isinstance(test(), hug.directives.Timer)
 
 
 def test_local_named_directives():
     """Ensure that it's possible to attach directives to local function calling"""
 
-    @hug.local()
+    @hug.LocalRouter()
     def test(time: __hug__.directive("timer") = 3):
         return time
 
     assert isinstance(test(), hug.directives.Timer)
 
-    @hug.local(directives=False)
+    @hug.LocalRouter(directives=False)
     def test(time: __hug__.directive("timer") = 3):
         return time
 
@@ -188,7 +188,7 @@ def test_named_directives_by_name():
     """Ensure that it's possible to attach directives to named parameters using only the name of the directive"""
 
     @hug.get()
-    @hug.local()
+    @hug.LocalRouter()
     def test(time: __hug__.directive("timer") = 3):
         return time
 

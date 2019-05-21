@@ -6,6 +6,6 @@ def hello_world():
     return "Hello world!"
 
 
-@hug.not_found()
+@hug.NotFoundRouter()
 def not_found():
     return {"Nothing": "to see"}

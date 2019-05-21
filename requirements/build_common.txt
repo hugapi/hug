@@ -8,3 +8,8 @@ wheel==0.29.0
 PyJWT==1.4.2
 pytest-xdist==1.14.0
 numpy==1.15.4
+black==19.3b0
+pep8-naming
+flake8-bugbear
+vulture
+bandit

@@ -41,7 +41,7 @@ class TestContextFactoryLocal(object):
             self.custom_context["launched_requirement"] = True
             return RequirementFailed()
 
-        @hug.local(requires=test_local_requirement)
+        @hug.LocalRouter(requires=test_local_requirement)
         def requirement_local_function():
             self.custom_context["launched_local_function"] = True
 
@@ -67,7 +67,7 @@ class TestContextFactoryLocal(object):
             assert kwargs["context"] == custom_context
             return "custom"
 
-        @hug.local()
+        @hug.LocalRouter()
         def directive_local_function(custom: custom_directive):
             assert custom == "custom"
 
@@ -101,7 +101,7 @@ class TestContextFactoryLocal(object):
                 raise ValueError("not valid number")
             return value
 
-        @hug.local()
+        @hug.LocalRouter()
         def validation_local_function(value: custom_number_test):
             custom_context["launched_local_function"] = value
 
@@ -132,7 +132,7 @@ class TestContextFactoryLocal(object):
                 assert self.context["test"] == "context"
                 self.context["test_number"] += 1
 
-        @hug.local()
+        @hug.LocalRouter()
         def validation_local_function() -> UserSchema():
             return {"name": "test"}
 
@@ -156,7 +156,7 @@ class TestContextFactoryLocal(object):
             assert not lacks_requirement
             custom_context["launched_delete_context"] = True
 
-        @hug.local()
+        @hug.LocalRouter()
         def exception_local_function():
             custom_context["launched_local_function"] = True
             raise CustomException()
@@ -182,7 +182,7 @@ class TestContextFactoryLocal(object):
             assert not lacks_requirement
             custom_context["launched_delete_context"] = True
 
-        @hug.local()
+        @hug.LocalRouter()
         def success_local_function():
             custom_context["launched_local_function"] = True
 
@@ -215,7 +215,7 @@ class TestContextFactoryCLI(object):
             custom_context["launched_requirement"] = True
             return RequirementFailed()
 
-        @hug.cli(requires=test_requirement)
+        @hug.CLIRouter(requires=test_requirement)
         def requirement_local_function():
             custom_context["launched_local_function"] = True
 
@@ -241,7 +241,7 @@ class TestContextFactoryCLI(object):
             assert kwargs["context"] == custom_context
             return "custom"
 
-        @hug.cli()
+        @hug.CLIRouter()
         def directive_local_function(custom: custom_directive):
             assert custom == "custom"
 
@@ -275,7 +275,7 @@ class TestContextFactoryCLI(object):
                 raise ValueError("not valid number")
             return value
 
-        @hug.cli()
+        @hug.CLIRouter()
         def validation_local_function(value: hug.types.number):
             custom_context["launched_local_function"] = value
             return 0
@@ -308,7 +308,7 @@ class TestContextFactoryCLI(object):
                 assert self.context["test"] == "context"
                 self.context["test_number"] += 1
 
-        @hug.cli()
+        @hug.CLIRouter()
         def transform_cli_function() -> UserSchema():
             custom_context["launched_cli_function"] = True
             return {"name": "test"}
@@ -335,7 +335,7 @@ class TestContextFactoryCLI(object):
             assert not lacks_requirement
             custom_context["launched_delete_context"] = True
 
-        @hug.cli()
+        @hug.CLIRouter()
         def exception_local_function():
             custom_context["launched_local_function"] = True
             raise CustomException()
@@ -360,7 +360,7 @@ class TestContextFactoryCLI(object):
             assert not lacks_requirement
             custom_context["launched_delete_context"] = True
 
-        @hug.cli()
+        @hug.CLIRouter()
         def success_local_function():
             custom_context["launched_local_function"] = True
 

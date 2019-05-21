@@ -16,7 +16,7 @@ def add_more_data(api):
     data.append("Even subsequent calls")
 
 
-@hug.cli()
+@hug.CLIRouter()
 @hug.get()
 def test():
     """Returns all stored data"""

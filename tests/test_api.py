@@ -81,7 +81,7 @@ def test_api_routes(hug_api):
     def my_second_route():
         pass
 
-    @hug.cli(api=hug_api)
+    @hug.CLIRouter(api=hug_api)
     def my_cli_command():
         pass
 

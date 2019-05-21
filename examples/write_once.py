@@ -3,8 +3,8 @@ import hug
 import requests
 
 
-@hug.local()
-@hug.cli()
+@hug.LocalRouter()
+@hug.CLIRouter()
 @hug.get()
 def top_post(section: hug.types.one_of(("news", "newest", "show")) = "news"):
     """Returns the top post from the provided section"""

@@ -60,25 +60,25 @@ def on_startup(api):
     return
 
 
-@hug.static()
+@hug.StaticRouter()
 def static():
     """for testing"""
     return ("",)
 
 
-@hug.sink("/all")
+@hug.SinkRouter("/all")
 def sink(path):
     """for testing"""
     return path
 
 
-@hug.exception(FakeException)
+@hug.ExceptionRouter(FakeException)
 def handle_exception(exception):
     """Handles the provided exception for testing"""
     return True
 
 
-@hug.not_found()
+@hug.NotFoundRouter()
 def not_found_handler():
     """for testing"""
     return True

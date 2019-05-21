@@ -24,7 +24,7 @@ import pytest
 import hug
 
 
-@hug.http(("/namer", "/namer/{name}"), ("GET", "POST"), versions=(None, 2))
+@hug.URLRouter(("/namer", "/namer/{name}"), ("GET", "POST"), versions=(None, 2))
 def namer(name=None):
     return name
 
@@ -68,7 +68,7 @@ class TestLocal(object):
 
     def test_local_method(self):
         class MyObject(object):
-            @hug.local()
+            @hug.LocalRouter()
             def my_method(self, argument_1: hug.types.number):
                 return argument_1
 

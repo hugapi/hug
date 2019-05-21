@@ -29,7 +29,7 @@ api = hug.API(__name__)
 def test_cli():
     """Test to ensure the CLI tester works as intended to allow testing CLI endpoints"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def my_cli_function():
         return "Hello"
 

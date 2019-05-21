@@ -349,7 +349,7 @@ def test_method_routing():
 def test_not_found(hug_api):
     """Test to ensure the not_found decorator correctly routes 404s to the correct handler"""
 
-    @hug.not_found(api=hug_api)
+    @hug.NotFoundRouter(api=hug_api)
     def not_found_handler():
         return "Not Found"
 
@@ -357,7 +357,7 @@ def test_not_found(hug_api):
     assert result.data == "Not Found"
     assert result.status == falcon.HTTP_NOT_FOUND
 
-    @hug.not_found(versions=10, api=hug_api)  # noqa
+    @hug.NotFoundRouter(versions=10, api=hug_api)  # noqa
     def not_found_handler(response):
         response.status = falcon.HTTP_OK
         return {"look": "elsewhere"}
@@ -450,7 +450,7 @@ def test_multiple_version_injection():
     assert hug.test.get(api, "v3/my_api_function").data == 3
 
     @hug.get(versions=(None, 1))
-    @hug.local(version=1)
+    @hug.LocalRouter(version=1)
     def call_other_function(hug_current_api):
         return hug_current_api.my_api_function()
 
@@ -458,7 +458,7 @@ def test_multiple_version_injection():
     assert call_other_function() == 1
 
     @hug.get(versions=1)
-    @hug.local(version=1)
+    @hug.LocalRouter(version=1)
     def one_more_level_of_indirection(hug_current_api):
         return hug_current_api.call_other_function()
 
@@ -771,7 +771,7 @@ def test_output_format(hug_api):
     def augmented(data):
         return hug.output_format.json(["Augmented", data])
 
-    @hug.cli()
+    @hug.CLIRouter()
     @hug.get(suffixes=(".js", "/js"), prefixes="/text")
     def hello():
         return "world"
@@ -786,7 +786,7 @@ def test_output_format(hug_api):
     def augmented(data):
         return hug.output_format.json(["Augmented", data])
 
-    @hug.cli(api=hug_api)
+    @hug.CLIRouter(api=hug_api)
     def hello():
         return "world"
 
@@ -796,7 +796,7 @@ def test_output_format(hug_api):
     def augmented(data):
         return hug.output_format.json(["Augmented2", data])
 
-    @hug.cli(api=api)
+    @hug.CLIRouter(api=api)
     def hello():
         return "world"
 
@@ -950,7 +950,7 @@ def test_extending_api_with_exception_handler():
 
     from tests.module_fake_simple import FakeSimpleException
 
-    @hug.exception(FakeSimpleException)
+    @hug.ExceptionRouter(FakeSimpleException)
     def handle_exception(exception):
         return "it works!"
 
@@ -1068,7 +1068,7 @@ def test_extending_api_with_http_and_cli():
 def test_cli():
     """Test to ensure the CLI wrapper works as intended"""
 
-    @hug.cli("command", "1.0.0", output=str)
+    @hug.CLIRouter("command", "1.0.0", output=str)
     def cli_command(name: str, value: int):
         return (name, value)
 
@@ -1082,7 +1082,7 @@ def test_cli_requires():
     def requires_fail(**kwargs):
         return {"requirements": "not met"}
 
-    @hug.cli(output=str, requires=requires_fail)
+    @hug.CLIRouter(output=str, requires=requires_fail)
     def cli_command(name: str, value: int):
         return (name, value)
 
@@ -1097,7 +1097,7 @@ def test_cli_validation():
         if not fields.get("name", "") and not fields.get("value", 0):
             return {"name": "must be defined", "value": "must be defined"}
 
-    @hug.cli(output=str, validate=contains_either)
+    @hug.CLIRouter(output=str, validate=contains_either)
     def cli_command(name: str = "", value: int = 0):
         return (name, value)
 
@@ -1109,7 +1109,7 @@ def test_cli_validation():
 def test_cli_with_defaults():
     """Test to ensure CLIs work correctly with default values"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def happy(name: str, age: int, birthday: bool = False):
         if birthday:
             return "Happy {age} birthday {name}!".format(**locals())
@@ -1125,7 +1125,7 @@ def test_cli_with_defaults():
 def test_cli_with_hug_types():
     """Test to ensure CLIs work as expected when using hug types"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def happy(name: hug.types.text, age: hug.types.number, birthday: hug.types.boolean = False):
         if birthday:
             return "Happy {age} birthday {name}!".format(**locals())
@@ -1137,7 +1137,7 @@ def test_cli_with_hug_types():
     assert hug.test.cli(happy, "Bob", 5) == "Bob is 5 years old"
     assert hug.test.cli(happy, "Bob", 5, birthday=True) == "Happy 5 birthday Bob!"
 
-    @hug.cli()
+    @hug.CLIRouter()
     def succeed(success: hug.types.smart_boolean = False):
         if success:
             return "Yes!"
@@ -1148,7 +1148,7 @@ def test_cli_with_hug_types():
     assert hug.test.cli(succeed, success=True) == "Yes!"
     assert "succeed" in str(__hug__.cli)
 
-    @hug.cli()
+    @hug.CLIRouter()
     def succeed(success: hug.types.smart_boolean = True):
         if success:
             return "Yes!"
@@ -1158,21 +1158,21 @@ def test_cli_with_hug_types():
     assert hug.test.cli(succeed) == "Yes!"
     assert hug.test.cli(succeed, success="false") == "No :("
 
-    @hug.cli()
+    @hug.CLIRouter()
     def all_the(types: hug.types.multiple = []):
         return types or ["nothing_here"]
 
     assert hug.test.cli(all_the) == ["nothing_here"]
     assert hug.test.cli(all_the, types=("one", "two", "three")) == ["one", "two", "three"]
 
-    @hug.cli()
+    @hug.CLIRouter()
     def all_the(types: hug.types.multiple):
         return types or ["nothing_here"]
 
     assert hug.test.cli(all_the) == ["nothing_here"]
     assert hug.test.cli(all_the, "one", "two", "three") == ["one", "two", "three"]
 
-    @hug.cli()
+    @hug.CLIRouter()
     def one_of(value: hug.types.one_of(["one", "two"]) = "one"):
         return value
 
@@ -1183,7 +1183,7 @@ def test_cli_with_hug_types():
 def test_cli_with_conflicting_short_options():
     """Test to ensure that it's possible to expose a CLI with the same first few letters in option"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test(abe1="Value", abe2="Value2", helper=None):
         return (abe1, abe2)
 
@@ -1196,8 +1196,8 @@ def test_cli_with_conflicting_short_options():
 def test_cli_with_directives():
     """Test to ensure it's possible to use directives with hug CLIs"""
 
-    @hug.cli()
-    @hug.local()
+    @hug.CLIRouter()
+    @hug.LocalRouter()
     def test(hug_timer):
         return float(hug_timer)
 
@@ -1212,8 +1212,8 @@ def test_cli_with_class_directives():
         def __init__(self, *args, **kwargs):
             self.test = 1
 
-    @hug.cli()
-    @hug.local(skip_directives=False)
+    @hug.CLIRouter()
+    @hug.LocalRouter(skip_directives=False)
     def test(class_directive: ClassDirective):
         return class_directive.test
 
@@ -1233,8 +1233,8 @@ def test_cli_with_class_directives():
             self.test_object.is_cleanup_launched = True
             self.test_object.last_exception = exception
 
-    @hug.cli()
-    @hug.local(skip_directives=False)
+    @hug.CLIRouter()
+    @hug.LocalRouter(skip_directives=False)
     def test2(class_directive: ClassDirectiveWithCleanUp):
         return class_directive.test_object.is_cleanup_launched
 
@@ -1247,8 +1247,8 @@ def test_cli_with_class_directives():
     assert TestObject.is_cleanup_launched
     assert TestObject.last_exception is None
 
-    @hug.cli()
-    @hug.local(skip_directives=False)
+    @hug.CLIRouter()
+    @hug.LocalRouter(skip_directives=False)
     def test_with_attribute_error(class_directive: ClassDirectiveWithCleanUp):
         raise class_directive.test_object2
 
@@ -1269,8 +1269,8 @@ def test_cli_with_class_directives():
 def test_cli_with_named_directives():
     """Test to ensure you can pass named directives into the cli"""
 
-    @hug.cli()
-    @hug.local()
+    @hug.CLIRouter()
+    @hug.LocalRouter()
     def test(timer: hug.directives.Timer):
         return float(timer)
 
@@ -1282,14 +1282,14 @@ def test_cli_with_named_directives():
 def test_cli_with_output_transform():
     """Test to ensure it's possible to use output transforms with hug CLIs"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test() -> int:
         return "5"
 
     assert isinstance(test(), str)
     assert isinstance(hug.test.cli(test), int)
 
-    @hug.cli(transform=int)
+    @hug.CLIRouter(transform=int)
     def test():
         return "5"
 
@@ -1300,7 +1300,7 @@ def test_cli_with_output_transform():
 def test_cli_with_short_short_options():
     """Test to ensure that it's possible to expose a CLI with 2 very short and similar options"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test(a1="Value", a2="Value2"):
         return (a1, a2)
 
@@ -1313,7 +1313,7 @@ def test_cli_with_short_short_options():
 def test_cli_file_return():
     """Test to ensure that its possible to return a file stream from a CLI"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test():
         return open(os.path.join(BASE_DIRECTORY, "README.md"), "rb")
 
@@ -1323,7 +1323,7 @@ def test_cli_file_return():
 def test_local_type_annotation():
     """Test to ensure local type annotation works as expected"""
 
-    @hug.local(raise_on_invalid=True)
+    @hug.LocalRouter(raise_on_invalid=True)
     def test(number: int):
         return number
 
@@ -1331,13 +1331,13 @@ def test_local_type_annotation():
     with pytest.raises(Exception):
         test("h")
 
-    @hug.local(raise_on_invalid=False)
+    @hug.LocalRouter(raise_on_invalid=False)
     def test(number: int):
         return number
 
     assert test("h")["errors"]
 
-    @hug.local(raise_on_invalid=False, validate=False)
+    @hug.LocalRouter(raise_on_invalid=False, validate=False)
     def test(number: int):
         return number
 
@@ -1347,7 +1347,7 @@ def test_local_type_annotation():
 def test_local_transform():
     """Test to ensure local type annotation works as expected"""
 
-    @hug.local(transform=str)
+    @hug.LocalRouter(transform=str)
     def test(number: int):
         return number
 
@@ -1357,7 +1357,7 @@ def test_local_transform():
 def test_local_on_invalid():
     """Test to ensure local type annotation works as expected"""
 
-    @hug.local(on_invalid=str)
+    @hug.LocalRouter(on_invalid=str)
     def test(number: int):
         return number
 
@@ -1371,7 +1371,7 @@ def test_local_requires():
     def requirement(**kwargs):
         return global_state and "Unauthorized"
 
-    @hug.local(requires=requirement)
+    @hug.LocalRouter(requires=requirement)
     def hello():
         return "Hi!"
 
@@ -1383,7 +1383,7 @@ def test_local_requires():
 def test_static_file_support():
     """Test to ensure static file routing works as expected"""
 
-    @hug.static("/static")
+    @hug.StaticRouter("/static")
     def my_static_dirs():
         return (BASE_DIRECTORY,)
 
@@ -1395,7 +1395,7 @@ def test_static_file_support():
 def test_static_jailed():
     """Test to ensure we can't serve from outside static dir"""
 
-    @hug.static("/static")
+    @hug.StaticRouter("/static")
     def my_static_dirs():
         return ["tests"]
 
@@ -1406,7 +1406,7 @@ def test_static_jailed():
 def test_sink_support():
     """Test to ensure sink URL routers work as expected"""
 
-    @hug.sink("/all")
+    @hug.SinkRouter("/all")
     def my_sink(request):
         return request.path.replace("/all", "")
 
@@ -1429,7 +1429,7 @@ def test_sink_support_with_base_url():
 def test_cli_with_string_annotation():
     """Test to ensure CLI's work correctly with string annotations"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test(value_1: "The first value", value_2: "The second value" = None):
         return True
 
@@ -1439,7 +1439,7 @@ def test_cli_with_string_annotation():
 def test_cli_with_args():
     """Test to ensure CLI's work correctly when taking args"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test(*values):
         return values
 
@@ -1452,7 +1452,7 @@ def test_cli_using_method():
 
     class API(object):
         def __init__(self):
-            hug.cli()(self.hello_world_method)
+            hug.CLIRouter()(self.hello_world_method)
 
         def hello_world_method(self):
             variable = "Hello World!"
@@ -1467,7 +1467,7 @@ def test_cli_using_method():
 def test_cli_with_nested_variables():
     """Test to ensure that a cli containing multiple nested variables works correctly"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test(value_1=None, value_2=None):
         return "Hi!"
 
@@ -1477,7 +1477,7 @@ def test_cli_with_nested_variables():
 def test_cli_with_exception():
     """Test to ensure that a cli with an exception is correctly handled"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test():
         raise ValueError()
         return "Hi!"
@@ -1543,7 +1543,7 @@ def test_wraps():
 def test_cli_with_empty_return():
     """Test to ensure that if you return None no data will be added to sys.stdout"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test_empty_return():
         pass
 
@@ -1553,7 +1553,7 @@ def test_cli_with_empty_return():
 def test_cli_with_multiple_ints():
     """Test to ensure multiple ints work with CLI"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test_multiple_cli(ints: hug.types.comma_separated_list):
         return ints
 
@@ -1566,13 +1566,13 @@ def test_cli_with_multiple_ints():
             value = super().__call__(value)
             return [int(number) for number in value]
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test_multiple_cli(ints: ListOfInts() = []):
         return ints
 
     assert hug.test.cli(test_multiple_cli, ints=["1", "2", "3"]) == [1, 2, 3]
 
-    @hug.cli()
+    @hug.CLIRouter()
     def test_multiple_cli(ints: hug.types.Multiple[int]() = []):
         return ints
 
@@ -1643,13 +1643,13 @@ def test_exceptions():
     with pytest.raises(ValueError):
         hug.test.get(api, "endpoint")
 
-    @hug.exception()
+    @hug.ExceptionRouter()
     def handle_exception(exception):
         return "it worked"
 
     assert hug.test.get(api, "endpoint").data == "it worked"
 
-    @hug.exception(ValueError)  # noqa
+    @hug.ExceptionRouter(ValueError)  # noqa
     def handle_exception(exception):
         return "more explicit handler also worked"
 
@@ -1679,7 +1679,7 @@ def test_validate():
 def test_cli_api(capsys):
     """Ensure that the overall CLI Interface API works as expected"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def my_cli_command():
         print("Success!")
 
@@ -1696,7 +1696,7 @@ def test_cli_api(capsys):
 def test_cli_api_return():
     """Ensure returning from a CLI API works as expected"""
 
-    @hug.cli()
+    @hug.CLIRouter()
     def my_cli_command():
         return "Success!"
 
@@ -1838,11 +1838,11 @@ def test_exception_excludes(hug_api):
     class MySecondValueError(ValueError):
         pass
 
-    @hug.exception(Exception, exclude=MySecondValueError, api=hug_api)
+    @hug.ExceptionRouter(Exception, exclude=MySecondValueError, api=hug_api)
     def base_exception_handler(exception):
         return "base exception handler"
 
-    @hug.exception(ValueError, exclude=(MyValueError, MySecondValueError), api=hug_api)
+    @hug.ExceptionRouter(ValueError, exclude=(MyValueError, MySecondValueError), api=hug_api)
     def base_exception_handler(exception):
         return "special exception handler"
 
@@ -1867,7 +1867,7 @@ def test_exception_excludes(hug_api):
 def test_cli_kwargs(hug_api):
     """Test to ensure cli commands can correctly handle **kwargs"""
 
-    @hug.cli(api=hug_api)
+    @hug.CLIRouter(api=hug_api)
     def takes_all_the_things(required_argument, named_argument=False, *args, **kwargs):
         return [required_argument, named_argument, args, kwargs]
 
@@ -1913,8 +1913,8 @@ def test_utf8_output(hug_api):
 
 
 def test_param_rerouting(hug_api):
-    @hug.local(api=hug_api, map_params={"local_id": "record_id"})
-    @hug.cli(api=hug_api, map_params={"cli_id": "record_id"})
+    @hug.LocalRouter(api=hug_api, map_params={"local_id": "record_id"})
+    @hug.CLIRouter(api=hug_api, map_params={"cli_id": "record_id"})
     @hug.get(api=hug_api, map_params={"id": "record_id"})
     def pull_record(record_id: hug.types.number):
         return record_id
