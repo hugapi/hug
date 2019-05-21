@@ -89,11 +89,10 @@ from hug.route import (
 )
 from hug.types import create as type
 
-from hug import (
-    authentication,
-)  # isort:skip - must be imported last for defaults to have access to all modules
-
+# The following imports must be imported last; in particular, defaults to have access to all modules
+from hug import authentication  #isort:skip
 from hug import development_runner  # isort:skip
+from hug import defaults  # isort:skip
 
 try:  # pragma: no cover - defaulting to uvloop if it is installed
     import uvloop
