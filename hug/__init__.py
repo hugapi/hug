@@ -33,18 +33,65 @@ from __future__ import absolute_import
 
 from falcon import *
 
-from hug import (defaults, directives, exceptions, format, input_format, introspect, middleware,
-                 output_format, redirect, route, test, transform, types, use, validate)
+from hug import (
+    defaults,
+    directives,
+    exceptions,
+    format,
+    input_format,
+    introspect,
+    middleware,
+    output_format,
+    redirect,
+    route,
+    test,
+    transform,
+    types,
+    use,
+    validate,
+)
 from hug._version import current
 from hug.api import API
-from hug.decorators import (context_factory, default_input_format, default_output_format,
-                            delete_context, directive, extend_api, middleware_class, reqresp_middleware,
-                            request_middleware, response_middleware, startup, wraps)
-from hug.route import (call, cli, connect, delete, exception, get, get_post, head, http, local,
-                       not_found, object, options, patch, post, put, sink, static, trace)
+from hug.decorators import (
+    context_factory,
+    default_input_format,
+    default_output_format,
+    delete_context,
+    directive,
+    extend_api,
+    middleware_class,
+    reqresp_middleware,
+    request_middleware,
+    response_middleware,
+    startup,
+    wraps,
+)
+from hug.route import (
+    call,
+    cli,
+    connect,
+    delete,
+    exception,
+    get,
+    get_post,
+    head,
+    http,
+    local,
+    not_found,
+    object,
+    options,
+    patch,
+    post,
+    put,
+    sink,
+    static,
+    trace,
+)
 from hug.types import create as type
 
-from hug import authentication  # isort:skip - must be imported last for defaults to have access to all modules
+from hug import (
+    authentication,
+)  # isort:skip - must be imported last for defaults to have access to all modules
 
 from hug import development_runner  # isort:skip
 

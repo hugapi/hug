@@ -38,7 +38,15 @@ import hug.types as types
 from hug import introspect
 from hug.exceptions import InvalidTypeData
 from hug.format import parse_content_type
-from hug.types import MarshmallowInputSchema, MarshmallowReturnSchema, Multiple, OneOf, SmartBoolean, Text, text
+from hug.types import (
+    MarshmallowInputSchema,
+    MarshmallowReturnSchema,
+    Multiple,
+    OneOf,
+    SmartBoolean,
+    Text,
+    text,
+)
 
 
 def asyncio_call(function, *args, **kwargs):
