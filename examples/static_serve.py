@@ -52,7 +52,7 @@ def setup(api=None):
         fo.write(image)
 
 
-@hug.StaticRouter("/static")
+@hug.static("/static")
 def my_static_dirs():
     """Returns static directory names to be served."""
     global tmp_dir_object

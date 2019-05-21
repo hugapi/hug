@@ -17,7 +17,7 @@ def delete_context(context: SqlalchemyContext, exception=None, errors=None, lack
     context.cleanup(exception)
 
 
-@hug.LocalRouter(skip_directives=False)
+@hug.local(skip_directives=False)
 def initialize(db: SqlalchemySession):
     admin = TestUser(username="admin", password="admin")
     db.add(admin)

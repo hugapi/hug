@@ -2,6 +2,6 @@ import hug
 
 
 @hug.get()
-@hug.CLIRouter()
+@hug.cli()
 def made_up_go():
     return "Going!"

@@ -32,7 +32,7 @@ from os.path import exists
 import _thread as thread
 from hug._version import current
 from hug.api import API
-from hug.route import CLIRouter
+from hug.route import cli
 from hug.types import boolean, number
 
 INIT_MODULES = list(sys.modules.keys())
@@ -42,7 +42,7 @@ def _start_api(api_module, host, port, no_404_documentation, show_intro=True):
     API(api_module).http.serve(host, port, no_404_documentation, show_intro)
 
 
-@CLIRouter(version=current)
+@cli(version=current)
 def hug(
     file: "A Python file that contains a Hug API" = None,
     module: "A Python module that contains a Hug API" = None,

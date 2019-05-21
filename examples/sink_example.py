@@ -6,6 +6,6 @@ To try this out, run this api with hug -f sink_example.py and hit any URL after 
 import hug
 
 
-@hug.SinkRouter("/all")
+@hug.sink("/all")
 def my_sink(request):
     return request.path.replace("/all", "")

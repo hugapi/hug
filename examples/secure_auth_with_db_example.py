@@ -36,7 +36,7 @@ def gen_api_key(username):
     return hash_password(username, salt)
 
 
-@hug.CLIRouter()
+@hug.cli()
 def authenticate_user(username, password):
     """
     Authenticate a username and password against our database
@@ -57,7 +57,7 @@ def authenticate_user(username, password):
     return False
 
 
-@hug.CLIRouter()
+@hug.cli()
 def authenticate_key(api_key):
     """
     Authenticate an API key against our database
@@ -79,7 +79,7 @@ api_key_authentication = hug.authentication.api_key(authenticate_key)
 basic_authentication = hug.authentication.basic(authenticate_user)
 
 
-@hug.CLIRouter()
+@hug.cli()
 def add_user(username, password):
     """
     CLI Parameter to add a user to the database

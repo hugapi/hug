@@ -46,7 +46,7 @@ def test_nested_basic_call_coroutine():
     def hello_world():
         return getattr(asyncio, "ensure_future")(nested_hello_world())
 
-    @hug.LocalRouter()
+    @hug.local()
     @asyncio.coroutine
     def nested_hello_world():
         return "Hello World!"

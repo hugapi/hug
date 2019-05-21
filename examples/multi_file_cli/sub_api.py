@@ -1,6 +1,6 @@
 import hug
 
 
-@hug.CLIRouter()
+@hug.cli()
 def hello():
     return "Hello world"
