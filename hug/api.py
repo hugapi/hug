@@ -78,6 +78,7 @@ class InterfaceAPI(object):
 
 class HTTPInterfaceAPI(InterfaceAPI):
     """Defines the HTTP interface specific API"""
+
     __slots__ = (
         "routes",
         "versions",
