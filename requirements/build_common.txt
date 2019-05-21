@@ -1,4 +1,5 @@
 -r common.txt
+pip=19.1.1
 flake8==3.3.0
 isort==4.2.5
 pytest-cov==2.4.0
