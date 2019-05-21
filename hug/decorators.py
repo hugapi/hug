@@ -157,7 +157,7 @@ def response_middleware(api=None):
         class MiddlewareRouter(object):
             __slots__ = ()
 
-            def process_response(self, request, response, resource, req_succeeded):
+            def process_response(self, request, response, resource, _req_succeeded):
                 return middleware_method(request, response, resource)
 
         apply_to_api.http.add_middleware(MiddlewareRouter())
@@ -179,7 +179,7 @@ def reqresp_middleware(api=None):
                 self.gen = middleware_generator(request)
                 return self.gen.__next__()
 
-            def process_response(self, request, response, resource, req_succeeded):
+            def process_response(self, request, response, resource, _req_succeeded):
                 return self.gen.send((response, resource))
 
         apply_to_api.http.add_middleware(MiddlewareRouter())
