@@ -27,13 +27,13 @@ from types import FunctionType, MethodType
 from falcon import HTTP_METHODS
 
 import hug.api
-from hug.routing import CLIRouter as cli
-from hug.routing import ExceptionRouter as exception
-from hug.routing import LocalRouter as local
-from hug.routing import NotFoundRouter as not_found
-from hug.routing import SinkRouter as sink
-from hug.routing import StaticRouter as static
-from hug.routing import URLRouter as http
+from hug.routing import CLIRouter as cli  # noqa:  N813
+from hug.routing import ExceptionRouter as exception  # noqa:  N813
+from hug.routing import LocalRouter as local  # noqa:  N813
+from hug.routing import NotFoundRouter as not_found  # noqa:  N813
+from hug.routing import SinkRouter as sink  # noqa:  N813
+from hug.routing import StaticRouter as static  # noqa:  N813
+from hug.routing import URLRouter as http  # noqa:  N813
 
 
 class Object(http):

@@ -89,7 +89,7 @@ class SessionMiddleware(object):
                 data = self.store.get(sid)
         request.context.update({self.context_name: data})
 
-    def process_response(self, request, response, resource, req_succeeded):
+    def process_response(self, request, response, resource, _req_succeeded):
         """Save request context in coupled store object. Set cookie containing a session ID."""
         sid = request.cookies.get(self.cookie_name, None)
         if sid is None or not self.store.exists(sid):
@@ -138,7 +138,7 @@ class LogMiddleware(object):
             )
         )
 
-    def process_response(self, request, response, resource, req_succeeded):
+    def process_response(self, request, response, resource, _req_succeeded):
         """Logs the basic data returned by the API"""
         self.logger.info(self._generate_combined_log(request, response))
 
@@ -153,8 +153,10 @@ class CORSMiddleware(object):
     __slots__ = ("api", "allow_origins", "allow_credentials", "max_age")
 
     def __init__(
-        self, api, allow_origins: list = ["*"], allow_credentials: bool = True, max_age: int = None
+        self, api, allow_origins: list = None, allow_credentials: bool = True, max_age: int = None
     ):
+        if allow_origins is None:
+            allow_origins = ["*"]
         self.api = api
         self.allow_origins = allow_origins
         self.allow_credentials = allow_credentials
@@ -174,7 +176,7 @@ class CORSMiddleware(object):
 
         return reqpath
 
-    def process_response(self, request, response, resource, req_succeeded):
+    def process_response(self, request, response, resource, _req_succeeded):
         """Add CORS headers to the response"""
         response.set_header("Access-Control-Allow-Credentials", str(self.allow_credentials).lower())
 
