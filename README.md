@@ -265,6 +265,18 @@ You can also easily add any Falcon style middleware using:
 __hug__.http.add_middleware(MiddlewareObject())
 ```
 
+**Parameter mapping** can be used to override inferred parameter names, eg. for reserved keywords:
+
+```py
+import marshmallow.fields as fields
+...
+
+@hug.get('/foo', map_params={'from': 'from_date'})  # API call uses 'from'
+def get_foo_by_date(from_date: fields.DateTime()):
+    return find_foo(from_date)
+```
+
+Input formatters are mapped based on the `content_type` of the request data, and only perform basic parsing. More detailed parsing should be done by the Type Annotations present on your `api_function`
 
 Splitting APIs over multiple files
 ===================
