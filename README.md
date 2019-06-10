@@ -25,7 +25,6 @@ As a result of these goals, hug is Python 3+ only and built upon [Falcon's](http
 
 [![HUG Hello World Example](https://raw.github.com/hugapi/hug/develop/artwork/example.gif)](https://github.com/hugapi/hug/blob/develop/examples/hello_world.py)
 
-
 Installing hug
 ===================
 
@@ -37,9 +36,9 @@ pip3 install hug --upgrade
 
 Ideally, within a [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
-
 Getting Started
 ===================
+
 Build an example API with a simple endpoint in just a few lines.
 
 ```py
@@ -118,7 +117,6 @@ Then you can access the example from `localhost:8000/v1/echo?text=Hi` / `localho
 
 Note: versioning in hug automatically supports both the version header as well as direct URL based specification.
 
-
 Testing hug APIs
 ===================
 
@@ -141,7 +139,6 @@ def tests_happy_birthday():
     assert response.data is not None
 ```
 
-
 Running hug with other WSGI based servers
 ===================
 
@@ -154,7 +151,6 @@ uwsgi --http 0.0.0.0:8000 --wsgi-file examples/hello_world.py --callable __hug_w
 ```
 
 To run the hello world hug example API.
-
 
 Building Blocks of a hug API
 ===================
@@ -181,7 +177,6 @@ def math(number_1:int, number_2:int): #The :int after both arguments is the Type
 
 Type annotations also feed into `hug`'s automatic documentation
 generation to let users of your API know what data to supply.
-
 
 **Directives** functions that get executed with the request / response data based on being requested as an argument in your api_function.
 These apply as input parameters only, and can not be applied currently as output formats or transformations.
@@ -242,7 +237,6 @@ def hello():
 
 as shown, you can easily change the output format for both an entire API as well as an individual API call
 
-
 **Input Formatters** a function that takes the body of data given from a user of your API and formats it for handling.
 
 ```py
@@ -252,7 +246,6 @@ def my_input_formatter(data):
 ```
 
 Input formatters are mapped based on the `content_type` of the request data, and only perform basic parsing. More detailed parsing should be done by the Type Annotations present on your `api_function`
-
 
 **Middleware** functions that get called for every request a hug API processes
 
@@ -314,7 +307,6 @@ Or alternatively - for cases like this - where only one module is being included
 hug.API(__name__).extend(something, '/something')
 ```
 
-
 Configuring hug 404
 ===================
 
@@ -346,7 +338,6 @@ def not_found_handler():
     return "Not Found"
 ```
 
-
 Asyncio support
 ===============
 
@@ -354,6 +345,7 @@ When using the `get` and `cli` method decorator on coroutines, hug will schedule
 the execution of the coroutine.
 
 Using asyncio coroutine decorator
+
 ```py
 @hug.get()
 @asyncio.coroutine
@@ -362,6 +354,7 @@ def hello_world():
 ```
 
 Using Python 3.5 async keyword.
+
 ```py
 @hug.get()
 async def hello_world():
@@ -371,9 +364,9 @@ async def hello_world():
 NOTE: Hug is running on top Falcon which is not an asynchronous server. Even if using
 asyncio, requests will still be processed synchronously.
 
-
 Using Docker
 ===================
+
 If you like to develop in Docker and keep your system clean, you can do that but you'll need to first install [Docker Compose](https://docs.docker.com/compose/install/).
 
 Once you've done that, you'll need to `cd` into the `docker` directory and run the web server (Gunicorn) specified in `./docker/gunicorn/Dockerfile`, after which you can preview the output of your API in the browser on your host machine.
@@ -412,7 +405,6 @@ bash-4.3# tree
 
 1 directory, 3 files
 ```
-
 
 Why hug?
 ===================
