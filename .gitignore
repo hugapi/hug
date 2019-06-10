@@ -73,3 +73,6 @@ venv/
 
 # Emacs backup
 *~
+
+# VSCode
+/.vscode
