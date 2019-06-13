@@ -8,6 +8,7 @@
 *.egg-info
 build
 eggs
+.eggs
 parts
 var
 sdist
