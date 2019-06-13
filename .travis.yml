@@ -28,9 +28,17 @@ matrix:
   - os: osx
     language: generic
     env: TOXENV=py36-marshmallow2
+    addons:
+    homebrew:
+      update: true
+      packages: python3
   - os: osx
     language: generic
     env: TOXENV=py36-marshmallow3
+    addons:
+    homebrew:
+      update: true
+      packages: python3
 before_install:
 - "./scripts/before_install.sh"
 install:
