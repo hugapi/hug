@@ -76,10 +76,9 @@ def hug(
             print(str(api.cli))
             sys.exit(1)
 
-        use_cli_router = slice(
-            sys.argv.index("-c") if "-c" in sys.argv else sys.argv.index("--command") + 2
-        )
-        sys.argv[1:] = sys.argv[use_cli_router]
+        sys.argv = sys.argv[
+            (sys.argv.index("-c") if "-c" in sys.argv else sys.argv.index("--command")) + 1 :
+        ]
         api.cli.commands[command]()
         return
 
