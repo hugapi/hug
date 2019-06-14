@@ -11,8 +11,11 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
-### 3.0.0 - TBD
-- Added automated code cleaning and linting satisfying [HOPE-8 -- Style Guideline for Hug](https://github.com/hugapi/HOPE/blob/master/all/HOPE-8--Style-Guide-for-Hug-Code.md#hope-8----style-guide-for-hug-code)
+### 2.5.5 - June 13, 2019
+- Fixed issue #808: Problems with command line invocation via hug CLI
+- Fixed issue #647: Support for arbitrary URL complexity when using CORS middleware
+- Fixed issue #805: Added documentation for `map_params` feature
+- Added initial automated code cleaning and linting partially satisfying [HOPE-8 -- Style Guideline for Hug](https://github.com/hugapi/HOPE/blob/master/all/HOPE-8--Style-Guide-for-Hug-Code.md#hope-8----style-guide-for-hug-code)
 - Implemented [HOPE-20 -- The Zen of Hug](https://github.com/hugapi/HOPE/blob/master/all/HOPE-20--The-Zen-of-Hug.md)
 
 ### 2.5.4 hotfix - May 19, 2019
