@@ -384,7 +384,7 @@ def accept(
             handler = default
             accepted = [accept_quality(accept_type) for accept_type in accept.split(",")]
             accepted.sort(key=itemgetter(0))
-            for quality, accepted_content_type in reversed(accepted):
+            for _quality, accepted_content_type in reversed(accepted):
                 if accepted_content_type in handlers:
                     handler = handlers[accepted_content_type]
                     break

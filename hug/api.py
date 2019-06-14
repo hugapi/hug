@@ -78,6 +78,7 @@ class InterfaceAPI(object):
 
 class HTTPInterfaceAPI(InterfaceAPI):
     """Defines the HTTP interface specific API"""
+
     __slots__ = (
         "routes",
         "versions",
@@ -123,10 +124,10 @@ class HTTPInterfaceAPI(InterfaceAPI):
     def handlers(self):
         """Returns all registered handlers attached to this API"""
         used = []
-        for base_url, mapping in self.routes.items():
-            for url, methods in mapping.items():
-                for method, versions in methods.items():
-                    for version, handler in versions.items():
+        for _base_url, mapping in self.routes.items():
+            for _url, methods in mapping.items():
+                for _method, versions in methods.items():
+                    for _version, handler in versions.items():
                         if not handler in used:
                             used.append(handler)
                             yield handler
@@ -179,15 +180,15 @@ class HTTPInterfaceAPI(InterfaceAPI):
         self.versions.update(http_api.versions)
         base_url = base_url or self.base_url
 
-        for router_base_url, routes in http_api.routes.items():
+        for _router_base_url, routes in http_api.routes.items():
             self.routes.setdefault(base_url, OrderedDict())
             for item_route, handler in routes.items():
-                for method, versions in handler.items():
-                    for version, function in versions.items():
+                for _method, versions in handler.items():
+                    for _version, function in versions.items():
                         function.interface.api = self.api
                 self.routes[base_url].setdefault(route + item_route, {}).update(handler)
 
-        for sink_base_url, sinks in http_api.sinks.items():
+        for _sink_base_url, sinks in http_api.sinks.items():
             for url, sink in sinks.items():
                 self.add_sink(sink, route + url, base_url=base_url)
 
@@ -344,9 +345,11 @@ class HTTPInterfaceAPI(InterfaceAPI):
         return handle_404
 
     def version_router(
-        self, request, response, api_version=None, versions={}, not_found=None, **kwargs
+        self, request, response, api_version=None, versions=None, not_found=None, **kwargs
     ):
         """Intelligently routes a request to the correct handler based on the version being requested"""
+        if versions is None:
+            versions = {}
         request_version = self.determine_version(request, api_version)
         if request_version:
             request_version = int(request_version)
@@ -551,9 +554,9 @@ class API(object, metaclass=ModuleSingleton):
 
     def handlers(self):
         """Returns all registered handlers attached to this API"""
-        if getattr(self, "_http"):
+        if getattr(self, "_http", None):
             yield from self.http.handlers()
-        if getattr(self, "_cli"):
+        if getattr(self, "_cli", None):
             yield from self.cli.handlers()
 
     @property

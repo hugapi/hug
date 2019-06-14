@@ -221,13 +221,15 @@ class HTTPRouter(InternalValidation):
         versions=any,
         parse_body=False,
         parameters=None,
-        defaults={},
+        defaults=None,
         status=None,
         response_headers=None,
         private=False,
         inputs=None,
         **kwargs
     ):
+        if defaults is None:
+            defaults = {}
         super().__init__(**kwargs)
         if versions is not any:
             self.route["versions"] = (

@@ -84,6 +84,8 @@ Documenters
 - Joshua Crowgey (@jcrowgey)
 - Antti Kaihola (@akaihola)
 - Simon Ince (@Simon-Ince)
+- Edvard Majakari (@EdvardM)
+
 
 
 --------------------------------------------

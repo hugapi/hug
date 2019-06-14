@@ -5,7 +5,7 @@ try:  # pragma: no cover
     if HUG_USE_UJSON:
         import ujson as json
 
-        class dumps_proxy:
+        class dumps_proxy:  # noqa: N801
             """Proxies the call so non supported kwargs are skipped
             and it enables escape_forward_slashes to simulate built-in json
             """

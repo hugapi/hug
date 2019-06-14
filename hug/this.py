@@ -1,8 +1,8 @@
-"""tests/test_full_request.py.
+"""hug/this.py.
 
-Test cases that rely on a command being ran against a running hug server
+The Zen of Hug
 
-Copyright (C) 2016 Timothy Edmund Crosley
+Copyright (C) 2019 Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -19,33 +19,27 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-import platform
-import time
-from subprocess import Popen
 
-import pytest
-import requests
+ZEN_OF_HUG = """
+Simple Things should be easy, complex things should be possible.
+Complex things done often should be made simple.
 
-import hug
+Magic should be avoided.
+Magic isn't magic as soon as its mechanics are universally understood.
 
-TEST_HUG_API = """
-import hug
+Wrong documentation is worse than no documentation.
+Everything should be documented.
 
+All code should be tested.
+All tests should be meaningful.
 
-@hug.post("/test", output=hug.output_format.json)
-def post(body, response):
-    print(body)
-    return {'message': 'ok'}
+Consistency is more important than perfection.
+It's okay to break consistency for practicality.
+
+Clarity is more important than performance.
+If we do our job right, there shouldn't need to be a choice.
+
+Interfaces are one honking great idea -- let's do more of those!
 """
 
-
-@pytest.mark.skipif(
-    platform.python_implementation() == "PyPy", reason="Can't run hug CLI from travis PyPy"
-)
-def test_hug_post(tmp_path):
-    hug_test_file = tmp_path / "hug_postable.py"
-    hug_test_file.write_text(TEST_HUG_API)
-    hug_server = Popen(["hug", "-f", str(hug_test_file), "-p", "3000"])
-    time.sleep(5)
-    requests.post("http://127.0.0.1:3000/test", {"data": "here"})
-    hug_server.kill()
+print(ZEN_OF_HUG)

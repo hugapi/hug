@@ -117,7 +117,7 @@ class Interfaces(object):
 
             self.input_transformations[name] = transformer
 
-    def __call__(__hug_internal_self, *args, **kwargs):
+    def __call__(__hug_internal_self, *args, **kwargs):  # noqa: N805
         """"Calls the wrapped function, uses __hug_internal_self incase self is passed in as a kwarg from the wrapper"""
         if not __hug_internal_self.is_coroutine:
             return __hug_internal_self._function(*args, **kwargs)
@@ -270,7 +270,7 @@ class Interface(object):
                             type_handler, input_parameters[key], context=context
                         )
                 except InvalidTypeData as error:
-                    errors[key] = error.reasons or str(error.message)
+                    errors[key] = error.reasons or str(error)
                 except Exception as error:
                     if hasattr(error, "args") and error.args:
                         errors[key] = error.args[0]
@@ -342,7 +342,7 @@ class Interface(object):
 
     @staticmethod
     def cleanup_parameters(parameters, exception=None):
-        for parameter, directive in parameters.items():
+        for _parameter, directive in parameters.items():
             if hasattr(directive, "cleanup"):
                 directive.cleanup(exception=exception)
 
@@ -385,7 +385,7 @@ class Local(Interface):
         context = self.api.context_factory(api=self.api, api_version=self.version, interface=self)
         """Defines how calling the function locally should be handled"""
 
-        for requirement in self.requires:
+        for _requirement in self.requires:
             lacks_requirement = self.check_requirements(context=context)
             if lacks_requirement:
                 self.api.delete_context(context, lacks_requirement=lacks_requirement)
@@ -604,7 +604,7 @@ class CLI(Interface):
             args.extend(pass_to_function.pop(self.additional_options, ()))
             if self.interface.takes_kwargs:
                 add_options_to = None
-                for index, option in enumerate(unknown):
+                for option in unknown:
                     if option.startswith("--"):
                         if add_options_to:
                             value = pass_to_function[add_options_to]
@@ -959,9 +959,9 @@ class HTTP(Interface):
     def urls(self, version=None):
         """Returns all URLS that are mapped to this interface"""
         urls = []
-        for base_url, routes in self.api.http.routes.items():
+        for _base_url, routes in self.api.http.routes.items():
             for url, methods in routes.items():
-                for method, versions in methods.items():
+                for _method, versions in methods.items():
                     for interface_version, interface in versions.items():
                         if interface_version == version and interface == self:
                             if not url in urls:

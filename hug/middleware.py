@@ -153,8 +153,10 @@ class CORSMiddleware(object):
     __slots__ = ("api", "allow_origins", "allow_credentials", "max_age")
 
     def __init__(
-        self, api, allow_origins: list = ["*"], allow_credentials: bool = True, max_age: int = None
+        self, api, allow_origins: list = None, allow_credentials: bool = True, max_age: int = None
     ):
+        if allow_origins is None:
+            allow_origins = ["*"]
         self.api = api
         self.allow_origins = allow_origins
         self.allow_credentials = allow_credentials
@@ -169,7 +171,7 @@ class CORSMiddleware(object):
                 reqpath = re.sub("^(/v\d*/?)", "/", reqpath)
                 base_url = getattr(self.api.http, "base_url", "")
                 reqpath = reqpath.replace(base_url, "", 1) if base_url else reqpath
-                if re.match(re.sub(r"/{[^{}]+}", r"/[\\w-]+", route) + "$", reqpath):
+                if re.match(re.sub(r"/{[^{}]+}", ".+", route) + "$", reqpath, re.DOTALL):
                     return route
 
         return reqpath

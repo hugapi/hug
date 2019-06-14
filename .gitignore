@@ -8,6 +8,7 @@
 *.egg-info
 build
 eggs
+.eggs
 parts
 var
 sdist
@@ -73,3 +74,6 @@ venv/
 
 # Emacs backup
 *~
+
+# VSCode
+/.vscode

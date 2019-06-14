@@ -18,6 +18,10 @@ echo $TRAVIS_OS_NAME
             python_minor=5;;
         py36)
             python_minor=6;;
+        py36-marshmallow2)
+            python_minor=6;;
+        py36-marshmallow3)
+            python_minor=6;;
         py37)
             python_minor=7;;
     esac
