@@ -1046,7 +1046,6 @@ def test_extending_api_with_http_and_cli():
 
     # But not both
     with pytest.raises(ValueError):
-
         @hug.extend_api(sub_command="sub_api", command_prefix="api_", http=False)
         def extend_with():
             return (tests.module_fake_http_and_cli,)
