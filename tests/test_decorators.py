@@ -1042,8 +1042,6 @@ def test_extending_api_with_http_and_cli():
     def extend_with():
         return (tests.module_fake_http_and_cli,)
 
-    assert hug.test.cli("sub_api", "made_up_go", api=api)
-
     # But not both
     with pytest.raises(ValueError):
         @hug.extend_api(sub_command="sub_api", command_prefix="api_", http=False)
@@ -1051,7 +1049,7 @@ def test_extending_api_with_http_and_cli():
             return (tests.module_fake_http_and_cli,)
 
 
-def test_extending_api_with_http_and_cli():
+def test_extending_api_with_http_and_cli_sub_module():
     """Test to ensure it's possible to extend the current API so both HTTP and CLI APIs are extended"""
     import tests.module_fake_http_and_cli
 
