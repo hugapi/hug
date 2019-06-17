@@ -406,3 +406,16 @@ class TestURLRouter(TestHTTPRouter):
     def test_suffixes(self):
         """Test to ensure setting suffixes works as expected"""
         assert self.route.suffixes(".js", ".xml").route["suffixes"] == (".js", ".xml")
+
+    def test_allow_origins_request_handling(self, hug_api):
+        """Test to ensure a route with allowed origins works as expected"""
+        route = URLRouter(api=hug_api)
+        test_headers = route.allow_origins(
+            "google.com", methods=("GET", "POST"), credentials=True, headers="OPTIONS", max_age=10
+        )
+
+        @test_headers.get(headers={'ORIGIN': 'google.com'})
+        def my_endpoint():
+            return "Success"
+
+        assert hug.test.get(hug_api, "/my_endpoint").data == "Success"
