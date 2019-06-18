@@ -317,7 +317,7 @@ class HTTPRouter(InternalValidation):
         response_headers = {}
         if origins:
 
-            @hug.response_middleware(api=self.route.get('api', None))
+            @hug.response_middleware(api=self.route.get("api", None))
             def process_data(request, response, resource):
                 if "ORIGIN" in request.headers:
                     origin = request.headers["ORIGIN"]
