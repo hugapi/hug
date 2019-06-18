@@ -320,6 +320,10 @@ def test_json():
     with pytest.raises(ValueError):
         hug.types.json("Invalid JSON")
 
+    assert hug.types.json(json.dumps(["a", "b"]).split(",")) == ["a", "b"]
+    with pytest.raises(ValueError):
+        assert hug.types.json(["Invalid JSON", "Invalid JSON"])
+
 
 def test_multi():
     """Test to ensure that the multi type correctly handles a variety of value types"""

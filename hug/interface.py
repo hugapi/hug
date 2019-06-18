@@ -854,7 +854,7 @@ class HTTP(Interface):
                 if size:
                     response.set_stream(content, size)
                 else:
-                    response.stream = content
+                    response.stream = content  # pragma: no cover
         else:
             response.data = content
 

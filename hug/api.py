@@ -348,8 +348,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
         self, request, response, api_version=None, versions=None, not_found=None, **kwargs
     ):
         """Intelligently routes a request to the correct handler based on the version being requested"""
-        if versions is None:
-            versions = {}
+        versions = {} if versions is None else versions
         request_version = self.determine_version(request, api_version)
         if request_version:
             request_version = int(request_version)

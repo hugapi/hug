@@ -1042,17 +1042,14 @@ def test_extending_api_with_http_and_cli():
     def extend_with():
         return (tests.module_fake_http_and_cli,)
 
-    assert hug.test.cli("sub_api", "made_up_go", api=api)
-
     # But not both
     with pytest.raises(ValueError):
-
         @hug.extend_api(sub_command="sub_api", command_prefix="api_", http=False)
         def extend_with():
             return (tests.module_fake_http_and_cli,)
 
 
-def test_extending_api_with_http_and_cli():
+def test_extending_api_with_http_and_cli_sub_module():
     """Test to ensure it's possible to extend the current API so both HTTP and CLI APIs are extended"""
     import tests.module_fake_http_and_cli
 
@@ -1579,20 +1576,25 @@ def test_cli_with_multiple_ints():
     assert hug.test.cli(test_multiple_cli, ints=["1", "2", "3"]) == [1, 2, 3]
 
 
-def test_startup():
+def test_startup(hug_api):
     """Test to ensure hug startup decorators work as expected"""
+    happened_on_startup = []
 
-    @hug.startup()
+    @hug.startup(api=hug_api)
     def happens_on_startup(api):
-        pass
+        happened_on_startup.append("non-async")
 
-    @hug.startup()
+    @hug.startup(api=hug_api)
     @asyncio.coroutine
     def async_happens_on_startup(api):
-        pass
+        happened_on_startup.append("async")
 
-    assert happens_on_startup in api.startup_handlers
-    assert async_happens_on_startup in api.startup_handlers
+    assert happens_on_startup in hug_api.startup_handlers
+    assert async_happens_on_startup in hug_api.startup_handlers
+
+    hug_api._ensure_started()
+    assert "async" in happened_on_startup
+    assert "non-async" in happened_on_startup
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="Currently failing on Windows build")
