@@ -324,7 +324,7 @@ class Interface(object):
             inputs = doc.setdefault("inputs", OrderedDict())
             types = self.interface.spec.__annotations__
             for argument in parameters:
-                kind = types.get(argument, text)
+                kind = types.get(self._remap_entry(argument), text)
                 if getattr(kind, "directive", None) is True:
                     continue
 
@@ -340,6 +340,9 @@ class Interface(object):
         for interface_name, internal_name in self.map_params.items():
             if interface_name in params:
                 params[internal_name] = params.pop(interface_name)
+
+    def _remap_entry(self, interface_name):
+        return self.map_params.get(interface_name, interface_name)
 
     @staticmethod
     def cleanup_parameters(parameters, exception=None):
