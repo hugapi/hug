@@ -212,6 +212,7 @@ class Interface(object):
                 for name, transform in self.interface.input_transformations.items()
             }
         else:
+            self.map_params = {}
             self.input_transformations = self.interface.input_transformations
 
         if "output" in route:
@@ -417,8 +418,7 @@ class Local(Interface):
                 self.api.delete_context(context, errors=errors)
                 return outputs(errors) if outputs else errors
 
-        if getattr(self, "map_params", None):
-            self._rewrite_params(kwargs)
+        self._rewrite_params(kwargs)
         try:
             result = self.interface(**kwargs)
             if self.transform:
@@ -617,8 +617,7 @@ class CLI(Interface):
                     elif add_options_to:
                         pass_to_function[add_options_to].append(option)
 
-        if getattr(self, "map_params", None):
-            self._rewrite_params(pass_to_function)
+        self._rewrite_params(pass_to_function)
 
         try:
             if args:
@@ -816,8 +815,7 @@ class HTTP(Interface):
             parameters = {
                 key: value for key, value in parameters.items() if key in self.all_parameters
             }
-        if getattr(self, "map_params", None):
-            self._rewrite_params(parameters)
+        self._rewrite_params(parameters)
 
         return self.interface(**parameters)
 
