@@ -11,6 +11,10 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.5.6 - June 20, 2019
+- Fixed issue #815: map_params() causes api documentation to lose param type information
+- Improved project testing: restoring 100% coverage
+
 ### 2.5.5 - June 13, 2019
 - Fixed issue #808: Problems with command line invocation via hug CLI
 - Fixed issue #647: Support for arbitrary URL complexity when using CORS middleware

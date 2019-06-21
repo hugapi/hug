@@ -51,7 +51,7 @@ Code Contributors
 - Stanislav (@atmo)
 - Lordran (@xzycn)
 - Stephan Fitzpatrick (@knowsuchagency)
-
+- Edvard Majakari (@EdvardM)
 
 Documenters
 ===================

@@ -185,3 +185,11 @@ def test_marshmallow_return_type_documentation():
     doc = api.http.documentation()
 
     assert doc["handlers"]["/marshtest"]["POST"]["outputs"]["type"] == "Return docs"
+
+def test_map_params_documentation_preserves_type():
+    @hug.get(map_params={"from": "from_mapped"})
+    def map_params_test(from_mapped: hug.types.number):
+        pass
+
+    doc = api.http.documentation()
+    assert doc["handlers"]["/map_params_test"]["GET"]["inputs"]["from"]["type"] == "A whole number"

@@ -1,8 +1,8 @@
-"""hug/_version.py
+"""tests/test_main.py.
 
-Defines hug version information
+Basic testing of hug's `__main__` module
 
-Copyright (C) 2016  Timothy Edmund Crosley
+Copyright (C) 2016 Timothy Edmund Crosley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -19,6 +19,10 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OTHER DEALINGS IN THE SOFTWARE.
 
 """
-from __future__ import absolute_import
+import pytest
 
-current = "2.5.6"
+
+def test_main(capsys):
+    """Main module should be importable, but should raise a SystemExit after CLI docs print"""
+    with pytest.raises(SystemExit):
+        from hug import __main__

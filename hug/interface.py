@@ -212,6 +212,7 @@ class Interface(object):
                 for name, transform in self.interface.input_transformations.items()
             }
         else:
+            self.map_params = {}
             self.input_transformations = self.interface.input_transformations
 
         if "output" in route:
@@ -323,7 +324,7 @@ class Interface(object):
             inputs = doc.setdefault("inputs", OrderedDict())
             types = self.interface.spec.__annotations__
             for argument in parameters:
-                kind = types.get(argument, text)
+                kind = types.get(self._remap_entry(argument), text)
                 if getattr(kind, "directive", None) is True:
                     continue
 
@@ -339,6 +340,9 @@ class Interface(object):
         for interface_name, internal_name in self.map_params.items():
             if interface_name in params:
                 params[internal_name] = params.pop(interface_name)
+
+    def _remap_entry(self, interface_name):
+        return self.map_params.get(interface_name, interface_name)
 
     @staticmethod
     def cleanup_parameters(parameters, exception=None):
@@ -417,8 +421,7 @@ class Local(Interface):
                 self.api.delete_context(context, errors=errors)
                 return outputs(errors) if outputs else errors
 
-        if getattr(self, "map_params", None):
-            self._rewrite_params(kwargs)
+        self._rewrite_params(kwargs)
         try:
             result = self.interface(**kwargs)
             if self.transform:
@@ -617,8 +620,7 @@ class CLI(Interface):
                     elif add_options_to:
                         pass_to_function[add_options_to].append(option)
 
-        if getattr(self, "map_params", None):
-            self._rewrite_params(pass_to_function)
+        self._rewrite_params(pass_to_function)
 
         try:
             if args:
@@ -816,8 +818,7 @@ class HTTP(Interface):
             parameters = {
                 key: value for key, value in parameters.items() if key in self.all_parameters
             }
-        if getattr(self, "map_params", None):
-            self._rewrite_params(parameters)
+        self._rewrite_params(parameters)
 
         return self.interface(**parameters)
 
@@ -854,7 +855,7 @@ class HTTP(Interface):
                 if size:
                     response.set_stream(content, size)
                 else:
-                    response.stream = content
+                    response.stream = content  # pragma: no cover
         else:
             response.data = content
 
