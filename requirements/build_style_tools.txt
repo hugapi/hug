@@ -5,3 +5,4 @@ pep8-naming==0.8.2
 flake8-bugbear==19.3.0
 vulture==1.0
 bandit==1.6.0
+safety==1.8.5
