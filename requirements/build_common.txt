@@ -4,7 +4,6 @@ pytest-cov==2.4.0
 pytest==4.3.1
 python-coveralls==2.9.0
 wheel==0.29.0
-PyJWT==1.4.2
+PyJWT==1.7.1
 pytest-xdist==1.14.0
-numpy==1.15.4
-
+numpy<1.16
