@@ -1,8 +1,8 @@
 -r common.txt
-flake8==3.3.0
-isort==4.2.5
+flake8==3.7.7
+isort==4.3.20
 marshmallow==2.18.1
-pytest==4.4.2
-wheel==0.29.0
-pytest-xdist==1.28.0
+pytest==4.6.3
+wheel==0.33.4
+pytest-xdist==1.29.0
 numpy==1.15.4
