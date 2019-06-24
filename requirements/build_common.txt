@@ -1,9 +1,9 @@
 -r common.txt
-flake8==3.3.0
-pytest-cov==2.4.0
-pytest==4.3.1
-python-coveralls==2.9.0
-wheel==0.29.0
+flake8==3.5.0
+pytest-cov==2.7.1
+pytest==4.6.3
+python-coveralls==2.9.2
+wheel==0.33.4
 PyJWT==1.7.1
-pytest-xdist==1.14.0
+pytest-xdist==1.29.0
 numpy<1.16
