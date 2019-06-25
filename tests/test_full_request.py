@@ -20,6 +20,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import platform
+import sys
 import time
 from subprocess import Popen
 
@@ -42,6 +43,7 @@ def post(body, response):
 @pytest.mark.skipif(
     platform.python_implementation() == "PyPy", reason="Can't run hug CLI from travis PyPy"
 )
+@pytest.mark.skipif(sys.platform == "win32", reason="CLI not currently testable on Windows")
 def test_hug_post(tmp_path):
     hug_test_file = tmp_path / "hug_postable.py"
     hug_test_file.write_text(TEST_HUG_API)
