@@ -13,7 +13,7 @@ def internal_redirection_automatic(number_1: int, number_2: int):
     """This will redirect internally to the sum_two_numbers handler
        passing along all passed in parameters.
 
-        Redirect happens within internally within hug, fully transparent to clients.
+       This kind of redirect happens internally within hug, fully transparent to clients.
     """
     print("Internal Redirection Automatic {}, {}".format(number_1, number_2))
     return sum_two_numbers
