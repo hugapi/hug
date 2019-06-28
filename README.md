@@ -25,6 +25,17 @@ As a result of these goals, hug is Python 3+ only and built upon [Falcon's](http
 
 [![HUG Hello World Example](https://raw.github.com/hugapi/hug/develop/artwork/example.gif)](https://github.com/hugapi/hug/blob/develop/examples/hello_world.py)
 
+Supporting hug development
+===================
+[Get professionally supported hug with the Tidelift Subscription](https://tidelift.com/subscription/pkg/pypi-hug?utm_source=pypi-hug&utm_medium=referral&utm_campaign=readme)
+
+Professional support for hug is available as part of the [Tidelift
+Subscription](https://tidelift.com/subscription/pkg/pypi-hug?utm_source=pypi-hug&utm_medium=referral&utm_campaign=readme).
+Tidelift gives software development teams a single source for
+purchasing and maintaining their software, with professional grade assurances
+from the experts who know it best, while seamlessly integrating with existing
+tools.
+
 Installing hug
 ===================
 
@@ -421,7 +432,7 @@ bash-4.3# tree
 Security contact information
 ===================
 
-Hug takes security and quality seriously. This focus is why we depend only on thoroughly tested components and utilize static analysis tools (such as bandit and safety) to verify the security of our code base.
+hug takes security and quality seriously. This focus is why we depend only on thoroughly tested components and utilize static analysis tools (such as bandit and safety) to verify the security of our code base.
 If you find or encounter any potential security issues, please let us know right away so we can resolve them.
 
 To report a security vulnerability, please use the
