@@ -6,7 +6,7 @@
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/0h7ynsqrbaxs7hfm/branch/master?svg=true)](https://ci.appveyor.com/project/TimothyCrosley/hug)
 [![Coverage Status](https://coveralls.io/repos/hugapi/hug/badge.svg?branch=develop&service=github)](https://coveralls.io/github/hugapi/hug?branch=master)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/hug/)
-[![Join the chat at https://gitter.im/timothycrosley/hug](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hugapi/hug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/timothycrosley/hug](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/timothycrosley/hug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 NOTE: For more in-depth documentation visit [hug's website](http://www.hug.rest)
 
