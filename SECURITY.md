@@ -9,7 +9,7 @@ If you find or encounter any potential security issues, please let us know right
 | ------- | ------------------ |
 | 2.5.6   | :white_check_mark: |
 
-Currently, only the latest version of hug will recieve security fixes.
+Currently, only the latest version of hug will receive security fixes.
 
 ## Reporting a Vulnerability
 
