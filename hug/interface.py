@@ -526,7 +526,7 @@ class CLI(Interface):
                 kwargs["action"] = "store_true"
                 kwargs.pop("type", None)
             elif kwargs.get("action", None) == "store_true":
-                kwargs.pop("action", None) == "store_true"
+                kwargs.pop("action", None)
 
             if option == self.additional_options:
                 kwargs["nargs"] = "*"
