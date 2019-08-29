@@ -597,7 +597,11 @@ class CLI(Interface):
 
         for field, type_handler in self.reaffirm_types.items():
             if field in pass_to_function:
-                if not pass_to_function[field] and type_handler in (list, tuple, hug.types.Multiple):
+                if not pass_to_function[field] and type_handler in (
+                    list,
+                    tuple,
+                    hug.types.Multiple,
+                ):
                     pass_to_function[field] = type_handler(())
                 else:
                     pass_to_function[field] = self.initialize_handler(

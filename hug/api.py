@@ -471,10 +471,13 @@ class CLIInterfaceAPI(InterfaceAPI):
     def __str__(self):
         output = "{0}\n\nAvailable Commands:\n\n".format(self.api.doc or self.api.name)
         for command_name, command in self.commands.items():
-            command_string = " - {}{}".format(command_name, ": " + str(command).replace("\n", " ") if str(command) else "")
-            output += (command_string[:77] + "..." if len(command_string) > 80 else command_string)
+            command_string = " - {}{}".format(
+                command_name, ": " + str(command).replace("\n", " ") if str(command) else ""
+            )
+            output += command_string[:77] + "..." if len(command_string) > 80 else command_string
             output += "\n"
         return output
+
 
 class ModuleSingleton(type):
     """Defines the module level __hug__ singleton"""
