@@ -1936,3 +1936,11 @@ def test_param_rerouting(hug_api):
 
     assert hug.test.get(hug_api, "pull_record").data == 1
     assert hug.test.get(hug_api, "pull_record", id=10).data == 10
+
+
+def test_multiple_cli(hug_api):
+    @hug.cli(api=hug_api)
+    def multiple(items: list=None):
+        return items
+
+    hug_api.cli([None, "multiple", "-i", "one", "-i", "two"])
