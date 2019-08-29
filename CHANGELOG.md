@@ -11,7 +11,7 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
-### 2.6.0 - August 28, 2019
+### 2.6.0 - August 29, 2019
 - Improved CLI multiple behaviour with empty defaults
 - Improved CLI type output for built-in types
 - Improved MultiCLI base documentation
