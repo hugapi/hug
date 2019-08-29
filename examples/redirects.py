@@ -13,7 +13,7 @@ def internal_redirection_automatic(number_1: int, number_2: int):
     """This will redirect internally to the sum_two_numbers handler
        passing along all passed in parameters.
 
-        Redirect happens within internally within hug, fully transparent to clients.
+       This kind of redirect happens internally within hug, fully transparent to clients.
     """
     print("Internal Redirection Automatic {}, {}".format(number_1, number_2))
     return sum_two_numbers
@@ -29,7 +29,7 @@ def internal_redirection_manual(number: int):
 
 
 @hug.post()
-def redirect(redirect_type: hug.types.one_of((None, "permanent", "found", "see_other")) = None):
+def redirect(redirect_type: hug.types.one_of(("permanent", "found", "see_other")) = None):
     """Hug also fully supports classical HTTP redirects,
        providing built in convenience functions for the most common types.
     """
@@ -38,3 +38,10 @@ def redirect(redirect_type: hug.types.one_of((None, "permanent", "found", "see_o
         hug.redirect.to("/sum_two_numbers")
     else:
         getattr(hug.redirect, redirect_type)("/sum_two_numbers")
+
+
+@hug.post()
+def redirect_set_variables(number: int):
+    """You can also do some manual parameter setting with HTTP based redirects"""
+    print("HTTP Redirect set variables {}".format(number))
+    hug.redirect.to("/sum_two_numbers?number_1={0}&number_2={0}".format(number))

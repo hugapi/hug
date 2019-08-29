@@ -78,7 +78,7 @@ with open("README.md", encoding="utf-8") as f:  # Loads in the README for PyPI
 
 setup(
     name="hug",
-    version="2.5.6",
+    version="2.6.0",
     description="A Python framework that makes developing APIs "
     "as simple as possible, but no simpler.",
     long_description=long_description,
@@ -87,7 +87,7 @@ setup(
     author="Timothy Crosley",
     author_email="timothy.crosley@gmail.com",
     # These appear in the left hand side bar on PyPI
-    url="https://github.com/timothycrosley/hug",
+    url="https://github.com/hugapi/hug",
     project_urls={
         "Documentation": "http://www.hug.rest/",
         "Gitter": "https://gitter.im/timothycrosley/hug",

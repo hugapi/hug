@@ -11,6 +11,11 @@ Ideally, within a virtual environment.
 
 Changelog
 =========
+### 2.6.0 - August 29, 2019
+- Improved CLI multiple behaviour with empty defaults
+- Improved CLI type output for built-in types
+- Improved MultiCLI base documentation
+
 ### 2.5.6 - June 20, 2019
 - Fixed issue #815: map_params() causes api documentation to lose param type information
 - Improved project testing: restoring 100% coverage

@@ -48,6 +48,12 @@ from hug.types import (
     text,
 )
 
+DOC_TYPE_MAP = {str: "String", bool: "Boolean", list: "Multiple", int: "Integer", float: "Float"}
+
+
+def _doc(kind):
+    return DOC_TYPE_MAP.get(kind, kind.__doc__)
+
 
 def asyncio_call(function, *args, **kwargs):
     loop = asyncio.get_event_loop()
@@ -227,7 +233,7 @@ class Interface(object):
             self.output_doc = self.transform.__doc__
         elif self.transform or self.interface.transform:
             output_doc = self.transform or self.interface.transform
-            self.output_doc = output_doc if type(output_doc) is str else output_doc.__doc__
+            self.output_doc = output_doc if type(output_doc) is str else _doc(output_doc)
 
         self.raise_on_invalid = route.get("raise_on_invalid", False)
         if "on_invalid" in route:
@@ -310,7 +316,7 @@ class Interface(object):
                 for requirement in self.requires
             ]
         doc["outputs"] = OrderedDict()
-        doc["outputs"]["format"] = self.outputs.__doc__
+        doc["outputs"]["format"] = _doc(self.outputs)
         doc["outputs"]["content_type"] = self.outputs.content_type
         parameters = [
             param
@@ -329,7 +335,7 @@ class Interface(object):
                     continue
 
                 input_definition = inputs.setdefault(argument, OrderedDict())
-                input_definition["type"] = kind if isinstance(kind, str) else kind.__doc__
+                input_definition["type"] = kind if isinstance(kind, str) else _doc(kind)
                 default = self.defaults.get(argument, None)
                 if default is not None:
                     input_definition["default"] = default
@@ -505,7 +511,7 @@ class CLI(Interface):
             if option in self.interface.input_transformations:
                 transform = self.interface.input_transformations[option]
                 kwargs["type"] = transform
-                kwargs["help"] = transform.__doc__
+                kwargs["help"] = _doc(transform)
                 if transform in (list, tuple) or isinstance(transform, types.Multiple):
                     kwargs["action"] = "append"
                     kwargs["type"] = Text()
@@ -526,7 +532,7 @@ class CLI(Interface):
                 kwargs["action"] = "store_true"
                 kwargs.pop("type", None)
             elif kwargs.get("action", None) == "store_true":
-                kwargs.pop("action", None) == "store_true"
+                kwargs.pop("action", None)
 
             if option == self.additional_options:
                 kwargs["nargs"] = "*"
@@ -559,6 +565,9 @@ class CLI(Interface):
                     sys.stdout.buffer.write(b"\n")
         return data
 
+    def __str__(self):
+        return self.parser.description or ""
+
     def __call__(self):
         """Calls the wrapped function through the lens of a CLI ran command"""
         context = self.api.context_factory(api=self.api, argparse=self.parser, interface=self)
@@ -588,9 +597,16 @@ class CLI(Interface):
 
         for field, type_handler in self.reaffirm_types.items():
             if field in pass_to_function:
-                pass_to_function[field] = self.initialize_handler(
-                    type_handler, pass_to_function[field], context=context
-                )
+                if not pass_to_function[field] and type_handler in (
+                    list,
+                    tuple,
+                    hug.types.Multiple,
+                ):
+                    pass_to_function[field] = type_handler(())
+                else:
+                    pass_to_function[field] = self.initialize_handler(
+                        type_handler, pass_to_function[field], context=context
+                    )
 
         if getattr(self, "validate_function", False):
             errors = self.validate_function(pass_to_function)

@@ -6,7 +6,7 @@
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/0h7ynsqrbaxs7hfm/branch/master?svg=true)](https://ci.appveyor.com/project/TimothyCrosley/hug)
 [![Coverage Status](https://coveralls.io/repos/hugapi/hug/badge.svg?branch=develop&service=github)](https://coveralls.io/github/hugapi/hug?branch=master)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/hug/)
-[![Join the chat at https://gitter.im/timothycrosley/hug](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hugapi/hug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/timothycrosley/hug](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/timothycrosley/hug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 NOTE: For more in-depth documentation visit [hug's website](http://www.hug.rest)
 
@@ -24,6 +24,17 @@ hug's Design Objectives:
 As a result of these goals, hug is Python 3+ only and built upon [Falcon's](https://github.com/falconry/falcon) high performance HTTP library
 
 [![HUG Hello World Example](https://raw.github.com/hugapi/hug/develop/artwork/example.gif)](https://github.com/hugapi/hug/blob/develop/examples/hello_world.py)
+
+Supporting hug development
+===================
+[Get professionally supported hug with the Tidelift Subscription](https://tidelift.com/subscription/pkg/pypi-hug?utm_source=pypi-hug&utm_medium=referral&utm_campaign=readme)
+
+Professional support for hug is available as part of the [Tidelift
+Subscription](https://tidelift.com/subscription/pkg/pypi-hug?utm_source=pypi-hug&utm_medium=referral&utm_campaign=readme).
+Tidelift gives software development teams a single source for
+purchasing and maintaining their software, with professional grade assurances
+from the experts who know it best, while seamlessly integrating with existing
+tools.
 
 Installing hug
 ===================
@@ -417,6 +428,16 @@ bash-4.3# tree
 
 1 directory, 3 files
 ```
+
+Security contact information
+===================
+
+hug takes security and quality seriously. This focus is why we depend only on thoroughly tested components and utilize static analysis tools (such as bandit and safety) to verify the security of our code base.
+If you find or encounter any potential security issues, please let us know right away so we can resolve them.
+
+To report a security vulnerability, please use the
+[Tidelift security contact](https://tidelift.com/security).
+Tidelift will coordinate the fix and disclosure.
 
 Why hug?
 ===================

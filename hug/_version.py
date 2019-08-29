@@ -21,4 +21,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
-current = "2.5.6"
+current = "2.6.0"
