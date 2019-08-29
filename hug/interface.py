@@ -565,6 +565,9 @@ class CLI(Interface):
                     sys.stdout.buffer.write(b"\n")
         return data
 
+    def __str__(self):
+        return self.parser.description or ""
+
     def __call__(self):
         """Calls the wrapped function through the lens of a CLI ran command"""
         context = self.api.context_factory(api=self.api, argparse=self.parser, interface=self)
