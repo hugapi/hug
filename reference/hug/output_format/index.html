@@ -1,0 +1,2483 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+    
+    
+      
+        <title>Output Format - hug</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.30686662.css">
+      
+        <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.a8b3c06d.css">
+      
+      
+        
+        
+        <meta name="theme-color" content="#4caf50">
+      
+    
+    
+      <script src="../../../assets/javascripts/modernizr.74668098.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
+    
+    
+    
+      
+    
+    
+  </head>
+  
+    
+    
+    <body dir="ltr" data-md-color-primary="green" data-md-color-accent="lightgreen">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#module-hugoutput_format" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../../.." title="hug" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              hug
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Output Format
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/hugapi/hug/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    hugapi/hu
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../../.." title="hug" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    hug
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/hugapi/hug/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    hugapi/hu
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../ACKNOWLEDGEMENTS/" title="Acknowledgements" class="md-nav__link">
+      Acknowledgements
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../ARCHITECTURE/" title="Architecture" class="md-nav__link">
+      Architecture
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../CHANGELOG/" title="Changelog" class="md-nav__link">
+      Changelog
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../CODING_STANDARD/" title="Coding Standard" class="md-nav__link">
+      Coding Standard
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../CONTRIBUTING/" title="Contributing" class="md-nav__link">
+      Contributing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../EXTENDING/" title="Extending" class="md-nav__link">
+      Extending
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../FAQ/" title="Faq" class="md-nav__link">
+      Faq
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../SECURITY/" title="Security" class="md-nav__link">
+      Security
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/AUTHENTICATION/" title="Authentication" class="md-nav__link">
+      Authentication
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/CUSTOM_CONTEXT/" title="Custom Context" class="md-nav__link">
+      Custom Context
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/DIRECTIVES/" title="Directives" class="md-nav__link">
+      Directives
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/OUTPUT_FORMATS/" title="Output Formats" class="md-nav__link">
+      Output Formats
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/ROUTING/" title="Routing" class="md-nav__link">
+      Routing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/TYPE_ANNOTATIONS/" title="Type Annotations" class="md-nav__link">
+      Type Annotations
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-16" type="checkbox" id="nav-16" checked>
+    
+    <label class="md-nav__link" for="nav-16">
+      Reference
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-16">
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-16-1" type="checkbox" id="nav-16-1" checked>
+    
+    <label class="md-nav__link" for="nav-16-1">
+      Hug
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-16-1">
+        Hug
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../api/" title="API" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../authentication/" title="Authentication" class="md-nav__link">
+      Authentication
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../decorators/" title="Decorators" class="md-nav__link">
+      Decorators
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../defaults/" title="Defaults" class="md-nav__link">
+      Defaults
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../development_runner/" title="Development Runner" class="md-nav__link">
+      Development Runner
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../directives/" title="Directives" class="md-nav__link">
+      Directives
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../exceptions/" title="Exceptions" class="md-nav__link">
+      Exceptions
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../format/" title="Format" class="md-nav__link">
+      Format
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../" title="Index" class="md-nav__link">
+      Index
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../input_format/" title="Input Format" class="md-nav__link">
+      Input Format
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../interface/" title="Interface" class="md-nav__link">
+      Interface
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../introspect/" title="Introspect" class="md-nav__link">
+      Introspect
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../json_module/" title="Json Module" class="md-nav__link">
+      Json Module
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../middleware/" title="Middleware" class="md-nav__link">
+      Middleware
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Output Format
+      </label>
+    
+    <a href="./" title="Output Format" class="md-nav__link md-nav__link--active">
+      Output Format
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3gp_video" class="md-nav__link">
+    3gp_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accept" class="md-nav__link">
+    accept
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accept_quality" class="md-nav__link">
+    accept_quality
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#avi_video" class="md-nav__link">
+    avi_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bmp_image" class="md-nav__link">
+    bmp_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cur_image" class="md-nav__link">
+    cur_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dcx_image" class="md-nav__link">
+    dcx_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eps_image" class="md-nav__link">
+    eps_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file" class="md-nav__link">
+    file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flc_image" class="md-nav__link">
+    flc_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fli_image" class="md-nav__link">
+    fli_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flv_video" class="md-nav__link">
+    flv_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gbr_image" class="md-nav__link">
+    gbr_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gd_image" class="md-nav__link">
+    gd_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gif_image" class="md-nav__link">
+    gif_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#html" class="md-nav__link">
+    html
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#icns_image" class="md-nav__link">
+    icns_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ico_image" class="md-nav__link">
+    ico_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#im_image" class="md-nav__link">
+    im_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image" class="md-nav__link">
+    image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#imt_image" class="md-nav__link">
+    imt_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iptc_image" class="md-nav__link">
+    iptc_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jpeg_image" class="md-nav__link">
+    jpeg_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jpg_image" class="md-nav__link">
+    jpg_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json" class="md-nav__link">
+    json
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json_camelcase" class="md-nav__link">
+    json_camelcase
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json_convert" class="md-nav__link">
+    json_convert
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m3u8_video" class="md-nav__link">
+    m3u8_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcidas_image" class="md-nav__link">
+    mcidas_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mov_video" class="md-nav__link">
+    mov_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mp4_video" class="md-nav__link">
+    mp4_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mpo_image" class="md-nav__link">
+    mpo_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#msp_image" class="md-nav__link">
+    msp_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#naa_image" class="md-nav__link">
+    naa_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_boolable" class="md-nav__link">
+    numpy_boolable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_byte_decodeable" class="md-nav__link">
+    numpy_byte_decodeable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_floatable" class="md-nav__link">
+    numpy_floatable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_integerable" class="md-nav__link">
+    numpy_integerable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_listable" class="md-nav__link">
+    numpy_listable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_stringable" class="md-nav__link">
+    numpy_stringable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on_content_type" class="md-nav__link">
+    on_content_type
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on_valid" class="md-nav__link">
+    on_valid
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pcd_image" class="md-nav__link">
+    pcd_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pcx_image" class="md-nav__link">
+    pcx_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#png_image" class="md-nav__link">
+    png_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ppm_image" class="md-nav__link">
+    ppm_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prefix" class="md-nav__link">
+    prefix
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pretty_json" class="md-nav__link">
+    pretty_json
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#psd_image" class="md-nav__link">
+    psd_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sgi_image" class="md-nav__link">
+    sgi_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spider_image" class="md-nav__link">
+    spider_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suffix" class="md-nav__link">
+    suffix
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#svg_image" class="md-nav__link">
+    svg_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#svg_xml_image" class="md-nav__link">
+    svg_xml_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#text" class="md-nav__link">
+    text
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tga_image" class="md-nav__link">
+    tga_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tiff_image" class="md-nav__link">
+    tiff_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ts_video" class="md-nav__link">
+    ts_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#video" class="md-nav__link">
+    video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wal_image" class="md-nav__link">
+    wal_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#webp_image" class="md-nav__link">
+    webp_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wmv_video" class="md-nav__link">
+    wmv_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xbm_image" class="md-nav__link">
+    xbm_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xpm_image" class="md-nav__link">
+    xpm_image
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../redirect/" title="Redirect" class="md-nav__link">
+      Redirect
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../route/" title="Route" class="md-nav__link">
+      Route
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../routing/" title="Routing" class="md-nav__link">
+      Routing
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../store/" title="Store" class="md-nav__link">
+      Store
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../test/" title="Test" class="md-nav__link">
+      Test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../this/" title="This" class="md-nav__link">
+      This
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../transform/" title="Transform" class="md-nav__link">
+      Transform
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../types/" title="Types" class="md-nav__link">
+      Types
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../use/" title="Use" class="md-nav__link">
+      Use
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../validate/" title="Validate" class="md-nav__link">
+      Validate
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3gp_video" class="md-nav__link">
+    3gp_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accept" class="md-nav__link">
+    accept
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accept_quality" class="md-nav__link">
+    accept_quality
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#avi_video" class="md-nav__link">
+    avi_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bmp_image" class="md-nav__link">
+    bmp_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cur_image" class="md-nav__link">
+    cur_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dcx_image" class="md-nav__link">
+    dcx_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eps_image" class="md-nav__link">
+    eps_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file" class="md-nav__link">
+    file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flc_image" class="md-nav__link">
+    flc_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fli_image" class="md-nav__link">
+    fli_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flv_video" class="md-nav__link">
+    flv_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gbr_image" class="md-nav__link">
+    gbr_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gd_image" class="md-nav__link">
+    gd_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gif_image" class="md-nav__link">
+    gif_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#html" class="md-nav__link">
+    html
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#icns_image" class="md-nav__link">
+    icns_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ico_image" class="md-nav__link">
+    ico_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#im_image" class="md-nav__link">
+    im_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image" class="md-nav__link">
+    image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#imt_image" class="md-nav__link">
+    imt_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iptc_image" class="md-nav__link">
+    iptc_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jpeg_image" class="md-nav__link">
+    jpeg_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jpg_image" class="md-nav__link">
+    jpg_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json" class="md-nav__link">
+    json
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json_camelcase" class="md-nav__link">
+    json_camelcase
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json_convert" class="md-nav__link">
+    json_convert
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m3u8_video" class="md-nav__link">
+    m3u8_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcidas_image" class="md-nav__link">
+    mcidas_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mov_video" class="md-nav__link">
+    mov_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mp4_video" class="md-nav__link">
+    mp4_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mpo_image" class="md-nav__link">
+    mpo_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#msp_image" class="md-nav__link">
+    msp_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#naa_image" class="md-nav__link">
+    naa_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_boolable" class="md-nav__link">
+    numpy_boolable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_byte_decodeable" class="md-nav__link">
+    numpy_byte_decodeable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_floatable" class="md-nav__link">
+    numpy_floatable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_integerable" class="md-nav__link">
+    numpy_integerable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_listable" class="md-nav__link">
+    numpy_listable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy_stringable" class="md-nav__link">
+    numpy_stringable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on_content_type" class="md-nav__link">
+    on_content_type
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on_valid" class="md-nav__link">
+    on_valid
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pcd_image" class="md-nav__link">
+    pcd_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pcx_image" class="md-nav__link">
+    pcx_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#png_image" class="md-nav__link">
+    png_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ppm_image" class="md-nav__link">
+    ppm_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prefix" class="md-nav__link">
+    prefix
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pretty_json" class="md-nav__link">
+    pretty_json
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#psd_image" class="md-nav__link">
+    psd_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sgi_image" class="md-nav__link">
+    sgi_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spider_image" class="md-nav__link">
+    spider_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suffix" class="md-nav__link">
+    suffix
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#svg_image" class="md-nav__link">
+    svg_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#svg_xml_image" class="md-nav__link">
+    svg_xml_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#text" class="md-nav__link">
+    text
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tga_image" class="md-nav__link">
+    tga_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tiff_image" class="md-nav__link">
+    tiff_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ts_video" class="md-nav__link">
+    ts_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#video" class="md-nav__link">
+    video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wal_image" class="md-nav__link">
+    wal_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#webp_image" class="md-nav__link">
+    webp_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wmv_video" class="md-nav__link">
+    wmv_video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xbm_image" class="md-nav__link">
+    xbm_image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xpm_image" class="md-nav__link">
+    xpm_image
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/hugapi/hug/edit/master/docs/reference/hug/output_format.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="module-hugoutput_format">Module hug.output_format</h1>
+<p>hug/output_format.py</p>
+<p>Defines Hug's built-in output formatting methods</p>
+<p>Copyright (C) 2016  Timothy Edmund Crosley</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.</p>
+<h2 id="variables">Variables</h2>
+<div class="codehilite"><pre><span></span><span class="n">HTTP_NOT_FOUND</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">IMAGE_TYPES</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">RE_ACCEPT_QUALITY</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">VIDEO_TYPES</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">image_type</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">json_converters</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">video_mime</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">video_type</span>
+</pre></div>
+
+
+<h2 id="functions">Functions</h2>
+<h3 id="3gp_video">3gp_video</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">3</span><span class="nf">gp_video</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>3gp formatted video</p>
+<h3 id="accept">accept</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">accept</span><span class="p">(</span>
+    <span class="n">handlers</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">error</span><span class="o">=</span><span class="s1">&#39;The requested content type does not match any of those allowed&#39;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Returns a content in a different format based on the clients defined accepted content type,
+should pass in a dict with the following format:</p>
+<div class="codehilite"><pre><span></span> <span class="err">{</span><span class="s1">&#39;[content-type]&#39;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span>
+  <span class="p">...</span>
+ <span class="err">}</span>
+</pre></div>
+
+
+<h3 id="accept_quality">accept_quality</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">accept_quality</span><span class="p">(</span>
+    <span class="n">accept</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Separates out the quality score from the accepted content_type</p>
+<h3 id="avi_video">avi_video</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">avi_video</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>avi formatted video</p>
+<h3 id="bmp_image">bmp_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">bmp_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>bmp formatted image</p>
+<h3 id="cur_image">cur_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cur_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>cur formatted image</p>
+<h3 id="dcx_image">dcx_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dcx_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>dcx formatted image</p>
+<h3 id="eps_image">eps_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">eps_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>eps formatted image</p>
+<h3 id="file">file</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">file</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">response</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>A dynamically retrieved file</p>
+<h3 id="flc_image">flc_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">flc_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>flc formatted image</p>
+<h3 id="fli_image">fli_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">fli_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>fli formatted image</p>
+<h3 id="flv_video">flv_video</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">flv_video</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>flv formatted video</p>
+<h3 id="gbr_image">gbr_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">gbr_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>gbr formatted image</p>
+<h3 id="gd_image">gd_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">gd_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>gd formatted image</p>
+<h3 id="gif_image">gif_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">gif_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>gif formatted image</p>
+<h3 id="html">html</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">html</span><span class="p">(</span>
+    <span class="n">content</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>HTML (Hypertext Markup Language)</p>
+<h3 id="icns_image">icns_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">icns_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>icns formatted image</p>
+<h3 id="ico_image">ico_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ico_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>ico formatted image</p>
+<h3 id="im_image">im_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">im_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>im formatted image</p>
+<h3 id="image">image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">image</span><span class="p">(</span>
+    <span class="n">image_format</span><span class="p">,</span>
+    <span class="n">doc</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Dynamically creates an image type handler for the specified image type</p>
+<h3 id="imt_image">imt_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">imt_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>imt formatted image</p>
+<h3 id="iptc_image">iptc_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iptc_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>iptc formatted image</p>
+<h3 id="jpeg_image">jpeg_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">jpeg_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>jpeg formatted image</p>
+<h3 id="jpg_image">jpg_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">jpg_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>jpg formatted image</p>
+<h3 id="json">json</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">json</span><span class="p">(</span>
+    <span class="n">content</span><span class="p">,</span>
+    <span class="n">request</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">response</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>JSON (Javascript Serialized Object Notation)</p>
+<h3 id="json_camelcase">json_camelcase</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">json_camelcase</span><span class="p">(</span>
+    <span class="n">content</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>JSON (Javascript Serialized Object Notation) with all keys camelCased</p>
+<h3 id="json_convert">json_convert</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">json_convert</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">kinds</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Registers the wrapped method as a JSON converter for the provided types.</p>
+<p>NOTE: custom converters are always globally applied</p>
+<h3 id="m3u8_video">m3u8_video</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">m3u8_video</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>m3u8 formatted video</p>
+<h3 id="mcidas_image">mcidas_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">mcidas_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>mcidas formatted image</p>
+<h3 id="mov_video">mov_video</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">mov_video</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>mov formatted video</p>
+<h3 id="mp4_video">mp4_video</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">mp4_video</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>mp4 formatted video</p>
+<h3 id="mpo_image">mpo_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">mpo_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>mpo formatted image</p>
+<h3 id="msp_image">msp_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">msp_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>msp formatted image</p>
+<h3 id="naa_image">naa_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">naa_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>naa formatted image</p>
+<h3 id="numpy_boolable">numpy_boolable</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">numpy_boolable</span><span class="p">(</span>
+    <span class="n">item</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h3 id="numpy_byte_decodeable">numpy_byte_decodeable</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">numpy_byte_decodeable</span><span class="p">(</span>
+    <span class="n">item</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h3 id="numpy_floatable">numpy_floatable</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">numpy_floatable</span><span class="p">(</span>
+    <span class="n">item</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h3 id="numpy_integerable">numpy_integerable</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">numpy_integerable</span><span class="p">(</span>
+    <span class="n">item</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h3 id="numpy_listable">numpy_listable</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">numpy_listable</span><span class="p">(</span>
+    <span class="n">item</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h3 id="numpy_stringable">numpy_stringable</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">numpy_stringable</span><span class="p">(</span>
+    <span class="n">item</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h3 id="on_content_type">on_content_type</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">on_content_type</span><span class="p">(</span>
+    <span class="n">handlers</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">error</span><span class="o">=</span><span class="s1">&#39;The requested content type does not match any of those allowed&#39;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Returns a content in a different format based on the clients provided content type,
+should pass in a dict with the following format:</p>
+<div class="codehilite"><pre><span></span> <span class="err">{</span><span class="s1">&#39;[content-type]&#39;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span>
+  <span class="p">...</span>
+ <span class="err">}</span>
+</pre></div>
+
+
+<h3 id="on_valid">on_valid</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">on_valid</span><span class="p">(</span>
+    <span class="n">valid_content_type</span><span class="p">,</span>
+    <span class="n">on_invalid</span><span class="o">=&lt;</span><span class="n">cyfunction</span> <span class="n">json</span> <span class="n">at</span> <span class="mh">0x7f50a5609270</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Renders as the specified content type only if no errors are found in the provided data object</p>
+<h3 id="pcd_image">pcd_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">pcd_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>pcd formatted image</p>
+<h3 id="pcx_image">pcx_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">pcx_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>pcx formatted image</p>
+<h3 id="png_image">png_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">png_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>png formatted image</p>
+<h3 id="ppm_image">ppm_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ppm_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>ppm formatted image</p>
+<h3 id="prefix">prefix</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">prefix</span><span class="p">(</span>
+    <span class="n">handlers</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">error</span><span class="o">=</span><span class="s1">&#39;The requested prefix does not match any of those allowed&#39;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Returns a content in a different format based on the prefix placed at the end of the URL route
+should pass in a dict with the following format:</p>
+<div class="codehilite"><pre><span></span><span class="w"> </span><span class="err">{</span><span class="s1">&#39;[prefix]&#39;</span><span class="err">:</span><span class="w"> </span><span class="k">action</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="p">...</span><span class="w"></span>
+<span class="w"> </span><span class="err">}</span><span class="w"></span>
+</pre></div>
+
+
+<h3 id="pretty_json">pretty_json</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">pretty_json</span><span class="p">(</span>
+    <span class="n">content</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>JSON (Javascript Serialized Object Notion) pretty printed and indented</p>
+<h3 id="psd_image">psd_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">psd_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>psd formatted image</p>
+<h3 id="sgi_image">sgi_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">sgi_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>sgi formatted image</p>
+<h3 id="spider_image">spider_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">spider_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>spider formatted image</p>
+<h3 id="suffix">suffix</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">suffix</span><span class="p">(</span>
+    <span class="n">handlers</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">error</span><span class="o">=</span><span class="s1">&#39;The requested suffix does not match any of those allowed&#39;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Returns a content in a different format based on the suffix placed at the end of the URL route
+should pass in a dict with the following format:</p>
+<div class="codehilite"><pre><span></span><span class="w"> </span><span class="err">{</span><span class="s1">&#39;[suffix]&#39;</span><span class="err">:</span><span class="w"> </span><span class="k">action</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="p">...</span><span class="w"></span>
+<span class="w"> </span><span class="err">}</span><span class="w"></span>
+</pre></div>
+
+
+<h3 id="svg_image">svg_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">svg_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>svg formatted image</p>
+<h3 id="svg_xml_image">svg_xml_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">svg_xml_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>svg+xml formatted image</p>
+<h3 id="text">text</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">text</span><span class="p">(</span>
+    <span class="n">content</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Free form UTF-8 text</p>
+<h3 id="tga_image">tga_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tga_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>tga formatted image</p>
+<h3 id="tiff_image">tiff_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tiff_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>tiff formatted image</p>
+<h3 id="ts_video">ts_video</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ts_video</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>ts formatted video</p>
+<h3 id="video">video</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">video</span><span class="p">(</span>
+    <span class="n">video_type</span><span class="p">,</span>
+    <span class="n">video_mime</span><span class="p">,</span>
+    <span class="n">doc</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Dynamically creates a video type handler for the specified video type</p>
+<h3 id="wal_image">wal_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wal_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>wal formatted image</p>
+<h3 id="webp_image">webp_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">webp_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>webp formatted image</p>
+<h3 id="wmv_video">wmv_video</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wmv_video</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>wmv formatted video</p>
+<h3 id="xbm_image">xbm_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">xbm_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>xbm formatted image</p>
+<h3 id="xpm_image">xpm_image</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">xpm_image</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>xpm formatted image</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../middleware/" title="Middleware" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Middleware
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../redirect/" title="Redirect" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Redirect
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../../assets/javascripts/application.c648116f.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      
+    
+  </body>
+</html>

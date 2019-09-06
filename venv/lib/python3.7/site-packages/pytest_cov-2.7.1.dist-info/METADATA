@@ -1,0 +1,369 @@
+Metadata-Version: 2.1
+Name: pytest-cov
+Version: 2.7.1
+Summary: Pytest plugin for measuring coverage.
+Home-page: https://github.com/pytest-dev/pytest-cov
+Author: Marc Schlaich
+Author-email: marc.schlaich@gmail.com
+License: MIT
+Keywords: cover,coverage,pytest,py.test,distributed,parallel
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Framework :: Pytest
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Software Development :: Testing
+Classifier: Topic :: Utilities
+Requires-Python: >=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*
+Requires-Dist: pytest (>=3.6)
+Requires-Dist: coverage (>=4.4)
+Provides-Extra: testing
+Requires-Dist: fields ; extra == 'testing'
+Requires-Dist: hunter ; extra == 'testing'
+Requires-Dist: process-tests (==2.0.2) ; extra == 'testing'
+Requires-Dist: six ; extra == 'testing'
+Requires-Dist: virtualenv ; extra == 'testing'
+
+========
+Overview
+========
+
+.. start-badges
+
+.. list-table::
+    :stub-columns: 1
+
+    * - docs
+      - |docs|
+    * - tests
+      - | |travis| |appveyor| |requires|
+    * - package
+      - | |version| |conda-forge| |wheel| |supported-versions| |supported-implementations|
+        | |commits-since|
+
+.. |docs| image:: https://readthedocs.org/projects/pytest-cov/badge/?style=flat
+    :target: https://readthedocs.org/projects/pytest-cov
+    :alt: Documentation Status
+
+.. |travis| image:: https://travis-ci.org/pytest-dev/pytest-cov.svg?branch=master
+    :alt: Travis-CI Build Status
+    :target: https://travis-ci.org/pytest-dev/pytest-cov
+
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/pytest-dev/pytest-cov?branch=master&svg=true
+    :alt: AppVeyor Build Status
+    :target: https://ci.appveyor.com/project/pytestbot/pytest-cov
+
+.. |requires| image:: https://requires.io/github/pytest-dev/pytest-cov/requirements.svg?branch=master
+    :alt: Requirements Status
+    :target: https://requires.io/github/pytest-dev/pytest-cov/requirements/?branch=master
+
+.. |version| image:: https://img.shields.io/pypi/v/pytest-cov.svg
+    :alt: PyPI Package latest release
+    :target: https://pypi.python.org/pypi/pytest-cov
+
+.. |conda-forge| image:: https://img.shields.io/conda/vn/conda-forge/pytest-cov.svg
+    :target: https://anaconda.org/conda-forge/pytest-cov
+
+.. |commits-since| image:: https://img.shields.io/github/commits-since/pytest-dev/pytest-cov/v2.7.1.svg
+    :alt: Commits since latest release
+    :target: https://github.com/pytest-dev/pytest-cov/compare/v2.7.1...master
+
+.. |wheel| image:: https://img.shields.io/pypi/wheel/pytest-cov.svg
+    :alt: PyPI Wheel
+    :target: https://pypi.python.org/pypi/pytest-cov
+
+.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/pytest-cov.svg
+    :alt: Supported versions
+    :target: https://pypi.python.org/pypi/pytest-cov
+
+.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/pytest-cov.svg
+    :alt: Supported implementations
+    :target: https://pypi.python.org/pypi/pytest-cov
+
+.. end-badges
+
+This plugin produces coverage reports. Compared to just using ``coverage run`` this plugin does some extras:
+
+* Subprocess support: you can fork or run stuff in a subprocess and will get covered without any fuss.
+* Xdist support: you can use all of pytest-xdist's features and still get coverage.
+* Consistent pytest behavior. If you run ``coverage run -m pytest`` you will have slightly different ``sys.path`` (CWD will be
+  in it, unlike when running ``pytest``).
+
+All features offered by the coverage package should work, either through pytest-cov's command line options or
+through coverage's config file.
+
+* Free software: MIT license
+
+Installation
+============
+
+Install with pip::
+
+    pip install pytest-cov
+
+For distributed testing support install pytest-xdist::
+
+    pip install pytest-xdist
+
+Upgrading from ancient pytest-cov
+---------------------------------
+
+`pytest-cov 2.0` is using a new ``.pth`` file (``pytest-cov.pth``). You may want to manually remove the older
+``init_cov_core.pth`` from site-packages as it's not automatically removed.
+
+Uninstalling
+------------
+
+Uninstall with pip::
+
+    pip uninstall pytest-cov
+
+Under certain scenarios a stray ``.pth`` file may be left around in site-packages.
+
+* `pytest-cov 2.0` may leave a ``pytest-cov.pth`` if you installed without wheels
+  (``easy_install``, ``setup.py install`` etc).
+* `pytest-cov 1.8 or older` will leave a ``init_cov_core.pth``.
+
+Usage
+=====
+
+::
+
+    pytest --cov=myproj tests/
+
+Would produce a report like::
+
+    -------------------- coverage: ... ---------------------
+    Name                 Stmts   Miss  Cover
+    ----------------------------------------
+    myproj/__init__          2      0   100%
+    myproj/myproj          257     13    94%
+    myproj/feature4286      94      7    92%
+    ----------------------------------------
+    TOTAL                  353     20    94%
+
+Documentation
+=============
+
+    http://pytest-cov.rtfd.org/
+
+
+
+
+
+
+Coverage Data File
+==================
+
+The data file is erased at the beginning of testing to ensure clean data for each test run. If you
+need to combine the coverage of several test runs you can use the ``--cov-append`` option to append
+this coverage data to coverage data from previous test runs.
+
+The data file is left at the end of testing so that it is possible to use normal coverage tools to
+examine it.
+
+Limitations
+===========
+
+For distributed testing the slaves must have the pytest-cov package installed.  This is needed since
+the plugin must be registered through setuptools for pytest to start the plugin on the
+slave.
+
+For subprocess measurement environment variables must make it from the main process to the
+subprocess.  The python used by the subprocess must have pytest-cov installed.  The subprocess must
+do normal site initialisation so that the environment variables can be detected and coverage
+started.
+
+
+Acknowledgements
+================
+
+Whilst this plugin has been built fresh from the ground up it has been influenced by the work done
+on pytest-coverage (Ross Lawley, James Mills, Holger Krekel) and nose-cover (Jason Pellerin) which are
+other coverage plugins.
+
+Ned Batchelder for coverage and its ability to combine the coverage results of parallel runs.
+
+Holger Krekel for pytest with its distributed testing support.
+
+Jason Pellerin for nose.
+
+Michael Foord for unittest2.
+
+No doubt others have contributed to these tools as well.
+
+Changelog
+=========
+
+2.7.1 (2019-05-03)
+------------------
+
+* Fixed source distribution manifest so that garbage ain't included in the tarball.
+
+2.7.0 (2019-05-03)
+------------------
+
+* Fixed ``AttributeError: 'NoneType' object has no attribute 'configure_node'`` error when ``--no-cov`` is used.
+  Contributed by Alexander Shadchin in `#263 <https://github.com/pytest-dev/pytest-cov/pull/263>`_.
+* Various testing and CI improvements. Contributed by Daniel Hahler in
+  `#255 <https://github.com/pytest-dev/pytest-cov/pull/255>`_,
+  `#266 <https://github.com/pytest-dev/pytest-cov/pull/266>`_,
+  `#272 <https://github.com/pytest-dev/pytest-cov/pull/272>`_,
+  `#271 <https://github.com/pytest-dev/pytest-cov/pull/271>`_ and
+  `#269 <https://github.com/pytest-dev/pytest-cov/pull/269>`_.
+* Improved documentation regarding subprocess and multiprocessing.
+  Contributed in `#265 <https://github.com/pytest-dev/pytest-cov/pull/265>`_.
+* Improved ``pytest_cov.embed.cleanup_on_sigterm`` to be reentrant (signal deliveries while signal handling is
+  running won't break stuff).
+* Added ``pytest_cov.embed.cleanup_on_signal`` for customized cleanup.
+* Improved cleanup code and fixed various issues with leftover data files. All contributed in
+  `#265 <https://github.com/pytest-dev/pytest-cov/pull/265>`_ or
+  `#262 <https://github.com/pytest-dev/pytest-cov/pull/262>`_.
+* Improved examples. Now there are two examples for the common project layouts, complete with working coverage
+  configuration. The examples have CI testing. Contributed in
+  `#267 <https://github.com/pytest-dev/pytest-cov/pull/267>`_.
+* Improved help text for CLI options.
+
+2.6.1 (2019-01-07)
+------------------
+
+* Added support for Pytest 4.1. Contributed by Daniel Hahler and Семён Марьясин in
+  `#253 <https://github.com/pytest-dev/pytest-cov/pull/253>`_ and
+  `#230 <https://github.com/pytest-dev/pytest-cov/pull/230>`_.
+* Various test and docs fixes. Contributed by Daniel Hahler in
+  `#224 <https://github.com/pytest-dev/pytest-cov/pull/224>`_ and
+  `#223 <https://github.com/pytest-dev/pytest-cov/pull/223>`_.
+* Fixed the "Module already imported" issue (`#211 <https://github.com/pytest-dev/pytest-cov/issues/211>`_).
+  Contributed by Daniel Hahler in `#228 <https://github.com/pytest-dev/pytest-cov/pull/228>`_.
+
+2.6.0 (2018-09-03)
+------------------
+
+* Dropped support for Python < 3.4, Pytest < 3.5 and Coverage < 4.4.
+* Fixed some documentation formatting. Contributed by Jean Jordaan and Julian.
+* Added an example with ``addopts`` in documentation. Contributed by Samuel Giffard in
+  `#195 <https://github.com/pytest-dev/pytest-cov/pull/195>`_.
+* Fixed ``TypeError: 'NoneType' object is not iterable`` in certain xdist configurations. Contributed by Jeremy Bowman in
+  `#213 <https://github.com/pytest-dev/pytest-cov/pull/213>`_.
+* Added a ``no_cover`` marker and fixture. Fixes
+  `#78 <https://github.com/pytest-dev/pytest-cov/issues/78>`_.
+* Fixed broken ``no_cover`` check when running doctests. Contributed by Terence Honles in
+  `#200 <https://github.com/pytest-dev/pytest-cov/pull/200>`_.
+* Fixed various issues with path normalization in reports (when combining coverage data from parallel mode). Fixes
+  `#130 <https://github.com/pytest-dev/pytest-cov/issues/161>`_.
+  Contributed by Ryan Hiebert & Ionel Cristian Mărieș in
+  `#178 <https://github.com/pytest-dev/pytest-cov/pull/178>`_.
+* Report generation failures don't raise exceptions anymore. A warning will be logged instead. Fixes
+  `#161 <https://github.com/pytest-dev/pytest-cov/issues/161>`_.
+* Fixed multiprocessing issue on Windows (empty env vars are not passed). Fixes
+  `#165 <https://github.com/pytest-dev/pytest-cov/issues/165>`_.
+
+2.5.1 (2017-05-11)
+------------------
+
+* Fixed xdist breakage (regression in ``2.5.0``).
+  Fixes `#157 <https://github.com/pytest-dev/pytest-cov/issues/157>`_.
+* Allow setting custom ``data_file`` name in ``.coveragerc``.
+  Fixes `#145 <https://github.com/pytest-dev/pytest-cov/issues/145>`_.
+  Contributed by Jannis Leidel & Ionel Cristian Mărieș in
+  `#156 <https://github.com/pytest-dev/pytest-cov/pull/156>`_.
+
+2.5.0 (2017-05-09)
+------------------
+
+* Always show a summary when ``--cov-fail-under`` is used. Contributed by Francis Niu in `PR#141
+  <https://github.com/pytest-dev/pytest-cov/pull/141>`_.
+* Added ``--cov-branch`` option. Fixes `#85 <https://github.com/pytest-dev/pytest-cov/issues/85>`_.
+* Improve exception handling in subprocess setup. Fixes `#144 <https://github.com/pytest-dev/pytest-cov/issues/144>`_.
+* Fixed handling when ``--cov`` is used multiple times. Fixes `#151 <https://github.com/pytest-dev/pytest-cov/issues/151>`_.
+
+2.4.0 (2016-10-10)
+------------------
+
+* Added a "disarm" option: ``--no-cov``. It will disable coverage measurements. Contributed by Zoltan Kozma in
+  `PR#135 <https://github.com/pytest-dev/pytest-cov/pull/135>`_.
+
+  **WARNING: Do not put this in your configuration files, it's meant to be an one-off for situations where you want to
+  disable coverage from command line.**
+* Fixed broken exception handling on ``.pth`` file. See `#136 <https://github.com/pytest-dev/pytest-cov/issues/136>`_.
+
+2.3.1 (2016-08-07)
+------------------
+
+* Fixed regression causing spurious errors when xdist was used. See `#124
+  <https://github.com/pytest-dev/pytest-cov/issues/124>`_.
+* Fixed DeprecationWarning about incorrect `addoption` use. Contributed by Florian Bruhin in `PR#127
+  <https://github.com/pytest-dev/pytest-cov/pull/127>`_.
+* Fixed deprecated use of funcarg fixture API. Contributed by Daniel Hahler in `PR#125
+  <https://github.com/pytest-dev/pytest-cov/pull/125>`_.
+
+2.3.0 (2016-07-05)
+------------------
+
+* Add support for specifying output location for html, xml, and annotate report.
+  Contributed by Patrick Lannigan in `PR#113 <https://github.com/pytest-dev/pytest-cov/pull/113>`_.
+* Fix bug hiding test failure when cov-fail-under failed.
+* For coverage >= 4.0, match the default behaviour of `coverage report` and
+  error if coverage fails to find the source instead of just printing a warning.
+  Contributed by David Szotten in `PR#116 <https://github.com/pytest-dev/pytest-cov/pull/116>`_.
+* Fixed bug occurred when bare ``--cov`` parameter was used with xdist.
+  Contributed by Michael Elovskikh in `PR#120 <https://github.com/pytest-dev/pytest-cov/pull/120>`_.
+* Add support for ``skip_covered`` and added ``--cov-report=term-skip-covered`` command
+  line options. Contributed by Saurabh Kumar in `PR#115 <https://github.com/pytest-dev/pytest-cov/pull/115>`_.
+
+2.2.1 (2016-01-30)
+------------------
+
+* Fixed incorrect merging of coverage data when xdist was used and coverage was ``>= 4.0``.
+
+2.2.0 (2015-10-04)
+------------------
+
+* Added support for changing working directory in tests. Previously changing working
+  directory would disable coverage measurements in suprocesses.
+* Fixed broken handling for ``--cov-report=annotate``.
+
+2.1.0 (2015-08-23)
+------------------
+
+* Added support for `coverage 4.0b2`.
+* Added the ``--cov-append`` command line options. Contributed by Christian Ledermann
+  in `PR#80 <https://github.com/pytest-dev/pytest-cov/pull/80>`_.
+
+2.0.0 (2015-07-28)
+------------------
+
+* Added ``--cov-fail-under``, akin to the new ``fail_under`` option in `coverage-4.0`
+  (automatically activated if there's a ``[report] fail_under = ...`` in ``.coveragerc``).
+* Changed ``--cov-report=term`` to automatically upgrade to ``--cov-report=term-missing``
+  if there's ``[run] show_missing = True`` in ``.coveragerc``.
+* Changed ``--cov`` so it can be used with no path argument (in wich case the source
+  settings from ``.coveragerc`` will be used instead).
+* Fixed `.pth` installation to work in all cases (install, easy_install, wheels, develop etc).
+* Fixed `.pth` uninstallation to work for wheel installs.
+* Support for coverage 4.0.
+* Data file suffixing changed to use coverage's ``data_suffix=True`` option (instead of the
+  custom suffixing).
+* Avoid warning about missing coverage data (just like ``coverage.control.process_startup``).
+* Fixed a race condition when running with xdist (all the workers tried to combine the files).
+  It's possible that this issue is not present in `pytest-cov 1.8.X`.
+
+1.8.2 (2014-11-06)
+------------------
+
+* N/A
+
+

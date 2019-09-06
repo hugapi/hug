@@ -1,0 +1,38 @@
+Metadata-Version: 2.1
+Name: mkdocs
+Version: 1.0.4
+Summary: Project documentation with Markdown.
+Home-page: https://www.mkdocs.org
+Author: Tom Christie
+Author-email: tom@tomchristie.com
+License: BSD
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Documentation
+Classifier: Topic :: Text Processing
+Requires-Python: >=2.7.9,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*
+Requires-Dist: click (>=3.3)
+Requires-Dist: Jinja2 (>=2.7.1)
+Requires-Dist: livereload (>=2.5.1)
+Requires-Dist: Markdown (>=2.3.1)
+Requires-Dist: PyYAML (>=3.10)
+Requires-Dist: tornado (>=5.0)
+
+MkDocs is a fast, simple and downright gorgeous static site generator that's geared towards building project documentation. Documentation source files are written in Markdown, and configured with a single YAML configuration file.
+
+

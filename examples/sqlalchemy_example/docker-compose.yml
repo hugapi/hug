@@ -1,0 +1,7 @@
+version: '2'
+services:
+  demo:
+    build:
+      context: .
+    ports:
+      - 8000:8000

@@ -1,0 +1,28 @@
+Metadata-Version: 2.1
+Name: mkdocs-minify-plugin
+Version: 0.2.1
+Summary: An MkDocs plugin to minify HTML and/or JS files prior to being written to disk
+Home-page: https://github.com/byrnereese/mkdocs-minify-plugin
+Author: Byrne Reese, Lars Wilhelmer
+Author-email: byrne@majordojo.com
+License: MIT
+Keywords: mkdocs minify publishing documentation html css
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Requires-Python: >=2.7
+Requires-Dist: mkdocs (>=1.0.4)
+Requires-Dist: htmlmin (>=0.1.4)
+Requires-Dist: jsmin (>=2.2.2)
+
+UNKNOWN
+
+

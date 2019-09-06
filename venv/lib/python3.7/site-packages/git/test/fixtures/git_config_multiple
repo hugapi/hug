@@ -1,0 +1,7 @@
+[section0]
+    option0 = value0
+
+[section1]
+    option1 = value1a
+    option1 = value1b
+    other_option1 = other_value1

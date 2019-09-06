@@ -1,0 +1,3 @@
+[console_scripts]
+pdocs=pdocs.cli:__hug__.cli
+

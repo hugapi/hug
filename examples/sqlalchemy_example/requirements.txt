@@ -1,0 +1,4 @@
+git+git://github.com/timothycrosley/hug@develop#egg=hug
+sqlalchemy
+marshmallow
+marshmallow-sqlalchemy

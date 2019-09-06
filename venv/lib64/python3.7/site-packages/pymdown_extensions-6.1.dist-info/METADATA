@@ -1,0 +1,59 @@
+Metadata-Version: 2.1
+Name: pymdown-extensions
+Version: 6.1
+Summary: Extension pack for Python Markdown.
+Home-page: https://github.com/facelessuser/pymdown-extensions
+Author: Isaac Muse
+Author-email: Isaac.Muse@gmail.com
+License: MIT License
+Keywords: markdown extensions
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Text Processing :: Filters
+Classifier: Topic :: Text Processing :: Markup :: HTML
+Requires-Python: >=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*
+Description-Content-Type: text/markdown
+Requires-Dist: Markdown (>=3.0.1)
+Requires-Dist: pep562
+
+[![Unix Build Status][travis-image]][travis-link]
+[![Windows Build Status][appveyor-image]][appveyor-link]
+[![Coverage Status][codecov-image]][codecov-link]
+[![pypi-version][pypi-image]][pypi-link]
+![License][license-image-mit]
+
+# PyMdown Extensions
+
+Extensions for [Python Markdown](https://python-markdown.github.io).
+
+# Documentation
+
+Extension documentation is found here: https://facelessuser.github.io/pymdown-extensions/.
+
+# License
+
+License is MIT except for a few exceptions.  See [LICENSE](https://github.com/facelessuser/pymdown-extensions/blob/master/LICENSE.md) for more info.
+
+[codecov-image]: https://img.shields.io/codecov/c/github/facelessuser/pymdown-extensions/master.svg
+[codecov-link]: https://codecov.io/github/facelessuser/pymdown-extensions
+[travis-image]: https://img.shields.io/travis/facelessuser/pymdown-extensions/master.svg?label=Unix%20Build&logo=travis
+[travis-link]: https://travis-ci.org/facelessuser/pymdown-extensions
+[appveyor-image]: https://img.shields.io/appveyor/ci/facelessuser/pymdown-extensions/master.svg?label=Windows%20Build&logo=appveyor
+[appveyor-link]: https://ci.appveyor.com/project/facelessuser/pymdown-extensions
+[pypi-image]: https://img.shields.io/pypi/v/pymdown-extensions.svg?logo=python&logoColor=white
+[pypi-link]: https://pypi.python.org/pypi/pymdown-extensions
+[license-image-mit]: https://img.shields.io/badge/license-MIT-blue.svg
+
+

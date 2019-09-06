@@ -1,0 +1,3 @@
+[console_scripts]
+hug = hug:development_runner.hug.interface.cli
+

@@ -1,0 +1,3690 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+    
+    
+      
+        <title>Types - hug</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.30686662.css">
+      
+        <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.a8b3c06d.css">
+      
+      
+        
+        
+        <meta name="theme-color" content="#4caf50">
+      
+    
+    
+      <script src="../../../assets/javascripts/modernizr.74668098.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
+    
+    
+    
+      
+    
+    
+  </head>
+  
+    
+    
+    <body dir="ltr" data-md-color-primary="green" data-md-color-accent="lightgreen">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#module-hugtypes" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../../.." title="hug" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              hug
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Types
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/hugapi/hug/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    hugapi/hu
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../../.." title="hug" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    hug
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/hugapi/hug/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    hugapi/hu
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../ACKNOWLEDGEMENTS/" title="Acknowledgements" class="md-nav__link">
+      Acknowledgements
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../ARCHITECTURE/" title="Architecture" class="md-nav__link">
+      Architecture
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../CHANGELOG/" title="Changelog" class="md-nav__link">
+      Changelog
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../CODING_STANDARD/" title="Coding Standard" class="md-nav__link">
+      Coding Standard
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../CONTRIBUTING/" title="Contributing" class="md-nav__link">
+      Contributing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../EXTENDING/" title="Extending" class="md-nav__link">
+      Extending
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../FAQ/" title="Faq" class="md-nav__link">
+      Faq
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../SECURITY/" title="Security" class="md-nav__link">
+      Security
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/AUTHENTICATION/" title="Authentication" class="md-nav__link">
+      Authentication
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/CUSTOM_CONTEXT/" title="Custom Context" class="md-nav__link">
+      Custom Context
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/DIRECTIVES/" title="Directives" class="md-nav__link">
+      Directives
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/OUTPUT_FORMATS/" title="Output Formats" class="md-nav__link">
+      Output Formats
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/ROUTING/" title="Routing" class="md-nav__link">
+      Routing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/TYPE_ANNOTATIONS/" title="Type Annotations" class="md-nav__link">
+      Type Annotations
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-16" type="checkbox" id="nav-16" checked>
+    
+    <label class="md-nav__link" for="nav-16">
+      Reference
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-16">
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-16-1" type="checkbox" id="nav-16-1" checked>
+    
+    <label class="md-nav__link" for="nav-16-1">
+      Hug
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-16-1">
+        Hug
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../api/" title="API" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../authentication/" title="Authentication" class="md-nav__link">
+      Authentication
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../decorators/" title="Decorators" class="md-nav__link">
+      Decorators
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../defaults/" title="Defaults" class="md-nav__link">
+      Defaults
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../development_runner/" title="Development Runner" class="md-nav__link">
+      Development Runner
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../directives/" title="Directives" class="md-nav__link">
+      Directives
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../exceptions/" title="Exceptions" class="md-nav__link">
+      Exceptions
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../format/" title="Format" class="md-nav__link">
+      Format
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../" title="Index" class="md-nav__link">
+      Index
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../input_format/" title="Input Format" class="md-nav__link">
+      Input Format
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../interface/" title="Interface" class="md-nav__link">
+      Interface
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../introspect/" title="Introspect" class="md-nav__link">
+      Introspect
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../json_module/" title="Json Module" class="md-nav__link">
+      Json Module
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../middleware/" title="Middleware" class="md-nav__link">
+      Middleware
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../output_format/" title="Output Format" class="md-nav__link">
+      Output Format
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../redirect/" title="Redirect" class="md-nav__link">
+      Redirect
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../route/" title="Route" class="md-nav__link">
+      Route
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../routing/" title="Routing" class="md-nav__link">
+      Routing
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../store/" title="Store" class="md-nav__link">
+      Store
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../test/" title="Test" class="md-nav__link">
+      Test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../this/" title="This" class="md-nav__link">
+      This
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../transform/" title="Transform" class="md-nav__link">
+      Transform
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Types
+      </label>
+    
+    <a href="./" title="Types" class="md-nav__link md-nav__link--active">
+      Types
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accept" class="md-nav__link">
+    accept
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chain" class="md-nav__link">
+    Chain
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#descendants" class="md-nav__link">
+    Descendants
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cutoff" class="md-nav__link">
+    CutOff
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_1" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_1" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delimitedlist" class="md-nav__link">
+    DelimitedList
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_2" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#greaterthan" class="md-nav__link">
+    GreaterThan
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_3" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_2" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inrange" class="md-nav__link">
+    InRange
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_4" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_3" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inlinedictionary" class="md-nav__link">
+    InlineDictionary
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_5" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json" class="md-nav__link">
+    JSON
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_6" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#length" class="md-nav__link">
+    Length
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_7" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_4" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lessthan" class="md-nav__link">
+    LessThan
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_8" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_5" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#longerthan" class="md-nav__link">
+    LongerThan
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_9" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_6" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapping" class="md-nav__link">
+    Mapping
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_10" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_7" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#marshmallowinputschema" class="md-nav__link">
+    MarshmallowInputSchema
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_11" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_8" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#marshmallowreturnschema" class="md-nav__link">
+    MarshmallowReturnSchema
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_12" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_9" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi" class="md-nav__link">
+    Multi
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_13" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_10" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple" class="md-nav__link">
+    Multiple
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_14" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#newtypemeta" class="md-nav__link">
+    NewTypeMeta
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_15" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mro" class="md-nav__link">
+    mro
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nullable" class="md-nav__link">
+    Nullable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_16" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_11" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oneof" class="md-nav__link">
+    OneOf
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_17" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#descendants_1" class="md-nav__link">
+    Descendants
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_12" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#schema" class="md-nav__link">
+    Schema
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shorterthan" class="md-nav__link">
+    ShorterThan
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_18" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_13" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smartboolean" class="md-nav__link">
+    SmartBoolean
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_19" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subtyped" class="md-nav__link">
+    SubTyped
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_20" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_1" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mro_1" class="md-nav__link">
+    mro
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#text" class="md-nav__link">
+    Text
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_21" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type" class="md-nav__link">
+    Type
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#descendants_2" class="md-nav__link">
+    Descendants
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedproperty" class="md-nav__link">
+    TypedProperty
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_14" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cut_off" class="md-nav__link">
+    cut_off
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_22" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_15" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delimited_list" class="md-nav__link">
+    delimited_list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_23" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#greater_than" class="md-nav__link">
+    greater_than
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_24" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_16" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#in_range" class="md-nav__link">
+    in_range
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_25" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_17" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#length_1" class="md-nav__link">
+    length
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_26" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_18" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#less_than" class="md-nav__link">
+    less_than
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_27" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_19" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#longer_than" class="md-nav__link">
+    longer_than
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_28" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_20" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapping_1" class="md-nav__link">
+    mapping
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_29" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_1" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_21" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi_1" class="md-nav__link">
+    multi
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_30" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_22" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#one_of" class="md-nav__link">
+    one_of
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_31" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#descendants_3" class="md-nav__link">
+    Descendants
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_23" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shorter_than" class="md-nav__link">
+    shorter_than
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_32" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_24" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../use/" title="Use" class="md-nav__link">
+      Use
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../validate/" title="Validate" class="md-nav__link">
+      Validate
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accept" class="md-nav__link">
+    accept
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chain" class="md-nav__link">
+    Chain
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#descendants" class="md-nav__link">
+    Descendants
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cutoff" class="md-nav__link">
+    CutOff
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_1" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_1" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delimitedlist" class="md-nav__link">
+    DelimitedList
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_2" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#greaterthan" class="md-nav__link">
+    GreaterThan
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_3" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_2" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inrange" class="md-nav__link">
+    InRange
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_4" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_3" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inlinedictionary" class="md-nav__link">
+    InlineDictionary
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_5" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json" class="md-nav__link">
+    JSON
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_6" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#length" class="md-nav__link">
+    Length
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_7" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_4" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lessthan" class="md-nav__link">
+    LessThan
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_8" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_5" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#longerthan" class="md-nav__link">
+    LongerThan
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_9" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_6" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapping" class="md-nav__link">
+    Mapping
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_10" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_7" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#marshmallowinputschema" class="md-nav__link">
+    MarshmallowInputSchema
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_11" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_8" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#marshmallowreturnschema" class="md-nav__link">
+    MarshmallowReturnSchema
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_12" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_9" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi" class="md-nav__link">
+    Multi
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_13" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_10" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple" class="md-nav__link">
+    Multiple
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_14" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#newtypemeta" class="md-nav__link">
+    NewTypeMeta
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_15" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mro" class="md-nav__link">
+    mro
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nullable" class="md-nav__link">
+    Nullable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_16" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_11" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oneof" class="md-nav__link">
+    OneOf
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_17" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#descendants_1" class="md-nav__link">
+    Descendants
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_12" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#schema" class="md-nav__link">
+    Schema
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shorterthan" class="md-nav__link">
+    ShorterThan
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_18" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_13" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smartboolean" class="md-nav__link">
+    SmartBoolean
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_19" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subtyped" class="md-nav__link">
+    SubTyped
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_20" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_1" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mro_1" class="md-nav__link">
+    mro
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#text" class="md-nav__link">
+    Text
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_21" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type" class="md-nav__link">
+    Type
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#descendants_2" class="md-nav__link">
+    Descendants
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typedproperty" class="md-nav__link">
+    TypedProperty
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_14" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cut_off" class="md-nav__link">
+    cut_off
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_22" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_15" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delimited_list" class="md-nav__link">
+    delimited_list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_23" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#greater_than" class="md-nav__link">
+    greater_than
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_24" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_16" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#in_range" class="md-nav__link">
+    in_range
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_25" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_17" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#length_1" class="md-nav__link">
+    length
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_26" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_18" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#less_than" class="md-nav__link">
+    less_than
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_27" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_19" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#longer_than" class="md-nav__link">
+    longer_than
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_28" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_20" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapping_1" class="md-nav__link">
+    mapping
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_29" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_1" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_21" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi_1" class="md-nav__link">
+    multi
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_30" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_22" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#one_of" class="md-nav__link">
+    one_of
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_31" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#descendants_3" class="md-nav__link">
+    Descendants
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_23" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shorter_than" class="md-nav__link">
+    shorter_than
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_32" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables_24" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/hugapi/hug/edit/master/docs/reference/hug/types.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="module-hugtypes">Module hug.types</h1>
+<p>hug/types.py</p>
+<p>Defines hugs built-in supported types / validators</p>
+<p>Copyright (C) 2016  Timothy Edmund Crosley</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.</p>
+<h2 id="variables">Variables</h2>
+<div class="codehilite"><pre><span></span><span class="n">MARSHMALLOW_MAJOR_VERSION</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">boolean</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">comma_separated_list</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">decimal</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">float_number</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">inline_dictionary</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">json</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">multiple</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">number</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">smart_boolean</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">text</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">uuid</span>
+</pre></div>
+
+
+<h2 id="functions">Functions</h2>
+<h3 id="accept">accept</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">accept</span><span class="p">(</span>
+    <span class="n">kind</span><span class="p">,</span>
+    <span class="n">doc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">error_text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">exception_handlers</span><span class="o">=</span><span class="n">mappingproxy</span><span class="p">({}),</span>
+    <span class="n">accept_context</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Allows quick wrapping of any Python type cast function for use as a hug type annotation</p>
+<h3 id="create">create</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+    <span class="n">doc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">error_text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">exception_handlers</span><span class="o">=</span><span class="n">mappingproxy</span><span class="p">({}),</span>
+    <span class="n">extend</span><span class="o">=&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Type</span><span class="s1">&#39;&gt;,</span>
+    <span class="n">chain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">auto_instance</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">accept_context</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Creates a new type handler with the specified type-casting handler</p>
+<h2 id="classes">Classes</h2>
+<h3 id="chain">Chain</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Chain</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">types</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>type for chaining multiple types together</p>
+<h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="descendants">Descendants</h4>
+<ul>
+<li>hug.types.Nullable</li>
+</ul>
+<h4 id="instance-variables">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">types</span>
+</pre></div>
+
+
+<h3 id="cutoff">CutOff</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CutOff</span><span class="p">(</span>
+    <span class="n">limit</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Text</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5314400</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_1">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">limit</span>
+</pre></div>
+
+
+<h3 id="delimitedlist">DelimitedList</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">DelimitedList</span><span class="p">(</span>
+    <span class="n">using</span><span class="o">=</span><span class="s1">&#39;,&#39;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_2">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h3 id="greaterthan">GreaterThan</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">GreaterThan</span><span class="p">(</span>
+    <span class="n">minimum</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">create</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">new_type_handler</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">NewType</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5309b38</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_3">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_2">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">minimum</span>
+</pre></div>
+
+
+<h3 id="inrange">InRange</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">InRange</span><span class="p">(</span>
+    <span class="n">lower</span><span class="p">,</span>
+    <span class="n">upper</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">create</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">new_type_handler</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">NewType</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5309b38</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_4">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_3">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">lower</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">upper</span>
+</pre></div>
+
+
+<h3 id="inlinedictionary">InlineDictionary</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">InlineDictionary</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>A single line dictionary, where items are separted by commas and key:value are separated by a pipe</p>
+<h4 id="ancestors-in-mro_5">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h3 id="json">JSON</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">JSON</span><span class="p">(</span>
+
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Accepts a JSON formatted data structure</p>
+<h4 id="ancestors-in-mro_6">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h3 id="length">Length</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Length</span><span class="p">(</span>
+    <span class="n">lower</span><span class="p">,</span>
+    <span class="n">upper</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Text</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5314400</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_7">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_4">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">lower</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">upper</span>
+</pre></div>
+
+
+<h3 id="lessthan">LessThan</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">LessThan</span><span class="p">(</span>
+    <span class="n">limit</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">create</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">new_type_handler</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">NewType</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5309b38</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_8">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_5">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">limit</span>
+</pre></div>
+
+
+<h3 id="longerthan">LongerThan</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">LongerThan</span><span class="p">(</span>
+    <span class="n">limit</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Text</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5314400</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_9">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_6">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">limit</span>
+</pre></div>
+
+
+<h3 id="mapping">Mapping</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Mapping</span><span class="p">(</span>
+    <span class="n">value_map</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_10">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.OneOf</li>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="class-variables">Class variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">values</span>
+</pre></div>
+
+
+<h4 id="instance-variables_7">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">value_map</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">values</span>
+</pre></div>
+
+
+<h3 id="marshmallowinputschema">MarshmallowInputSchema</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MarshmallowInputSchema</span><span class="p">(</span>
+    <span class="n">schema</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_11">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_8">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">schema</span>
+</pre></div>
+
+
+<h3 id="marshmallowreturnschema">MarshmallowReturnSchema</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MarshmallowReturnSchema</span><span class="p">(</span>
+    <span class="n">schema</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_12">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_9">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">context</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">schema</span>
+</pre></div>
+
+
+<h3 id="multi">Multi</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Multi</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">types</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_13">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_10">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">types</span>
+</pre></div>
+
+
+<h3 id="multiple">Multiple</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Multiple</span><span class="p">(</span>
+
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Multiple Values</p>
+<h4 id="ancestors-in-mro_14">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h3 id="newtypemeta">NewTypeMeta</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">NewTypeMeta</span><span class="p">(</span>
+    <span class="bp">cls</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">,</span>
+    <span class="n">bases</span><span class="p">,</span>
+    <span class="n">nmspc</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Meta class to turn Schema objects into format usable by hug</p>
+<h4 id="ancestors-in-mro_15">Ancestors (in MRO)</h4>
+<ul>
+<li>builtins.type</li>
+</ul>
+<h4 id="methods">Methods</h4>
+<h5 id="mro">mro</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">mro</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">/</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Return a type's method resolution order.</p>
+<h3 id="nullable">Nullable</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Nullable</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">types</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>A Chain types that Allows None values</p>
+<h4 id="ancestors-in-mro_16">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Chain</li>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_11">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">types</span>
+</pre></div>
+
+
+<h3 id="oneof">OneOf</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">OneOf</span><span class="p">(</span>
+    <span class="n">values</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_17">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="descendants_1">Descendants</h4>
+<ul>
+<li>hug.types.Mapping</li>
+</ul>
+<h4 id="instance-variables_12">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">values</span>
+</pre></div>
+
+
+<h3 id="schema">Schema</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Schema</span><span class="p">(</span>
+    <span class="n">json</span><span class="p">,</span>
+    <span class="n">force</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Schema for creating complex types using hug types</p>
+<h3 id="shorterthan">ShorterThan</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ShorterThan</span><span class="p">(</span>
+    <span class="n">limit</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Text</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5314400</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_18">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_13">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">limit</span>
+</pre></div>
+
+
+<h3 id="smartboolean">SmartBoolean</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SmartBoolean</span><span class="p">(</span>
+
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Accepts a true or false value</p>
+<h4 id="ancestors-in-mro_19">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.NewType</li>
+<li>hug.types.Type</li>
+</ul>
+<h3 id="subtyped">SubTyped</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SubTyped</span><span class="p">(</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>type(object_or_name, bases, dict)
+type(object) -&gt; the object's type
+type(name, bases, dict) -&gt; a new type</p>
+<h4 id="ancestors-in-mro_20">Ancestors (in MRO)</h4>
+<ul>
+<li>builtins.type</li>
+</ul>
+<h4 id="methods_1">Methods</h4>
+<h5 id="mro_1">mro</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">mro</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">/</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Return a type's method resolution order.</p>
+<h3 id="text">Text</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Text</span><span class="p">(</span>
+
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Basic text / string value</p>
+<h4 id="ancestors-in-mro_21">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h3 id="type">Type</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Type</span><span class="p">(</span>
+
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Defines the base hug concept of a type for use in function annotation.
+Override <code>__call__</code> to define how the type should be transformed and validated</p>
+<h4 id="descendants_2">Descendants</h4>
+<ul>
+<li>hug.types.NewType</li>
+<li>hug.types.NewType</li>
+<li>hug.types.NewType</li>
+<li>hug.types.NewType</li>
+<li>hug.types.NewType</li>
+<li>hug.types.Text</li>
+<li>hug.types.Multiple</li>
+<li>hug.types.DelimitedList</li>
+<li>hug.types.InlineDictionary</li>
+<li>hug.types.OneOf</li>
+<li>hug.types.JSON</li>
+<li>hug.types.Multi</li>
+<li>hug.types.InRange</li>
+<li>hug.types.LessThan</li>
+<li>hug.types.GreaterThan</li>
+<li>hug.types.Length</li>
+<li>hug.types.ShorterThan</li>
+<li>hug.types.LongerThan</li>
+<li>hug.types.CutOff</li>
+<li>hug.types.Chain</li>
+<li>hug.types.MarshmallowInputSchema</li>
+<li>hug.types.MarshmallowReturnSchema</li>
+</ul>
+<h3 id="typedproperty">TypedProperty</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TypedProperty</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">,</span>
+    <span class="n">type_func</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>class for building property objects for schema objects</p>
+<h4 id="instance-variables_14">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">name</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">type_func</span>
+</pre></div>
+
+
+<h3 id="cut_off">cut_off</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">cut_off</span><span class="p">(</span>
+    <span class="n">limit</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Text</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5314400</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_22">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_15">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">limit</span>
+</pre></div>
+
+
+<h3 id="delimited_list">delimited_list</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">delimited_list</span><span class="p">(</span>
+    <span class="n">using</span><span class="o">=</span><span class="s1">&#39;,&#39;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_23">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h3 id="greater_than">greater_than</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">greater_than</span><span class="p">(</span>
+    <span class="n">minimum</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">create</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">new_type_handler</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">NewType</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5309b38</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_24">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_16">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">minimum</span>
+</pre></div>
+
+
+<h3 id="in_range">in_range</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">in_range</span><span class="p">(</span>
+    <span class="n">lower</span><span class="p">,</span>
+    <span class="n">upper</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">create</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">new_type_handler</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">NewType</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5309b38</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_25">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_17">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">lower</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">upper</span>
+</pre></div>
+
+
+<h3 id="length_1">length</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">length</span><span class="p">(</span>
+    <span class="n">lower</span><span class="p">,</span>
+    <span class="n">upper</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Text</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5314400</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_26">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_18">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">lower</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">upper</span>
+</pre></div>
+
+
+<h3 id="less_than">less_than</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">less_than</span><span class="p">(</span>
+    <span class="n">limit</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">create</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">new_type_handler</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">NewType</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5309b38</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_27">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_19">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">limit</span>
+</pre></div>
+
+
+<h3 id="longer_than">longer_than</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">longer_than</span><span class="p">(</span>
+    <span class="n">limit</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Text</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5314400</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_28">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_20">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">limit</span>
+</pre></div>
+
+
+<h3 id="mapping_1">mapping</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">mapping</span><span class="p">(</span>
+    <span class="n">value_map</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_29">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.OneOf</li>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="class-variables_1">Class variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">values</span>
+</pre></div>
+
+
+<h4 id="instance-variables_21">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">value_map</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">values</span>
+</pre></div>
+
+
+<h3 id="multi_1">multi</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">multi</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">types</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_30">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_22">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">types</span>
+</pre></div>
+
+
+<h3 id="one_of">one_of</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">one_of</span><span class="p">(</span>
+    <span class="n">values</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_31">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="descendants_3">Descendants</h4>
+<ul>
+<li>hug.types.Mapping</li>
+</ul>
+<h4 id="instance-variables_23">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">values</span>
+</pre></div>
+
+
+<h3 id="shorter_than">shorter_than</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">shorter_than</span><span class="p">(</span>
+    <span class="n">limit</span><span class="p">,</span>
+    <span class="n">convert</span><span class="o">=&lt;</span><span class="n">hug</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Text</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f50a5314400</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="ancestors-in-mro_32">Ancestors (in MRO)</h4>
+<ul>
+<li>hug.types.Type</li>
+</ul>
+<h4 id="instance-variables_24">Instance variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">convert</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">limit</span>
+</pre></div>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../transform/" title="Transform" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Transform
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../use/" title="Use" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Use
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../../assets/javascripts/application.c648116f.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      
+    
+  </body>
+</html>
