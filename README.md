@@ -10,7 +10,7 @@
 
 _________________
 
-[Read Latest Documentation](http://hugapi.github.io/hug/) - [Browse GitHub Code Repository](https://github.com/hugapi/hug)
+[Read Latest Documentation](https://hugapi.github.io/hug/) - [Browse GitHub Code Repository](https://github.com/hugapi/hug)
 _________________
 
 hug aims to make developing Python driven APIs as simple as possible, but no simpler. As a result, it drastically simplifies Python API development.
