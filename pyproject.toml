@@ -1,2 +1,8 @@
 [tool.portray]
 docs_dir = "documentation"
+
+[tool.portray.mkdocs.theme]
+favicon = "artwork/koala.png"
+logo = "artwork/koala.png"
+name = "material"
+palette = {primary = "blue grey", accent = "green"}
