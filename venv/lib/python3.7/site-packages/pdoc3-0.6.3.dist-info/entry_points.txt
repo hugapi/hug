@@ -1,0 +1,4 @@
+[console_scripts]
+pdoc = pdoc.cli:main
+pdoc3 = pdoc.cli:main
+

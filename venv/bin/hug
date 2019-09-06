@@ -1,4 +1,4 @@
-#!/home/tcrosley/projects/os/hugapi/hug/venv/bin/python
+#!/home/timothyedmundcrosley/Projects/hugapi/hug/venv/bin/python
 # EASY-INSTALL-ENTRY-SCRIPT: 'hug==2.6.0','console_scripts','hug'
 __requires__ = 'hug==2.6.0'
 import re
