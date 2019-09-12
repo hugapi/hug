@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../artwork/koala.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.1">
     
     
       
@@ -177,7 +177,7 @@
         
       
       
-      <main class="md-main" role="main">
+      <main class="md-main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
             
@@ -687,7 +687,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#classes" class="md-nav__link">
+  <a href="#classes" title="Classes" class="md-nav__link">
     Classes
   </a>
   
@@ -695,56 +695,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#inmemorystore" class="md-nav__link">
+  <a href="#inmemorystore" title="InMemoryStore" class="md-nav__link">
     InMemoryStore
   </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#methods" class="md-nav__link">
-    Methods
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#delete" class="md-nav__link">
-    delete
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#exists" class="md-nav__link">
-    exists
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get" class="md-nav__link">
-    get
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set" class="md-nav__link">
-    set
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -867,7 +820,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#classes" class="md-nav__link">
+  <a href="#classes" title="Classes" class="md-nav__link">
     Classes
   </a>
   
@@ -875,56 +828,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#inmemorystore" class="md-nav__link">
+  <a href="#inmemorystore" title="InMemoryStore" class="md-nav__link">
     InMemoryStore
   </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#methods" class="md-nav__link">
-    Methods
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#delete" class="md-nav__link">
-    delete
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#exists" class="md-nav__link">
-    exists
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get" class="md-nav__link">
-    get
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set" class="md-nav__link">
-    set
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -967,9 +873,96 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="s2">&quot;&quot;&quot;</span><span class="s">hug/store.py.</span>
+
+<span class="nv">A</span> <span class="nv">collecton</span> <span class="nv">of</span> <span class="nv">native</span> <span class="nv">stores</span> <span class="nv">which</span> <span class="nv">can</span> <span class="nv">be</span> <span class="nv">used</span> <span class="nv">with</span>, <span class="nv">among</span> <span class="nv">others</span>, <span class="nv">the</span> <span class="nv">session</span> <span class="nv">middleware</span>.
+
+<span class="nv">Copyright</span> <span class="ss">(</span><span class="nv">C</span><span class="ss">)</span> <span class="mi">2016</span> <span class="nv">Timothy</span> <span class="nv">Edmund</span> <span class="nv">Crosley</span>
+
+<span class="nv">Permission</span> <span class="nv">is</span> <span class="nv">hereby</span> <span class="nv">granted</span>, <span class="nv">free</span> <span class="nv">of</span> <span class="nv">charge</span>, <span class="nv">to</span> <span class="nv">any</span> <span class="nv">person</span> <span class="nv">obtaining</span> <span class="nv">a</span> <span class="nv">copy</span> <span class="nv">of</span> <span class="nv">this</span> <span class="nv">software</span> <span class="nv">and</span> <span class="nv">associated</span>
+
+<span class="nv">documentation</span> <span class="nv">files</span> <span class="ss">(</span><span class="nv">the</span> <span class="s2">&quot;</span><span class="s">Software</span><span class="s2">&quot;</span><span class="ss">)</span>, <span class="nv">to</span> <span class="nv">deal</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">without</span> <span class="nv">restriction</span>, <span class="nv">including</span> <span class="nv">without</span> <span class="nv">limitation</span>
+
+<span class="nv">the</span> <span class="nv">rights</span> <span class="nv">to</span> <span class="nv">use</span>, <span class="nv">copy</span>, <span class="nv">modify</span>, <span class="nv">merge</span>, <span class="nv">publish</span>, <span class="nv">distribute</span>, <span class="nv">sublicense</span>, <span class="nv">and</span><span class="o">/</span><span class="nv">or</span> <span class="nv">sell</span> <span class="nv">copies</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>, <span class="nv">and</span>
+
+<span class="nv">to</span> <span class="nv">permit</span> <span class="nv">persons</span> <span class="nv">to</span> <span class="nv">whom</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">is</span> <span class="nv">furnished</span> <span class="nv">to</span> <span class="k">do</span> <span class="nv">so</span>, <span class="nv">subject</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">conditions</span>:
+
+<span class="nv">The</span> <span class="nv">above</span> <span class="nv">copyright</span> <span class="nv">notice</span> <span class="nv">and</span> <span class="nv">this</span> <span class="nv">permission</span> <span class="nv">notice</span> <span class="nv">shall</span> <span class="nv">be</span> <span class="nv">included</span> <span class="nv">in</span> <span class="nv">all</span> <span class="nv">copies</span> <span class="nv">or</span>
+
+<span class="nv">substantial</span> <span class="nv">portions</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>.
+
+<span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">IS</span> <span class="nv">PROVIDED</span> <span class="s2">&quot;</span><span class="s">AS IS</span><span class="s2">&quot;</span>, <span class="nv">WITHOUT</span> <span class="nv">WARRANTY</span> <span class="nv">OF</span> <span class="nv">ANY</span> <span class="nv">KIND</span>, <span class="nv">EXPRESS</span> <span class="nv">OR</span> <span class="nv">IMPLIED</span>, <span class="nv">INCLUDING</span> <span class="nv">BUT</span> <span class="nv">NOT</span> <span class="nv">LIMITED</span>
+
+<span class="nv">TO</span> <span class="nv">THE</span> <span class="nv">WARRANTIES</span> <span class="nv">OF</span> <span class="nv">MERCHANTABILITY</span>, <span class="nv">FITNESS</span> <span class="k">FOR</span> <span class="nv">A</span> <span class="nv">PARTICULAR</span> <span class="nv">PURPOSE</span> <span class="nv">AND</span> <span class="nv">NONINFRINGEMENT</span>. <span class="nv">IN</span> <span class="nv">NO</span> <span class="nv">EVENT</span> <span class="nv">SHALL</span>
+
+<span class="nv">THE</span> <span class="nv">AUTHORS</span> <span class="nv">OR</span> <span class="nv">COPYRIGHT</span> <span class="nv">HOLDERS</span> <span class="nv">BE</span> <span class="nv">LIABLE</span> <span class="k">FOR</span> <span class="nv">ANY</span> <span class="nv">CLAIM</span>, <span class="nv">DAMAGES</span> <span class="nv">OR</span> <span class="nv">OTHER</span> <span class="nv">LIABILITY</span>, <span class="nv">WHETHER</span> <span class="nv">IN</span> <span class="nv">AN</span> <span class="nv">ACTION</span> <span class="nv">OF</span>
+
+<span class="nv">CONTRACT</span>, <span class="nv">TORT</span> <span class="nv">OR</span> <span class="nv">OTHERWISE</span>, <span class="nv">ARISING</span> <span class="nv">FROM</span>, <span class="nv">OUT</span> <span class="nv">OF</span> <span class="nv">OR</span> <span class="nv">IN</span> <span class="nv">CONNECTION</span> <span class="nv">WITH</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">OR</span> <span class="nv">THE</span> <span class="nv">USE</span> <span class="nv">OR</span>
+
+<span class="nv">OTHER</span> <span class="nv">DEALINGS</span> <span class="nv">IN</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span>.
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="nv">from</span> <span class="nv">hug</span>.<span class="nv">exceptions</span> <span class="nv">import</span> <span class="nv">StoreKeyNotFound</span>
+
+<span class="nv">class</span> <span class="nv">InMemoryStore</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">Naive</span> <span class="nv">store</span> <span class="nv">class</span> <span class="nv">which</span> <span class="nv">can</span> <span class="nv">be</span> <span class="nv">used</span> <span class="k">for</span> <span class="nv">the</span> <span class="nv">session</span> <span class="nv">middleware</span> <span class="nv">and</span> <span class="nv">unit</span> <span class="nv">tests</span>.
+
+    <span class="nv">It</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">thread</span><span class="o">-</span><span class="nv">safe</span> <span class="nv">and</span> <span class="nv">no</span> <span class="nv">data</span> <span class="nv">will</span> <span class="nv">survive</span> <span class="nv">the</span> <span class="nv">lifecycle</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">hug</span> <span class="nv">process</span>.
+
+    <span class="nv">Regard</span> <span class="nv">this</span> <span class="nv">as</span> <span class="nv">a</span> <span class="nv">blueprint</span> <span class="k">for</span> <span class="nv">more</span> <span class="nv">useful</span> <span class="nv">and</span> <span class="nv">probably</span> <span class="nv">more</span> <span class="nv">complex</span> <span class="nv">store</span> <span class="nv">implementations</span>, <span class="k">for</span> <span class="nv">example</span> <span class="nv">stores</span>
+
+    <span class="nv">which</span> <span class="nv">make</span> <span class="nv">use</span> <span class="nv">of</span> <span class="nv">databases</span> <span class="nv">like</span> <span class="nv">Redis</span>, <span class="nv">PostgreSQL</span> <span class="nv">or</span> <span class="nv">others</span>.
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="nv">self</span>.<span class="nv">_data</span> <span class="o">=</span> {}
+
+    <span class="nv">def</span> <span class="nv">get</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Get data for given store key. Raise hug.exceptions.StoreKeyNotFound if key does not exist.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nv">try</span>:
+
+            <span class="nv">data</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_data</span>[<span class="nv">key</span>]
+
+        <span class="nv">except</span> <span class="nv">KeyError</span>:
+
+            <span class="nv">raise</span> <span class="nv">StoreKeyNotFound</span><span class="ss">(</span><span class="nv">key</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">data</span>
+
+    <span class="nv">def</span> <span class="nv">exists</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Return whether key exists or not.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nv">key</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_data</span>
+
+    <span class="nv">def</span> <span class="nv">set</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">data</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Set data object for given store key.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nv">self</span>.<span class="nv">_data</span>[<span class="nv">key</span>] <span class="o">=</span> <span class="nv">data</span>
+
+    <span class="nv">def</span> <span class="nv">delete</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Delete data for given store key.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nv">key</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_data</span>:
+
+            <span class="nv">del</span> <span class="nv">self</span>.<span class="nv">_data</span>[<span class="nv">key</span>]
+</pre></div>
+
+
+</details>
 <h2 id="classes">Classes</h2>
-<h3 id="inmemorystore">InMemoryStore</h3>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">InMemoryStore</span><span class="p">(</span>
+<h5 id="inmemorystore">InMemoryStore</h5>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="err">(</span>
 
 <span class="p">)</span>
 </pre></div>
@@ -979,44 +972,62 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 It is not thread-safe and no data will survive the lifecycle of the hug process.
 Regard this as a blueprint for more useful and probably more complex store implementations, for example stores
 which make use of databases like Redis, PostgreSQL or others.</p>
-<h4 id="methods">Methods</h4>
-<h5 id="delete">delete</h5>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">key</span>
-<span class="p">)</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">InMemoryStore</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">Naive</span> <span class="nv">store</span> <span class="nv">class</span> <span class="nv">which</span> <span class="nv">can</span> <span class="nv">be</span> <span class="nv">used</span> <span class="k">for</span> <span class="nv">the</span> <span class="nv">session</span> <span class="nv">middleware</span> <span class="nv">and</span> <span class="nv">unit</span> <span class="nv">tests</span>.
+
+    <span class="nv">It</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">thread</span><span class="o">-</span><span class="nv">safe</span> <span class="nv">and</span> <span class="nv">no</span> <span class="nv">data</span> <span class="nv">will</span> <span class="nv">survive</span> <span class="nv">the</span> <span class="nv">lifecycle</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">hug</span> <span class="nv">process</span>.
+
+    <span class="nv">Regard</span> <span class="nv">this</span> <span class="nv">as</span> <span class="nv">a</span> <span class="nv">blueprint</span> <span class="k">for</span> <span class="nv">more</span> <span class="nv">useful</span> <span class="nv">and</span> <span class="nv">probably</span> <span class="nv">more</span> <span class="nv">complex</span> <span class="nv">store</span> <span class="nv">implementations</span>, <span class="k">for</span> <span class="nv">example</span> <span class="nv">stores</span>
+
+    <span class="nv">which</span> <span class="nv">make</span> <span class="nv">use</span> <span class="nv">of</span> <span class="nv">databases</span> <span class="nv">like</span> <span class="nv">Redis</span>, <span class="nv">PostgreSQL</span> <span class="nv">or</span> <span class="nv">others</span>.
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="nv">self</span>.<span class="nv">_data</span> <span class="o">=</span> {}
+
+    <span class="nv">def</span> <span class="nv">get</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Get data for given store key. Raise hug.exceptions.StoreKeyNotFound if key does not exist.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nv">try</span>:
+
+            <span class="nv">data</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_data</span>[<span class="nv">key</span>]
+
+        <span class="nv">except</span> <span class="nv">KeyError</span>:
+
+            <span class="nv">raise</span> <span class="nv">StoreKeyNotFound</span><span class="ss">(</span><span class="nv">key</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">data</span>
+
+    <span class="nv">def</span> <span class="nv">exists</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Return whether key exists or not.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nv">key</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_data</span>
+
+    <span class="nv">def</span> <span class="nv">set</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">data</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Set data object for given store key.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nv">self</span>.<span class="nv">_data</span>[<span class="nv">key</span>] <span class="o">=</span> <span class="nv">data</span>
+
+    <span class="nv">def</span> <span class="nv">delete</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Delete data for given store key.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nv">key</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_data</span>:
+
+            <span class="nv">del</span> <span class="nv">self</span>.<span class="nv">_data</span>[<span class="nv">key</span>]
 </pre></div>
 
 
-<p>Delete data for given store key.</p>
-<h5 id="exists">exists</h5>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">exists</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">key</span>
-<span class="p">)</span>
-</pre></div>
-
-
-<p>Return whether key exists or not.</p>
-<h5 id="get">get</h5>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">key</span>
-<span class="p">)</span>
-</pre></div>
-
-
-<p>Get data for given store key. Raise hug.exceptions.StoreKeyNotFound if key does not exist.</p>
-<h5 id="set">set</h5>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">key</span><span class="p">,</span>
-    <span class="n">data</span>
-<span class="p">)</span>
-</pre></div>
-
-
-<p>Set data object for given store key.</p>
+</details>
+<hr />
                 
                   
                 

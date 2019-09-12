@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../artwork/koala.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.1">
     
     
       
@@ -177,7 +177,7 @@
         
       
       
-      <main class="md-main" role="main">
+      <main class="md-main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
             
@@ -615,29 +615,9 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#variables" class="md-nav__link">
+  <a href="#variables" title="Variables" class="md-nav__link">
     Variables
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#classes" class="md-nav__link">
-    Classes
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#dumps_proxy" class="md-nav__link">
-    dumps_proxy
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -827,29 +807,9 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#variables" class="md-nav__link">
+  <a href="#variables" title="Variables" class="md-nav__link">
     Variables
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#classes" class="md-nav__link">
-    Classes
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#dumps_proxy" class="md-nav__link">
-    dumps_proxy
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -873,23 +833,58 @@
                 
                 
                 <h1 id="module-hugjson_module">Module hug.json_module</h1>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">HUG_USE_UJSON</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HUG_USE_UJSON&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="k">try</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+
+    <span class="k">if</span> <span class="n">HUG_USE_UJSON</span><span class="p">:</span>
+
+        <span class="kn">import</span> <span class="nn">ujson</span> <span class="kn">as</span> <span class="nn">json</span>
+
+        <span class="k">class</span> <span class="nc">dumps_proxy</span><span class="p">:</span>  <span class="c1"># noqa: N801</span>
+
+            <span class="sd">&quot;&quot;&quot;Proxies the call so non supported kwargs are skipped</span>
+
+<span class="sd">            and it enables escape_forward_slashes to simulate built-in json</span>
+
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">_dumps</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span>
+
+            <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;separators&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">escape_forward_slashes</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+                <span class="k">try</span><span class="p">:</span>
+
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dumps</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Type[ujson] is not Serializable&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span> <span class="o">=</span> <span class="n">dumps_proxy</span><span class="p">()</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="kn">import</span> <span class="nn">json</span>
+
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+
+    <span class="kn">import</span> <span class="nn">json</span>
+</pre></div>
+
+
+</details>
 <h2 id="variables">Variables</h2>
 <div class="codehilite"><pre><span></span><span class="n">HUG_USE_UJSON</span>
 </pre></div>
-
-
-<h2 id="classes">Classes</h2>
-<h3 id="dumps_proxy">dumps_proxy</h3>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">dumps_proxy</span><span class="p">(</span>
-    <span class="o">/</span><span class="p">,</span>
-    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span>
-<span class="p">)</span>
-</pre></div>
-
-
-<p>Proxies the call so non supported kwargs are skipped
-and it enables escape_forward_slashes to simulate built-in json</p>
                 
                   
                 

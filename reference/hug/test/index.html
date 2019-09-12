@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../artwork/koala.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.1">
     
     
       
@@ -177,7 +177,7 @@
         
       
       
-      <main class="md-main" role="main">
+      <main class="md-main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
             
@@ -699,14 +699,14 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#variables" class="md-nav__link">
+  <a href="#variables" title="Variables" class="md-nav__link">
     Variables
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#functions" title="Functions" class="md-nav__link">
     Functions
   </a>
   
@@ -714,14 +714,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#call" class="md-nav__link">
+  <a href="#call" title="call" class="md-nav__link">
     call
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#cli" class="md-nav__link">
+  <a href="#cli" title="cli" class="md-nav__link">
     cli
   </a>
   
@@ -834,14 +834,14 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#variables" class="md-nav__link">
+  <a href="#variables" title="Variables" class="md-nav__link">
     Variables
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#functions" title="Functions" class="md-nav__link">
     Functions
   </a>
   
@@ -849,14 +849,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#call" class="md-nav__link">
+  <a href="#call" title="call" class="md-nav__link">
     call
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#cli" class="md-nav__link">
+  <a href="#cli" title="cli" class="md-nav__link">
     cli
   </a>
   
@@ -901,6 +901,263 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="s2">&quot;&quot;&quot;</span><span class="s">hug/test.py.</span>
+
+<span class="nv">Defines</span> <span class="nv">utility</span> <span class="nv">function</span> <span class="nv">that</span> <span class="nv">aid</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">round</span><span class="o">-</span><span class="nv">trip</span> <span class="nv">testing</span> <span class="nv">of</span> <span class="nv">Hug</span> <span class="nv">APIs</span>
+
+<span class="nv">Copyright</span> <span class="ss">(</span><span class="nv">C</span><span class="ss">)</span> <span class="mi">2016</span>  <span class="nv">Timothy</span> <span class="nv">Edmund</span> <span class="nv">Crosley</span>
+
+<span class="nv">Permission</span> <span class="nv">is</span> <span class="nv">hereby</span> <span class="nv">granted</span>, <span class="nv">free</span> <span class="nv">of</span> <span class="nv">charge</span>, <span class="nv">to</span> <span class="nv">any</span> <span class="nv">person</span> <span class="nv">obtaining</span> <span class="nv">a</span> <span class="nv">copy</span> <span class="nv">of</span> <span class="nv">this</span> <span class="nv">software</span> <span class="nv">and</span> <span class="nv">associated</span>
+
+<span class="nv">documentation</span> <span class="nv">files</span> <span class="ss">(</span><span class="nv">the</span> <span class="s2">&quot;</span><span class="s">Software</span><span class="s2">&quot;</span><span class="ss">)</span>, <span class="nv">to</span> <span class="nv">deal</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">without</span> <span class="nv">restriction</span>, <span class="nv">including</span> <span class="nv">without</span> <span class="nv">limitation</span>
+
+<span class="nv">the</span> <span class="nv">rights</span> <span class="nv">to</span> <span class="nv">use</span>, <span class="nv">copy</span>, <span class="nv">modify</span>, <span class="nv">merge</span>, <span class="nv">publish</span>, <span class="nv">distribute</span>, <span class="nv">sublicense</span>, <span class="nv">and</span><span class="o">/</span><span class="nv">or</span> <span class="nv">sell</span> <span class="nv">copies</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>, <span class="nv">and</span>
+
+<span class="nv">to</span> <span class="nv">permit</span> <span class="nv">persons</span> <span class="nv">to</span> <span class="nv">whom</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">is</span> <span class="nv">furnished</span> <span class="nv">to</span> <span class="k">do</span> <span class="nv">so</span>, <span class="nv">subject</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">conditions</span>:
+
+<span class="nv">The</span> <span class="nv">above</span> <span class="nv">copyright</span> <span class="nv">notice</span> <span class="nv">and</span> <span class="nv">this</span> <span class="nv">permission</span> <span class="nv">notice</span> <span class="nv">shall</span> <span class="nv">be</span> <span class="nv">included</span> <span class="nv">in</span> <span class="nv">all</span> <span class="nv">copies</span> <span class="nv">or</span>
+
+<span class="nv">substantial</span> <span class="nv">portions</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>.
+
+<span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">IS</span> <span class="nv">PROVIDED</span> <span class="s2">&quot;</span><span class="s">AS IS</span><span class="s2">&quot;</span>, <span class="nv">WITHOUT</span> <span class="nv">WARRANTY</span> <span class="nv">OF</span> <span class="nv">ANY</span> <span class="nv">KIND</span>, <span class="nv">EXPRESS</span> <span class="nv">OR</span> <span class="nv">IMPLIED</span>, <span class="nv">INCLUDING</span> <span class="nv">BUT</span> <span class="nv">NOT</span> <span class="nv">LIMITED</span>
+
+<span class="nv">TO</span> <span class="nv">THE</span> <span class="nv">WARRANTIES</span> <span class="nv">OF</span> <span class="nv">MERCHANTABILITY</span>, <span class="nv">FITNESS</span> <span class="k">FOR</span> <span class="nv">A</span> <span class="nv">PARTICULAR</span> <span class="nv">PURPOSE</span> <span class="nv">AND</span> <span class="nv">NONINFRINGEMENT</span>. <span class="nv">IN</span> <span class="nv">NO</span> <span class="nv">EVENT</span> <span class="nv">SHALL</span>
+
+<span class="nv">THE</span> <span class="nv">AUTHORS</span> <span class="nv">OR</span> <span class="nv">COPYRIGHT</span> <span class="nv">HOLDERS</span> <span class="nv">BE</span> <span class="nv">LIABLE</span> <span class="k">FOR</span> <span class="nv">ANY</span> <span class="nv">CLAIM</span>, <span class="nv">DAMAGES</span> <span class="nv">OR</span> <span class="nv">OTHER</span> <span class="nv">LIABILITY</span>, <span class="nv">WHETHER</span> <span class="nv">IN</span> <span class="nv">AN</span> <span class="nv">ACTION</span> <span class="nv">OF</span>
+
+<span class="nv">CONTRACT</span>, <span class="nv">TORT</span> <span class="nv">OR</span> <span class="nv">OTHERWISE</span>, <span class="nv">ARISING</span> <span class="nv">FROM</span>, <span class="nv">OUT</span> <span class="nv">OF</span> <span class="nv">OR</span> <span class="nv">IN</span> <span class="nv">CONNECTION</span> <span class="nv">WITH</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">OR</span> <span class="nv">THE</span> <span class="nv">USE</span> <span class="nv">OR</span>
+
+<span class="nv">OTHER</span> <span class="nv">DEALINGS</span> <span class="nv">IN</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span>.
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="nv">from</span> <span class="nv">__future__</span> <span class="nv">import</span> <span class="nv">absolute_import</span>
+
+<span class="nv">import</span> <span class="nv">ast</span>
+
+<span class="nv">import</span> <span class="nv">sys</span>
+
+<span class="nv">from</span> <span class="nv">functools</span> <span class="nv">import</span> <span class="nv">partial</span>
+
+<span class="nv">from</span> <span class="nv">io</span> <span class="nv">import</span> <span class="nv">BytesIO</span>
+
+<span class="nv">from</span> <span class="nv">unittest</span> <span class="nv">import</span> <span class="nv">mock</span>
+
+<span class="nv">from</span> <span class="nv">urllib</span>.<span class="nv">parse</span> <span class="nv">import</span> <span class="nv">urlencode</span>
+
+<span class="nv">from</span> <span class="nv">falcon</span> <span class="nv">import</span> <span class="nv">HTTP_METHODS</span>
+
+<span class="nv">from</span> <span class="nv">falcon</span>.<span class="nv">testing</span> <span class="nv">import</span> <span class="nv">DEFAULT_HOST</span>, <span class="nv">StartResponseMock</span>, <span class="nv">create_environ</span>
+
+<span class="nv">from</span> <span class="nv">hug</span> <span class="nv">import</span> <span class="nv">output_format</span>
+
+<span class="nv">from</span> <span class="nv">hug</span>.<span class="nv">api</span> <span class="nv">import</span> <span class="nv">API</span>
+
+<span class="nv">from</span> <span class="nv">hug</span>.<span class="nv">json_module</span> <span class="nv">import</span> <span class="nv">json</span>
+
+<span class="nv">def</span> <span class="nv">_internal_result</span><span class="ss">(</span><span class="nv">raw_response</span><span class="ss">)</span>:
+
+    <span class="nv">try</span>:
+
+        <span class="k">return</span> <span class="nv">raw_response</span>[<span class="mi">0</span>].<span class="nv">decode</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">utf8</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+    <span class="nv">except</span> <span class="nv">TypeError</span>:
+
+        <span class="nv">data</span> <span class="o">=</span> <span class="nv">BytesIO</span><span class="ss">()</span>
+
+        <span class="k">for</span> <span class="nv">chunk</span> <span class="nv">in</span> <span class="nv">raw_response</span>:
+
+            <span class="nv">data</span>.<span class="nv">write</span><span class="ss">(</span><span class="nv">chunk</span><span class="ss">)</span>
+
+        <span class="nv">data</span> <span class="o">=</span> <span class="nv">data</span>.<span class="nv">getvalue</span><span class="ss">()</span>
+
+        <span class="nv">try</span>:
+
+            <span class="k">return</span> <span class="nv">data</span>.<span class="nv">decode</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">utf8</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="nv">except</span> <span class="nv">UnicodeDecodeError</span>:  # <span class="nv">pragma</span>: <span class="nv">no</span> <span class="nv">cover</span>
+
+            <span class="k">return</span> <span class="nv">data</span>
+
+    <span class="nv">except</span> <span class="ss">(</span><span class="nv">UnicodeDecodeError</span>, <span class="nv">AttributeError</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">raw_response</span>[<span class="mi">0</span>]
+
+<span class="nv">def</span> <span class="nv">call</span><span class="ss">(</span>
+
+    <span class="nv">method</span>,
+
+    <span class="nv">api_or_module</span>,
+
+    <span class="nv">url</span>,
+
+    <span class="nv">body</span><span class="o">=</span><span class="s2">&quot;&quot;</span>,
+
+    <span class="nv">headers</span><span class="o">=</span><span class="nv">None</span>,
+
+    <span class="nb">params</span><span class="o">=</span><span class="nv">None</span>,
+
+    <span class="nv">query_string</span><span class="o">=</span><span class="s2">&quot;&quot;</span>,
+
+    <span class="nv">scheme</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">http</span><span class="s2">&quot;</span>,
+
+    <span class="nv">host</span><span class="o">=</span><span class="nv">DEFAULT_HOST</span>,
+
+    <span class="o">**</span><span class="nv">kwargs</span>
+
+<span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Simulates a round-trip call against the given API / URL</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">api</span> <span class="o">=</span> <span class="nv">API</span><span class="ss">(</span><span class="nv">api_or_module</span><span class="ss">)</span>.<span class="nv">http</span>.<span class="nv">server</span><span class="ss">()</span>
+
+    <span class="nv">response</span> <span class="o">=</span> <span class="nv">StartResponseMock</span><span class="ss">()</span>
+
+    <span class="nv">headers</span> <span class="o">=</span> {} <span class="k">if</span> <span class="nv">headers</span> <span class="nv">is</span> <span class="nv">None</span> <span class="k">else</span> <span class="nv">headers</span>
+
+    <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">body</span>, <span class="nv">str</span><span class="ss">)</span> <span class="nv">and</span> <span class="s2">&quot;</span><span class="s">json</span><span class="s2">&quot;</span> <span class="nv">in</span> <span class="nv">headers</span>.<span class="nv">get</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">content-type</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">application/json</span><span class="s2">&quot;</span><span class="ss">)</span>:
+
+        <span class="nv">body</span> <span class="o">=</span> <span class="nv">output_format</span>.<span class="nv">json</span><span class="ss">(</span><span class="nv">body</span><span class="ss">)</span>
+
+        <span class="nv">headers</span>.<span class="nv">setdefault</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">content-type</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">application/json</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+    <span class="nb">params</span> <span class="o">=</span> <span class="nb">params</span> <span class="k">if</span> <span class="nb">params</span> <span class="k">else</span> {}
+
+    <span class="nb">params</span>.<span class="nv">update</span><span class="ss">(</span><span class="nv">kwargs</span><span class="ss">)</span>
+
+    <span class="k">if</span> <span class="nb">params</span>:
+
+        <span class="nv">query_string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s">{}{}{}</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span>
+
+            <span class="nv">query_string</span>, <span class="s2">&quot;</span><span class="s">&amp;</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="nv">query_string</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>, <span class="nv">urlencode</span><span class="ss">(</span><span class="nb">params</span>, <span class="nv">True</span><span class="ss">)</span>
+
+        <span class="ss">)</span>
+
+    <span class="nb">result</span> <span class="o">=</span> <span class="nv">api</span><span class="ss">(</span>
+
+        <span class="nv">create_environ</span><span class="ss">(</span>
+
+            <span class="nv">path</span><span class="o">=</span><span class="nv">url</span>,
+
+            <span class="nv">method</span><span class="o">=</span><span class="nv">method</span>,
+
+            <span class="nv">headers</span><span class="o">=</span><span class="nv">headers</span>,
+
+            <span class="nv">query_string</span><span class="o">=</span><span class="nv">query_string</span>,
+
+            <span class="nv">body</span><span class="o">=</span><span class="nv">body</span>,
+
+            <span class="nv">scheme</span><span class="o">=</span><span class="nv">scheme</span>,
+
+            <span class="nv">host</span><span class="o">=</span><span class="nv">host</span>,
+
+        <span class="ss">)</span>,
+
+        <span class="nv">response</span>,
+
+    <span class="ss">)</span>
+
+    <span class="k">if</span> <span class="nb">result</span>:
+
+        <span class="nv">response</span>.<span class="nv">data</span> <span class="o">=</span> <span class="nv">_internal_result</span><span class="ss">(</span><span class="nb">result</span><span class="ss">)</span>
+
+        <span class="nv">response</span>.<span class="nv">content_type</span> <span class="o">=</span> <span class="nv">response</span>.<span class="nv">headers_dict</span>[<span class="s2">&quot;</span><span class="s">content-type</span><span class="s2">&quot;</span>]
+
+        <span class="k">if</span> <span class="s2">&quot;</span><span class="s">application/json</span><span class="s2">&quot;</span> <span class="nv">in</span> <span class="nv">response</span>.<span class="nv">content_type</span>:
+
+            <span class="nv">response</span>.<span class="nv">data</span> <span class="o">=</span> <span class="nv">json</span>.<span class="nv">loads</span><span class="ss">(</span><span class="nv">response</span>.<span class="nv">data</span><span class="ss">)</span>
+
+    <span class="k">return</span> <span class="nv">response</span>
+
+<span class="k">for</span> <span class="nv">method</span> <span class="nv">in</span> <span class="nv">HTTP_METHODS</span>:
+
+    <span class="nv">tester</span> <span class="o">=</span> <span class="nv">partial</span><span class="ss">(</span><span class="nv">call</span>, <span class="nv">method</span><span class="ss">)</span>
+
+    <span class="nv">tester</span>.<span class="nv">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="s">Simulates a round-trip HTTP {0} against the given API / URL</span><span class="s2">&quot;&quot;&quot;</span>.<span class="nv">format</span><span class="ss">(</span>
+
+        <span class="nv">method</span>.<span class="nv">upper</span><span class="ss">()</span>
+
+    <span class="ss">)</span>
+
+    <span class="nv">globals</span><span class="ss">()</span>[<span class="nv">method</span>.<span class="nv">lower</span><span class="ss">()</span>] <span class="o">=</span> <span class="nv">tester</span>
+
+<span class="nv">def</span> <span class="nv">cli</span><span class="ss">(</span><span class="nv">method</span>, <span class="o">*</span><span class="nv">args</span>, <span class="nv">api</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">module</span><span class="o">=</span><span class="nv">None</span>, <span class="o">**</span><span class="nv">arguments</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Simulates testing a hug cli method from the command line</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">collect_output</span> <span class="o">=</span> <span class="nv">arguments</span>.<span class="nv">pop</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">collect_output</span><span class="s2">&quot;</span>, <span class="nv">True</span><span class="ss">)</span>
+
+    <span class="k">if</span> <span class="nv">api</span> <span class="nv">and</span> <span class="nv">module</span>:
+
+        <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Please specify an API OR a Module that contains the API, not both</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+    <span class="nv">elif</span> <span class="nv">api</span> <span class="nv">or</span> <span class="nv">module</span>:
+
+        <span class="nv">method</span> <span class="o">=</span> <span class="nv">API</span><span class="ss">(</span><span class="nv">api</span> <span class="nv">or</span> <span class="nv">module</span><span class="ss">)</span>.<span class="nv">cli</span>.<span class="nv">commands</span>[<span class="nv">method</span>].<span class="nv">interface</span>.<span class="nv">_function</span>
+
+    <span class="nv">command_args</span> <span class="o">=</span> [<span class="nv">method</span>.<span class="nv">__name__</span>] <span class="o">+</span> <span class="nv">list</span><span class="ss">(</span><span class="nv">args</span><span class="ss">)</span>
+
+    <span class="k">for</span> <span class="nv">name</span>, <span class="nv">values</span> <span class="nv">in</span> <span class="nv">arguments</span>.<span class="nv">items</span><span class="ss">()</span>:
+
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">values</span>, <span class="ss">(</span><span class="nv">tuple</span>, <span class="nv">list</span><span class="ss">))</span>:
+
+            <span class="nv">values</span> <span class="o">=</span> <span class="ss">(</span><span class="nv">values</span>,<span class="ss">)</span>
+
+        <span class="k">for</span> <span class="nv">value</span> <span class="nv">in</span> <span class="nv">values</span>:
+
+            <span class="nv">command_args</span>.<span class="nv">append</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">--{0}</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">name</span><span class="ss">))</span>
+
+            <span class="k">if</span> <span class="nv">not</span> <span class="nv">value</span> <span class="nv">in</span> <span class="ss">(</span><span class="nv">True</span>, <span class="nv">False</span><span class="ss">)</span>:
+
+                <span class="nv">command_args</span>.<span class="nv">append</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">{0}</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">value</span><span class="ss">))</span>
+
+    <span class="nv">old_sys_argv</span> <span class="o">=</span> <span class="nv">sys</span>.<span class="nv">argv</span>
+
+    <span class="nv">sys</span>.<span class="nv">argv</span> <span class="o">=</span> [<span class="nv">str</span><span class="ss">(</span><span class="nv">part</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">part</span> <span class="nv">in</span> <span class="nv">command_args</span>]
+
+    <span class="nv">old_outputs</span> <span class="o">=</span> <span class="nv">method</span>.<span class="nv">interface</span>.<span class="nv">cli</span>.<span class="nv">outputs</span>
+
+    <span class="k">if</span> <span class="nv">collect_output</span>:
+
+        <span class="nv">method</span>.<span class="nv">interface</span>.<span class="nv">cli</span>.<span class="nv">outputs</span> <span class="o">=</span> <span class="nv">lambda</span> <span class="nv">data</span>: <span class="nv">to_return</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">old_outputs</span><span class="ss">(</span><span class="nv">data</span><span class="ss">))</span>
+
+    <span class="nv">to_return</span> <span class="o">=</span> []
+
+    <span class="nv">try</span>:
+
+        <span class="nv">method</span>.<span class="nv">interface</span>.<span class="nv">cli</span><span class="ss">()</span>
+
+    <span class="nv">except</span> <span class="nv">Exception</span> <span class="nv">as</span> <span class="nv">e</span>:
+
+        <span class="nv">to_return</span> <span class="o">=</span> <span class="ss">(</span><span class="nv">e</span>,<span class="ss">)</span>
+
+    <span class="nv">method</span>.<span class="nv">interface</span>.<span class="nv">cli</span>.<span class="nv">outputs</span> <span class="o">=</span> <span class="nv">old_outputs</span>
+
+    <span class="nv">sys</span>.<span class="nv">argv</span> <span class="o">=</span> <span class="nv">old_sys_argv</span>
+
+    <span class="k">if</span> <span class="nv">to_return</span>:
+
+        <span class="nb">result</span> <span class="o">=</span> <span class="nv">_internal_result</span><span class="ss">(</span><span class="nv">to_return</span><span class="ss">)</span>
+
+        <span class="nv">try</span>:
+
+            <span class="nb">result</span> <span class="o">=</span> <span class="nv">json</span>.<span class="nv">loads</span><span class="ss">(</span><span class="nb">result</span><span class="ss">)</span>
+
+        <span class="nv">except</span> <span class="nv">Exception</span>:
+
+            <span class="nv">try</span>:
+
+                <span class="nb">result</span> <span class="o">=</span> <span class="nv">ast</span>.<span class="nv">literal_eval</span><span class="ss">(</span><span class="nb">result</span><span class="ss">)</span>
+
+            <span class="nv">except</span> <span class="nv">Exception</span>:
+
+                <span class="nv">pass</span>
+
+        <span class="k">return</span> <span class="nb">result</span>
+</pre></div>
+
+
+</details>
 <h2 id="variables">Variables</h2>
 <div class="codehilite"><pre><span></span><span class="n">DEFAULT_HOST</span>
 </pre></div>
@@ -955,8 +1212,8 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 
 
 <h2 id="functions">Functions</h2>
-<h3 id="call">call</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">call</span><span class="p">(</span>
+<h5 id="call">call</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">method</span><span class="p">,</span>
     <span class="n">api_or_module</span><span class="p">,</span>
     <span class="n">url</span><span class="p">,</span>
@@ -972,8 +1229,97 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 
 
 <p>Simulates a round-trip call against the given API / URL</p>
-<h3 id="cli">cli</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cli</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">call</span><span class="ss">(</span>
+
+    <span class="nv">method</span>,
+
+    <span class="nv">api_or_module</span>,
+
+    <span class="nv">url</span>,
+
+    <span class="nv">body</span><span class="o">=</span><span class="s2">&quot;&quot;</span>,
+
+    <span class="nv">headers</span><span class="o">=</span><span class="nv">None</span>,
+
+    <span class="nb">params</span><span class="o">=</span><span class="nv">None</span>,
+
+    <span class="nv">query_string</span><span class="o">=</span><span class="s2">&quot;&quot;</span>,
+
+    <span class="nv">scheme</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">http</span><span class="s2">&quot;</span>,
+
+    <span class="nv">host</span><span class="o">=</span><span class="nv">DEFAULT_HOST</span>,
+
+    <span class="o">**</span><span class="nv">kwargs</span>
+
+<span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Simulates a round-trip call against the given API / URL</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">api</span> <span class="o">=</span> <span class="nv">API</span><span class="ss">(</span><span class="nv">api_or_module</span><span class="ss">)</span>.<span class="nv">http</span>.<span class="nv">server</span><span class="ss">()</span>
+
+    <span class="nv">response</span> <span class="o">=</span> <span class="nv">StartResponseMock</span><span class="ss">()</span>
+
+    <span class="nv">headers</span> <span class="o">=</span> {} <span class="k">if</span> <span class="nv">headers</span> <span class="nv">is</span> <span class="nv">None</span> <span class="k">else</span> <span class="nv">headers</span>
+
+    <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">body</span>, <span class="nv">str</span><span class="ss">)</span> <span class="nv">and</span> <span class="s2">&quot;</span><span class="s">json</span><span class="s2">&quot;</span> <span class="nv">in</span> <span class="nv">headers</span>.<span class="nv">get</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">content-type</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">application/json</span><span class="s2">&quot;</span><span class="ss">)</span>:
+
+        <span class="nv">body</span> <span class="o">=</span> <span class="nv">output_format</span>.<span class="nv">json</span><span class="ss">(</span><span class="nv">body</span><span class="ss">)</span>
+
+        <span class="nv">headers</span>.<span class="nv">setdefault</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">content-type</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">application/json</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+    <span class="nb">params</span> <span class="o">=</span> <span class="nb">params</span> <span class="k">if</span> <span class="nb">params</span> <span class="k">else</span> {}
+
+    <span class="nb">params</span>.<span class="nv">update</span><span class="ss">(</span><span class="nv">kwargs</span><span class="ss">)</span>
+
+    <span class="k">if</span> <span class="nb">params</span>:
+
+        <span class="nv">query_string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s">{}{}{}</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span>
+
+            <span class="nv">query_string</span>, <span class="s2">&quot;</span><span class="s">&amp;</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="nv">query_string</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>, <span class="nv">urlencode</span><span class="ss">(</span><span class="nb">params</span>, <span class="nv">True</span><span class="ss">)</span>
+
+        <span class="ss">)</span>
+
+    <span class="nb">result</span> <span class="o">=</span> <span class="nv">api</span><span class="ss">(</span>
+
+        <span class="nv">create_environ</span><span class="ss">(</span>
+
+            <span class="nv">path</span><span class="o">=</span><span class="nv">url</span>,
+
+            <span class="nv">method</span><span class="o">=</span><span class="nv">method</span>,
+
+            <span class="nv">headers</span><span class="o">=</span><span class="nv">headers</span>,
+
+            <span class="nv">query_string</span><span class="o">=</span><span class="nv">query_string</span>,
+
+            <span class="nv">body</span><span class="o">=</span><span class="nv">body</span>,
+
+            <span class="nv">scheme</span><span class="o">=</span><span class="nv">scheme</span>,
+
+            <span class="nv">host</span><span class="o">=</span><span class="nv">host</span>,
+
+        <span class="ss">)</span>,
+
+        <span class="nv">response</span>,
+
+    <span class="ss">)</span>
+
+    <span class="k">if</span> <span class="nb">result</span>:
+
+        <span class="nv">response</span>.<span class="nv">data</span> <span class="o">=</span> <span class="nv">_internal_result</span><span class="ss">(</span><span class="nb">result</span><span class="ss">)</span>
+
+        <span class="nv">response</span>.<span class="nv">content_type</span> <span class="o">=</span> <span class="nv">response</span>.<span class="nv">headers_dict</span>[<span class="s2">&quot;</span><span class="s">content-type</span><span class="s2">&quot;</span>]
+
+        <span class="k">if</span> <span class="s2">&quot;</span><span class="s">application/json</span><span class="s2">&quot;</span> <span class="nv">in</span> <span class="nv">response</span>.<span class="nv">content_type</span>:
+
+            <span class="nv">response</span>.<span class="nv">data</span> <span class="o">=</span> <span class="nv">json</span>.<span class="nv">loads</span><span class="ss">(</span><span class="nv">response</span>.<span class="nv">data</span><span class="ss">)</span>
+
+    <span class="k">return</span> <span class="nv">response</span>
+</pre></div>
+
+
+</details>
+<h5 id="cli">cli</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">method</span><span class="p">,</span>
     <span class="o">*</span><span class="n">args</span><span class="p">,</span>
     <span class="n">api</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -984,6 +1330,83 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 
 
 <p>Simulates testing a hug cli method from the command line</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">cli</span><span class="ss">(</span><span class="nv">method</span>, <span class="o">*</span><span class="nv">args</span>, <span class="nv">api</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">module</span><span class="o">=</span><span class="nv">None</span>, <span class="o">**</span><span class="nv">arguments</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Simulates testing a hug cli method from the command line</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">collect_output</span> <span class="o">=</span> <span class="nv">arguments</span>.<span class="nv">pop</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">collect_output</span><span class="s2">&quot;</span>, <span class="nv">True</span><span class="ss">)</span>
+
+    <span class="k">if</span> <span class="nv">api</span> <span class="nv">and</span> <span class="nv">module</span>:
+
+        <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Please specify an API OR a Module that contains the API, not both</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+    <span class="nv">elif</span> <span class="nv">api</span> <span class="nv">or</span> <span class="nv">module</span>:
+
+        <span class="nv">method</span> <span class="o">=</span> <span class="nv">API</span><span class="ss">(</span><span class="nv">api</span> <span class="nv">or</span> <span class="nv">module</span><span class="ss">)</span>.<span class="nv">cli</span>.<span class="nv">commands</span>[<span class="nv">method</span>].<span class="nv">interface</span>.<span class="nv">_function</span>
+
+    <span class="nv">command_args</span> <span class="o">=</span> [<span class="nv">method</span>.<span class="nv">__name__</span>] <span class="o">+</span> <span class="nv">list</span><span class="ss">(</span><span class="nv">args</span><span class="ss">)</span>
+
+    <span class="k">for</span> <span class="nv">name</span>, <span class="nv">values</span> <span class="nv">in</span> <span class="nv">arguments</span>.<span class="nv">items</span><span class="ss">()</span>:
+
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">values</span>, <span class="ss">(</span><span class="nv">tuple</span>, <span class="nv">list</span><span class="ss">))</span>:
+
+            <span class="nv">values</span> <span class="o">=</span> <span class="ss">(</span><span class="nv">values</span>,<span class="ss">)</span>
+
+        <span class="k">for</span> <span class="nv">value</span> <span class="nv">in</span> <span class="nv">values</span>:
+
+            <span class="nv">command_args</span>.<span class="nv">append</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">--{0}</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">name</span><span class="ss">))</span>
+
+            <span class="k">if</span> <span class="nv">not</span> <span class="nv">value</span> <span class="nv">in</span> <span class="ss">(</span><span class="nv">True</span>, <span class="nv">False</span><span class="ss">)</span>:
+
+                <span class="nv">command_args</span>.<span class="nv">append</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">{0}</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">value</span><span class="ss">))</span>
+
+    <span class="nv">old_sys_argv</span> <span class="o">=</span> <span class="nv">sys</span>.<span class="nv">argv</span>
+
+    <span class="nv">sys</span>.<span class="nv">argv</span> <span class="o">=</span> [<span class="nv">str</span><span class="ss">(</span><span class="nv">part</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">part</span> <span class="nv">in</span> <span class="nv">command_args</span>]
+
+    <span class="nv">old_outputs</span> <span class="o">=</span> <span class="nv">method</span>.<span class="nv">interface</span>.<span class="nv">cli</span>.<span class="nv">outputs</span>
+
+    <span class="k">if</span> <span class="nv">collect_output</span>:
+
+        <span class="nv">method</span>.<span class="nv">interface</span>.<span class="nv">cli</span>.<span class="nv">outputs</span> <span class="o">=</span> <span class="nv">lambda</span> <span class="nv">data</span>: <span class="nv">to_return</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">old_outputs</span><span class="ss">(</span><span class="nv">data</span><span class="ss">))</span>
+
+    <span class="nv">to_return</span> <span class="o">=</span> []
+
+    <span class="nv">try</span>:
+
+        <span class="nv">method</span>.<span class="nv">interface</span>.<span class="nv">cli</span><span class="ss">()</span>
+
+    <span class="nv">except</span> <span class="nv">Exception</span> <span class="nv">as</span> <span class="nv">e</span>:
+
+        <span class="nv">to_return</span> <span class="o">=</span> <span class="ss">(</span><span class="nv">e</span>,<span class="ss">)</span>
+
+    <span class="nv">method</span>.<span class="nv">interface</span>.<span class="nv">cli</span>.<span class="nv">outputs</span> <span class="o">=</span> <span class="nv">old_outputs</span>
+
+    <span class="nv">sys</span>.<span class="nv">argv</span> <span class="o">=</span> <span class="nv">old_sys_argv</span>
+
+    <span class="k">if</span> <span class="nv">to_return</span>:
+
+        <span class="nb">result</span> <span class="o">=</span> <span class="nv">_internal_result</span><span class="ss">(</span><span class="nv">to_return</span><span class="ss">)</span>
+
+        <span class="nv">try</span>:
+
+            <span class="nb">result</span> <span class="o">=</span> <span class="nv">json</span>.<span class="nv">loads</span><span class="ss">(</span><span class="nb">result</span><span class="ss">)</span>
+
+        <span class="nv">except</span> <span class="nv">Exception</span>:
+
+            <span class="nv">try</span>:
+
+                <span class="nb">result</span> <span class="o">=</span> <span class="nv">ast</span>.<span class="nv">literal_eval</span><span class="ss">(</span><span class="nb">result</span><span class="ss">)</span>
+
+            <span class="nv">except</span> <span class="nv">Exception</span>:
+
+                <span class="nv">pass</span>
+
+        <span class="k">return</span> <span class="nb">result</span>
+</pre></div>
+
+
+</details>
                 
                   
                 

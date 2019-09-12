@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../artwork/koala.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.1">
     
     
       
@@ -177,7 +177,7 @@
         
       
       
-      <main class="md-main" role="main">
+      <main class="md-main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
             
@@ -483,7 +483,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#functions" title="Functions" class="md-nav__link">
     Functions
   </a>
   
@@ -491,35 +491,35 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#api_key" class="md-nav__link">
+  <a href="#api_key" title="api_key" class="md-nav__link">
     api_key
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#authenticator" class="md-nav__link">
+  <a href="#authenticator" title="authenticator" class="md-nav__link">
     authenticator
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#basic" class="md-nav__link">
+  <a href="#basic" title="basic" class="md-nav__link">
     basic
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#token" class="md-nav__link">
+  <a href="#token" title="token" class="md-nav__link">
     token
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#verify" class="md-nav__link">
+  <a href="#verify" title="verify" class="md-nav__link">
     verify
   </a>
   
@@ -848,7 +848,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#functions" title="Functions" class="md-nav__link">
     Functions
   </a>
   
@@ -856,35 +856,35 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#api_key" class="md-nav__link">
+  <a href="#api_key" title="api_key" class="md-nav__link">
     api_key
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#authenticator" class="md-nav__link">
+  <a href="#authenticator" title="authenticator" class="md-nav__link">
     authenticator
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#basic" class="md-nav__link">
+  <a href="#basic" title="basic" class="md-nav__link">
     basic
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#token" class="md-nav__link">
+  <a href="#token" title="token" class="md-nav__link">
     token
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#verify" class="md-nav__link">
+  <a href="#verify" title="verify" class="md-nav__link">
     verify
   </a>
   
@@ -929,16 +929,326 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="s2">&quot;&quot;&quot;</span><span class="s">hug/authentication.py</span>
+
+<span class="nv">Provides</span> <span class="nv">the</span> <span class="nv">basic</span> <span class="nv">built</span><span class="o">-</span><span class="nv">in</span> <span class="nv">authentication</span> <span class="nv">helper</span> <span class="nv">functions</span>
+
+<span class="nv">Copyright</span> <span class="ss">(</span><span class="nv">C</span><span class="ss">)</span> <span class="mi">2016</span>  <span class="nv">Timothy</span> <span class="nv">Edmund</span> <span class="nv">Crosley</span>
+
+<span class="nv">Permission</span> <span class="nv">is</span> <span class="nv">hereby</span> <span class="nv">granted</span>, <span class="nv">free</span> <span class="nv">of</span> <span class="nv">charge</span>, <span class="nv">to</span> <span class="nv">any</span> <span class="nv">person</span> <span class="nv">obtaining</span> <span class="nv">a</span> <span class="nv">copy</span> <span class="nv">of</span> <span class="nv">this</span> <span class="nv">software</span> <span class="nv">and</span> <span class="nv">associated</span>
+
+<span class="nv">documentation</span> <span class="nv">files</span> <span class="ss">(</span><span class="nv">the</span> <span class="s2">&quot;</span><span class="s">Software</span><span class="s2">&quot;</span><span class="ss">)</span>, <span class="nv">to</span> <span class="nv">deal</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">without</span> <span class="nv">restriction</span>, <span class="nv">including</span> <span class="nv">without</span> <span class="nv">limitation</span>
+
+<span class="nv">the</span> <span class="nv">rights</span> <span class="nv">to</span> <span class="nv">use</span>, <span class="nv">copy</span>, <span class="nv">modify</span>, <span class="nv">merge</span>, <span class="nv">publish</span>, <span class="nv">distribute</span>, <span class="nv">sublicense</span>, <span class="nv">and</span><span class="o">/</span><span class="nv">or</span> <span class="nv">sell</span> <span class="nv">copies</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>, <span class="nv">and</span>
+
+<span class="nv">to</span> <span class="nv">permit</span> <span class="nv">persons</span> <span class="nv">to</span> <span class="nv">whom</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">is</span> <span class="nv">furnished</span> <span class="nv">to</span> <span class="k">do</span> <span class="nv">so</span>, <span class="nv">subject</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">conditions</span>:
+
+<span class="nv">The</span> <span class="nv">above</span> <span class="nv">copyright</span> <span class="nv">notice</span> <span class="nv">and</span> <span class="nv">this</span> <span class="nv">permission</span> <span class="nv">notice</span> <span class="nv">shall</span> <span class="nv">be</span> <span class="nv">included</span> <span class="nv">in</span> <span class="nv">all</span> <span class="nv">copies</span> <span class="nv">or</span>
+
+<span class="nv">substantial</span> <span class="nv">portions</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>.
+
+<span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">IS</span> <span class="nv">PROVIDED</span> <span class="s2">&quot;</span><span class="s">AS IS</span><span class="s2">&quot;</span>, <span class="nv">WITHOUT</span> <span class="nv">WARRANTY</span> <span class="nv">OF</span> <span class="nv">ANY</span> <span class="nv">KIND</span>, <span class="nv">EXPRESS</span> <span class="nv">OR</span> <span class="nv">IMPLIED</span>, <span class="nv">INCLUDING</span> <span class="nv">BUT</span> <span class="nv">NOT</span> <span class="nv">LIMITED</span>
+
+<span class="nv">TO</span> <span class="nv">THE</span> <span class="nv">WARRANTIES</span> <span class="nv">OF</span> <span class="nv">MERCHANTABILITY</span>, <span class="nv">FITNESS</span> <span class="k">FOR</span> <span class="nv">A</span> <span class="nv">PARTICULAR</span> <span class="nv">PURPOSE</span> <span class="nv">AND</span> <span class="nv">NONINFRINGEMENT</span>. <span class="nv">IN</span> <span class="nv">NO</span> <span class="nv">EVENT</span> <span class="nv">SHALL</span>
+
+<span class="nv">THE</span> <span class="nv">AUTHORS</span> <span class="nv">OR</span> <span class="nv">COPYRIGHT</span> <span class="nv">HOLDERS</span> <span class="nv">BE</span> <span class="nv">LIABLE</span> <span class="k">FOR</span> <span class="nv">ANY</span> <span class="nv">CLAIM</span>, <span class="nv">DAMAGES</span> <span class="nv">OR</span> <span class="nv">OTHER</span> <span class="nv">LIABILITY</span>, <span class="nv">WHETHER</span> <span class="nv">IN</span> <span class="nv">AN</span> <span class="nv">ACTION</span> <span class="nv">OF</span>
+
+<span class="nv">CONTRACT</span>, <span class="nv">TORT</span> <span class="nv">OR</span> <span class="nv">OTHERWISE</span>, <span class="nv">ARISING</span> <span class="nv">FROM</span>, <span class="nv">OUT</span> <span class="nv">OF</span> <span class="nv">OR</span> <span class="nv">IN</span> <span class="nv">CONNECTION</span> <span class="nv">WITH</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">OR</span> <span class="nv">THE</span> <span class="nv">USE</span> <span class="nv">OR</span>
+
+<span class="nv">OTHER</span> <span class="nv">DEALINGS</span> <span class="nv">IN</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span>.
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="nv">from</span> <span class="nv">__future__</span> <span class="nv">import</span> <span class="nv">absolute_import</span>
+
+<span class="nv">import</span> <span class="nv">base64</span>
+
+<span class="nv">import</span> <span class="nv">binascii</span>
+
+<span class="nv">from</span> <span class="nv">falcon</span> <span class="nv">import</span> <span class="nv">HTTPUnauthorized</span>
+
+<span class="nv">def</span> <span class="nv">authenticator</span><span class="ss">(</span><span class="nv">function</span>, <span class="nv">challenges</span><span class="o">=</span><span class="ss">())</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Wraps authentication logic, verify_user through to the authentication function.</span>
+
+    <span class="nv">The</span> <span class="nv">verify_user</span> <span class="nv">function</span> <span class="nv">passed</span> <span class="nv">in</span> <span class="nv">should</span> <span class="nv">accept</span> <span class="nv">an</span> <span class="nv">API</span> <span class="nv">key</span> <span class="nv">and</span> <span class="k">return</span> <span class="nv">a</span> <span class="nv">user</span> <span class="nv">object</span> <span class="nv">to</span>
+
+    <span class="nv">store</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">request</span> <span class="nv">context</span> <span class="k">if</span> <span class="nv">authentication</span> <span class="nv">succeeded</span>.
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">challenges</span> <span class="o">=</span> <span class="nv">challenges</span> <span class="nv">or</span> <span class="ss">(</span><span class="s1">&#39;</span><span class="s">{} realm=&quot;simple&quot;</span><span class="s1">&#39;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">function</span>.<span class="nv">__name__</span><span class="ss">)</span>,<span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">wrapper</span><span class="ss">(</span><span class="nv">verify_user</span><span class="ss">)</span>:
+
+        <span class="nv">def</span> <span class="nv">authenticate</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+            <span class="nb">result</span> <span class="o">=</span> <span class="nv">function</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="nv">verify_user</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+
+            <span class="nv">def</span> <span class="nv">authenticator_name</span><span class="ss">()</span>:
+
+                <span class="nv">try</span>:
+
+                    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__doc__</span>.<span class="nv">splitlines</span><span class="ss">()</span>[<span class="mi">0</span>]
+
+                <span class="nv">except</span> <span class="nv">AttributeError</span>:
+
+                    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__name__</span>
+
+            <span class="k">if</span> <span class="nb">result</span> <span class="nv">is</span> <span class="nv">None</span>:
+
+                <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+                    <span class="s2">&quot;</span><span class="s">Authentication Required</span><span class="s2">&quot;</span>,
+
+                    <span class="s2">&quot;</span><span class="s">Please provide valid {0} credentials</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">authenticator_name</span><span class="ss">())</span>,
+
+                    <span class="nv">challenges</span><span class="o">=</span><span class="nv">challenges</span>,
+
+                <span class="ss">)</span>
+
+            <span class="k">if</span> <span class="nb">result</span> <span class="nv">is</span> <span class="nv">False</span>:
+
+                <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+                    <span class="s2">&quot;</span><span class="s">Invalid Authentication</span><span class="s2">&quot;</span>,
+
+                    <span class="s2">&quot;</span><span class="s">Provided {0} credentials were invalid</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">authenticator_name</span><span class="ss">())</span>,
+
+                    <span class="nv">challenges</span><span class="o">=</span><span class="nv">challenges</span>,
+
+                <span class="ss">)</span>
+
+            <span class="nv">request</span>.<span class="nv">context</span>[<span class="s2">&quot;</span><span class="s">user</span><span class="s2">&quot;</span>] <span class="o">=</span> <span class="nb">result</span>
+
+            <span class="k">return</span> <span class="nv">True</span>
+
+        <span class="nv">authenticate</span>.<span class="nv">__doc__</span> <span class="o">=</span> <span class="nv">function</span>.<span class="nv">__doc__</span>
+
+        <span class="k">return</span> <span class="nv">authenticate</span>
+
+    <span class="k">return</span> <span class="nv">wrapper</span>
+
+@<span class="nv">authenticator</span>
+
+<span class="nv">def</span> <span class="nv">basic</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="nv">verify_user</span>, <span class="nv">realm</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">simple</span><span class="s2">&quot;</span>, <span class="nv">context</span><span class="o">=</span><span class="nv">None</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Basic HTTP Authentication</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">http_auth</span> <span class="o">=</span> <span class="nv">request</span>.<span class="nv">auth</span>
+
+    <span class="nv">response</span>.<span class="nv">set_header</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">WWW-Authenticate</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">Basic</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+    <span class="k">if</span> <span class="nv">http_auth</span> <span class="nv">is</span> <span class="nv">None</span>:
+
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">http_auth</span>, <span class="nv">bytes</span><span class="ss">)</span>:
+
+        <span class="nv">http_auth</span> <span class="o">=</span> <span class="nv">http_auth</span>.<span class="nv">decode</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">utf8</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+    <span class="nv">try</span>:
+
+        <span class="nv">auth_type</span>, <span class="nv">user_and_key</span> <span class="o">=</span> <span class="nv">http_auth</span>.<span class="nv">split</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s"> </span><span class="s2">&quot;</span>, <span class="mi">1</span><span class="ss">)</span>
+
+    <span class="nv">except</span> <span class="nv">ValueError</span>:
+
+        <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+            <span class="s2">&quot;</span><span class="s">Authentication Error</span><span class="s2">&quot;</span>,
+
+            <span class="s2">&quot;</span><span class="s">Authentication header is improperly formed</span><span class="s2">&quot;</span>,
+
+            <span class="nv">challenges</span><span class="o">=</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">Basic realm=&quot;{}&quot;</span><span class="s1">&#39;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">realm</span><span class="ss">)</span>,<span class="ss">)</span>,
+
+        <span class="ss">)</span>
+
+    <span class="k">if</span> <span class="nv">auth_type</span>.<span class="nv">lower</span><span class="ss">()</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">basic</span><span class="s2">&quot;</span>:
+
+        <span class="nv">try</span>:
+
+            <span class="nv">user_id</span>, <span class="nv">key</span> <span class="o">=</span> <span class="ss">(</span>
+
+                <span class="nv">base64</span>.<span class="nv">decodebytes</span><span class="ss">(</span><span class="nv">bytes</span><span class="ss">(</span><span class="nv">user_and_key</span>.<span class="nv">strip</span><span class="ss">()</span>, <span class="s2">&quot;</span><span class="s">utf8</span><span class="s2">&quot;</span><span class="ss">))</span>.<span class="nv">decode</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">utf8</span><span class="s2">&quot;</span><span class="ss">)</span>.<span class="nv">split</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">:</span><span class="s2">&quot;</span>, <span class="mi">1</span><span class="ss">)</span>
+
+            <span class="ss">)</span>
+
+            <span class="nv">try</span>:
+
+                <span class="nv">user</span> <span class="o">=</span> <span class="nv">verify_user</span><span class="ss">(</span><span class="nv">user_id</span>, <span class="nv">key</span><span class="ss">)</span>
+
+            <span class="nv">except</span> <span class="nv">TypeError</span>:
+
+                <span class="nv">user</span> <span class="o">=</span> <span class="nv">verify_user</span><span class="ss">(</span><span class="nv">user_id</span>, <span class="nv">key</span>, <span class="nv">context</span><span class="ss">)</span>
+
+            <span class="k">if</span> <span class="nv">user</span>:
+
+                <span class="nv">response</span>.<span class="nv">set_header</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">WWW-Authenticate</span><span class="s2">&quot;</span>, <span class="s2">&quot;&quot;</span><span class="ss">)</span>
+
+                <span class="k">return</span> <span class="nv">user</span>
+
+        <span class="nv">except</span> <span class="ss">(</span><span class="nv">binascii</span>.<span class="nv">Error</span>, <span class="nv">ValueError</span><span class="ss">)</span>:
+
+            <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+                <span class="s2">&quot;</span><span class="s">Authentication Error</span><span class="s2">&quot;</span>,
+
+                <span class="s2">&quot;</span><span class="s">Unable to determine user and password with provided encoding</span><span class="s2">&quot;</span>,
+
+                <span class="nv">challenges</span><span class="o">=</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">Basic realm=&quot;{}&quot;</span><span class="s1">&#39;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">realm</span><span class="ss">)</span>,<span class="ss">)</span>,
+
+            <span class="ss">)</span>
+
+    <span class="k">return</span> <span class="nv">False</span>
+
+@<span class="nv">authenticator</span>
+
+<span class="nv">def</span> <span class="nv">api_key</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="nv">verify_user</span>, <span class="nv">context</span><span class="o">=</span><span class="nv">None</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">API Key Header Authentication</span>
+
+    <span class="nv">The</span> <span class="nv">verify_user</span> <span class="nv">function</span> <span class="nv">passed</span> <span class="nv">in</span> <span class="nv">to</span> <span class="nv">ths</span> <span class="nv">authenticator</span> <span class="nv">shall</span> <span class="nv">receive</span> <span class="nv">an</span>
+
+    <span class="nv">API</span> <span class="nv">key</span> <span class="nv">as</span> <span class="nv">input</span>, <span class="nv">and</span> <span class="k">return</span> <span class="nv">a</span> <span class="nv">user</span> <span class="nv">object</span> <span class="nv">to</span> <span class="nv">store</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">request</span> <span class="nv">context</span>
+
+    <span class="k">if</span> <span class="nv">the</span> <span class="nv">request</span> <span class="nv">was</span> <span class="nv">successful</span>.
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">api_key</span> <span class="o">=</span> <span class="nv">request</span>.<span class="nv">get_header</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">X-Api-Key</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+    <span class="k">if</span> <span class="nv">api_key</span>:
+
+        <span class="nv">try</span>:
+
+            <span class="nv">user</span> <span class="o">=</span> <span class="nv">verify_user</span><span class="ss">(</span><span class="nv">api_key</span><span class="ss">)</span>
+
+        <span class="nv">except</span> <span class="nv">TypeError</span>:
+
+            <span class="nv">user</span> <span class="o">=</span> <span class="nv">verify_user</span><span class="ss">(</span><span class="nv">api_key</span>, <span class="nv">context</span><span class="ss">)</span>
+
+        <span class="k">if</span> <span class="nv">user</span>:
+
+            <span class="k">return</span> <span class="nv">user</span>
+
+        <span class="k">else</span>:
+
+            <span class="k">return</span> <span class="nv">False</span>
+
+    <span class="k">else</span>:
+
+        <span class="k">return</span> <span class="nv">None</span>
+
+@<span class="nv">authenticator</span>
+
+<span class="nv">def</span> <span class="nv">token</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="nv">verify_user</span>, <span class="nv">context</span><span class="o">=</span><span class="nv">None</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Token verification</span>
+
+    <span class="nv">Checks</span> <span class="k">for</span> <span class="nv">the</span> <span class="nv">Authorization</span> <span class="nv">header</span> <span class="nv">and</span> <span class="nv">verifies</span> <span class="nv">using</span> <span class="nv">the</span> <span class="nv">verify_user</span> <span class="nv">function</span>
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">token</span> <span class="o">=</span> <span class="nv">request</span>.<span class="nv">get_header</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Authorization</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+    <span class="k">if</span> <span class="nv">token</span>:
+
+        <span class="nv">try</span>:
+
+            <span class="nv">verified_token</span> <span class="o">=</span> <span class="nv">verify_user</span><span class="ss">(</span><span class="nv">token</span><span class="ss">)</span>
+
+        <span class="nv">except</span> <span class="nv">TypeError</span>:
+
+            <span class="nv">verified_token</span> <span class="o">=</span> <span class="nv">verify_user</span><span class="ss">(</span><span class="nv">token</span>, <span class="nv">context</span><span class="ss">)</span>
+
+        <span class="k">if</span> <span class="nv">verified_token</span>:
+
+            <span class="k">return</span> <span class="nv">verified_token</span>
+
+        <span class="k">else</span>:
+
+            <span class="k">return</span> <span class="nv">False</span>
+
+    <span class="k">return</span> <span class="nv">None</span>
+
+<span class="nv">def</span> <span class="nv">verify</span><span class="ss">(</span><span class="nv">user</span>, <span class="nv">password</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns a simple verification callback that simply verifies that the users and password match that provided</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">def</span> <span class="nv">verify_user</span><span class="ss">(</span><span class="nv">user_name</span>, <span class="nv">user_password</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">user_name</span> <span class="o">==</span> <span class="nv">user</span> <span class="nv">and</span> <span class="nv">user_password</span> <span class="o">==</span> <span class="nv">password</span>:
+
+            <span class="k">return</span> <span class="nv">user_name</span>
+
+        <span class="k">return</span> <span class="nv">False</span>
+
+    <span class="k">return</span> <span class="nv">verify_user</span>
+</pre></div>
+
+
+</details>
 <h2 id="functions">Functions</h2>
-<h3 id="api_key">api_key</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">api_key</span><span class="p">(</span>
+<h5 id="api_key">api_key</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">verify_user</span>
 <span class="p">)</span>
 </pre></div>
 
 
-<h3 id="authenticator">authenticator</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">authenticator</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">wrapper</span><span class="ss">(</span><span class="nv">verify_user</span><span class="ss">)</span>:
+
+        <span class="nv">def</span> <span class="nv">authenticate</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+            <span class="nb">result</span> <span class="o">=</span> <span class="nv">function</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="nv">verify_user</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+
+            <span class="nv">def</span> <span class="nv">authenticator_name</span><span class="ss">()</span>:
+
+                <span class="nv">try</span>:
+
+                    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__doc__</span>.<span class="nv">splitlines</span><span class="ss">()</span>[<span class="mi">0</span>]
+
+                <span class="nv">except</span> <span class="nv">AttributeError</span>:
+
+                    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__name__</span>
+
+            <span class="k">if</span> <span class="nb">result</span> <span class="nv">is</span> <span class="nv">None</span>:
+
+                <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+                    <span class="s2">&quot;</span><span class="s">Authentication Required</span><span class="s2">&quot;</span>,
+
+                    <span class="s2">&quot;</span><span class="s">Please provide valid {0} credentials</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">authenticator_name</span><span class="ss">())</span>,
+
+                    <span class="nv">challenges</span><span class="o">=</span><span class="nv">challenges</span>,
+
+                <span class="ss">)</span>
+
+            <span class="k">if</span> <span class="nb">result</span> <span class="nv">is</span> <span class="nv">False</span>:
+
+                <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+                    <span class="s2">&quot;</span><span class="s">Invalid Authentication</span><span class="s2">&quot;</span>,
+
+                    <span class="s2">&quot;</span><span class="s">Provided {0} credentials were invalid</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">authenticator_name</span><span class="ss">())</span>,
+
+                    <span class="nv">challenges</span><span class="o">=</span><span class="nv">challenges</span>,
+
+                <span class="ss">)</span>
+
+            <span class="nv">request</span>.<span class="nv">context</span>[<span class="s2">&quot;</span><span class="s">user</span><span class="s2">&quot;</span>] <span class="o">=</span> <span class="nb">result</span>
+
+            <span class="k">return</span> <span class="nv">True</span>
+
+        <span class="nv">authenticate</span>.<span class="nv">__doc__</span> <span class="o">=</span> <span class="nv">function</span>.<span class="nv">__doc__</span>
+
+        <span class="k">return</span> <span class="nv">authenticate</span>
+</pre></div>
+
+
+</details>
+<h5 id="authenticator">authenticator</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">function</span><span class="p">,</span>
     <span class="n">challenges</span><span class="o">=</span><span class="p">()</span>
 <span class="p">)</span>
@@ -948,22 +1258,189 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 <p>Wraps authentication logic, verify_user through to the authentication function.</p>
 <p>The verify_user function passed in should accept an API key and return a user object to
 store in the request context if authentication succeeded.</p>
-<h3 id="basic">basic</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">basic</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">authenticator</span><span class="ss">(</span><span class="nv">function</span>, <span class="nv">challenges</span><span class="o">=</span><span class="ss">())</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Wraps authentication logic, verify_user through to the authentication function.</span>
+
+    <span class="nv">The</span> <span class="nv">verify_user</span> <span class="nv">function</span> <span class="nv">passed</span> <span class="nv">in</span> <span class="nv">should</span> <span class="nv">accept</span> <span class="nv">an</span> <span class="nv">API</span> <span class="nv">key</span> <span class="nv">and</span> <span class="k">return</span> <span class="nv">a</span> <span class="nv">user</span> <span class="nv">object</span> <span class="nv">to</span>
+
+    <span class="nv">store</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">request</span> <span class="nv">context</span> <span class="k">if</span> <span class="nv">authentication</span> <span class="nv">succeeded</span>.
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">challenges</span> <span class="o">=</span> <span class="nv">challenges</span> <span class="nv">or</span> <span class="ss">(</span><span class="s1">&#39;</span><span class="s">{} realm=&quot;simple&quot;</span><span class="s1">&#39;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">function</span>.<span class="nv">__name__</span><span class="ss">)</span>,<span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">wrapper</span><span class="ss">(</span><span class="nv">verify_user</span><span class="ss">)</span>:
+
+        <span class="nv">def</span> <span class="nv">authenticate</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+            <span class="nb">result</span> <span class="o">=</span> <span class="nv">function</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="nv">verify_user</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+
+            <span class="nv">def</span> <span class="nv">authenticator_name</span><span class="ss">()</span>:
+
+                <span class="nv">try</span>:
+
+                    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__doc__</span>.<span class="nv">splitlines</span><span class="ss">()</span>[<span class="mi">0</span>]
+
+                <span class="nv">except</span> <span class="nv">AttributeError</span>:
+
+                    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__name__</span>
+
+            <span class="k">if</span> <span class="nb">result</span> <span class="nv">is</span> <span class="nv">None</span>:
+
+                <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+                    <span class="s2">&quot;</span><span class="s">Authentication Required</span><span class="s2">&quot;</span>,
+
+                    <span class="s2">&quot;</span><span class="s">Please provide valid {0} credentials</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">authenticator_name</span><span class="ss">())</span>,
+
+                    <span class="nv">challenges</span><span class="o">=</span><span class="nv">challenges</span>,
+
+                <span class="ss">)</span>
+
+            <span class="k">if</span> <span class="nb">result</span> <span class="nv">is</span> <span class="nv">False</span>:
+
+                <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+                    <span class="s2">&quot;</span><span class="s">Invalid Authentication</span><span class="s2">&quot;</span>,
+
+                    <span class="s2">&quot;</span><span class="s">Provided {0} credentials were invalid</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">authenticator_name</span><span class="ss">())</span>,
+
+                    <span class="nv">challenges</span><span class="o">=</span><span class="nv">challenges</span>,
+
+                <span class="ss">)</span>
+
+            <span class="nv">request</span>.<span class="nv">context</span>[<span class="s2">&quot;</span><span class="s">user</span><span class="s2">&quot;</span>] <span class="o">=</span> <span class="nb">result</span>
+
+            <span class="k">return</span> <span class="nv">True</span>
+
+        <span class="nv">authenticate</span>.<span class="nv">__doc__</span> <span class="o">=</span> <span class="nv">function</span>.<span class="nv">__doc__</span>
+
+        <span class="k">return</span> <span class="nv">authenticate</span>
+
+    <span class="k">return</span> <span class="nv">wrapper</span>
+</pre></div>
+
+
+</details>
+<h5 id="basic">basic</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">verify_user</span>
 <span class="p">)</span>
 </pre></div>
 
 
-<h3 id="token">token</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">token</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">wrapper</span><span class="ss">(</span><span class="nv">verify_user</span><span class="ss">)</span>:
+
+        <span class="nv">def</span> <span class="nv">authenticate</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+            <span class="nb">result</span> <span class="o">=</span> <span class="nv">function</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="nv">verify_user</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+
+            <span class="nv">def</span> <span class="nv">authenticator_name</span><span class="ss">()</span>:
+
+                <span class="nv">try</span>:
+
+                    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__doc__</span>.<span class="nv">splitlines</span><span class="ss">()</span>[<span class="mi">0</span>]
+
+                <span class="nv">except</span> <span class="nv">AttributeError</span>:
+
+                    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__name__</span>
+
+            <span class="k">if</span> <span class="nb">result</span> <span class="nv">is</span> <span class="nv">None</span>:
+
+                <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+                    <span class="s2">&quot;</span><span class="s">Authentication Required</span><span class="s2">&quot;</span>,
+
+                    <span class="s2">&quot;</span><span class="s">Please provide valid {0} credentials</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">authenticator_name</span><span class="ss">())</span>,
+
+                    <span class="nv">challenges</span><span class="o">=</span><span class="nv">challenges</span>,
+
+                <span class="ss">)</span>
+
+            <span class="k">if</span> <span class="nb">result</span> <span class="nv">is</span> <span class="nv">False</span>:
+
+                <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+                    <span class="s2">&quot;</span><span class="s">Invalid Authentication</span><span class="s2">&quot;</span>,
+
+                    <span class="s2">&quot;</span><span class="s">Provided {0} credentials were invalid</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">authenticator_name</span><span class="ss">())</span>,
+
+                    <span class="nv">challenges</span><span class="o">=</span><span class="nv">challenges</span>,
+
+                <span class="ss">)</span>
+
+            <span class="nv">request</span>.<span class="nv">context</span>[<span class="s2">&quot;</span><span class="s">user</span><span class="s2">&quot;</span>] <span class="o">=</span> <span class="nb">result</span>
+
+            <span class="k">return</span> <span class="nv">True</span>
+
+        <span class="nv">authenticate</span>.<span class="nv">__doc__</span> <span class="o">=</span> <span class="nv">function</span>.<span class="nv">__doc__</span>
+
+        <span class="k">return</span> <span class="nv">authenticate</span>
+</pre></div>
+
+
+</details>
+<h5 id="token">token</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">verify_user</span>
 <span class="p">)</span>
 </pre></div>
 
 
-<h3 id="verify">verify</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">verify</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">wrapper</span><span class="ss">(</span><span class="nv">verify_user</span><span class="ss">)</span>:
+
+        <span class="nv">def</span> <span class="nv">authenticate</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+            <span class="nb">result</span> <span class="o">=</span> <span class="nv">function</span><span class="ss">(</span><span class="nv">request</span>, <span class="nv">response</span>, <span class="nv">verify_user</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+
+            <span class="nv">def</span> <span class="nv">authenticator_name</span><span class="ss">()</span>:
+
+                <span class="nv">try</span>:
+
+                    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__doc__</span>.<span class="nv">splitlines</span><span class="ss">()</span>[<span class="mi">0</span>]
+
+                <span class="nv">except</span> <span class="nv">AttributeError</span>:
+
+                    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__name__</span>
+
+            <span class="k">if</span> <span class="nb">result</span> <span class="nv">is</span> <span class="nv">None</span>:
+
+                <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+                    <span class="s2">&quot;</span><span class="s">Authentication Required</span><span class="s2">&quot;</span>,
+
+                    <span class="s2">&quot;</span><span class="s">Please provide valid {0} credentials</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">authenticator_name</span><span class="ss">())</span>,
+
+                    <span class="nv">challenges</span><span class="o">=</span><span class="nv">challenges</span>,
+
+                <span class="ss">)</span>
+
+            <span class="k">if</span> <span class="nb">result</span> <span class="nv">is</span> <span class="nv">False</span>:
+
+                <span class="nv">raise</span> <span class="nv">HTTPUnauthorized</span><span class="ss">(</span>
+
+                    <span class="s2">&quot;</span><span class="s">Invalid Authentication</span><span class="s2">&quot;</span>,
+
+                    <span class="s2">&quot;</span><span class="s">Provided {0} credentials were invalid</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">authenticator_name</span><span class="ss">())</span>,
+
+                    <span class="nv">challenges</span><span class="o">=</span><span class="nv">challenges</span>,
+
+                <span class="ss">)</span>
+
+            <span class="nv">request</span>.<span class="nv">context</span>[<span class="s2">&quot;</span><span class="s">user</span><span class="s2">&quot;</span>] <span class="o">=</span> <span class="nb">result</span>
+
+            <span class="k">return</span> <span class="nv">True</span>
+
+        <span class="nv">authenticate</span>.<span class="nv">__doc__</span> <span class="o">=</span> <span class="nv">function</span>.<span class="nv">__doc__</span>
+
+        <span class="k">return</span> <span class="nv">authenticate</span>
+</pre></div>
+
+
+</details>
+<h5 id="verify">verify</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">user</span><span class="p">,</span>
     <span class="n">password</span>
 <span class="p">)</span>
@@ -971,6 +1448,23 @@ store in the request context if authentication succeeded.</p>
 
 
 <p>Returns a simple verification callback that simply verifies that the users and password match that provided</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">verify</span><span class="ss">(</span><span class="nv">user</span>, <span class="nv">password</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns a simple verification callback that simply verifies that the users and password match that provided</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">def</span> <span class="nv">verify_user</span><span class="ss">(</span><span class="nv">user_name</span>, <span class="nv">user_password</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">user_name</span> <span class="o">==</span> <span class="nv">user</span> <span class="nv">and</span> <span class="nv">user_password</span> <span class="o">==</span> <span class="nv">password</span>:
+
+            <span class="k">return</span> <span class="nv">user_name</span>
+
+        <span class="k">return</span> <span class="nv">False</span>
+
+    <span class="k">return</span> <span class="nv">verify_user</span>
+</pre></div>
+
+
+</details>
                 
                   
                 

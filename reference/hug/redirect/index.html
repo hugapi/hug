@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../artwork/koala.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.1">
     
     
       
@@ -177,7 +177,7 @@
         
       
       
-      <main class="md-main" role="main">
+      <main class="md-main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
             
@@ -651,7 +651,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#functions" title="Functions" class="md-nav__link">
     Functions
   </a>
   
@@ -659,42 +659,42 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#found" class="md-nav__link">
+  <a href="#found" title="found" class="md-nav__link">
     found
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#not_found" class="md-nav__link">
+  <a href="#not_found" title="not_found" class="md-nav__link">
     not_found
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#permanent" class="md-nav__link">
+  <a href="#permanent" title="permanent" class="md-nav__link">
     permanent
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#see_other" class="md-nav__link">
+  <a href="#see_other" title="see_other" class="md-nav__link">
     see_other
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#temporary" class="md-nav__link">
+  <a href="#temporary" title="temporary" class="md-nav__link">
     temporary
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#to" class="md-nav__link">
+  <a href="#to" title="to" class="md-nav__link">
     to
   </a>
   
@@ -855,7 +855,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#functions" title="Functions" class="md-nav__link">
     Functions
   </a>
   
@@ -863,42 +863,42 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#found" class="md-nav__link">
+  <a href="#found" title="found" class="md-nav__link">
     found
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#not_found" class="md-nav__link">
+  <a href="#not_found" title="not_found" class="md-nav__link">
     not_found
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#permanent" class="md-nav__link">
+  <a href="#permanent" title="permanent" class="md-nav__link">
     permanent
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#see_other" class="md-nav__link">
+  <a href="#see_other" title="see_other" class="md-nav__link">
     see_other
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#temporary" class="md-nav__link">
+  <a href="#temporary" title="temporary" class="md-nav__link">
     temporary
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#to" class="md-nav__link">
+  <a href="#to" title="to" class="md-nav__link">
     to
   </a>
   
@@ -943,17 +943,99 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="s2">&quot;&quot;&quot;</span><span class="s">hug/redirect.py</span>
+
+<span class="nv">Implements</span> <span class="nv">convenience</span> <span class="nv">redirect</span> <span class="nv">methods</span> <span class="nv">that</span> <span class="nv">raise</span> <span class="nv">a</span> <span class="nv">redirection</span> <span class="nv">exception</span> <span class="nv">when</span> <span class="nv">called</span>
+
+<span class="nv">Copyright</span> <span class="ss">(</span><span class="nv">C</span><span class="ss">)</span> <span class="mi">2016</span>  <span class="nv">Timothy</span> <span class="nv">Edmund</span> <span class="nv">Crosley</span>
+
+<span class="nv">Permission</span> <span class="nv">is</span> <span class="nv">hereby</span> <span class="nv">granted</span>, <span class="nv">free</span> <span class="nv">of</span> <span class="nv">charge</span>, <span class="nv">to</span> <span class="nv">any</span> <span class="nv">person</span> <span class="nv">obtaining</span> <span class="nv">a</span> <span class="nv">copy</span> <span class="nv">of</span> <span class="nv">this</span> <span class="nv">software</span> <span class="nv">and</span> <span class="nv">associated</span>
+
+<span class="nv">documentation</span> <span class="nv">files</span> <span class="ss">(</span><span class="nv">the</span> <span class="s2">&quot;</span><span class="s">Software</span><span class="s2">&quot;</span><span class="ss">)</span>, <span class="nv">to</span> <span class="nv">deal</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">without</span> <span class="nv">restriction</span>, <span class="nv">including</span> <span class="nv">without</span> <span class="nv">limitation</span>
+
+<span class="nv">the</span> <span class="nv">rights</span> <span class="nv">to</span> <span class="nv">use</span>, <span class="nv">copy</span>, <span class="nv">modify</span>, <span class="nv">merge</span>, <span class="nv">publish</span>, <span class="nv">distribute</span>, <span class="nv">sublicense</span>, <span class="nv">and</span><span class="o">/</span><span class="nv">or</span> <span class="nv">sell</span> <span class="nv">copies</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>, <span class="nv">and</span>
+
+<span class="nv">to</span> <span class="nv">permit</span> <span class="nv">persons</span> <span class="nv">to</span> <span class="nv">whom</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">is</span> <span class="nv">furnished</span> <span class="nv">to</span> <span class="k">do</span> <span class="nv">so</span>, <span class="nv">subject</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">conditions</span>:
+
+<span class="nv">The</span> <span class="nv">above</span> <span class="nv">copyright</span> <span class="nv">notice</span> <span class="nv">and</span> <span class="nv">this</span> <span class="nv">permission</span> <span class="nv">notice</span> <span class="nv">shall</span> <span class="nv">be</span> <span class="nv">included</span> <span class="nv">in</span> <span class="nv">all</span> <span class="nv">copies</span> <span class="nv">or</span>
+
+<span class="nv">substantial</span> <span class="nv">portions</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>.
+
+<span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">IS</span> <span class="nv">PROVIDED</span> <span class="s2">&quot;</span><span class="s">AS IS</span><span class="s2">&quot;</span>, <span class="nv">WITHOUT</span> <span class="nv">WARRANTY</span> <span class="nv">OF</span> <span class="nv">ANY</span> <span class="nv">KIND</span>, <span class="nv">EXPRESS</span> <span class="nv">OR</span> <span class="nv">IMPLIED</span>, <span class="nv">INCLUDING</span> <span class="nv">BUT</span> <span class="nv">NOT</span> <span class="nv">LIMITED</span>
+
+<span class="nv">TO</span> <span class="nv">THE</span> <span class="nv">WARRANTIES</span> <span class="nv">OF</span> <span class="nv">MERCHANTABILITY</span>, <span class="nv">FITNESS</span> <span class="k">FOR</span> <span class="nv">A</span> <span class="nv">PARTICULAR</span> <span class="nv">PURPOSE</span> <span class="nv">AND</span> <span class="nv">NONINFRINGEMENT</span>. <span class="nv">IN</span> <span class="nv">NO</span> <span class="nv">EVENT</span> <span class="nv">SHALL</span>
+
+<span class="nv">THE</span> <span class="nv">AUTHORS</span> <span class="nv">OR</span> <span class="nv">COPYRIGHT</span> <span class="nv">HOLDERS</span> <span class="nv">BE</span> <span class="nv">LIABLE</span> <span class="k">FOR</span> <span class="nv">ANY</span> <span class="nv">CLAIM</span>, <span class="nv">DAMAGES</span> <span class="nv">OR</span> <span class="nv">OTHER</span> <span class="nv">LIABILITY</span>, <span class="nv">WHETHER</span> <span class="nv">IN</span> <span class="nv">AN</span> <span class="nv">ACTION</span> <span class="nv">OF</span>
+
+<span class="nv">CONTRACT</span>, <span class="nv">TORT</span> <span class="nv">OR</span> <span class="nv">OTHERWISE</span>, <span class="nv">ARISING</span> <span class="nv">FROM</span>, <span class="nv">OUT</span> <span class="nv">OF</span> <span class="nv">OR</span> <span class="nv">IN</span> <span class="nv">CONNECTION</span> <span class="nv">WITH</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">OR</span> <span class="nv">THE</span> <span class="nv">USE</span> <span class="nv">OR</span>
+
+<span class="nv">OTHER</span> <span class="nv">DEALINGS</span> <span class="nv">IN</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span>.
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="nv">from</span> <span class="nv">__future__</span> <span class="nv">import</span> <span class="nv">absolute_import</span>
+
+<span class="nv">import</span> <span class="nv">falcon</span>
+
+<span class="nv">def</span> <span class="nv">to</span><span class="ss">(</span><span class="nv">location</span>, <span class="nv">code</span><span class="o">=</span><span class="nv">falcon</span>.<span class="nv">HTTP_302</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Redirects to the specified location using the provided http_code (defaults to HTTP_302 FOUND)</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">raise</span> <span class="nv">falcon</span>.<span class="nv">http_status</span>.<span class="nv">HTTPStatus</span><span class="ss">(</span><span class="nv">code</span>, {<span class="s2">&quot;</span><span class="s">location</span><span class="s2">&quot;</span>: <span class="nv">location</span>}<span class="ss">)</span>
+
+<span class="nv">def</span> <span class="nv">permanent</span><span class="ss">(</span><span class="nv">location</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Redirects to the specified location using HTTP 301 status code</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">to</span><span class="ss">(</span><span class="nv">location</span>, <span class="nv">falcon</span>.<span class="nv">HTTP_301</span><span class="ss">)</span>
+
+<span class="nv">def</span> <span class="nv">found</span><span class="ss">(</span><span class="nv">location</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Redirects to the specified location using HTTP 302 status code</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">to</span><span class="ss">(</span><span class="nv">location</span>, <span class="nv">falcon</span>.<span class="nv">HTTP_302</span><span class="ss">)</span>
+
+<span class="nv">def</span> <span class="nv">see_other</span><span class="ss">(</span><span class="nv">location</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Redirects to the specified location using HTTP 303 status code</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">to</span><span class="ss">(</span><span class="nv">location</span>, <span class="nv">falcon</span>.<span class="nv">HTTP_303</span><span class="ss">)</span>
+
+<span class="nv">def</span> <span class="nv">temporary</span><span class="ss">(</span><span class="nv">location</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Redirects to the specified location using HTTP 307 status code</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">to</span><span class="ss">(</span><span class="nv">location</span>, <span class="nv">falcon</span>.<span class="nv">HTTP_307</span><span class="ss">)</span>
+
+<span class="nv">def</span> <span class="nv">not_found</span><span class="ss">(</span><span class="o">*</span><span class="nv">args</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Redirects request handling to the not found render</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">raise</span> <span class="nv">falcon</span>.<span class="nv">HTTPNotFound</span><span class="ss">()</span>
+</pre></div>
+
+
+</details>
 <h2 id="functions">Functions</h2>
-<h3 id="found">found</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">found</span><span class="p">(</span>
+<h5 id="found">found</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">location</span>
 <span class="p">)</span>
 </pre></div>
 
 
 <p>Redirects to the specified location using HTTP 302 status code</p>
-<h3 id="not_found">not_found</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">not_found</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="n">def</span> <span class="k">found</span><span class="p">(</span><span class="k">location</span><span class="p">):</span>
+
+    <span class="ss">&quot;&quot;&quot;Redirects to the specified location using HTTP 302 status code&quot;&quot;&quot;</span>
+
+    <span class="k">to</span><span class="p">(</span><span class="k">location</span><span class="p">,</span> <span class="n">falcon</span><span class="p">.</span><span class="n">HTTP_302</span><span class="p">)</span>
+</pre></div>
+
+
+</details>
+<h5 id="not_found">not_found</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="o">*</span><span class="n">args</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">)</span>
@@ -961,32 +1043,68 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 
 
 <p>Redirects request handling to the not found render</p>
-<h3 id="permanent">permanent</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">permanent</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="n">def</span> <span class="n">not_found</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="ss">&quot;&quot;&quot;Redirects request handling to the not found render&quot;&quot;&quot;</span>
+
+    <span class="n">raise</span> <span class="n">falcon</span><span class="p">.</span><span class="n">HTTPNotFound</span><span class="p">()</span>
+</pre></div>
+
+
+</details>
+<h5 id="permanent">permanent</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">location</span>
 <span class="p">)</span>
 </pre></div>
 
 
 <p>Redirects to the specified location using HTTP 301 status code</p>
-<h3 id="see_other">see_other</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">see_other</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="n">def</span> <span class="n">permanent</span><span class="p">(</span><span class="k">location</span><span class="p">):</span>
+
+    <span class="ss">&quot;&quot;&quot;Redirects to the specified location using HTTP 301 status code&quot;&quot;&quot;</span>
+
+    <span class="k">to</span><span class="p">(</span><span class="k">location</span><span class="p">,</span> <span class="n">falcon</span><span class="p">.</span><span class="n">HTTP_301</span><span class="p">)</span>
+</pre></div>
+
+
+</details>
+<h5 id="see_other">see_other</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">location</span>
 <span class="p">)</span>
 </pre></div>
 
 
 <p>Redirects to the specified location using HTTP 303 status code</p>
-<h3 id="temporary">temporary</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">temporary</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="n">def</span> <span class="n">see_other</span><span class="p">(</span><span class="k">location</span><span class="p">):</span>
+
+    <span class="ss">&quot;&quot;&quot;Redirects to the specified location using HTTP 303 status code&quot;&quot;&quot;</span>
+
+    <span class="k">to</span><span class="p">(</span><span class="k">location</span><span class="p">,</span> <span class="n">falcon</span><span class="p">.</span><span class="n">HTTP_303</span><span class="p">)</span>
+</pre></div>
+
+
+</details>
+<h5 id="temporary">temporary</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">location</span>
 <span class="p">)</span>
 </pre></div>
 
 
 <p>Redirects to the specified location using HTTP 307 status code</p>
-<h3 id="to">to</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">to</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="n">def</span> <span class="k">temporary</span><span class="p">(</span><span class="k">location</span><span class="p">):</span>
+
+    <span class="ss">&quot;&quot;&quot;Redirects to the specified location using HTTP 307 status code&quot;&quot;&quot;</span>
+
+    <span class="k">to</span><span class="p">(</span><span class="k">location</span><span class="p">,</span> <span class="n">falcon</span><span class="p">.</span><span class="n">HTTP_307</span><span class="p">)</span>
+</pre></div>
+
+
+</details>
+<h5 id="to">to</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">location</span><span class="p">,</span>
     <span class="n">code</span><span class="o">=</span><span class="s1">&#39;302 Found&#39;</span>
 <span class="p">)</span>
@@ -994,6 +1112,15 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 
 
 <p>Redirects to the specified location using the provided http_code (defaults to HTTP_302 FOUND)</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="n">def</span> <span class="k">to</span><span class="p">(</span><span class="k">location</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="n">falcon</span><span class="p">.</span><span class="n">HTTP_302</span><span class="p">):</span>
+
+    <span class="ss">&quot;&quot;&quot;Redirects to the specified location using the provided http_code (defaults to HTTP_302 FOUND)&quot;&quot;&quot;</span>
+
+    <span class="n">raise</span> <span class="n">falcon</span><span class="p">.</span><span class="n">http_status</span><span class="p">.</span><span class="n">HTTPStatus</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="err">{</span><span class="ss">&quot;location&quot;</span><span class="p">:</span> <span class="k">location</span><span class="err">}</span><span class="p">)</span>
+</pre></div>
+
+
+</details>
                 
                   
                 

@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../artwork/koala.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.1">
     
     
       
@@ -177,7 +177,7 @@
         
       
       
-      <main class="md-main" role="main">
+      <main class="md-main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
             
@@ -603,7 +603,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#functions" title="Functions" class="md-nav__link">
     Functions
   </a>
   
@@ -611,63 +611,63 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#arguments" class="md-nav__link">
+  <a href="#arguments" title="arguments" class="md-nav__link">
     arguments
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#generate_accepted_kwargs" class="md-nav__link">
+  <a href="#generate_accepted_kwargs" title="generate_accepted_kwargs" class="md-nav__link">
     generate_accepted_kwargs
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#is_coroutine" class="md-nav__link">
+  <a href="#is_coroutine" title="is_coroutine" class="md-nav__link">
     is_coroutine
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#is_method" class="md-nav__link">
+  <a href="#is_method" title="is_method" class="md-nav__link">
     is_method
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#name" class="md-nav__link">
+  <a href="#name" title="name" class="md-nav__link">
     name
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#takes_all_arguments" class="md-nav__link">
+  <a href="#takes_all_arguments" title="takes_all_arguments" class="md-nav__link">
     takes_all_arguments
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#takes_args" class="md-nav__link">
+  <a href="#takes_args" title="takes_args" class="md-nav__link">
     takes_args
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#takes_arguments" class="md-nav__link">
+  <a href="#takes_arguments" title="takes_arguments" class="md-nav__link">
     takes_arguments
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#takes_kwargs" class="md-nav__link">
+  <a href="#takes_kwargs" title="takes_kwargs" class="md-nav__link">
     takes_kwargs
   </a>
   
@@ -876,7 +876,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#functions" title="Functions" class="md-nav__link">
     Functions
   </a>
   
@@ -884,63 +884,63 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#arguments" class="md-nav__link">
+  <a href="#arguments" title="arguments" class="md-nav__link">
     arguments
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#generate_accepted_kwargs" class="md-nav__link">
+  <a href="#generate_accepted_kwargs" title="generate_accepted_kwargs" class="md-nav__link">
     generate_accepted_kwargs
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#is_coroutine" class="md-nav__link">
+  <a href="#is_coroutine" title="is_coroutine" class="md-nav__link">
     is_coroutine
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#is_method" class="md-nav__link">
+  <a href="#is_method" title="is_method" class="md-nav__link">
     is_method
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#name" class="md-nav__link">
+  <a href="#name" title="name" class="md-nav__link">
     name
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#takes_all_arguments" class="md-nav__link">
+  <a href="#takes_all_arguments" title="takes_all_arguments" class="md-nav__link">
     takes_all_arguments
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#takes_args" class="md-nav__link">
+  <a href="#takes_args" title="takes_args" class="md-nav__link">
     takes_args
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#takes_arguments" class="md-nav__link">
+  <a href="#takes_arguments" title="takes_arguments" class="md-nav__link">
     takes_arguments
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#takes_kwargs" class="md-nav__link">
+  <a href="#takes_kwargs" title="takes_kwargs" class="md-nav__link">
     takes_kwargs
   </a>
   
@@ -985,9 +985,134 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="s2">&quot;&quot;&quot;</span><span class="s">hug/introspect.py</span>
+
+<span class="nv">Defines</span> <span class="nv">built</span> <span class="nv">in</span> <span class="nv">hug</span> <span class="nv">functions</span> <span class="nv">to</span> <span class="nv">aid</span> <span class="nv">in</span> <span class="nv">introspection</span>
+
+<span class="nv">Copyright</span> <span class="ss">(</span><span class="nv">C</span><span class="ss">)</span> <span class="mi">2016</span>  <span class="nv">Timothy</span> <span class="nv">Edmund</span> <span class="nv">Crosley</span>
+
+<span class="nv">Permission</span> <span class="nv">is</span> <span class="nv">hereby</span> <span class="nv">granted</span>, <span class="nv">free</span> <span class="nv">of</span> <span class="nv">charge</span>, <span class="nv">to</span> <span class="nv">any</span> <span class="nv">person</span> <span class="nv">obtaining</span> <span class="nv">a</span> <span class="nv">copy</span> <span class="nv">of</span> <span class="nv">this</span> <span class="nv">software</span> <span class="nv">and</span> <span class="nv">associated</span>
+
+<span class="nv">documentation</span> <span class="nv">files</span> <span class="ss">(</span><span class="nv">the</span> <span class="s2">&quot;</span><span class="s">Software</span><span class="s2">&quot;</span><span class="ss">)</span>, <span class="nv">to</span> <span class="nv">deal</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">without</span> <span class="nv">restriction</span>, <span class="nv">including</span> <span class="nv">without</span> <span class="nv">limitation</span>
+
+<span class="nv">the</span> <span class="nv">rights</span> <span class="nv">to</span> <span class="nv">use</span>, <span class="nv">copy</span>, <span class="nv">modify</span>, <span class="nv">merge</span>, <span class="nv">publish</span>, <span class="nv">distribute</span>, <span class="nv">sublicense</span>, <span class="nv">and</span><span class="o">/</span><span class="nv">or</span> <span class="nv">sell</span> <span class="nv">copies</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>, <span class="nv">and</span>
+
+<span class="nv">to</span> <span class="nv">permit</span> <span class="nv">persons</span> <span class="nv">to</span> <span class="nv">whom</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">is</span> <span class="nv">furnished</span> <span class="nv">to</span> <span class="k">do</span> <span class="nv">so</span>, <span class="nv">subject</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">conditions</span>:
+
+<span class="nv">The</span> <span class="nv">above</span> <span class="nv">copyright</span> <span class="nv">notice</span> <span class="nv">and</span> <span class="nv">this</span> <span class="nv">permission</span> <span class="nv">notice</span> <span class="nv">shall</span> <span class="nv">be</span> <span class="nv">included</span> <span class="nv">in</span> <span class="nv">all</span> <span class="nv">copies</span> <span class="nv">or</span>
+
+<span class="nv">substantial</span> <span class="nv">portions</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>.
+
+<span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">IS</span> <span class="nv">PROVIDED</span> <span class="s2">&quot;</span><span class="s">AS IS</span><span class="s2">&quot;</span>, <span class="nv">WITHOUT</span> <span class="nv">WARRANTY</span> <span class="nv">OF</span> <span class="nv">ANY</span> <span class="nv">KIND</span>, <span class="nv">EXPRESS</span> <span class="nv">OR</span> <span class="nv">IMPLIED</span>, <span class="nv">INCLUDING</span> <span class="nv">BUT</span> <span class="nv">NOT</span> <span class="nv">LIMITED</span>
+
+<span class="nv">TO</span> <span class="nv">THE</span> <span class="nv">WARRANTIES</span> <span class="nv">OF</span> <span class="nv">MERCHANTABILITY</span>, <span class="nv">FITNESS</span> <span class="k">FOR</span> <span class="nv">A</span> <span class="nv">PARTICULAR</span> <span class="nv">PURPOSE</span> <span class="nv">AND</span> <span class="nv">NONINFRINGEMENT</span>. <span class="nv">IN</span> <span class="nv">NO</span> <span class="nv">EVENT</span> <span class="nv">SHALL</span>
+
+<span class="nv">THE</span> <span class="nv">AUTHORS</span> <span class="nv">OR</span> <span class="nv">COPYRIGHT</span> <span class="nv">HOLDERS</span> <span class="nv">BE</span> <span class="nv">LIABLE</span> <span class="k">FOR</span> <span class="nv">ANY</span> <span class="nv">CLAIM</span>, <span class="nv">DAMAGES</span> <span class="nv">OR</span> <span class="nv">OTHER</span> <span class="nv">LIABILITY</span>, <span class="nv">WHETHER</span> <span class="nv">IN</span> <span class="nv">AN</span> <span class="nv">ACTION</span> <span class="nv">OF</span>
+
+<span class="nv">CONTRACT</span>, <span class="nv">TORT</span> <span class="nv">OR</span> <span class="nv">OTHERWISE</span>, <span class="nv">ARISING</span> <span class="nv">FROM</span>, <span class="nv">OUT</span> <span class="nv">OF</span> <span class="nv">OR</span> <span class="nv">IN</span> <span class="nv">CONNECTION</span> <span class="nv">WITH</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">OR</span> <span class="nv">THE</span> <span class="nv">USE</span> <span class="nv">OR</span>
+
+<span class="nv">OTHER</span> <span class="nv">DEALINGS</span> <span class="nv">IN</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span>.
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="nv">from</span> <span class="nv">__future__</span> <span class="nv">import</span> <span class="nv">absolute_import</span>
+
+<span class="nv">import</span> <span class="nv">inspect</span>
+
+<span class="nv">from</span> <span class="nv">types</span> <span class="nv">import</span> <span class="nv">MethodType</span>
+
+<span class="nv">def</span> <span class="nv">is_method</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns True if the passed in function is identified as a method (NOT a function)</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">function</span>, <span class="nv">MethodType</span><span class="ss">)</span>
+
+<span class="nv">def</span> <span class="nv">is_coroutine</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns True if the passed in function is a coroutine</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__code__</span>.<span class="nv">co_flags</span> <span class="o">&amp;</span> <span class="mi">0</span><span class="nv">x0080</span> <span class="nv">or</span> <span class="nv">getattr</span><span class="ss">(</span><span class="nv">function</span>, <span class="s2">&quot;</span><span class="s">_is_coroutine</span><span class="s2">&quot;</span>, <span class="nv">False</span><span class="ss">)</span>
+
+<span class="nv">def</span> <span class="nv">name</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns the name of a function</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__name__</span>
+
+<span class="nv">def</span> <span class="nv">arguments</span><span class="ss">(</span><span class="nv">function</span>, <span class="nv">extra_arguments</span><span class="o">=</span><span class="mi">0</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns the name of all arguments a function takes</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nv">not</span> <span class="nv">hasattr</span><span class="ss">(</span><span class="nv">function</span>, <span class="s2">&quot;</span><span class="s">__code__</span><span class="s2">&quot;</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="ss">()</span>
+
+    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__code__</span>.<span class="nv">co_varnames</span>[: <span class="nv">function</span>.<span class="nv">__code__</span>.<span class="nv">co_argcount</span> <span class="o">+</span> <span class="nv">extra_arguments</span>]
+
+<span class="nv">def</span> <span class="nv">takes_kwargs</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns True if the supplied function takes keyword arguments</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">bool</span><span class="ss">(</span><span class="nv">function</span>.<span class="nv">__code__</span>.<span class="nv">co_flags</span> <span class="o">&amp;</span> <span class="mi">0</span><span class="nv">x08</span><span class="ss">)</span>
+
+<span class="nv">def</span> <span class="nv">takes_args</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns True if the supplied functions takes extra non-keyword arguments</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">bool</span><span class="ss">(</span><span class="nv">function</span>.<span class="nv">__code__</span>.<span class="nv">co_flags</span> <span class="o">&amp;</span> <span class="mi">0</span><span class="nv">x04</span><span class="ss">)</span>
+
+<span class="nv">def</span> <span class="nv">takes_arguments</span><span class="ss">(</span><span class="nv">function</span>, <span class="o">*</span><span class="nv">named_arguments</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns the arguments that a function takes from a list of requested arguments</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">set</span><span class="ss">(</span><span class="nv">named_arguments</span><span class="ss">)</span>.<span class="nv">intersection</span><span class="ss">(</span><span class="nv">arguments</span><span class="ss">(</span><span class="nv">function</span><span class="ss">))</span>
+
+<span class="nv">def</span> <span class="nv">takes_all_arguments</span><span class="ss">(</span><span class="nv">function</span>, <span class="o">*</span><span class="nv">named_arguments</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns True if all supplied arguments are found in the function</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">bool</span><span class="ss">(</span><span class="nv">takes_arguments</span><span class="ss">(</span><span class="nv">function</span>, <span class="o">*</span><span class="nv">named_arguments</span><span class="ss">)</span> <span class="o">==</span> <span class="nv">set</span><span class="ss">(</span><span class="nv">named_arguments</span><span class="ss">))</span>
+
+<span class="nv">def</span> <span class="nv">generate_accepted_kwargs</span><span class="ss">(</span><span class="nv">function</span>, <span class="o">*</span><span class="nv">named_arguments</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Dynamically creates a function that when called with dictionary of arguments will produce a kwarg that&#39;s</span>
+
+       <span class="nv">compatible</span> <span class="nv">with</span> <span class="nv">the</span> <span class="nv">supplied</span> <span class="nv">function</span>
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nv">hasattr</span><span class="ss">(</span><span class="nv">function</span>, <span class="s2">&quot;</span><span class="s">__code__</span><span class="s2">&quot;</span><span class="ss">)</span> <span class="nv">and</span> <span class="nv">takes_kwargs</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+        <span class="nv">function_takes_kwargs</span> <span class="o">=</span> <span class="nv">True</span>
+
+        <span class="nv">function_takes_arguments</span> <span class="o">=</span> []
+
+    <span class="k">else</span>:
+
+        <span class="nv">function_takes_kwargs</span> <span class="o">=</span> <span class="nv">False</span>
+
+        <span class="nv">function_takes_arguments</span> <span class="o">=</span> <span class="nv">takes_arguments</span><span class="ss">(</span><span class="nv">function</span>, <span class="o">*</span><span class="nv">named_arguments</span><span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">accepted_kwargs</span><span class="ss">(</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">function_takes_kwargs</span>:
+
+            <span class="k">return</span> <span class="nv">kwargs</span>
+
+        <span class="nv">elif</span> <span class="nv">function_takes_arguments</span>:
+
+            <span class="k">return</span> {<span class="nv">key</span>: <span class="nv">value</span> <span class="k">for</span> <span class="nv">key</span>, <span class="nv">value</span> <span class="nv">in</span> <span class="nv">kwargs</span>.<span class="nv">items</span><span class="ss">()</span> <span class="k">if</span> <span class="nv">key</span> <span class="nv">in</span> <span class="nv">function_takes_arguments</span>}
+
+        <span class="k">return</span> {}
+
+    <span class="k">return</span> <span class="nv">accepted_kwargs</span>
+</pre></div>
+
+
+</details>
 <h2 id="functions">Functions</h2>
-<h3 id="arguments">arguments</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">arguments</span><span class="p">(</span>
+<h5 id="arguments">arguments</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">function</span><span class="p">,</span>
     <span class="n">extra_arguments</span><span class="o">=</span><span class="mi">0</span>
 <span class="p">)</span>
@@ -995,8 +1120,21 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 
 
 <p>Returns the name of all arguments a function takes</p>
-<h3 id="generate_accepted_kwargs">generate_accepted_kwargs</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generate_accepted_kwargs</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">arguments</span><span class="ss">(</span><span class="nv">function</span>, <span class="nv">extra_arguments</span><span class="o">=</span><span class="mi">0</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns the name of all arguments a function takes</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nv">not</span> <span class="nv">hasattr</span><span class="ss">(</span><span class="nv">function</span>, <span class="s2">&quot;</span><span class="s">__code__</span><span class="s2">&quot;</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="ss">()</span>
+
+    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__code__</span>.<span class="nv">co_varnames</span>[: <span class="nv">function</span>.<span class="nv">__code__</span>.<span class="nv">co_argcount</span> <span class="o">+</span> <span class="nv">extra_arguments</span>]
+</pre></div>
+
+
+</details>
+<h5 id="generate_accepted_kwargs">generate_accepted_kwargs</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">function</span><span class="p">,</span>
     <span class="o">*</span><span class="n">named_arguments</span>
 <span class="p">)</span>
@@ -1005,32 +1143,96 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 
 <p>Dynamically creates a function that when called with dictionary of arguments will produce a kwarg that's
 compatible with the supplied function</p>
-<h3 id="is_coroutine">is_coroutine</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">is_coroutine</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">generate_accepted_kwargs</span><span class="ss">(</span><span class="nv">function</span>, <span class="o">*</span><span class="nv">named_arguments</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Dynamically creates a function that when called with dictionary of arguments will produce a kwarg that&#39;s</span>
+
+       <span class="nv">compatible</span> <span class="nv">with</span> <span class="nv">the</span> <span class="nv">supplied</span> <span class="nv">function</span>
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nv">hasattr</span><span class="ss">(</span><span class="nv">function</span>, <span class="s2">&quot;</span><span class="s">__code__</span><span class="s2">&quot;</span><span class="ss">)</span> <span class="nv">and</span> <span class="nv">takes_kwargs</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+        <span class="nv">function_takes_kwargs</span> <span class="o">=</span> <span class="nv">True</span>
+
+        <span class="nv">function_takes_arguments</span> <span class="o">=</span> []
+
+    <span class="k">else</span>:
+
+        <span class="nv">function_takes_kwargs</span> <span class="o">=</span> <span class="nv">False</span>
+
+        <span class="nv">function_takes_arguments</span> <span class="o">=</span> <span class="nv">takes_arguments</span><span class="ss">(</span><span class="nv">function</span>, <span class="o">*</span><span class="nv">named_arguments</span><span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">accepted_kwargs</span><span class="ss">(</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">function_takes_kwargs</span>:
+
+            <span class="k">return</span> <span class="nv">kwargs</span>
+
+        <span class="nv">elif</span> <span class="nv">function_takes_arguments</span>:
+
+            <span class="k">return</span> {<span class="nv">key</span>: <span class="nv">value</span> <span class="k">for</span> <span class="nv">key</span>, <span class="nv">value</span> <span class="nv">in</span> <span class="nv">kwargs</span>.<span class="nv">items</span><span class="ss">()</span> <span class="k">if</span> <span class="nv">key</span> <span class="nv">in</span> <span class="nv">function_takes_arguments</span>}
+
+        <span class="k">return</span> {}
+
+    <span class="k">return</span> <span class="nv">accepted_kwargs</span>
+</pre></div>
+
+
+</details>
+<h5 id="is_coroutine">is_coroutine</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">function</span>
 <span class="p">)</span>
 </pre></div>
 
 
 <p>Returns True if the passed in function is a coroutine</p>
-<h3 id="is_method">is_method</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">is_method</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">is_coroutine</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns True if the passed in function is a coroutine</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__code__</span>.<span class="nv">co_flags</span> <span class="o">&amp;</span> <span class="mi">0</span><span class="nv">x0080</span> <span class="nv">or</span> <span class="nv">getattr</span><span class="ss">(</span><span class="nv">function</span>, <span class="s2">&quot;</span><span class="s">_is_coroutine</span><span class="s2">&quot;</span>, <span class="nv">False</span><span class="ss">)</span>
+</pre></div>
+
+
+</details>
+<h5 id="is_method">is_method</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">function</span>
 <span class="p">)</span>
 </pre></div>
 
 
 <p>Returns True if the passed in function is identified as a method (NOT a function)</p>
-<h3 id="name">name</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">name</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">is_method</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns True if the passed in function is identified as a method (NOT a function)</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">function</span>, <span class="nv">MethodType</span><span class="ss">)</span>
+</pre></div>
+
+
+</details>
+<h5 id="name">name</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">function</span>
 <span class="p">)</span>
 </pre></div>
 
 
 <p>Returns the name of a function</p>
-<h3 id="takes_all_arguments">takes_all_arguments</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">takes_all_arguments</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">name</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns the name of a function</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">function</span>.<span class="nv">__name__</span>
+</pre></div>
+
+
+</details>
+<h5 id="takes_all_arguments">takes_all_arguments</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">function</span><span class="p">,</span>
     <span class="o">*</span><span class="n">named_arguments</span>
 <span class="p">)</span>
@@ -1038,16 +1240,34 @@ compatible with the supplied function</p>
 
 
 <p>Returns True if all supplied arguments are found in the function</p>
-<h3 id="takes_args">takes_args</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">takes_args</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">takes_all_arguments</span><span class="ss">(</span><span class="nv">function</span>, <span class="o">*</span><span class="nv">named_arguments</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns True if all supplied arguments are found in the function</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">bool</span><span class="ss">(</span><span class="nv">takes_arguments</span><span class="ss">(</span><span class="nv">function</span>, <span class="o">*</span><span class="nv">named_arguments</span><span class="ss">)</span> <span class="o">==</span> <span class="nv">set</span><span class="ss">(</span><span class="nv">named_arguments</span><span class="ss">))</span>
+</pre></div>
+
+
+</details>
+<h5 id="takes_args">takes_args</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">function</span>
 <span class="p">)</span>
 </pre></div>
 
 
 <p>Returns True if the supplied functions takes extra non-keyword arguments</p>
-<h3 id="takes_arguments">takes_arguments</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">takes_arguments</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">takes_args</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns True if the supplied functions takes extra non-keyword arguments</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">bool</span><span class="ss">(</span><span class="nv">function</span>.<span class="nv">__code__</span>.<span class="nv">co_flags</span> <span class="o">&amp;</span> <span class="mi">0</span><span class="nv">x04</span><span class="ss">)</span>
+</pre></div>
+
+
+</details>
+<h5 id="takes_arguments">takes_arguments</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">function</span><span class="p">,</span>
     <span class="o">*</span><span class="n">named_arguments</span>
 <span class="p">)</span>
@@ -1055,14 +1275,32 @@ compatible with the supplied function</p>
 
 
 <p>Returns the arguments that a function takes from a list of requested arguments</p>
-<h3 id="takes_kwargs">takes_kwargs</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">takes_kwargs</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">takes_arguments</span><span class="ss">(</span><span class="nv">function</span>, <span class="o">*</span><span class="nv">named_arguments</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns the arguments that a function takes from a list of requested arguments</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">set</span><span class="ss">(</span><span class="nv">named_arguments</span><span class="ss">)</span>.<span class="nv">intersection</span><span class="ss">(</span><span class="nv">arguments</span><span class="ss">(</span><span class="nv">function</span><span class="ss">))</span>
+</pre></div>
+
+
+</details>
+<h5 id="takes_kwargs">takes_kwargs</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">function</span>
 <span class="p">)</span>
 </pre></div>
 
 
 <p>Returns True if the supplied function takes keyword arguments</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">takes_kwargs</span><span class="ss">(</span><span class="nv">function</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns True if the supplied function takes keyword arguments</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nv">bool</span><span class="ss">(</span><span class="nv">function</span>.<span class="nv">__code__</span>.<span class="nv">co_flags</span> <span class="o">&amp;</span> <span class="mi">0</span><span class="nv">x08</span><span class="ss">)</span>
+</pre></div>
+
+
+</details>
                 
                   
                 

@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../artwork/koala.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.1">
     
     
       
@@ -177,7 +177,7 @@
         
       
       
-      <main class="md-main" role="main">
+      <main class="md-main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
             
@@ -723,7 +723,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#functions" title="Functions" class="md-nav__link">
     Functions
   </a>
   
@@ -731,28 +731,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#all" class="md-nav__link">
+  <a href="#all" title="all" class="md-nav__link">
     all
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#content_type" class="md-nav__link">
+  <a href="#content_type" title="content_type" class="md-nav__link">
     content_type
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#prefix" class="md-nav__link">
+  <a href="#prefix" title="prefix" class="md-nav__link">
     prefix
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#suffix" class="md-nav__link">
+  <a href="#suffix" title="suffix" class="md-nav__link">
     suffix
   </a>
   
@@ -841,7 +841,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#functions" title="Functions" class="md-nav__link">
     Functions
   </a>
   
@@ -849,28 +849,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#all" class="md-nav__link">
+  <a href="#all" title="all" class="md-nav__link">
     all
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#content_type" class="md-nav__link">
+  <a href="#content_type" title="content_type" class="md-nav__link">
     content_type
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#prefix" class="md-nav__link">
+  <a href="#prefix" title="prefix" class="md-nav__link">
     prefix
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#suffix" class="md-nav__link">
+  <a href="#suffix" title="suffix" class="md-nav__link">
     suffix
   </a>
   
@@ -915,9 +915,194 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="s2">&quot;&quot;&quot;</span><span class="s">hug/transform.py</span>
+
+<span class="nv">Defines</span> <span class="nv">Hug</span><span class="s1">&#39;</span><span class="s">s built-in output transforming functions</span>
+
+<span class="nv">Copyright</span> <span class="ss">(</span><span class="nv">C</span><span class="ss">)</span> <span class="mi">2016</span>  <span class="nv">Timothy</span> <span class="nv">Edmund</span> <span class="nv">Crosley</span>
+
+<span class="nv">Permission</span> <span class="nv">is</span> <span class="nv">hereby</span> <span class="nv">granted</span>, <span class="nv">free</span> <span class="nv">of</span> <span class="nv">charge</span>, <span class="nv">to</span> <span class="nv">any</span> <span class="nv">person</span> <span class="nv">obtaining</span> <span class="nv">a</span> <span class="nv">copy</span> <span class="nv">of</span> <span class="nv">this</span> <span class="nv">software</span> <span class="nv">and</span> <span class="nv">associated</span>
+
+<span class="nv">documentation</span> <span class="nv">files</span> <span class="ss">(</span><span class="nv">the</span> <span class="s2">&quot;</span><span class="s">Software</span><span class="s2">&quot;</span><span class="ss">)</span>, <span class="nv">to</span> <span class="nv">deal</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">without</span> <span class="nv">restriction</span>, <span class="nv">including</span> <span class="nv">without</span> <span class="nv">limitation</span>
+
+<span class="nv">the</span> <span class="nv">rights</span> <span class="nv">to</span> <span class="nv">use</span>, <span class="nv">copy</span>, <span class="nv">modify</span>, <span class="nv">merge</span>, <span class="nv">publish</span>, <span class="nv">distribute</span>, <span class="nv">sublicense</span>, <span class="nv">and</span><span class="o">/</span><span class="nv">or</span> <span class="nv">sell</span> <span class="nv">copies</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>, <span class="nv">and</span>
+
+<span class="nv">to</span> <span class="nv">permit</span> <span class="nv">persons</span> <span class="nv">to</span> <span class="nv">whom</span> <span class="nv">the</span> <span class="nv">Software</span> <span class="nv">is</span> <span class="nv">furnished</span> <span class="nv">to</span> <span class="k">do</span> <span class="nv">so</span>, <span class="nv">subject</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">conditions</span>:
+
+<span class="nv">The</span> <span class="nv">above</span> <span class="nv">copyright</span> <span class="nv">notice</span> <span class="nv">and</span> <span class="nv">this</span> <span class="nv">permission</span> <span class="nv">notice</span> <span class="nv">shall</span> <span class="nv">be</span> <span class="nv">included</span> <span class="nv">in</span> <span class="nv">all</span> <span class="nv">copies</span> <span class="nv">or</span>
+
+<span class="nv">substantial</span> <span class="nv">portions</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">Software</span>.
+
+<span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">IS</span> <span class="nv">PROVIDED</span> <span class="s2">&quot;</span><span class="s">AS IS</span><span class="s2">&quot;</span>, <span class="nv">WITHOUT</span> <span class="nv">WARRANTY</span> <span class="nv">OF</span> <span class="nv">ANY</span> <span class="nv">KIND</span>, <span class="nv">EXPRESS</span> <span class="nv">OR</span> <span class="nv">IMPLIED</span>, <span class="nv">INCLUDING</span> <span class="nv">BUT</span> <span class="nv">NOT</span> <span class="nv">LIMITED</span>
+
+<span class="nv">TO</span> <span class="nv">THE</span> <span class="nv">WARRANTIES</span> <span class="nv">OF</span> <span class="nv">MERCHANTABILITY</span>, <span class="nv">FITNESS</span> <span class="k">FOR</span> <span class="nv">A</span> <span class="nv">PARTICULAR</span> <span class="nv">PURPOSE</span> <span class="nv">AND</span> <span class="nv">NONINFRINGEMENT</span>. <span class="nv">IN</span> <span class="nv">NO</span> <span class="nv">EVENT</span> <span class="nv">SHALL</span>
+
+<span class="nv">THE</span> <span class="nv">AUTHORS</span> <span class="nv">OR</span> <span class="nv">COPYRIGHT</span> <span class="nv">HOLDERS</span> <span class="nv">BE</span> <span class="nv">LIABLE</span> <span class="k">FOR</span> <span class="nv">ANY</span> <span class="nv">CLAIM</span>, <span class="nv">DAMAGES</span> <span class="nv">OR</span> <span class="nv">OTHER</span> <span class="nv">LIABILITY</span>, <span class="nv">WHETHER</span> <span class="nv">IN</span> <span class="nv">AN</span> <span class="nv">ACTION</span> <span class="nv">OF</span>
+
+<span class="nv">CONTRACT</span>, <span class="nv">TORT</span> <span class="nv">OR</span> <span class="nv">OTHERWISE</span>, <span class="nv">ARISING</span> <span class="nv">FROM</span>, <span class="nv">OUT</span> <span class="nv">OF</span> <span class="nv">OR</span> <span class="nv">IN</span> <span class="nv">CONNECTION</span> <span class="nv">WITH</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span> <span class="nv">OR</span> <span class="nv">THE</span> <span class="nv">USE</span> <span class="nv">OR</span>
+
+<span class="nv">OTHER</span> <span class="nv">DEALINGS</span> <span class="nv">IN</span> <span class="nv">THE</span> <span class="nv">SOFTWARE</span>.
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="nv">from</span> <span class="nv">__future__</span> <span class="nv">import</span> <span class="nv">absolute_import</span>
+
+<span class="nv">from</span> <span class="nv">hug</span>.<span class="nv">decorators</span> <span class="nv">import</span> <span class="nv">auto_kwargs</span>
+
+<span class="nv">def</span> <span class="nv">content_type</span><span class="ss">(</span><span class="nv">transformers</span>, <span class="nv">default</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns a different transformer depending on the content type passed in.</span>
+
+       <span class="k">If</span> <span class="nv">none</span> <span class="nv">match</span> <span class="nv">and</span> <span class="nv">no</span> <span class="nv">default</span> <span class="nv">is</span> <span class="nv">given</span> <span class="nv">no</span> <span class="nv">transformation</span> <span class="nv">takes</span> <span class="nv">place</span>.
+
+       <span class="nv">should</span> <span class="nv">pass</span> <span class="nv">in</span> <span class="nv">a</span> <span class="nv">dict</span> <span class="nv">with</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">format</span>:
+
+            {<span class="s1">&#39;</span><span class="s">[content-type]</span><span class="s1">&#39;</span>: <span class="nv">transformation_action</span>,
+
+             ...
+
+            }
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">transformers</span> <span class="o">=</span> {
+
+        <span class="nv">content_type</span>: <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">transformer</span><span class="ss">)</span> <span class="k">if</span> <span class="nv">transformer</span> <span class="k">else</span> <span class="nv">transformer</span>
+
+        <span class="k">for</span> <span class="nv">content_type</span>, <span class="nv">transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>.<span class="nv">items</span><span class="ss">()</span>
+
+    }
+
+    <span class="nv">default</span> <span class="o">=</span> <span class="nv">default</span> <span class="nv">and</span> <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">default</span><span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">transform</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">request</span><span class="ss">)</span>:
+
+        <span class="nv">transformer</span> <span class="o">=</span> <span class="nv">transformers</span>.<span class="nv">get</span><span class="ss">(</span><span class="nv">request</span>.<span class="nv">content_type</span>.<span class="nv">split</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">;</span><span class="s2">&quot;</span><span class="ss">)</span>[<span class="mi">0</span>], <span class="nv">default</span><span class="ss">)</span>
+
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">transformer</span>:
+
+            <span class="k">return</span> <span class="nv">data</span>
+
+        <span class="k">return</span> <span class="nv">transformer</span><span class="ss">(</span><span class="nv">data</span><span class="ss">)</span>
+
+    <span class="k">return</span> <span class="nv">transform</span>
+
+<span class="nv">def</span> <span class="nv">suffix</span><span class="ss">(</span><span class="nv">transformers</span>, <span class="nv">default</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns a different transformer depending on the suffix at the end of the requested URL.</span>
+
+       <span class="k">If</span> <span class="nv">none</span> <span class="nv">match</span> <span class="nv">and</span> <span class="nv">no</span> <span class="nv">default</span> <span class="nv">is</span> <span class="nv">given</span> <span class="nv">no</span> <span class="nv">transformation</span> <span class="nv">takes</span> <span class="nv">place</span>.
+
+       <span class="nv">should</span> <span class="nv">pass</span> <span class="nv">in</span> <span class="nv">a</span> <span class="nv">dict</span> <span class="nv">with</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">format</span>:
+
+            {<span class="s1">&#39;</span><span class="s">[suffix]</span><span class="s1">&#39;</span>: <span class="nv">transformation_action</span>,
+
+             ...
+
+            }
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">transformers</span> <span class="o">=</span> {
+
+        <span class="nv">suffix</span>: <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">transformer</span><span class="ss">)</span> <span class="k">if</span> <span class="nv">transformer</span> <span class="k">else</span> <span class="nv">transformer</span>
+
+        <span class="k">for</span> <span class="nv">suffix</span>, <span class="nv">transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>.<span class="nv">items</span><span class="ss">()</span>
+
+    }
+
+    <span class="nv">default</span> <span class="o">=</span> <span class="nv">default</span> <span class="nv">and</span> <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">default</span><span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">transform</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">request</span><span class="ss">)</span>:
+
+        <span class="nv">path</span> <span class="o">=</span> <span class="nv">request</span>.<span class="nv">path</span>
+
+        <span class="nv">transformer</span> <span class="o">=</span> <span class="nv">default</span>
+
+        <span class="k">for</span> <span class="nv">suffix_test</span>, <span class="nv">suffix_transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>.<span class="nv">items</span><span class="ss">()</span>:
+
+            <span class="k">if</span> <span class="nv">path</span>.<span class="nv">endswith</span><span class="ss">(</span><span class="nv">suffix_test</span><span class="ss">)</span>:
+
+                <span class="nv">transformer</span> <span class="o">=</span> <span class="nv">suffix_transformer</span>
+
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="nv">transformer</span><span class="ss">(</span><span class="nv">data</span><span class="ss">)</span> <span class="k">if</span> <span class="nv">transformer</span> <span class="k">else</span> <span class="nv">data</span>
+
+    <span class="k">return</span> <span class="nv">transform</span>
+
+<span class="nv">def</span> <span class="nv">prefix</span><span class="ss">(</span><span class="nv">transformers</span>, <span class="nv">default</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns a different transformer depending on the prefix at the end of the requested URL.</span>
+
+       <span class="k">If</span> <span class="nv">none</span> <span class="nv">match</span> <span class="nv">and</span> <span class="nv">no</span> <span class="nv">default</span> <span class="nv">is</span> <span class="nv">given</span> <span class="nv">no</span> <span class="nv">transformation</span> <span class="nv">takes</span> <span class="nv">place</span>.
+
+       <span class="nv">should</span> <span class="nv">pass</span> <span class="nv">in</span> <span class="nv">a</span> <span class="nv">dict</span> <span class="nv">with</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">format</span>:
+
+            {<span class="s1">&#39;</span><span class="s">[prefix]</span><span class="s1">&#39;</span>: <span class="nv">transformation_action</span>,
+
+             ...
+
+            }
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">transformers</span> <span class="o">=</span> {
+
+        <span class="nv">prefix</span>: <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">transformer</span><span class="ss">)</span> <span class="k">if</span> <span class="nv">transformer</span> <span class="k">else</span> <span class="nv">transformer</span>
+
+        <span class="k">for</span> <span class="nv">prefix</span>, <span class="nv">transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>.<span class="nv">items</span><span class="ss">()</span>
+
+    }
+
+    <span class="nv">default</span> <span class="o">=</span> <span class="nv">default</span> <span class="nv">and</span> <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">default</span><span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">transform</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">request</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">response</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+        <span class="nv">path</span> <span class="o">=</span> <span class="nv">request</span>.<span class="nv">path</span>
+
+        <span class="nv">transformer</span> <span class="o">=</span> <span class="nv">default</span>
+
+        <span class="k">for</span> <span class="nv">prefix_test</span>, <span class="nv">prefix_transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>.<span class="nv">items</span><span class="ss">()</span>:
+
+            <span class="k">if</span> <span class="nv">path</span>.<span class="nv">startswith</span><span class="ss">(</span><span class="nv">prefix_test</span><span class="ss">)</span>:
+
+                <span class="nv">transformer</span> <span class="o">=</span> <span class="nv">prefix_transformer</span>
+
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="nv">transformer</span><span class="ss">(</span><span class="nv">data</span><span class="ss">)</span> <span class="k">if</span> <span class="nv">transformer</span> <span class="k">else</span> <span class="nv">data</span>
+
+    <span class="k">return</span> <span class="nv">transform</span>
+
+<span class="nv">def</span> <span class="nv">all</span><span class="ss">(</span><span class="o">*</span><span class="nv">transformers</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns the results of applying all passed in transformers to data</span>
+
+       <span class="nv">should</span> <span class="nv">pass</span> <span class="nv">in</span> <span class="nv">list</span> <span class="nv">of</span> <span class="nv">transformers</span>
+
+            [<span class="nv">transformer_1</span>, <span class="nv">transformer_2</span>...]
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">transformers</span> <span class="o">=</span> <span class="nv">tuple</span><span class="ss">(</span><span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">transformer</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">transformer</span> <span class="nv">in</span> <span class="nv">transformers</span><span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">transform</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">request</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">response</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+        <span class="k">for</span> <span class="nv">transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>:
+
+            <span class="nv">data</span> <span class="o">=</span> <span class="nv">transformer</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">request</span><span class="o">=</span><span class="nv">request</span>, <span class="nv">response</span><span class="o">=</span><span class="nv">response</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">data</span>
+
+    <span class="k">return</span> <span class="nv">transform</span>
+</pre></div>
+
+
+</details>
 <h2 id="functions">Functions</h2>
-<h3 id="all">all</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">all</span><span class="p">(</span>
+<h5 id="all">all</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="o">*</span><span class="n">transformers</span>
 <span class="p">)</span>
 </pre></div>
@@ -929,8 +1114,33 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 </pre></div>
 
 
-<h3 id="content_type">content_type</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">content_type</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">all</span><span class="ss">(</span><span class="o">*</span><span class="nv">transformers</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns the results of applying all passed in transformers to data</span>
+
+       <span class="nv">should</span> <span class="nv">pass</span> <span class="nv">in</span> <span class="nv">list</span> <span class="nv">of</span> <span class="nv">transformers</span>
+
+            [<span class="nv">transformer_1</span>, <span class="nv">transformer_2</span>...]
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">transformers</span> <span class="o">=</span> <span class="nv">tuple</span><span class="ss">(</span><span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">transformer</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">transformer</span> <span class="nv">in</span> <span class="nv">transformers</span><span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">transform</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">request</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">response</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+        <span class="k">for</span> <span class="nv">transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>:
+
+            <span class="nv">data</span> <span class="o">=</span> <span class="nv">transformer</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">request</span><span class="o">=</span><span class="nv">request</span>, <span class="nv">response</span><span class="o">=</span><span class="nv">response</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">data</span>
+
+    <span class="k">return</span> <span class="nv">transform</span>
+</pre></div>
+
+
+</details>
+<h5 id="content_type">content_type</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">transformers</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span>
@@ -946,8 +1156,49 @@ If none match and no default is given no transformation takes place.</p>
 </pre></div>
 
 
-<h3 id="prefix">prefix</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">prefix</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">content_type</span><span class="ss">(</span><span class="nv">transformers</span>, <span class="nv">default</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns a different transformer depending on the content type passed in.</span>
+
+       <span class="k">If</span> <span class="nv">none</span> <span class="nv">match</span> <span class="nv">and</span> <span class="nv">no</span> <span class="nv">default</span> <span class="nv">is</span> <span class="nv">given</span> <span class="nv">no</span> <span class="nv">transformation</span> <span class="nv">takes</span> <span class="nv">place</span>.
+
+       <span class="nv">should</span> <span class="nv">pass</span> <span class="nv">in</span> <span class="nv">a</span> <span class="nv">dict</span> <span class="nv">with</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">format</span>:
+
+            {<span class="s1">&#39;</span><span class="s">[content-type]</span><span class="s1">&#39;</span>: <span class="nv">transformation_action</span>,
+
+             ...
+
+            }
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">transformers</span> <span class="o">=</span> {
+
+        <span class="nv">content_type</span>: <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">transformer</span><span class="ss">)</span> <span class="k">if</span> <span class="nv">transformer</span> <span class="k">else</span> <span class="nv">transformer</span>
+
+        <span class="k">for</span> <span class="nv">content_type</span>, <span class="nv">transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>.<span class="nv">items</span><span class="ss">()</span>
+
+    }
+
+    <span class="nv">default</span> <span class="o">=</span> <span class="nv">default</span> <span class="nv">and</span> <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">default</span><span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">transform</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">request</span><span class="ss">)</span>:
+
+        <span class="nv">transformer</span> <span class="o">=</span> <span class="nv">transformers</span>.<span class="nv">get</span><span class="ss">(</span><span class="nv">request</span>.<span class="nv">content_type</span>.<span class="nv">split</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">;</span><span class="s2">&quot;</span><span class="ss">)</span>[<span class="mi">0</span>], <span class="nv">default</span><span class="ss">)</span>
+
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">transformer</span>:
+
+            <span class="k">return</span> <span class="nv">data</span>
+
+        <span class="k">return</span> <span class="nv">transformer</span><span class="ss">(</span><span class="nv">data</span><span class="ss">)</span>
+
+    <span class="k">return</span> <span class="nv">transform</span>
+</pre></div>
+
+
+</details>
+<h5 id="prefix">prefix</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">transformers</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span>
@@ -963,8 +1214,55 @@ If none match and no default is given no transformation takes place.</p>
 </pre></div>
 
 
-<h3 id="suffix">suffix</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">suffix</span><span class="p">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">prefix</span><span class="ss">(</span><span class="nv">transformers</span>, <span class="nv">default</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns a different transformer depending on the prefix at the end of the requested URL.</span>
+
+       <span class="k">If</span> <span class="nv">none</span> <span class="nv">match</span> <span class="nv">and</span> <span class="nv">no</span> <span class="nv">default</span> <span class="nv">is</span> <span class="nv">given</span> <span class="nv">no</span> <span class="nv">transformation</span> <span class="nv">takes</span> <span class="nv">place</span>.
+
+       <span class="nv">should</span> <span class="nv">pass</span> <span class="nv">in</span> <span class="nv">a</span> <span class="nv">dict</span> <span class="nv">with</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">format</span>:
+
+            {<span class="s1">&#39;</span><span class="s">[prefix]</span><span class="s1">&#39;</span>: <span class="nv">transformation_action</span>,
+
+             ...
+
+            }
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">transformers</span> <span class="o">=</span> {
+
+        <span class="nv">prefix</span>: <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">transformer</span><span class="ss">)</span> <span class="k">if</span> <span class="nv">transformer</span> <span class="k">else</span> <span class="nv">transformer</span>
+
+        <span class="k">for</span> <span class="nv">prefix</span>, <span class="nv">transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>.<span class="nv">items</span><span class="ss">()</span>
+
+    }
+
+    <span class="nv">default</span> <span class="o">=</span> <span class="nv">default</span> <span class="nv">and</span> <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">default</span><span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">transform</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">request</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">response</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+        <span class="nv">path</span> <span class="o">=</span> <span class="nv">request</span>.<span class="nv">path</span>
+
+        <span class="nv">transformer</span> <span class="o">=</span> <span class="nv">default</span>
+
+        <span class="k">for</span> <span class="nv">prefix_test</span>, <span class="nv">prefix_transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>.<span class="nv">items</span><span class="ss">()</span>:
+
+            <span class="k">if</span> <span class="nv">path</span>.<span class="nv">startswith</span><span class="ss">(</span><span class="nv">prefix_test</span><span class="ss">)</span>:
+
+                <span class="nv">transformer</span> <span class="o">=</span> <span class="nv">prefix_transformer</span>
+
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="nv">transformer</span><span class="ss">(</span><span class="nv">data</span><span class="ss">)</span> <span class="k">if</span> <span class="nv">transformer</span> <span class="k">else</span> <span class="nv">data</span>
+
+    <span class="k">return</span> <span class="nv">transform</span>
+</pre></div>
+
+
+</details>
+<h5 id="suffix">suffix</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="err">(</span>
     <span class="n">transformers</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span>
@@ -978,6 +1276,55 @@ If none match and no default is given no transformation takes place.</p>
 <span class="w">  </span><span class="p">...</span><span class="w"></span>
 <span class="w"> </span><span class="err">}</span><span class="w"></span>
 </pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">suffix</span><span class="ss">(</span><span class="nv">transformers</span>, <span class="nv">default</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Returns a different transformer depending on the suffix at the end of the requested URL.</span>
+
+       <span class="k">If</span> <span class="nv">none</span> <span class="nv">match</span> <span class="nv">and</span> <span class="nv">no</span> <span class="nv">default</span> <span class="nv">is</span> <span class="nv">given</span> <span class="nv">no</span> <span class="nv">transformation</span> <span class="nv">takes</span> <span class="nv">place</span>.
+
+       <span class="nv">should</span> <span class="nv">pass</span> <span class="nv">in</span> <span class="nv">a</span> <span class="nv">dict</span> <span class="nv">with</span> <span class="nv">the</span> <span class="nv">following</span> <span class="nv">format</span>:
+
+            {<span class="s1">&#39;</span><span class="s">[suffix]</span><span class="s1">&#39;</span>: <span class="nv">transformation_action</span>,
+
+             ...
+
+            }
+
+    <span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">transformers</span> <span class="o">=</span> {
+
+        <span class="nv">suffix</span>: <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">transformer</span><span class="ss">)</span> <span class="k">if</span> <span class="nv">transformer</span> <span class="k">else</span> <span class="nv">transformer</span>
+
+        <span class="k">for</span> <span class="nv">suffix</span>, <span class="nv">transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>.<span class="nv">items</span><span class="ss">()</span>
+
+    }
+
+    <span class="nv">default</span> <span class="o">=</span> <span class="nv">default</span> <span class="nv">and</span> <span class="nv">auto_kwargs</span><span class="ss">(</span><span class="nv">default</span><span class="ss">)</span>
+
+    <span class="nv">def</span> <span class="nv">transform</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">request</span><span class="ss">)</span>:
+
+        <span class="nv">path</span> <span class="o">=</span> <span class="nv">request</span>.<span class="nv">path</span>
+
+        <span class="nv">transformer</span> <span class="o">=</span> <span class="nv">default</span>
+
+        <span class="k">for</span> <span class="nv">suffix_test</span>, <span class="nv">suffix_transformer</span> <span class="nv">in</span> <span class="nv">transformers</span>.<span class="nv">items</span><span class="ss">()</span>:
+
+            <span class="k">if</span> <span class="nv">path</span>.<span class="nv">endswith</span><span class="ss">(</span><span class="nv">suffix_test</span><span class="ss">)</span>:
+
+                <span class="nv">transformer</span> <span class="o">=</span> <span class="nv">suffix_transformer</span>
+
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="nv">transformer</span><span class="ss">(</span><span class="nv">data</span><span class="ss">)</span> <span class="k">if</span> <span class="nv">transformer</span> <span class="k">else</span> <span class="nv">data</span>
+
+    <span class="k">return</span> <span class="nv">transform</span>
+</pre></div>
+
+
+</details>
                 
                   
                 
