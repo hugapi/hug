@@ -86,4 +86,4 @@ def get_demo():
 ```
 For cases that are more complex then the middleware handles
 
-[This comment]([https://github.com/hugapi/hug/issues/114#issuecomment-342493165]) (and the discussion around it) give a good starting off point.
+[This comment](https://github.com/hugapi/hug/issues/114#issuecomment-342493165) (and the discussion around it) give a good starting off point.
