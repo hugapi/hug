@@ -1,5 +1,6 @@
 [tool.portray]
 docs_dir = "documentation"
+extra_dirs = ["examples", "artwork"]
 
 [tool.portray.mkdocs.theme]
 favicon = "artwork/koala.png"
