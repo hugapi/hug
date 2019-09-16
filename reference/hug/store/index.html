@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../artwork/koala.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.1">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
     
     
       
@@ -162,7 +162,7 @@
     </div>
   
   <div class="md-source__repository">
-    hugapi/hu
+    hug
   </div>
 </a>
           </div>
@@ -177,7 +177,7 @@
         
       
       
-      <main class="md-main">
+      <main class="md-main" role="main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
             
@@ -209,7 +209,7 @@
     </div>
   
   <div class="md-source__repository">
-    hugapi/hu
+    hug
   </div>
 </a>
     </div>
@@ -687,7 +687,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#classes" title="Classes" class="md-nav__link">
+  <a href="#classes" class="md-nav__link">
     Classes
   </a>
   
@@ -695,9 +695,56 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#inmemorystore" title="InMemoryStore" class="md-nav__link">
+  <a href="#inmemorystore" class="md-nav__link">
     InMemoryStore
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exists" class="md-nav__link">
+    exists
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set" class="md-nav__link">
+    set
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -820,7 +867,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#classes" title="Classes" class="md-nav__link">
+  <a href="#classes" class="md-nav__link">
     Classes
   </a>
   
@@ -828,9 +875,56 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#inmemorystore" title="InMemoryStore" class="md-nav__link">
+  <a href="#inmemorystore" class="md-nav__link">
     InMemoryStore
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#delete" class="md-nav__link">
+    delete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exists" class="md-nav__link">
+    exists
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get" class="md-nav__link">
+    get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set" class="md-nav__link">
+    set
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -855,7 +949,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/hugapi/hug/edit/master/docs/reference/hug/store.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/hugapi/hug/edit/master/reference/hug/store.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                 <h1 id="module-hugstore">Module hug.store</h1>
@@ -961,8 +1055,8 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 
 </details>
 <h2 id="classes">Classes</h2>
-<h5 id="inmemorystore">InMemoryStore</h5>
-<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="err">(</span>
+<h3 id="inmemorystore">InMemoryStore</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">InMemoryStore</span><span class="p">(</span>
 
 <span class="p">)</span>
 </pre></div>
@@ -1028,6 +1122,90 @@ which make use of databases like Redis, PostgreSQL or others.</p>
 
 </details>
 <hr />
+<h4 id="methods">Methods</h4>
+<h5 id="delete">delete</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Delete data for given store key.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">delete</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Delete data for given store key.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nv">key</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_data</span>:
+
+            <span class="nv">del</span> <span class="nv">self</span>.<span class="nv">_data</span>[<span class="nv">key</span>]
+</pre></div>
+
+
+</details>
+<h5 id="exists">exists</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">exists</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Return whether key exists or not.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">exists</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Return whether key exists or not.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nv">key</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_data</span>
+</pre></div>
+
+
+</details>
+<h5 id="get">get</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Get data for given store key. Raise hug.exceptions.StoreKeyNotFound if key does not exist.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Get data for given store key. Raise hug.exceptions.StoreKeyNotFound if key does not exist.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nv">try</span>:
+
+            <span class="nv">data</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_data</span>[<span class="nv">key</span>]
+
+        <span class="nv">except</span> <span class="nv">KeyError</span>:
+
+            <span class="nv">raise</span> <span class="nv">StoreKeyNotFound</span><span class="ss">(</span><span class="nv">key</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">data</span>
+</pre></div>
+
+
+</details>
+<h5 id="set">set</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">,</span>
+    <span class="n">data</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Set data object for given store key.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">set</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">data</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Set data object for given store key.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nv">self</span>.<span class="nv">_data</span>[<span class="nv">key</span>] <span class="o">=</span> <span class="nv">data</span>
+</pre></div>
+
+
+</details>
                 
                   
                 
