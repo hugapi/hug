@@ -12,8 +12,6 @@ echo $TRAVIS_OS_NAME
 
     # Find the latest requested version of python
     case "$TOXENV" in
-        py34)
-            python_minor=4;;
         py35)
             python_minor=5;;
         py36)
@@ -24,6 +22,8 @@ echo $TRAVIS_OS_NAME
             python_minor=6;;
         py37)
             python_minor=7;;
+        py38)
+            python_minor=8;;
     esac
     latest_version=`pyenv install --list | grep -e "^[ ]*3\.$python_minor" | tail -1`
 
