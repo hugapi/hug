@@ -305,7 +305,8 @@ class Interface(object):
 
     def documentation(self, add_to=None):
         """Produces general documentation for the interface"""
-        doc = OrderedDict if add_to is None else add_to
+
+        doc = OrderedDict() if add_to is None else add_to
 
         usage = self.interface.spec.__doc__
         if usage:
