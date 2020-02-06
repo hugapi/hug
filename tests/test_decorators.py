@@ -1044,6 +1044,7 @@ def test_extending_api_with_http_and_cli():
 
     # But not both
     with pytest.raises(ValueError):
+
         @hug.extend_api(sub_command="sub_api", command_prefix="api_", http=False)
         def extend_with():
             return (tests.module_fake_http_and_cli,)
@@ -1940,7 +1941,7 @@ def test_param_rerouting(hug_api):
 
 def test_multiple_cli(hug_api):
     @hug.cli(api=hug_api)
-    def multiple(items: list=None):
+    def multiple(items: list = None):
         return items
 
     hug_api.cli([None, "multiple", "-i", "one", "-i", "two"])

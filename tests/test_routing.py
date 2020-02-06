@@ -418,4 +418,7 @@ class TestURLRouter(TestHTTPRouter):
         def my_endpoint():
             return "Success"
 
-        assert hug.test.get(hug_api, "/my_endpoint", headers={'ORIGIN': 'google.com'}).data == "Success"
+        assert (
+            hug.test.get(hug_api, "/my_endpoint", headers={"ORIGIN": "google.com"}).data
+            == "Success"
+        )

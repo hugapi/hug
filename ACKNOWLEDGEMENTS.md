@@ -52,6 +52,7 @@ Code Contributors
 - Lordran (@xzycn)
 - Stephan Fitzpatrick (@knowsuchagency)
 - Edvard Majakari (@EdvardM)
+- Sai Charan (@mrsaicharan1)
 
 Documenters
 ===================
