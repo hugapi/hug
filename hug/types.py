@@ -299,7 +299,7 @@ class SmartBoolean(type(boolean)):
 
 
 class InlineDictionary(Type, metaclass=SubTyped):
-    """A single line dictionary, where items are separted by commas and key:value are separated by a pipe"""
+    """A single line dictionary, where items are separated by commas and key:value are separated by a pipe"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
