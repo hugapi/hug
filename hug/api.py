@@ -221,10 +221,11 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         self.not_found_handlers[version] = handler
 
-    def documentation(self, base_url=None, api_version=None, prefix=""):
+    def documentation(self, base_url=None, api_version=None, prefix="", port=None):
         """Generates and returns documentation for this API endpoint"""
         documentation = OrderedDict()
         base_url = self.base_url if base_url is None else base_url
+        port_suffix = "" if port is None else ":" + str(port)
         overview = self.api.doc
         if overview:
             documentation["overview"] = overview
@@ -263,7 +264,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
                                 doc.get(method, None),
                                 version=version,
                                 prefix=prefix,
-                                base_url=router_base_url,
+                                base_url=router_base_url + port_suffix,
                                 url=url,
                             )
         documentation["handlers"] = version_dict
@@ -272,9 +273,9 @@ class HTTPInterfaceAPI(InterfaceAPI):
     def serve(self, host="", port=8000, no_documentation=False, display_intro=True):
         """Runs the basic hug development server against this API"""
         if no_documentation:
-            api = self.server(None)
+            api = self.server(None, port=port)
         else:
-            api = self.server()
+            api = self.server(port=port)
 
         if display_intro:
             print(INTRO)
@@ -314,7 +315,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
 
         return next(iter(request_version or (None,)))
 
-    def documentation_404(self, base_url=None):
+    def documentation_404(self, base_url=None, port=None):
         """Returns a smart 404 page that contains documentation for the written API"""
         base_url = self.base_url if base_url is None else base_url
 
@@ -329,7 +330,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
                 "Here's a definition of the API to help you get going :)"
             )
             to_return["documentation"] = self.documentation(
-                base_url, self.determine_version(request, False), prefix=url_prefix
+                base_url, self.determine_version(request, False), prefix=url_prefix, port=port
             )
 
             if self.output_format == hug.output_format.json:
@@ -356,7 +357,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
             request, response, api_version=api_version, **kwargs
         )
 
-    def server(self, default_not_found=True, base_url=None):
+    def server(self, default_not_found=True, base_url=None, port=None):
         """Returns a WSGI compatible API server for the given Hug API module"""
         falcon_api = self.falcon = falcon.API(middleware=self.middleware)
         if not self.api.future:
@@ -364,7 +365,7 @@ class HTTPInterfaceAPI(InterfaceAPI):
             falcon_api.req_options.auto_parse_qs_csv = True
             falcon_api.req_options.strip_url_path_trailing_slash = True
 
-        default_not_found = self.documentation_404() if default_not_found is True else None
+        default_not_found = self.documentation_404(port=port) if default_not_found is True else None
         base_url = self.base_url if base_url is None else base_url
 
         not_found_handler = default_not_found
