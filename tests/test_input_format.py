@@ -54,6 +54,10 @@ def test_urlencoded():
     """Ensure that urlencoded input format works as intended"""
     test_data = BytesIO(b"foo=baz&foo=bar&name=John+Doe")
     assert hug.input_format.urlencoded(test_data) == {"name": "John Doe", "foo": ["baz", "bar"]}
+    test_data = BytesIO(b"foo=baz,bar&name=John+Doe")
+    assert hug.input_format.urlencoded(test_data) == {"name": "John Doe", "foo": ["baz", "bar"]}
+    test_data = BytesIO(b"foo=baz,&name=John+Doe")
+    assert hug.input_format.urlencoded(test_data) == {"name": "John Doe", "foo": ["baz"]}
 
 
 def test_multipart():
