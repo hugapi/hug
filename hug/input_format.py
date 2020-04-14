@@ -78,6 +78,6 @@ def multipart(body, content_length=0, **header_params):
 
     form = parse_multipart((body.stream if hasattr(body, "stream") else body), header_params)
     for key, value in form.items():
-        if type(value) is list and len(value) is 1:
+        if type(value) is list and len(value) == 1:
             form[key] = value[0]
     return form
