@@ -186,7 +186,7 @@ class Interface(object):
             self.parameters = tuple(route["parameters"])
             self.all_parameters = set(route["parameters"])
             self.required = tuple(
-                [parameter for parameter in self.parameters if parameter not in self.defaults]
+                parameter for parameter in self.parameters if parameter not in self.defaults
             )
 
         if "map_params" in route:
@@ -204,10 +204,8 @@ class Interface(object):
                     self.all_parameters.add(interface_name)
                 if internal_name in self.required:
                     self.required = tuple(
-                        [
-                            interface_name if param == internal_name else param
-                            for param in self.required
-                        ]
+                        interface_name if param == internal_name else param
+                        for param in self.required
                     )
 
             reverse_mapping = {
