@@ -82,6 +82,7 @@ hug provides a large catalog of built-in output formats, which can be used to bu
  - `hug.output_format.html`: Outputs Hyper Text Markup Language (HTML).
  - `hug.output_format.json_camelcase`: Outputs in the JSON format, but first converts all keys to camelCase to better conform to Javascript coding standards.
  - `hug.output_format.pretty_json`: Outputs in the JSON format, with extra whitespace to improve human readability.
+ - `hug.output_format.json_streaming_lines`: Takes an interable or yield statements and streams it as newline-seperated json objects.
  - `hug.output_format.image(format)`: Outputs an image (of the specified format).
     - There are convenience calls in the form `hug.output_format.{FORMAT}_image for the following image types: 'png', 'jpg', 'bmp', 'eps', 'gif', 'im', 'jpeg', 'msp', 'pcx', 'ppm', 'spider', 'tiff', 'webp', 'xbm',
                'cur', 'dcx', 'fli', 'flc', 'gbr', 'gd', 'ico', 'icns', 'imt', 'iptc', 'naa', 'mcidas', 'mpo', 'pcd',
