@@ -368,7 +368,7 @@ def test_json_converter_numpy_types():
     ex_np_int_array = numpy.int_([5, 4, 3])
     ex_np_float = numpy.float(0.5)
 
-    assert 9 is hug.output_format._json_converter(ex_int)
+    assert 9 == hug.output_format._json_converter(ex_int)
     assert [1, 2, 3, 4, 5] == hug.output_format._json_converter(ex_np_array)
     assert [5, 4, 3] == hug.output_format._json_converter(ex_np_int_array)
     assert 0.5 == hug.output_format._json_converter(ex_np_float)
@@ -411,7 +411,7 @@ def test_json_converter_numpy_types():
     for np_type in np_bool_types:
         assert True == hug.output_format._json_converter(np_type(True))
     for np_type in np_int_types:
-        assert 1 is hug.output_format._json_converter(np_type(1))
+        assert 1 == hug.output_format._json_converter(np_type(1))
     for np_type in np_float_types:
         assert 0.5 == hug.output_format._json_converter(np_type(0.5))
     for np_type in np_unicode_types:

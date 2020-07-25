@@ -182,7 +182,7 @@ class Local(Service):
         if content_type in input_format:
             data = input_format[content_type](data, **content_params)
 
-        status_code = int("".join(re.findall("\d+", response.status)))
+        status_code = int("".join(re.findall(r"\d+", response.status)))
         if status_code in self.raise_on:
             raise requests.HTTPError("{0} occured for url: {1}".format(response.status, url))
 
