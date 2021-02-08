@@ -154,7 +154,7 @@ def test_cors_middleware(hug_api):
     assert set(allow.split(",")) == set(["OPTIONS", "GET", "DELETE", "PUT"])
     assert response.headers_dict["access-control-max-age"] == "10"
 
-    assert hug.test.get(hug_api, "/not_there").status_code == 404
+    assert "404" in hug.test.get(hug_api, "/not_there").status
 
     response = hug.test.options(hug_api, "/not_there")
     methods = response.headers_dict["access-control-allow-methods"].replace(" ", "")
@@ -162,4 +162,4 @@ def test_cors_middleware(hug_api):
     assert set(methods.split(",")) == set(["OPTIONS", "GET"])
     assert set(allow.split(",")) == set(["OPTIONS", "GET"])
     assert response.headers_dict["access-control-max-age"] == "10"
-    assert response.status_code == 404
+    assert "404" in response.status
