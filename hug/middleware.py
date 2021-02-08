@@ -24,6 +24,7 @@ import re
 import uuid
 from datetime import datetime
 
+
 class SessionMiddleware(object):
     """Simple session middleware.
 
@@ -187,17 +188,17 @@ class CORSMiddleware(object):
             response.set_header("Access-Control-Allow-Origin", origin)
 
         if request.method == "OPTIONS":  # check if we are handling a preflight request
+            allowed_methods = {"OPTIONS"}
+            # If we cannot match the route of a preflight request, send not_found from the origin.
             route = self.match_route(request.path)
-            # If we cannot route to the preflight request, raise the appropriate error
             if not route:
                 self.api.http.not_found(request, response)
-                return
-            allowed_methods = set(
-                method
-                for _, routes in self.api.http.routes.items()
-                for method, _ in routes[route].items()
-            )
-            allowed_methods.add("OPTIONS")
+            else:
+                allowed_methods.update(set(
+                    method
+                    for _, routes in self.api.http.routes.items()
+                    for method, _ in routes[route].items()
+                ))
 
             # return allowed methods
             response.set_header("Access-Control-Allow-Methods", ", ".join(allowed_methods))
