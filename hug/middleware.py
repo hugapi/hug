@@ -188,7 +188,7 @@ class CORSMiddleware(object):
             response.set_header("Access-Control-Allow-Origin", origin)
 
         if request.method == "OPTIONS":  # check if we are handling a preflight request
-            allowed_methods = {"OPTIONS"}
+            allowed_methods = set(["OPTIONS"])
             # If we cannot match the route of a preflight request, send not_found from the origin.
             route = self.match_route(request.path)
             if not route:
