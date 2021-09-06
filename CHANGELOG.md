@@ -12,6 +12,7 @@ Ideally, within a virtual environment.
 Changelog
 =========
 ### 2.6.1 - February 6, 2020
+- Fixed issue #889: Added support of Python 3.8
 - Fixed issue #834: Bug in some cases when introspecting local documentation.
 
 ### 2.6.0 - August 29, 2019
