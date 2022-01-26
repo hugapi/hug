@@ -181,7 +181,7 @@ class CORSMiddleware(object):
         response.set_header("Access-Control-Allow-Credentials", str(self.allow_credentials).lower())
 
         origin = request.get_header("ORIGIN")
-        if origin and (origin in self.allow_origins) or ("*" in self.allow_origins):
+        if origin and ((origin in self.allow_origins) or ("*" in self.allow_origins)):
             response.set_header("Access-Control-Allow-Origin", origin)
 
         if request.method == "OPTIONS":  # check if we are handling a preflight request
