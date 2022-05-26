@@ -11,6 +11,6 @@ tox==3.12.1
 wheel
 pytest-xdist==1.29.0
 marshmallow==2.18.1
-ujson==1.35
+ujson==5.2.0
 numpy<1.16
 
