@@ -342,7 +342,7 @@ class OneOf(Type):
 
 
 class Mapping(OneOf):
-    """Ensures the value is one of an acceptable set of values mapping those values to a Python equivelent"""
+    """Ensures the value is one of an acceptable set of values mapping those values to a Python equivalent"""
 
     __slots__ = ("value_map",)
 

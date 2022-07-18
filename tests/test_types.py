@@ -83,7 +83,7 @@ def test_greater_than():
 
 
 def test_multiple():
-    """Tests that hug's multile type correctly forces values to come back as lists, but not lists of lists"""
+    """Tests that hug's multiple type correctly forces values to come back as lists, but not lists of lists"""
     assert hug.types.multiple("value") == ["value"]
     assert hug.types.multiple(["value1", "value2"]) == ["value1", "value2"]
 
