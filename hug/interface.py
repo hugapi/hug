@@ -676,10 +676,10 @@ class HTTP(Interface):
     def __init__(self, route, function, catch_exceptions=True):
         super().__init__(route, function)
         self.catch_exceptions = catch_exceptions
-        self.parse_body = "parse_body" in route
+        self.parse_body = route.get("parse_body", True)
         self.set_status = route.get("status", False)
         self.response_headers = tuple(route.get("response_headers", {}).items())
-        self.private = "private" in route
+        self.private = route.get("private", False)
         self.inputs = route.get("inputs", {})
 
         if "on_invalid" in route:
