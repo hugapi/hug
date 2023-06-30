@@ -1586,8 +1586,7 @@ def test_startup(hug_api):
         happened_on_startup.append("non-async")
 
     @hug.startup(api=hug_api)
-    @asyncio.coroutine
-    def async_happens_on_startup(api):
+    async def async_happens_on_startup(api):
         happened_on_startup.append("async")
 
     assert happens_on_startup in hug_api.startup_handlers
