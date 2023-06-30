@@ -3,7 +3,7 @@ flake8==3.5.0
 pytest-cov==2.7.1
 pytest==4.6.3
 python-coveralls==2.9.2
-wheel==0.33.4
+wheel==0.38.1
 PyJWT==1.7.1
 pytest-xdist==1.29.0
 numpy<1.16
