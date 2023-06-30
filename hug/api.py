@@ -631,7 +631,7 @@ class API(object, metaclass=ModuleSingleton):
             if async_handlers:
                 loop = asyncio.get_event_loop()
                 loop.run_until_complete(
-                    asyncio.gather(*[handler(self) for handler in async_handlers], loop=loop)
+                    asyncio.gather(*[handler(self) for handler in async_handlers])
                 )
             for startup_handler in self.startup_handlers:
                 if not startup_handler in async_handlers:
