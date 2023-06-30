@@ -122,7 +122,7 @@ class API(object):
         return http(*args, **kwargs)
 
     def urls(self, *args, **kwargs):
-        """DEPRECATED: for backwords compatibility with < hug 2.2.0. `API.http` should be used instead.
+        """DEPRECATED: for backwards compatibility with < hug 2.2.0. `API.http` should be used instead.
 
            Starts the process of building a new URL HTTP route linked to this API instance
         """
@@ -240,5 +240,5 @@ put_post.__doc__ = "Exposes a Python method externally under both the HTTP POST 
 
 object = Object()
 
-# DEPRECATED: for backwords compatibility with hug 1.x.x
+# DEPRECATED: for backwards compatibility with hug 1.x.x
 call = http

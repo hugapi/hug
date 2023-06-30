@@ -5,7 +5,7 @@ simple as possible, but no simpler.
 
 Hug's Design Objectives:
 
-- Make developing a Python driven API as succint as a written definition.
+- Make developing a Python driven API as succinct as a written definition.
 - The framework should encourage code that self-documents.
 - It should be fast. Never should a developer feel the need to look somewhere else for performance reasons.
 - Writing tests for APIs written on-top of Hug should be easy and intuitive.

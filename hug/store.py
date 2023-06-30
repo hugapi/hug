@@ -1,6 +1,6 @@
 """hug/store.py.
 
-A collecton of native stores which can be used with, among others, the session middleware.
+A collection of native stores which can be used with, among others, the session middleware.
 
 Copyright (C) 2016 Timothy Edmund Crosley
 

@@ -43,11 +43,11 @@ Finally, an output format may be a collection of different output formats that g
     suffix_output = hug.output_format.suffix({'.js': hug.output_format.json,
                                               '.html': hug.output_format.html})
 
-    @hug.get(('my_endpoint.js', 'my_endoint.html'), output=suffix_output)
+    @hug.get(('my_endpoint.js', 'my_endpoint.html'), output=suffix_output)
     def my_endpoint():
         return ''
 
-In this case, if the endpoint is accessed via my_endpoint.js, the output type will be JSON; however if it's accessed via my_endoint.html, the output type will be HTML.
+In this case, if the endpoint is accessed via my_endpoint.js, the output type will be JSON; however if it's accessed via my_endpoint.html, the output type will be HTML.
 
 You can also change the default output format globally for all APIs with either:
 
