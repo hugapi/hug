@@ -932,8 +932,11 @@ class HTTP(Interface):
                 )[::-1]:
                     if isinstance(exception, match_exception_type):
                         for potential_handler in exception_handlers:
-                            if not isinstance(exception, potential_handler.exclude):
-                                handler = potential_handler
+                            if hasattr(potential_handler, "exclude") and isinstance(exception, potential_handler.exclude):
+                                continue
+
+                            handler = potential_handler
+                            break
 
             if not handler:
                 raise exception
