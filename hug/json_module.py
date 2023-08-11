@@ -1,6 +1,6 @@
 import os
 
-HUG_USE_UJSON = bool(os.environ.get("HUG_USE_UJSON", 1))
+HUG_USE_UJSON = os.environ.get("HUG_USE_UJSON", "false").lower() == "true"
 try:  # pragma: no cover
     if HUG_USE_UJSON:
         import ujson as json
