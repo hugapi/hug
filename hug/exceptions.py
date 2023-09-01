@@ -32,6 +32,7 @@ class InvalidTypeData(Exception):
 
 class StoreKeyNotFound(Exception):
     """Should be raised when a store key has not been found inside a store"""
+    pass
 
 
 class SessionNotFound(StoreKeyNotFound):
