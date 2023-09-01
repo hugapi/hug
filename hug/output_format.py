@@ -175,6 +175,16 @@ def json(content, request=None, response=None, ensure_ascii=False, **kwargs):
         content, default=_json_converter, ensure_ascii=ensure_ascii, **kwargs
     ).encode("utf8")
 
+@content_type("application/jsonl; charset=utf-8")
+def json_streaming_lines(data, request=None, response=None,**kwargs):
+    """Stream a json response using the jsonl format, where each unique json-object is
+    seperated by a newline
+    """
+    now = str(datetime.utcnow())
+    response.append_header('Content-Disposition',
+                           (f'attachment; filename="{now}.jsonl"'))
+    response.stream = (json(i,indent=None,**kwargs)+b"\n" for i in data)
+    return
 
 def on_valid(valid_content_type, on_invalid=json):
     """Renders as the specified content type only if no errors are found in the provided data object"""
