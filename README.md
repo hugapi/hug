@@ -1,454 +1,163 @@
-[![HUG](https://raw.github.com/hugapi/hug/develop/artwork/logo.png)](http://hug.rest)
-===================
+# Report for Assignment 1
 
-[![PyPI version](https://badge.fury.io/py/hug.svg)](http://badge.fury.io/py/hug)
-[![Build Status](https://travis-ci.org/hugapi/hug.svg?branch=develop)](https://travis-ci.org/hugapi/hug)
-[![Windows Build Status](https://ci.appveyor.com/api/projects/status/0h7ynsqrbaxs7hfm/branch/master?svg=true)](https://ci.appveyor.com/project/TimothyCrosley/hug)
-[![Coverage Status](https://coveralls.io/repos/hugapi/hug/badge.svg?branch=develop&service=github)](https://coveralls.io/github/hugapi/hug?branch=master)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/hug/)
-[![Join the chat at https://gitter.im/timothycrosley/hug](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/timothycrosley/hug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+## Project chosen
 
-_________________
+Name: Hug by Hug API
 
-[Read Latest Documentation](https://hugapi.github.io/hug/) - [Browse GitHub Code Repository](https://github.com/hugapi/hug)
-_________________
+URL: https://github.com/hugapi/hug/
 
-hug aims to make developing Python driven APIs as simple as possible, but no simpler. As a result, it drastically simplifies Python API development.
+Number of lines of code and the tool used to count it: 10.8 KLOC - Lizzard
 
-hug's Design Objectives:
+Programming language: Python
 
-- Make developing a Python driven API as succinct as a written definition.
-- The framework should encourage code that self-documents.
-- It should be fast. A developer should never feel the need to look somewhere else for performance reasons.
-- Writing tests for APIs written on-top of hug should be easy and intuitive.
-- Magic done once, in an API framework, is better than pushing the problem set to the user of the API framework.
-- Be the basis for next generation Python APIs, embracing the latest technology.
+## Coverage measurement
 
-As a result of these goals, hug is Python 3+ only and built upon [Falcon's](https://github.com/falconry/falcon) high performance HTTP library
+### Existing tool
 
-[![HUG Hello World Example](https://raw.github.com/hugapi/hug/develop/artwork/example.gif)](https://github.com/hugapi/hug/blob/develop/examples/hello_world.py)
+We ran coverage.py ; we tested it within the project root to see what functions needed to be improved and then selected 8 functions to make/enhance tests for.
 
-Supporting hug development
-===================
-[Get professionally supported hug with the Tidelift Subscription](https://tidelift.com/subscription/pkg/pypi-hug?utm_source=pypi-hug&utm_medium=referral&utm_campaign=readme)
+<img src="readme_img/BEFORE_UNITTESTS.png" alt="COVERAGE BEFORE UNITTESTS" width="200">
 
-Professional support for hug is available as part of the [Tidelift
-Subscription](https://tidelift.com/subscription/pkg/pypi-hug?utm_source=pypi-hug&utm_medium=referral&utm_campaign=readme).
-Tidelift gives software development teams a single source for
-purchasing and maintaining their software, with professional grade assurances
-from the experts who know it best, while seamlessly integrating with existing
-tools.
+### Your own coverage tool
 
-Installing hug
-===================
+### Individual tests
 
-Installing hug is as simple as:
+#### Marwan Amrhar,
 
-```bash
-pip3 install hug --upgrade
-```
+---
 
-Ideally, within a [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
+- `Localrouter.__init__`
 
-Getting Started
-===================
+Before:
 
-Build an example API with a simple endpoint in just a few lines.
+<img src="readme_img/before/localrouterinit_before.png" height="80">
 
-```py
-# filename: happy_birthday.py
-"""A basic (single function) API written using hug"""
-import hug
+After:
 
+<img src="readme_img/after/localrouterinit_after.png" height="80">
 
-@hug.get('/happy_birthday')
-def happy_birthday(name, age:hug.types.number=1):
-    """Says happy birthday to a user"""
-    return "Happy {age} Birthday {name}!".format(**locals())
-```
+---
 
-To run, from the command line type:
+- `Localrouter.directives`
 
-```bash
-hug -f happy_birthday.py
-```
+Before:
 
-You can access the example in your browser at:
-`localhost:8000/happy_birthday?name=hug&age=1`. Then check out the
-documentation for your API at `localhost:8000/documentation`
+<img src="readme_img/before/localrouterdirectives_before.png" height="80">
 
-Parameters can also be encoded in the URL (check
-out [`happy_birthday.py`](examples/happy_birthday.py) for the whole
-example).
+After:
 
-```py
-@hug.get('/greet/{event}')
-def greet(event: str):
-    """Greets appropriately (from http://blog.ketchum.com/how-to-write-10-common-holiday-greetings/)  """
-    greetings = "Happy"
-    if event == "Christmas":
-        greetings = "Merry"
-    if event == "Kwanzaa":
-        greetings = "Joyous"
-    if event == "wishes":
-        greetings = "Warm"
+<img src="readme_img/after/localrouterdirectives_after.png" height="80">
 
-    return "{greetings} {event}!".format(**locals())
-```
+- Fixed a bug with the use of a deprecated function (numpy.unicode -> numpy.str\_);
 
-Which, once you are running the server as above, you can use this way:
+#### Sajeed Bouziane,
 
-```
-curl http://localhost:8000/greet/wishes
-"Warm wishes!"
-```
+---
 
-Versioning with hug
-===================
+- `Localrouter.validate`
 
-```py
-# filename: versioning_example.py
-"""A simple example of a hug API call with versioning"""
-import hug
+Before:
 
-@hug.get('/echo', versions=1)
-def echo(text):
-    return text
+<img src="readme_img/before/localroutervalidate_before.png" height="80">
 
+After:
 
-@hug.get('/echo', versions=range(2, 5))
-def echo(text):
-    return "Echo: {text}".format(**locals())
-```
+<img src="readme_img/after/localroutervalidate_after.png" height="80">
 
-To run the example:
+---
 
-```bash
-hug -f versioning_example.py
-```
+- `Localrouter.version`
 
-Then you can access the example from `localhost:8000/v1/echo?text=Hi` / `localhost:8000/v2/echo?text=Hi` Or access the documentation for your API from `localhost:8000`
+Before:
 
-Note: versioning in hug automatically supports both the version header as well as direct URL based specification.
+<img src="readme_img/before/localrouterversion_before.png" height="80">
 
-Testing hug APIs
-===================
+After:
 
-hug's `http` method decorators don't modify your original functions. This makes testing hug APIs as simple as testing any other Python functions. Additionally, this means interacting with your API functions in other Python code is as straight forward as calling Python only API functions. hug makes it easy to test the full Python stack of your API by using the `hug.test` module:
+<img src="readme_img/after/localrouterversion_after.png" height="80">
 
-```python
-import hug
-import happy_birthday
+#### Ayoub Bouazza,
 
-hug.test.get(happy_birthday, 'happy_birthday', {'name': 'Timothy', 'age': 25}) # Returns a Response object
-```
+---
 
-You can use this `Response` object for test assertions (check
-out [`test_happy_birthday.py`](examples/test_happy_birthday.py) ):
+- `Localrouter.__call__`
 
-```python
-def tests_happy_birthday():
-    response = hug.test.get(happy_birthday, 'happy_birthday', {'name': 'Timothy', 'age': 25})
-    assert response.status == HTTP_200
-    assert response.data is not None
-```
+Before:
 
-Running hug with other WSGI based servers
-===================
+<img src="readme_img/before/localroutercall_before.png" height="80">
 
-hug exposes a `__hug_wsgi__` magic method on every API module automatically. Running your hug based API on any standard wsgi server should be as simple as pointing it to `module_name`: `__hug_wsgi__`.
+After:
 
-For Example:
+<img src="readme_img/after/localroutercall_after.png" height="80">
 
-```bash
-uwsgi --http 0.0.0.0:8000 --wsgi-file examples/hello_world.py --callable __hug_wsgi__
-```
+---
 
-To run the hello world hug example API.
+- `Router.__init__`
 
-Building Blocks of a hug API
-===================
+Before:
 
-When building an API using the hug framework you'll use the following concepts:
+<img src="readme_img/before/routerinit_before.png" height="50">
 
-**METHOD Decorators** `get`, `post`, `update`, etc HTTP method decorators that expose your Python function as an API while keeping your Python method unchanged
+After:
 
-```py
-@hug.get() # <- Is the hug METHOD decorator
-def hello_world():
-    return "Hello"
-```
+<img src="readme_img/after/routerinit_after.png" height="50">
 
-hug uses the structure of the function you decorate to automatically generate documentation for users of your API. hug always passes a request, response, and api_version variable to your function if they are defined params in your function definition.
+#### Yahia Noeman,
 
-**Type Annotations** functions that optionally are attached to your methods arguments to specify how the argument is validated and converted into a Python type
+---
 
-```py
-@hug.get()
-def math(number_1:int, number_2:int): #The :int after both arguments is the Type Annotation
-    return number_1 + number_2
-```
+- `API.__init__`
 
-Type annotations also feed into `hug`'s automatic documentation
-generation to let users of your API know what data to supply.
+Before:
 
-**Directives** functions that get executed with the request / response data based on being requested as an argument in your api_function.
-These apply as input parameters only, and can not be applied currently as output formats or transformations.
+<img src="readme_img/before/apiinit_before.png" height="25">
 
-```py
-@hug.get()
-def test_time(hug_timer):
-    return {'time_taken': float(hug_timer)}
-```
+After:
 
-Directives may be accessed via an argument with a `hug_` prefix, or by using Python 3 type annotations. The latter is the more modern approach, and is recommended. Directives declared in a module can be accessed by using their fully qualified name as the type annotation (ex: `module.directive_name`).
+<img src="readme_img/after/apiinit_after.png" height="25">
 
-Aside from the obvious input transformation use case, directives can be used to pipe data into your API functions, even if they are not present in the request query string, POST body, etc. For an example of how to use directives in this way, see the authentication example in the examples folder.
+---
 
-Adding your own directives is straight forward:
+- `ModuleSingleton.__call__`
 
-```py
-@hug.directive()
-def square(value=1, **kwargs):
-    '''Returns passed in parameter multiplied by itself'''
-    return value * value
+Before:
 
-@hug.get()
-@hug.local()
-def tester(value: square=10):
-    return value
+<img src="readme_img/before/modulesingletoncall_before.png" height="40">
 
-tester() == 100
-```
+After:
 
-For completeness, here is an example of accessing the directive via the magic name approach:
+<img src="readme_img/after/modulesingletoncall_after.png" height="40">
 
-```py
-@hug.directive()
-def multiply(value=1, **kwargs):
-    '''Returns passed in parameter multiplied by itself'''
-    return value * value
+### Overall
 
-@hug.get()
-@hug.local()
-def tester(hug_multiply=10):
-    return hug_multiply
+---
 
-tester() == 100
-```
+This is the overall coverage after implementing our unittests:
 
-**Output Formatters** a function that takes the output of your API function and formats it for transport to the user of the API.
+<img src="readme_img/AFTER_UNITTESTS.png" alt="COVERAGE AFTER UNITTESTS" width="200">
 
-```py
-@hug.default_output_format()
-def my_output_formatter(data):
-    return "STRING:{0}".format(data)
+As we can see the coverage of the files api.py, routing.py have been increased, these also contained the functions that we covered.
 
-@hug.get(output=hug.output_format.json)
-def hello():
-    return {'hello': 'world'}
-```
+## Statement of individual contributions
 
-as shown, you can easily change the output format for both an entire API as well as an individual API call
+First we all together did the lizzard count and overall coverage and figured out how to exactly make a unit test and experimented around with Localrouter since we discovered that this was barely/not tested.
 
-**Input Formatters** a function that takes the body of data given from a user of your API and formats it for handling.
+Marwan Amrhar:
 
-```py
-@hug.default_input_format("application/json")
-def my_input_formatter(data):
-    return ('Results', hug.input_format.json(data))
-```
+- Figured out a bug which didn't allow us to run the coverage;
+- Figured out how to make unit tests in localrouter and made 2 unit tests in there.
 
-Input formatters are mapped based on the `content_type` of the request data, and only perform basic parsing. More detailed parsing should be done by the Type Annotations present on your `api_function`
+Sajeed Bouziane
 
-**Middleware** functions that get called for every request a hug API processes
+- Made 2 more unit tests in localrouter after working together with Marwan;
+- Helped set-up the readme file.
 
-```py
-@hug.request_middleware()
-def process_data(request, response):
-    request.env['SERVER_NAME'] = 'changed'
+Ayoub Bouazza:
 
-@hug.response_middleware()
-def process_data(request, response, resource):
-    response.set_header('MyHeader', 'Value')
-```
+- Made a final unit test in localrouter;
+- Made a unit test for the initialization of the Router class.
 
-You can also easily add any Falcon style middleware using:
+Yahia Nouman
 
-```py
-__hug__.http.add_middleware(MiddlewareObject())
-```
-
-**Parameter mapping** can be used to override inferred parameter names, eg. for reserved keywords:
-
-```py
-import marshmallow.fields as fields
-...
-
-@hug.get('/foo', map_params={'from': 'from_date'})  # API call uses 'from'
-def get_foo_by_date(from_date: fields.DateTime()):
-    return find_foo(from_date)
-```
-
-Input formatters are mapped based on the `content_type` of the request data, and only perform basic parsing. More detailed parsing should be done by the Type Annotations present on your `api_function`
-
-Splitting APIs over multiple files
-===================
-
-hug enables you to organize large projects in any manner you see fit. You can import any module that contains hug decorated functions (request handling, directives, type handlers, etc) and extend your base API with that module.
-
-For example:
-
-`something.py`
-
-```py
-import hug
-
-@hug.get('/')
-def say_hi():
-    return 'hello from something'
-```
-
-Can be imported into the main API file:
-
-`__init__.py`
-
-```py
-import hug
-from . import something
-
-@hug.get('/')
-def say_hi():
-    return "Hi from root"
-
-@hug.extend_api('/something')
-def something_api():
-    return [something]
-```
-
-Or alternatively - for cases like this - where only one module is being included per a URL route:
-
-```py
-#alternatively
-hug.API(__name__).extend(something, '/something')
-```
-
-Configuring hug 404
-===================
-
-By default, hug returns an auto generated API spec when a user tries to access an endpoint that isn't defined. If you would not like to return this spec you can turn off 404 documentation:
-
-From the command line application:
-
-```bash
-hug -nd -f {file} #nd flag tells hug not to generate documentation on 404
-```
-
-Additionally, you can easily create a custom 404 handler using the `hug.not_found` decorator:
-
-```py
-@hug.not_found()
-def not_found_handler():
-    return "Not Found"
-```
-
-This decorator works in the same manner as the hug HTTP method decorators, and is even version aware:
-
-```py
-@hug.not_found(versions=1)
-def not_found_handler():
-    return ""
-
-@hug.not_found(versions=2)
-def not_found_handler():
-    return "Not Found"
-```
-
-Asyncio support
-===============
-
-When using the `get` and `cli` method decorator on coroutines, hug will schedule
-the execution of the coroutine.
-
-Using asyncio coroutine decorator
-
-```py
-@hug.get()
-@asyncio.coroutine
-def hello_world():
-    return "Hello"
-```
-
-Using Python 3.5 async keyword.
-
-```py
-@hug.get()
-async def hello_world():
-    return "Hello"
-```
-
-NOTE: Hug is running on top Falcon which is not an asynchronous server. Even if using
-asyncio, requests will still be processed synchronously.
-
-Using Docker
-===================
-
-If you like to develop in Docker and keep your system clean, you can do that but you'll need to first install [Docker Compose](https://docs.docker.com/compose/install/).
-
-Once you've done that, you'll need to `cd` into the `docker` directory and run the web server (Gunicorn) specified in `./docker/gunicorn/Dockerfile`, after which you can preview the output of your API in the browser on your host machine.
-
-```bash
-$ cd ./docker
-# This will run Gunicorn on port 8000 of the Docker container.
-$ docker-compose up gunicorn
-
-# From the host machine, find your Dockers IP address.
-# For Windows & Mac:
-$ docker-machine ip default
-
-# For Linux:
-$ ifconfig docker0 | grep 'inet' | cut -d: -f2 | awk '{ print $1}' | head -n1
-```
-
-By default, the IP is 172.17.0.1. Assuming that's the IP you see, as well, you would then go to `http://172.17.0.1:8000/` in your browser to view your API.
-
-You can also log into a Docker container that you can consider your work space. This workspace has Python and Pip installed so you can use those tools within Docker. If you need to test the CLI interface, for example, you would use this.
-
-```bash
-$ docker-compose run workspace bash
-```
-
-On your Docker `workspace` container, the `./docker/templates` directory on your host computer is mounted to `/src` in the Docker container. This is specified under `services` > `app` of `./docker/docker-compose.yml`.
-
-```bash
-bash-4.3# cd /src
-bash-4.3# tree
-.
-├── __init__.py
-└── handlers
-    ├── birthday.py
-    └── hello.py
-
-1 directory, 3 files
-```
-
-Security contact information
-===================
-
-hug takes security and quality seriously. This focus is why we depend only on thoroughly tested components and utilize static analysis tools (such as bandit and safety) to verify the security of our code base.
-If you find or encounter any potential security issues, please let us know right away so we can resolve them.
-
-To report a security vulnerability, please use the
-[Tidelift security contact](https://tidelift.com/security).
-Tidelift will coordinate the fix and disclosure.
-
-Why hug?
-===================
-
-HUG simply stands for Hopefully Useful Guide. This represents the project's goal to help guide developers into creating well written and intuitive APIs.
-
---------------------------------------------
-
-Thanks and I hope you find *this* hug helpful as you develop your next Python API!
-
-~Timothy Crosley
+- Made a unit tests for the api.py file which covered the initialization of the api
+- Made a unit test for the api.py file which covered singleton module call function.
