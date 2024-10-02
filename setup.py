@@ -78,7 +78,7 @@ with open("README.md", encoding="utf-8") as f:  # Loads in the README for PyPI
 
 setup(
     name="hug",
-    version="2.6.1",
+    version="2.6.2",
     description="A Python framework that makes developing APIs "
     "as simple as possible, but no simpler.",
     long_description=long_description,
@@ -96,7 +96,7 @@ setup(
     entry_points={"console_scripts": ["hug = hug:development_runner.hug.interface.cli"]},
     packages=["hug"],
     requires=["falcon", "requests"],
-    install_requires=["falcon==2.0.0", "requests"],
+    install_requires=["falcon", "requests"],
     tests_require=["pytest", "marshmallow"],
     ext_modules=ext_modules,
     cmdclass=cmdclass,

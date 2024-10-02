@@ -405,7 +405,7 @@ def test_json_converter_numpy_types():
         numpy.single,
         numpy.longfloat,
     ]
-    np_unicode_types = [numpy.unicode_]
+    np_unicode_types = [numpy.str_]
     np_bytes_types = [numpy.bytes_]
 
     for np_type in np_bool_types:
