@@ -96,7 +96,7 @@ setup(
     entry_points={"console_scripts": ["hug = hug:development_runner.hug.interface.cli"]},
     packages=["hug"],
     requires=["falcon", "requests"],
-    install_requires=["falcon==2.0.0", "requests"],
+    install_requires=["falcon==2.0.0", "requests", "packaging"],
     tests_require=["pytest", "marshmallow"],
     ext_modules=ext_modules,
     cmdclass=cmdclass,

@@ -23,7 +23,7 @@ from __future__ import absolute_import
 
 import uuid as native_uuid
 from decimal import Decimal
-from distutils.version import LooseVersion
+from packaging.version import Version
 
 import hug._empty as empty
 from hug import introspect
@@ -36,7 +36,7 @@ try:
     from marshmallow import ValidationError
 
     MARSHMALLOW_MAJOR_VERSION = getattr(
-        marshmallow, "__version_info__", LooseVersion(marshmallow.__version__).version
+        marshmallow, "__version_info__", Version(marshmallow.__version__).release
     )[0]
 except ImportError:
     # Just define the error that is never raised so that Python does not complain.
