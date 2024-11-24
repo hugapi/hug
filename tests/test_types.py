@@ -464,7 +464,7 @@ def test_marshmallow_custom_context():
         name = fields.String()
 
         @validates_schema
-        def check_context(self, data):
+        def check_context(self, data, **kwargs):
             assert self.context == custom_context
             self.context["marshmallow"] += 1
 
