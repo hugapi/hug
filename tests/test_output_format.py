@@ -375,7 +375,7 @@ def test_json_converter_numpy_types():
 
     # Some type names are merely shorthands.
     # The following shorthands for built-in types are excluded: numpy.bool, numpy.int, numpy.float.
-    np_bool_types = [numpy.bool_, numpy.bool8]
+    np_bool_types = [numpy.bool_, numpy.bool_]
     np_int_types = [
         numpy.int_,
         numpy.byte,
@@ -398,14 +398,13 @@ def test_json_converter_numpy_types():
         numpy.ushort,
     ]
     np_float_types = [
-        numpy.float_,
         numpy.float32,
         numpy.float64,
         numpy.half,
         numpy.single,
-        numpy.longfloat,
+        numpy.longdouble,
     ]
-    np_unicode_types = [numpy.unicode_]
+    np_unicode_types = [numpy.str_]
     np_bytes_types = [numpy.bytes_]
 
     for np_type in np_bool_types:
