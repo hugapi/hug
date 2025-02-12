@@ -24,7 +24,7 @@ import pytest
 import hug
 from hug.exceptions import SessionNotFound
 from hug.middleware import CORSMiddleware, LogMiddleware, SessionMiddleware
-from hug.store import InMemoryStore
+from hug.stores.inmemory_store import InMemoryStore
 
 api = hug.API(__name__)
 
@@ -46,7 +46,7 @@ def test_session_middleware():
 
     # Add middleware
     session_store = InMemoryStore()
-    middleware = SessionMiddleware(session_store, cookie_name="test-sid")
+    middleware = SessionMiddleware(session_store, cookie_name="test-sid", max_workers=4)
     __hug__.http.add_middleware(middleware)
 
     # Get cookies from response

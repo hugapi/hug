@@ -22,7 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 import pytest
 
 from hug.exceptions import StoreKeyNotFound
-from hug.store import InMemoryStore
+from hug.stores.inmemory_store import InMemoryStore
 
 stores_to_test = [InMemoryStore()]
 
