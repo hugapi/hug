@@ -874,11 +874,11 @@ def test_middleware():
     """Test to ensure the basic concept of a middleware works as expected"""
 
     @hug.request_middleware()
-    def proccess_data(request, response):
+    def process_data(request, response):
         request.env["SERVER_NAME"] = "Bacon"
 
     @hug.response_middleware()
-    def proccess_data2(request, response, resource):
+    def process_data2(request, response, resource):
         response.set_header("Bacon", "Yumm")
 
     @hug.reqresp_middleware()
@@ -1387,7 +1387,7 @@ def test_static_file_support():
 
     assert "hug" in hug.test.get(api, "/static/README.md").data
     assert "Index" in hug.test.get(api, "/static/tests/data").data
-    assert "404" in hug.test.get(api, "/static/NOT_IN_EXISTANCE.md").status
+    assert "404" in hug.test.get(api, "/static/NOT_IN_EXISTENCE.md").status
 
 
 def test_static_jailed():

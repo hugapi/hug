@@ -83,7 +83,7 @@ class Router(object):
         return self.where(transform=function, **overrides)
 
     def validate(self, validation_function, **overrides):
-        """Sets the secondary validation fucntion to use for this handler"""
+        """Sets the secondary validation function to use for this handler"""
         return self.where(validate=validation_function, **overrides)
 
     def api(self, api, **overrides):
