@@ -146,7 +146,7 @@ class TestLocalRouter(TestInternalValidation):
     route = LocalRouter(name="cli", doc="Hi there!", transform="transform", output="output")
 
     def test_validate(self):
-        """Test to ensure changing wether a local route should validate or not works as expected"""
+        """Test to ensure changing whether a local route should validate or not works as expected"""
         assert "skip_validation" not in self.route.route
 
         route = self.route.validate()
@@ -156,7 +156,7 @@ class TestLocalRouter(TestInternalValidation):
         assert "skip_validation" in route.route
 
     def test_directives(self):
-        """Test to ensure changing wether a local route should supply directives or not works as expected"""
+        """Test to ensure changing whether a local route should supply directives or not works as expected"""
         assert "skip_directives" not in self.route.route
 
         route = self.route.directives()

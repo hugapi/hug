@@ -131,7 +131,7 @@ class HTTP(Service):
 
         if response.status_code in self.raise_on:
             raise requests.HTTPError(
-                "{0} {1} occured for url: {2}".format(response.status_code, response.reason, url)
+                "{0} {1} occurred for url: {2}".format(response.status_code, response.reason, url)
             )
 
         return Response(data, response.status_code, response.headers)
@@ -156,7 +156,7 @@ class Local(Service):
 
         if not function:
             if 404 in self.raise_on:
-                raise requests.HTTPError("404 Not Found occured for url: {0}".format(url))
+                raise requests.HTTPError("404 Not Found occurred for url: {0}".format(url))
             return Response("Not Found", 404, {"content-type", "application/json"})
 
         interface = function.interface.http
@@ -184,7 +184,7 @@ class Local(Service):
 
         status_code = int("".join(re.findall(r"\d+", response.status)))
         if status_code in self.raise_on:
-            raise requests.HTTPError("{0} occured for url: {1}".format(response.status, url))
+            raise requests.HTTPError("{0} occurred for url: {1}".format(response.status, url))
 
         return Response(data, status_code, response._headers)
 
