@@ -142,7 +142,7 @@ if numpy:
     def numpy_listable(item):
         return item.tolist()
 
-    @json_convert(str, numpy.unicode_)
+    @json_convert(str, getattr(numpy, "str_", getattr(numpy, "unicode_", str)))
     def numpy_stringable(item):
         return str(item)
 
