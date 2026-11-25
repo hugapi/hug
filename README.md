@@ -370,16 +370,7 @@ Asyncio support
 When using the `get` and `cli` method decorator on coroutines, hug will schedule
 the execution of the coroutine.
 
-Using asyncio coroutine decorator
-
-```py
-@hug.get()
-@asyncio.coroutine
-def hello_world():
-    return "Hello"
-```
-
-Using Python 3.5 async keyword.
+Using the `async` keyword (the `@asyncio.coroutine` decorator was removed in Python 3.11):
 
 ```py
 @hug.get()
